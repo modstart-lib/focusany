@@ -1,6 +1,6 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
-    "$id": "https://focusany.com/doc/config.json",
+    "$id": "https://focusany.com/sdk/config.schema.json",
     "title": "FocusAny 插件配置文件",
     "description": "FocusAny 插件配置文件，用于描述插件的基本信息，以及插件的入口文件。",
     "type": "object",
