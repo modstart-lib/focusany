@@ -4,7 +4,7 @@
     "appId": "FocusAny",
     "asar": true,
     "npmRebuild": true,
-    "productName": "FocusAnyPro",
+    "productName": "FocusAny",
     "directories": {
         "output": "dist-release",
         "buildResources": "electron/resources/build"

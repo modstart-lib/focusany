@@ -1,5 +1,5 @@
 {
-    "name": "focusany-pro",
+    "name": "focusany",
     "version": "0.1.0-beta",
     "main": "dist-electron/main/index.js",
     "description": "FocusAnyPro",
