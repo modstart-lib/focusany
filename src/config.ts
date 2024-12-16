@@ -1,0 +1,29 @@
+import packageJson from '../package.json';
+import dayjs from "dayjs";
+
+const BASE_URL = 'https://focusany.com';
+
+let version = packageJson.version
+if (version.includes('-beta')) {
+    version = version.replace('-beta', `-beta-${dayjs().format('YYYYMMDD_HHmmss')}`);
+}
+
+export const AppConfig = {
+    name: 'FocusAny',
+    slogan: '专注提效的AI工具条',
+    version: version,
+    website: `${BASE_URL}`,
+    websiteGithub: 'https://github.com/modstart-lib/focusany',
+    websiteGitee: 'https://gitee.com/modstart-lib/focusany',
+    apiBaseUrl: `${BASE_URL}/api`,
+    updaterUrl: `${BASE_URL}/app_manager/updater`,
+    downloadUrl: `${BASE_URL}/app_manager/download`,
+    feedbackUrl: `${BASE_URL}/feedback`,
+    statisticsUrl: `${BASE_URL}/app_manager/collect`,
+    guideUrl: `${BASE_URL}/app_manager/guide`,
+    helpUrl: `${BASE_URL}/app_manager/help`,
+    basic: {
+        userEnable: false,
+    },
+}
+

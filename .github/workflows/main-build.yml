@@ -1,0 +1,130 @@
+name: Build
+
+on:
+    push:
+        branches:
+            - main
+
+jobs:
+  build:
+    runs-on: self-hosted
+    # runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+          include:
+#              - os: ubuntu-latest
+#                arch: [arm64, amd64]
+#              - os: macos-latest
+#                arch: [arm64, amd64]
+              - os: windows-latest
+                arch: [arm64, amd64]
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Build Prepare (macOS)
+        if: runner.os == 'macOS'
+        run: |
+            brew install python-setuptools
+
+      - name: Cert Prepare (macOS)
+        if: runner.os == 'macOS'
+        env:
+            MACOS_CERTIFICATE: ${{ secrets.MACOS_CERTIFICATE }}
+            MACOS_CERTIFICATE_PASSWORD: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
+        run: |
+            echo "find-identity"
+            security find-identity -p codesigning
+            echo "$MACOS_CERTIFICATE" | base64 --decode > certificate.p12
+            security create-keychain -p "" build.keychain
+            security import certificate.p12 -k build.keychain -P "$MACOS_CERTIFICATE_PASSWORD" -T /usr/bin/codesign
+            security list-keychains -s build.keychain
+            security set-keychain-settings -t 3600 -u build.keychain
+            security unlock-keychain -p "" build.keychain
+            echo "find-identity"
+            security find-identity -v -p codesigning build.keychain
+            echo "find-identity"
+            security find-identity -p codesigning
+            echo "set-key-partition-list"
+            security set-key-partition-list -S apple-tool:,apple: -s -k "" -l "FocusAnyKey" -t private build.keychain
+            echo "find-certificate"
+            security find-certificate -a -c "FocusAnyKey" -p
+            echo "export"
+            security export -k build.keychain -t certs -f x509 -p -o certificate.cer
+            echo "add-trusted-cert"
+            sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain certificate.cer
+            echo "find-identity"
+            security find-identity -p codesigning
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Build Release Files
+        run: npm run build
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set Build Name ( Linux / macOS )
+        if: runner.os == 'Linux' || runner.os == 'macOS'
+        run: |
+            DIST_FILE_NAME=${{ runner.os }}-${{ runner.arch }}-v$(date +%Y%m%d_%H%M%S)-${RANDOM}
+            echo ::add-mask::$DIST_FILE_NAME
+            echo DIST_FILE_NAME=$DIST_FILE_NAME >> $GITHUB_ENV
+
+      - name: Set Build Name ( Windows )
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+            $randomNumber = Get-Random -Minimum 10000 -Maximum 99999
+            $DIST_FILE_NAME = "Windows-X64-v$(Get-Date -Format 'yyyyMMdd_HHmmss')-$randomNumber"
+            Write-Host "::add-mask::$DIST_FILE_NAME"
+            echo "DIST_FILE_NAME=$DIST_FILE_NAME" >> $env:GITHUB_ENV
+
+      - name: Upload
+        uses: modstart/github-oss-action@master
+        with:
+            title: ${{ github.event.head_commit.message }}
+            key-id: ${{ secrets.OSS_KEY_ID }}
+            key-secret: ${{ secrets.OSS_KEY_SECRET }}
+            region: ${{ secrets.OSS_REGION }}
+            bucket: ${{ secrets.OSS_BUCKET }}
+            callback: ${{ secrets.OSS_CALLBACK }}
+            assets: |
+                dist-release/*.exe:focusany/focusany-${{ env.DIST_FILE_NAME }}/
+                dist-release/*.dmg:focusany/focusany-${{ env.DIST_FILE_NAME }}/
+                dist-release/*.AppImage:focusany/focusany-${{ env.DIST_FILE_NAME }}/
+                dist-release/*.deb:focusany/focusany-${{ env.DIST_FILE_NAME }}/
+
+#      - name: Upload Artifact Windows
+#        if: runner.os == 'Windows'
+#        uses: actions/upload-artifact@v4
+#        with:
+#            name: windows-artifact
+#            path: |
+#                dist-release/*.exe
+#
+#      - name: Upload Artifact Macos
+#        if: runner.os == 'macOS'
+#        uses: actions/upload-artifact@v4
+#        with:
+#            name: macos-artifact
+#            path: |
+#                dist-release/*.dmg
+#
+#      - name: Upload Artifact Linux
+#        if: runner.os == 'Linux'
+#        uses: actions/upload-artifact@v4
+#        with:
+#            name: linux-artifact
+#            path: |
+#                dist-release/*.AppImage
+#                dist-release/*.deb
+
+

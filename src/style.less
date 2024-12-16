@@ -1,0 +1,223 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root, body {
+    --primary-1: 255, 255, 255;
+    --primary-2: 207, 207, 207;
+    --primary-3: 160, 160, 160;
+    --primary-4: 112, 112, 112;
+    --primary-5: 65, 65, 65;
+    --primary-6: 17, 17, 17;
+    --primary-7: 17, 13, 13;
+    --primary-8: 17, 9, 9;
+    --primary-9: 17, 4, 6;
+    --primary-10: 17, 0, 2;
+
+    --color-primary-light-1: rgb(var(--primary-1));
+    --color-primary-light-2: rgb(var(--primary-2));
+    --color-primary-light-3: rgb(var(--primary-3));
+    --color-primary-light-4: rgb(var(--primary-4));
+
+    --window-header-height: 2.5rem;
+    --page-nav-width: 4rem;
+
+    //--color-primary: #5154E0; // 41	85	254
+    --color-primary: #265BD7;
+    // --color-primary-lighter: #6A6DFF;
+    --color-primary-lighter: lighten(#265BD7, 10%);
+    //--color-bg-page-nav: #2A3A5D;
+    --color-bg-page-nav: #FFFFFF;
+    //--color-bg-page-nav-active: #5154E0;
+    --color-bg-page-nav-active: #FFFFFF;
+    //--color-text-page-nav: #FFFFFF;
+    --color-text-page-nav: #000000;
+    //--color-text-page-nav-active: #EEEEEE;
+    --color-text-page-nav-active: #265BD7;
+    //--color-border-page-nav: #2A3A5D;
+    --color-border-page-nav: #EEEEEE;
+
+    --color-background: #FFFFFF;
+    --color-background-content: #ededed;
+    --color-text: #111111;
+    --color-border: #E5E6EB;
+}
+
+body[data-theme="dark"] {
+    --primary-1: 17, 0, 2;
+    --primary-2: 17, 4, 6;
+    --primary-3: 17, 9, 9;
+    --primary-4: 17, 13, 13;
+    --primary-5: 17, 17, 17;
+    --primary-6: 65, 65, 65;
+    --primary-7: 112, 112, 112;
+    --primary-8: 160, 160, 160;
+    --primary-9: 207, 207, 207;
+    --primary-10: 255, 255, 255;
+
+    --color-background: #17171A;
+    --color-background-content: #333333;
+    --color-text: #CCCCCC;
+    --color-border: #484849;
+    --color-text-page-nav: #CCCCCC;
+    --color-bg-page-nav: #17171A;
+    --color-bg-page-nav-active: #2d3443;
+}
+
+body {
+    overflow: hidden;
+}
+
+html {
+    background-color: transparent;
+}
+
+body {
+    background-color: var(--color-background);
+    font-size: 14px;
+    color: var(--color-text);
+}
+
+/////////// layout start ///////////
+
+.page-container {
+    height: calc(100vh - var(--window-header-height));
+    width: 100vw;
+}
+
+.page-narrow-container {
+    max-width: 100rem;
+    margin: 0 auto;
+}
+
+.page-nav-item {
+    color: var(--color-text-page-nav);
+
+    &.active {
+        background: var(--color-bg-page-nav-active);
+        color: var(--color-text-page-nav-active);
+    }
+}
+
+.window-header {
+    -webkit-user-select: none;
+
+    .window-header-title {
+        -webkit-app-region: drag;
+    }
+}
+
+
+* {
+    &::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: #FFFFFF;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: #999999;
+        border-radius: 10px;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+        background: #888888;
+    }
+}
+
+body[data-theme="dark"] {
+    * {
+        &::-webkit-scrollbar-track {
+            background: #222222;
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background: #333333;
+        }
+
+        &::-webkit-scrollbar-thumb:hover {
+            background: #888888;
+        }
+    }
+}
+
+/////////// layout end ///////////
+
+/////////// global start ///////////
+
+.text-link {
+    color: #007bff;
+    cursor: pointer;
+}
+
+.hover\:text-primary {
+    &:hover {
+        color: var(--color-primary);
+    }
+}
+
+.bg-default {
+    background-color: var(--color-background);
+}
+
+.bg-primary {
+    background-color: var(--color-primary);
+}
+
+.text-default {
+    color: var(--color-text);
+}
+
+.text-primary {
+    color: var(--color-primary);
+}
+
+.border-default {
+    border-color: var(--color-border);
+}
+
+.plugin-logo-filter {
+    filter: drop-shadow(0 0 1px #FFF);
+}
+
+.debug {
+    border: 1px solid red;
+}
+
+/////////// global end ///////////
+
+
+/////////// arco start ///////////
+.arco-btn, .arco-input-wrapper {
+    border-radius: 0.5rem;
+}
+
+.arco-tabs-tab-title {
+    &:before {
+        border-radius: 0.5rem !important;
+    }
+}
+
+.arco-modal-confirm {
+    .arco-modal-header {
+        border-bottom: none;
+    }
+
+    .arco-modal-footer {
+        border-top: none;
+    }
+}
+
+[data-theme="dark"] {
+    .arco-radio-group-button {
+        .arco-radio-button {
+            color: #CCC;
+        }
+    }
+}
+
+/////////// arco end ///////////
+

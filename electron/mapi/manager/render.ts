@@ -1,0 +1,230 @@
+import {ipcRenderer} from "electron";
+import {ActionRecord, ConfigRecord, PluginRecord} from "../../../src/types/Manager";
+
+const getConfig = async () => {
+    return ipcRenderer.invoke('manager:getConfig')
+}
+
+const setConfig = async (config: ConfigRecord) => {
+    return ipcRenderer.invoke('manager:setConfig', config)
+}
+
+const show = async () => {
+    return ipcRenderer.invoke('manager:show')
+}
+
+const hide = async () => {
+    return ipcRenderer.invoke('manager:hide')
+}
+
+const getClipboardFiles = async () => {
+    return ipcRenderer.invoke('manager:getClipboardFiles')
+}
+
+const getSelectedContent = async () => {
+    return ipcRenderer.invoke('manager:getSelectedContent')
+}
+
+const listPlugin = async (option?: {}) => {
+    return ipcRenderer.invoke('manager:listPlugin', option)
+}
+
+const installPlugin = async (fileOrPath: string, option?: {}) => {
+    return ipcRenderer.invoke('manager:installPlugin', fileOrPath, option)
+}
+
+const refreshInstallPlugin = async (pluginName: string, option?: {}) => {
+    return ipcRenderer.invoke('manager:refreshInstallPlugin', pluginName, option)
+}
+
+const uninstallPlugin = async (pluginName: string, option?: {}) => {
+    return ipcRenderer.invoke('manager:uninstallPlugin', pluginName, option)
+}
+
+const getPluginInstalledVersion = async (pluginName: string, option?: {}) => {
+    return ipcRenderer.invoke('manager:getPluginInstalledVersion', pluginName, option)
+}
+
+const listDisabledActionMatch = async (option?: {}) => {
+    return ipcRenderer.invoke('manager:listDisabledActionMatch', option)
+}
+
+const toggleDisabledActionMatch = async (pluginName: string, actionName: string, matchName: string, option?: {}) => {
+    return ipcRenderer.invoke('manager:toggleDisabledActionMatch', pluginName, actionName, matchName, option)
+}
+
+const listPinAction = async (option?: {}) => {
+    return ipcRenderer.invoke('manager:listPinAction', option)
+}
+
+const togglePinAction = async (pluginName: string, actionName: string, option?: {}) => {
+    return ipcRenderer.invoke('manager:togglePinAction', pluginName, actionName, option)
+}
+
+const clearCache = async (option?: {}) => {
+    return ipcRenderer.invoke('manager:clearCache', option)
+}
+
+const hotKeyWatch = async (option?: {}) => {
+    return ipcRenderer.invoke('manager:hotKeyWatch', option)
+}
+
+const hotKeyUnwatch = async (option?: {}) => {
+    return ipcRenderer.invoke('manager:hotKeyUnwatch', option)
+}
+
+const searchFastPanelAction = async (query: {
+    currentFiles: any[],
+    currentImage: string,
+}, option?: {}) => {
+    return ipcRenderer.invoke('manager:searchFastPanelAction', query, option)
+}
+
+const searchAction = async (query: {
+    keywords: string,
+    currentFiles: any[],
+    currentImage: string,
+}, option?: {}) => {
+    return ipcRenderer.invoke('manager:searchAction', query, option)
+}
+
+const subInputChange = (keywords: string, option?: {}) => {
+    return ipcRenderer.invoke('manager:subInputChange', keywords, option)
+}
+
+const openPlugin = async (pluginName: string, option?: {}) => {
+    return ipcRenderer.invoke('manager:openPlugin', pluginName, option)
+}
+
+const openAction = async (action: ActionRecord, option?: {}) => {
+    return ipcRenderer.invoke('manager:openAction', action, option)
+}
+
+const closeMainPlugin = async (plugin?: PluginRecord, option?: {}) => {
+    return ipcRenderer.invoke('manager:closeMainPlugin', plugin, option)
+}
+
+const openMainPluginDevTools = async (plugin?: PluginRecord, option?: {}) => {
+    return ipcRenderer.invoke('manager:openMainPluginDevTools', plugin, option)
+}
+const detachPlugin = async (option?: {}) => {
+    return ipcRenderer.invoke('manager:detachPlugin', option)
+}
+
+const toggleDetachPluginAlwaysOnTop = async (alwaysOnTop: boolean, option?: {}) => {
+    return ipcRenderer.invoke('manager:toggleDetachPluginAlwaysOnTop', alwaysOnTop, option)
+}
+
+const setDetachPluginZoom = async (zoom: number, option?: {}) => {
+    return ipcRenderer.invoke('manager:setDetachPluginZoom', zoom, option)
+}
+
+const closeDetachPlugin = async (option?: {}) => {
+    return ipcRenderer.invoke('manager:closeDetachPlugin')
+}
+
+const openDetachPluginDevTools = async (option?: {}) => {
+    return ipcRenderer.invoke('manager:openDetachPluginDevTools', option)
+}
+
+const setPluginAutoDetach = async (autoDetach: boolean, option?: {}) => {
+    return ipcRenderer.invoke('manager:setPluginAutoDetach', autoDetach, option)
+}
+
+const getPluginConfig = async (pluginName: string, option?: {}) => {
+    return ipcRenderer.invoke('manager:getPluginConfig', pluginName, option)
+}
+
+const listFilePluginRecords = async (option?: {}) => {
+    return ipcRenderer.invoke('manager:listFilePluginRecords', option)
+}
+
+const updateFilePluginRecords = async (records: PluginRecord[], option?: {}) => {
+    return ipcRenderer.invoke('manager:updateFilePluginRecords', records, option)
+}
+
+const listLaunchRecords = async (option?: {}) => {
+    return ipcRenderer.invoke('manager:listLaunchRecords', option)
+}
+
+const updateLaunchRecords = async (records: PluginRecord[], option?: {}) => {
+    return ipcRenderer.invoke('manager:updateLaunchRecords', records, option)
+}
+
+const storeInstall = async (pluginName: string, option?: {}) => {
+    return ipcRenderer.invoke('manager:storeInstall', pluginName, option)
+}
+
+const storePublish = async (pluginName: string, option?: {}) => {
+    return ipcRenderer.invoke('manager:storePublish', pluginName, option)
+}
+
+const storePublishInfo = async (pluginName: string, option?: {}) => {
+    return ipcRenderer.invoke('manager:storePublishInfo', pluginName, option)
+}
+
+const clipboardList = async (option?: {}) => {
+    return ipcRenderer.invoke('manager:clipboardList', option)
+}
+
+const clipboardClear = async (option?: {}) => {
+    return ipcRenderer.invoke('manager:clipboardClear', option)
+}
+
+const clipboardDelete = async (timestamp: number, option?: {}) => {
+    return ipcRenderer.invoke('manager:clipboardDelete', timestamp, option)
+}
+
+export default {
+
+    getConfig,
+    setConfig,
+
+    show,
+    hide,
+
+    getClipboardFiles,
+    getSelectedContent,
+    listPlugin,
+    installPlugin,
+    refreshInstallPlugin,
+    uninstallPlugin,
+    getPluginInstalledVersion,
+    listDisabledActionMatch,
+    toggleDisabledActionMatch,
+    listPinAction,
+    togglePinAction,
+    clearCache,
+    hotKeyWatch,
+    hotKeyUnwatch,
+
+    searchFastPanelAction,
+    searchAction,
+    subInputChange,
+    openPlugin,
+    openAction,
+    closeMainPlugin,
+    openMainPluginDevTools,
+    detachPlugin,
+
+    toggleDetachPluginAlwaysOnTop,
+    setDetachPluginZoom,
+    closeDetachPlugin,
+    openDetachPluginDevTools,
+    setPluginAutoDetach,
+    getPluginConfig,
+
+    listFilePluginRecords,
+    updateFilePluginRecords,
+    listLaunchRecords,
+    updateLaunchRecords,
+
+    storeInstall,
+    storePublish,
+    storePublishInfo,
+
+    clipboardList,
+    clipboardClear,
+    clipboardDelete,
+
+}

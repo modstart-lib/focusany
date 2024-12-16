@@ -1,0 +1,261 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://focusany.com/doc/config.json",
+    "title": "FocusAny 插件配置文件",
+    "description": "FocusAny 插件配置文件，用于描述插件的基本信息，以及插件的入口文件。",
+    "type": "object",
+    "properties": {
+        "name": {
+            "type": "string",
+            "description": "插件名称，此为必选项，且插件应用内不可重复。"
+        },
+        "version": {
+            "type": "string",
+            "description": "插件版本，此为必选项。"
+        },
+        "platform": {
+            "type": "string",
+            "description": "支持的平台，此为选填，留空表示支持所有平台。",
+            "enum": [
+                "win",
+                "osx",
+                "linux"
+            ]
+        },
+        "versionRequire": {
+            "type": "string",
+            "description": "FocusAny 版本要求，如 * 或 >=1.0.0 或 <=1.0.0 或 >1.0.0 或 <1.0.0，此为选填，留空表示不限制 FocusAny 版本。"
+        },
+        "title": {
+            "type": "string",
+            "description": "插件标题，此为必选项。"
+        },
+        "logo": {
+            "type": "string",
+            "description": "插件图标，支持png,jpg,svg格式"
+        },
+        "description": {
+            "type": "string",
+            "description": "插件描述"
+        },
+        "main": {
+            "type": "string",
+            "description": "入口文件，当该配置为空时，表示插件应用为模板插件应用。 main 与 preload 至少存在其一。"
+        },
+        "mainFastPanel": {
+            "type": "string",
+            "description": "快速面板入口文件，当该配置为空时，使用主入口文件。"
+        },
+        "preload": {
+            "type": "string",
+            "description": "这是一个关键文件，你可以在此文件内调用 FocusAny、 nodejs、 electron 提供的 api。 main 与 preload 至少存在其一。"
+        },
+        "author": {
+            "type": "string",
+            "description": "插件作者"
+        },
+        "homepage": {
+            "type": "string",
+            "description": "插件主页"
+        },
+        "actions": {
+            "type": "array",
+            "description": "actions 描述了当 FocusAny 主输入框内容产生变化时，此插件应用是否显示在搜索结果列表中，一个插件应用可以有多个功能，一个功能可以提供多个命令供用户搜索。",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "插件应用提供的某个功能的唯一标示，此为必选项，且插件应用内不可重复。"
+                    },
+                    "title": {
+                        "type": "string",
+                        "description": "对此功能的说明，将在搜索列表对应位置中显示。"
+                    },
+                    "icon": {
+                        "type": "string",
+                        "description": "此功能的图标，支持png,jpg,svg格式。"
+                    },
+                    "type": {
+                        "type": "string",
+                        "description": "此功能的类型",
+                        "enum": [
+                            "command",
+                            "web",
+                            "code",
+                            "backend",
+                            "view"
+                        ]
+                    },
+                    "platform": {
+                        "type": "array",
+                        "description": "支持的平台，此为选填，留空表示支持所有平台。",
+                        "items": {
+                            "type": "string",
+                            "enum": [
+                                "win",
+                                "osx",
+                                "linux"
+                            ]
+                        }
+                    },
+                    "matches": {
+                        "type": "array",
+                        "description": "该功能下可响应的命令集，支持 6 种类型，由 matches 的类型或 matches.type 决定。",
+                        "items": {
+                            "properties": {
+                                "type": {
+                                    "type": "string",
+                                    "description": "类型",
+                                    "enum": [
+                                        "text",
+                                        "key",
+                                        "regex",
+                                        "file",
+                                        "image",
+                                        "window"
+                                    ]
+                                },
+                                "name": {
+                                    "type": "string",
+                                    "description": "匹配名称"
+                                },
+                                "text": {
+                                    "type": "string",
+                                    "description": "匹配文本"
+                                },
+                                "key": {
+                                    "type": "string",
+                                    "description": "匹配键值"
+                                },
+                                "regex": {
+                                    "type": "string",
+                                    "description": "匹配正则"
+                                },
+                                "minLength": {
+                                    "type": "number",
+                                    "description": "最小匹配长度",
+                                    "minimum": 1
+                                },
+                                "maxLength": {
+                                    "type": "number",
+                                    "description": "最大匹配长度",
+                                    "minimum": 1,
+                                    "maximum": 10000
+                                },
+                                "minCount": {
+                                    "type": "number",
+                                    "description": "最小匹配数量",
+                                    "minimum": 1
+                                },
+                                "maxCount": {
+                                    "type": "number",
+                                    "description": "最大匹配数量",
+                                    "minimum": 1,
+                                    "maximum": 10000
+                                },
+                                "filterFileType": {
+                                    "type": "string",
+                                    "description": "文件类型",
+                                    "enum": [
+                                        "file",
+                                        "directory"
+                                    ]
+                                },
+                                "filterExtensions": {
+                                    "type": "array",
+                                    "description": "文件扩展名",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                },
+                                "nameRegex": {
+                                    "type": "string",
+                                    "description": "匹配正则"
+                                },
+                                "titleRegex": {
+                                    "type": "string",
+                                    "description": "匹配正则"
+                                },
+                                "attrRegex": {
+                                    "type": "object",
+                                    "description": "匹配正则"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "development": {
+            "type": "object",
+            "properties": {
+                "env": {
+                    "type": "string",
+                    "description": "开发环境，prod 表示生产环境，dev 表示开发环境，prod 环境会忽略 development 的所有配置。",
+                    "enum": [
+                        "prod",
+                        "dev"
+                    ]
+                },
+                "main": {
+                    "type": "string",
+                    "description": "入口文件，当该配置为空时，表示插件应用为模板插件应用。 main 与 preload 至少存在其一。"
+                },
+                "mainFastPanel": {
+                    "type": "string",
+                    "description": "快速面板入口文件，当该配置为空时，使用主入口文件。"
+                },
+                "releaseDoc": {
+                    "type": "string",
+                    "description": "更新日志文档，参照插件选择根目录，使用 markdown 格式，格式为【## x.x.x 功能特性[换行][换行]更新内容详情】使用 --- 分割多个。"
+                },
+                "contentDoc": {
+                    "type": "string",
+                    "description": "插件内容文档，参照插件选择根目录，使用 markdown 格式。"
+                },
+                "previewDoc": {
+                    "type": "string",
+                    "description": "插件预览文档，参照插件选择根目录，使用 markdown 格式，每行一个图片链接。"
+                }
+            }
+        },
+        "setting": {
+            "type": "object",
+            "properties": {
+                "autoDetach": {
+                    "type": "boolean",
+                    "description": "是否默认分离模式打开"
+                },
+                "height": {
+                    "type": "string",
+                    "description": "窗口高度，支持 数字 或 百分比，设置后窗口大小将默认为分离模式"
+                },
+                "width": {
+                    "type": "string",
+                    "description": "窗口宽度，支持 数字 或 百分比，设置后窗口大小将默认为分离模式"
+                },
+                "keepCodeDevTools": {
+                    "type": "boolean",
+                    "description": "是否在执行完成后保留开发者窗口（便于调试）"
+                },
+                "singleton": {
+                    "type": "boolean",
+                    "description": "是否只允许打开一个窗口"
+                },
+                "zoom": {
+                    "type": "number",
+                    "description": "窗口缩放比例，100表示原始大小"
+                },
+                "preloadBase": {
+                    "type": "string",
+                    "description": "基础预加载文件，普通插件应用不需要设置"
+                },
+                "nodeIntegration": {
+                    "type": "boolean",
+                    "description": "是否启用 nodejs，普通应用不需要设置"
+                }
+            }
+        }
+    }
+}

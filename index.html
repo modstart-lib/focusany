@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <link rel="icon" type="image/svg+xml" href="/logo.svg"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>%name%</title>
+    <link rel="stylesheet" href="./iconfont/iconfont.css"/>
+    <style>
+        body{
+            padding:0;margin:0;
+            background: #FFFFFF;
+        }
+        #app-loading{
+            width:100vw;
+            height:100vh;
+            display: flex;
+        }
+        #app-loading .container{
+            margin:auto;
+            text-align: center;
+            height:100vh;
+            overflow:hidden;
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    <div id="app-loading">
+        <div class="container">
+            <img src="/loading.svg" style="height:60px;width:60px;margin:0 auto;" />
+        </div>
+    </div>
+</div>
+<script type="module" src="/src/main.ts"></script>
+</body>
+</html>
