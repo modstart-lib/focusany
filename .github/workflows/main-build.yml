@@ -7,16 +7,16 @@ on:
 
 jobs:
   build:
-    runs-on: self-hosted
-    # runs-on: ${{ matrix.os }}
+    # runs-on: self-hosted
+    runs-on: ${{ matrix.os }}
 
     strategy:
       matrix:
           include:
 #              - os: ubuntu-latest
 #                arch: [arm64, amd64]
-#              - os: macos-latest
-#                arch: [arm64, amd64]
+              - os: macos-latest
+                arch: [arm64, amd64]
               - os: windows-latest
                 arch: [arm64, amd64]
 
