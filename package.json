@@ -2,7 +2,7 @@
     "name": "focusany",
     "version": "0.1.0-beta",
     "main": "dist-electron/main/index.js",
-    "description": "FocusAnyPro",
+    "description": "FocusAny",
     "author": "ModStartLib",
     "license": "AGPL-3.0",
     "private": true,

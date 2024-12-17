@@ -328,7 +328,7 @@ export const ManagerWindow = {
             trafficLightPosition: {x: 10, y: 11},
             title: view._plugin.title,
             resizable: true,
-            frame: true,
+            frame: false,
             show: false,
             transparent: false,
             enableLargerThanScreen: true,
@@ -367,7 +367,7 @@ export const ManagerWindow = {
         });
         DevToolsManager.register(`DetachWindow.${view._plugin.name}`, win)
         const pluginJson = JSON.parse(JSON.stringify(view._plugin))
-        win.once('ready-to-show', async () => {
+        win.webContents.once('did-finish-load', async () => {
             await executeDarkMode(win, {
                 isSystem: true
             })
