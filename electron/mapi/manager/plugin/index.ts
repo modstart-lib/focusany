@@ -267,10 +267,10 @@ export const ManagerPlugin = {
     },
     async configCheck(config: any) {
         if (!config) {
-            throw `PluginFormatError`
+            throw `PluginFormatError:-1`
         }
         if (!config.name || !config.version) {
-            throw `PluginFormatError`
+            throw `PluginFormatError:-2`
         }
         const existsP = await this.get(config.name)
         if (existsP) {
@@ -292,27 +292,27 @@ export const ManagerPlugin = {
     async parsePackage(file: string, option?: {}) {
         option = Object.assign({}, option)
         if (!file.endsWith('.zip')) {
-            throw `PluginFormatError`
+            throw `PluginFormatError:-3`
         }
         let config = null
         try {
             config = await MiscMain.getZipFileContent(file, 'config.json')
         } catch (e) {
-            throw `PluginFormatError`
+            throw `PluginFormatError:-4`
         }
         if (!config) {
-            throw `PluginFormatError`
+            throw `PluginFormatError:-5`
         }
         try {
             config = JSON.parse(config as string)
         } catch (e) {
-            throw `PluginFormatError`
+            throw `PluginFormatError:-6`
         }
         if (!config) {
-            throw `PluginFormatError`
+            throw `PluginFormatError:-7`
         }
         if (!config.name || !config.version) {
-            throw `PluginFormatError`
+            throw `PluginFormatError:-8`
         }
         const target = await Files.fullPath(`plugin/${config.name}`)
         return {

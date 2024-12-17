@@ -229,8 +229,9 @@ const doInstallStore = async () => {
                     <div class="text-lg leading-6">
                         <span class="font-bold mr-2">{{ recordCurrent.title }}</span>
                         <span class="text-gray-400">v{{ recordCurrent.version }}</span>
-                        <a-tooltip content="本地插件">
-                            <a-tag v-if="recordCurrent.type==='dir'" size="small" color="red" class="ml-2 text-xs">DEV
+                        <a-tooltip :content="'本地插件:'+recordCurrent.runtime?.root">
+                            <a-tag v-if="recordCurrent.type==='dir'" size="small" color="red" class="ml-2 text-xs">
+                                DEV
                             </a-tag>
                         </a-tooltip>
                     </div>

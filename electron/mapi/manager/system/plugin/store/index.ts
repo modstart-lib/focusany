@@ -9,6 +9,7 @@ import {Misc} from "../../../../misc";
 import fs from "node:fs";
 import {resolve} from "node:path";
 import {MarkdownUtil} from "../../../../../lib/util";
+import {map} from "lodash-es";
 
 export const ManagerPluginStore = {
     async install(pluginName: string, option?: {
@@ -87,7 +88,7 @@ export const ManagerPluginStore = {
             isFullPath: true,
         })
         if (!config) {
-            throw 'PluginFormatError'
+            throw 'PluginFormatError:-9'
         }
         let configJson = null
         try {
@@ -95,7 +96,7 @@ export const ManagerPluginStore = {
         } catch (e) {
         }
         if (!configJson) {
-            throw 'PluginFormatError'
+            throw 'PluginFormatError:-10'
         }
         const payload = {
             plugin: pluginName,
@@ -110,6 +111,7 @@ export const ManagerPluginStore = {
         }
         configJson["development"]["releaseDoc"] = configJson["development"]["releaseDoc"] || 'release.md'
         const releaseDocPath = resolve(root, configJson["development"]["releaseDoc"]);
+        console.log('releaseDocPath', releaseDocPath)
         const releaseDoc = await Files.read(releaseDocPath, {
             isFullPath: true,
         })
@@ -137,7 +139,10 @@ export const ManagerPluginStore = {
             }
         }
         if (!payload.feature || !payload.content) {
-            throw 'PluginReleaseDocNotFound'
+            if (!releaseDoc) {
+                throw 'PluginReleaseDocNotFound'
+            }
+            throw 'PluginReleaseDocFormatError'
         }
         const pluginInfo = await this._getPluginInfo(root, configJson)
         const tempFile = await Files.temp('zip')
@@ -181,7 +186,7 @@ export const ManagerPluginStore = {
             isFullPath: true,
         })
         if (!config) {
-            throw 'PluginFormatError'
+            throw 'PluginFormatError:-11'
         }
         let configJson = null
         try {
@@ -189,7 +194,7 @@ export const ManagerPluginStore = {
         } catch (e) {
         }
         if (!configJson) {
-            throw 'PluginFormatError'
+            throw 'PluginFormatError:-12'
         }
         const payload = {
             plugin: pluginName,
