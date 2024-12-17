@@ -56,6 +56,8 @@ export const ManagerPluginStore = {
                     }
                 },
             })
+            // sleep 500
+            await new Promise(resolve => setTimeout(resolve, 500))
             // console.log('ManagerPluginStore.install.downloadEnd');
             // console.log('ManagerPluginStore.install.start');
             await ManagerPlugin.installFromFileOrDir(tempFile, PluginType.STORE)

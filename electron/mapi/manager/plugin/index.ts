@@ -53,9 +53,6 @@ export const ManagerPlugin = {
                 preloadBase = preloadDefault
             }
         }
-        if (preloadBase && !rendererIsUrl(preloadBase)) {
-            preloadBase = `file://${preloadBase}`
-        }
         // preload
         let preload = plugin.preload || null;
         if (preload) {
