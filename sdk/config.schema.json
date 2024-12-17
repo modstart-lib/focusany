@@ -208,15 +208,15 @@
                 },
                 "releaseDoc": {
                     "type": "string",
-                    "description": "更新日志文档，参照插件选择根目录，使用 markdown 格式，格式为【## x.x.x 功能特性[换行][换行]更新内容详情】使用 --- 分割多个。"
+                    "description": "更新日志文档，参照插件选择根目录，默认为 release.md，使用 markdown 格式，格式为【## x.x.x 功能特性[换行][换行]更新内容详情】使用 --- 分割多个。"
                 },
                 "contentDoc": {
                     "type": "string",
-                    "description": "插件内容文档，参照插件选择根目录，使用 markdown 格式。"
+                    "description": "插件内容文档，参照插件选择根目录，默认为 content.md，使用 markdown 格式。"
                 },
                 "previewDoc": {
                     "type": "string",
-                    "description": "插件预览文档，参照插件选择根目录，使用 markdown 格式，每行一个图片链接。"
+                    "description": "插件预览文档，参照插件选择根目录，默认为 preview.md，使用 markdown 格式，每行一个图片链接。"
                 }
             }
         },
