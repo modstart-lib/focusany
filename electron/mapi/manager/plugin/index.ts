@@ -53,6 +53,9 @@ export const ManagerPlugin = {
                 preloadBase = preloadDefault
             }
         }
+        if (preloadBase && !rendererIsUrl(preloadBase)) {
+            preloadBase = `file://${preloadBase}`
+        }
         // preload
         let preload = plugin.preload || null;
         if (preload) {
@@ -86,6 +89,9 @@ export const ManagerPlugin = {
         } else if (mainFastPanel.includes('<root>')) {
             mainFastPanel = mainFastPanel.replace('<root>/', '')
             mainFastPanel = rendererDistPath(mainFastPanel)
+        }
+        if (!rendererIsUrl(mainFastPanel)) {
+            mainFastPanel = `file://${mainFastPanel}`
         }
 
         // auto detach

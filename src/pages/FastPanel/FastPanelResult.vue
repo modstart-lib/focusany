@@ -78,10 +78,10 @@ const queryWeb = () => {
             })
             aa['_web'].addEventListener('dom-ready', async () => {
                 await executePluginHooks(a['_web'], 'PluginReady', readyData)
-                aa['_web'].openDevTools({
-                    mode: 'detach',
-                    activate: false,
-                })
+                // aa['_web'].openDevTools({
+                //     mode: 'detach',
+                //     activate: false,
+                // })
             })
             aa['_web'].addEventListener('ipc-message', (event) => {
                 if ('FocusAny.FastPanel' === event.channel) {

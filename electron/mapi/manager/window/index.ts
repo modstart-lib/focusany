@@ -96,11 +96,7 @@ export const ManagerWindow = {
         view._window = AppRuntime.mainWindow
         remoteMain.enable(view.webContents)
         AppRuntime.mainWindow.addBrowserView(view);
-        if (rendererIsUrl(main)) {
-            view.webContents.loadURL(main).then()
-        } else {
-            view.webContents.loadFile(main).then()
-        }
+        view.webContents.loadURL(main).then()
         DevToolsManager.register(`MainCodeView.${plugin.name}`, view)
         view.webContents.on('preload-error', (event, preloadPath, error) => {
             Log.error('ManagerWindow.openForCode.preload-error', error)
@@ -260,7 +256,7 @@ export const ManagerWindow = {
             }
         });
         view.webContents.on('preload-error', (event, preloadPath, error) => {
-            console.error('MainView.preload-error', error)
+            Log.error('ManagerWindow.open.preload-error', error)
         })
         view.webContents.setWindowOpenHandler(({url}) => {
             if (url.startsWith('https://') || url.startsWith('http://')) {
