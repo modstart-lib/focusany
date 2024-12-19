@@ -33,11 +33,11 @@ if (process.env['ELECTRON_ENV_PROD']) {
 }
 
 process.on('uncaughtException', (error) => {
-    console.error('Uncaught Exception:', error);
+    Log.error('UncaughtException', error);
 });
 
 process.on('unhandledRejection', (reason) => {
-    console.error('Unhandled Rejection:', reason);
+    Log.error('UnhandledRejection', reason);
 });
 
 // Set application name for Windows 10+ notifications
