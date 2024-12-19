@@ -73,7 +73,8 @@ const onDragDropInput = async (files: any[]) => {
                 <div>
                 </div>
                 <div>
-                    <a-button size="small" @click="doAdd">
+                    <a-button v-if="!!records.length"
+                              size="small" @click="doAdd">
                         <template #icon>
                             <icon-plus/>
                         </template>
@@ -81,7 +82,7 @@ const onDragDropInput = async (files: any[]) => {
                     </a-button>
                 </div>
             </div>
-            <div class="pt-4 h-1" style="min-height:calc(100vh - 5rem);">
+            <div class="pt-4">
                 <m-empty v-if="!records.length"/>
                 <div v-for="(r,rIndex) in records" class="border-t border-solid border-gray-200">
                     <div class="flex py-3">
@@ -101,6 +102,14 @@ const onDragDropInput = async (files: any[]) => {
                             </a-button>
                         </div>
                     </div>
+                </div>
+                <div :class="records.length>0?'':'text-center'">
+                    <a-button @click="doAdd">
+                        <template #icon>
+                            <icon-plus/>
+                        </template>
+                        增加一个文件启动
+                    </a-button>
                 </div>
             </div>
         </div>
