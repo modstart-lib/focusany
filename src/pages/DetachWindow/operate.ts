@@ -28,7 +28,9 @@ export const useDetachWindowOperate = ({plugin}) => {
                     await window.$mapi.manager.openDetachPluginDevTools()
                 }
             },
-            {
+        ]
+        if (!(plugin.value.setting && plugin.value.setting.autoDetach)) {
+            menuTemplate.push({
                 label: '自动分离为独立窗口显示',
                 type: 'checkbox',
                 checked: autoDetach,
@@ -36,8 +38,8 @@ export const useDetachWindowOperate = ({plugin}) => {
                     await window.$mapi.manager.setPluginAutoDetach(!autoDetach)
                     plugin.value.runtime.config = await window.$mapi.manager.getPluginConfig(plugin.value.name)
                 }
-            }
-        ]
+            })
+        }
         Menu.buildFromTemplate(menuTemplate).popup();
     }
 

@@ -218,16 +218,6 @@ export const ManagerWindow = {
         view.setAutoResize({width: true, height: true});
         // console.log('ManagerWindow.open', {nodeIntegration, preload, main, width, height, autoDetach})
         view.webContents.once('dom-ready', async () => {
-            const pluginParam = {}
-            const pluginState: PluginState = {
-                value: '',
-                placeholder: '',
-            }
-            await executeHooks(view._window, 'PluginInit', {
-                plugin: view._plugin,
-                state: pluginState,
-                param: pluginParam
-            })
             DevToolsManager.autoShow(view)
         });
         const windowOption = {
@@ -310,6 +300,16 @@ export const ManagerWindow = {
                     y: WindowConfig.mainHeight,
                     width: option.width,
                     height: option.height,
+                })
+                const pluginParam = {}
+                const pluginState: PluginState = {
+                    value: '',
+                    placeholder: '',
+                }
+                await executeHooks(view._window, 'PluginInit', {
+                    plugin: view._plugin,
+                    state: pluginState,
+                    param: pluginParam
                 })
                 resolve(undefined)
             })

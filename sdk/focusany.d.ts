@@ -185,7 +185,17 @@ interface FocusAnyApi {
     }): (string[]) | (undefined)
 
 
-    showSaveDialog(options: any): any;
+    showSaveDialog(options: {
+        title?: string,
+        defaultPath?: string,
+        buttonLabel?: string,
+        filters?: { name: string, extensions: string[] }[],
+        message?: string,
+        nameFieldLabel?: string,
+        showsTagField?: string,
+        properties?: Array<'showHiddenFiles' | 'createDirectory' | 'treatPackageAsDirectory' | 'showOverwriteConfirmation' | 'dontAddToRecent'>,
+        securityScopedBookmarks?: boolean
+    }): (string) | (undefined);
 
     screenCapture(callback: (imgBase64: string) => void): void;
 
