@@ -3,5 +3,8 @@ declare module 'electron' {
         _window?: any;
         _plugin?: any;
     }
+    interface BrowserWindow {
+        _name?: string;
+    }
 }
 

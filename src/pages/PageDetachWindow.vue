@@ -47,7 +47,6 @@ window.__page.onPluginInit((data: {
     plugin: PluginRecord,
     state: PluginState,
     param: {
-        // id: string,
         alwaysOnTop: boolean
     }
 }) => {

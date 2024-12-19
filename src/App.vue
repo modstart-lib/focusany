@@ -19,7 +19,7 @@ import {ref} from "vue";
 import MainSearch from "./pages/Main/MainSearch.vue";
 import MainResult from "./pages/Main/MainResult.vue";
 import {useManagerStore} from "./store/modules/manager";
-import {PluginRecord} from "./types/Manager";
+import {PluginRecord, PluginState} from "./types/Manager";
 import {useLocale} from "./app/locale";
 
 const manager = useManagerStore()
@@ -44,7 +44,6 @@ window.__page.onShow(() => {
 window.__page.onPluginInit((data: {
     plugin: PluginRecord,
     param: {
-        id: string,
         alwaysOnTop: boolean
     }
 }) => {

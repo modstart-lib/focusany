@@ -142,13 +142,6 @@ export const ManagerWindow = {
         })
     },
     async open(plugin: PluginRecord, action: ActionRecord, option?: {}) {
-        let view = mainWindowView
-        if (view) {
-            await this.close(view._plugin)
-            view = null
-        }
-        const size = AppRuntime.mainWindow.getSize()
-        AppRuntime.mainWindow.setSize(size[0], WindowConfig.mainHeight);
         const {
             nodeIntegration,
             preloadBase,
@@ -176,7 +169,7 @@ export const ManagerWindow = {
             windowSession.setPreloads([preloadBase]);
         }
         // console.log('preload', {preloadPluginDefault, preload})
-        view = new BrowserView({
+        const view = new BrowserView({
             webPreferences: {
                 webSecurity: false,
                 nodeIntegration,
@@ -195,18 +188,9 @@ export const ManagerWindow = {
             },
         });
         addBrowserViews(view)
-        // browserViews.push(view)
         view._plugin = plugin
-        view._window = AppRuntime.mainWindow
-        mainWindowView = view
         remoteMain.enable(view.webContents)
-        AppRuntime.mainWindow.addBrowserView(view);
-        if (rendererIsUrl(main)) {
-            view.webContents.loadURL(main).then()
-        } else {
-            view.webContents.loadFile(main).then()
-        }
-        DevToolsManager.register(`MainView.${plugin.name}`, view)
+        DevToolsManager.register(`PluginView.${plugin.name}`, view)
         view.webContents.once('did-finish-load', async () => {
             await executeDarkMode(view, {
                 isSystem: ManagerSystem.match(plugin.name)
@@ -222,39 +206,6 @@ export const ManagerWindow = {
                 view.webContents.setZoomFactor(zoom / 100)
             }, 0)
         })
-        view.webContents.once('dom-ready', async () => {
-            if (autoDetach) {
-                AppRuntime.mainWindow.setSize(size[0], WindowConfig.mainHeight)
-                view.setBounds({
-                    x: 0,
-                    y: WindowConfig.mainHeight,
-                    width: width,
-                    height: height,
-                })
-            } else {
-                AppRuntime.mainWindow.setSize(size[0], WindowConfig.mainHeight + height)
-                view.setBounds({
-                    x: 0,
-                    y: WindowConfig.mainHeight,
-                    width: size[0],
-                    height: height,
-                })
-            }
-            const pluginParam = {}
-            const pluginState: PluginState = {
-                value: '',
-                placeholder: '',
-            }
-            await executeHooks(AppRuntime.mainWindow, 'PluginInit', {
-                plugin: plugin,
-                state: pluginState,
-                param: pluginParam
-            })
-            DevToolsManager.autoShow(view)
-            if (autoDetach) {
-                await this.detach()
-            }
-        });
         view.webContents.on('preload-error', (event, preloadPath, error) => {
             Log.error('ManagerWindow.open.preload-error', error)
         })
@@ -265,13 +216,49 @@ export const ManagerWindow = {
             return {action: 'deny'}
         })
         view.setAutoResize({width: true, height: true});
-        // mainWindowPlugin = plugin;
+        // console.log('ManagerWindow.open', {nodeIntegration, preload, main, width, height, autoDetach})
+        view.webContents.once('dom-ready', async () => {
+            const pluginParam = {}
+            const pluginState: PluginState = {
+                value: '',
+                placeholder: '',
+            }
+            await executeHooks(view._window, 'PluginInit', {
+                plugin: view._plugin,
+                state: pluginState,
+                param: pluginParam
+            })
+            DevToolsManager.autoShow(view)
+        });
+        const windowOption = {
+            width, height,
+            pluginState: {
+                value: '',
+                placeholder: '',
+            }
+        }
+        if (rendererIsUrl(main)) {
+            view.webContents.loadURL(main).then()
+        } else {
+            view.webContents.loadFile(main).then()
+        }
+        if (autoDetach) {
+            await this._showInDetachWindow(view, windowOption)
+        } else {
+            await this._showInMainWindow(view, windowOption)
+        }
         const readyData = {}
         readyData['actionName'] = action.name
         readyData['actionMatch'] = action.runtime?.match
         readyData['requestId'] = action.runtime?.requestId
         // console.log('open.readyData', readyData)
         await executePluginHooks(view, 'PluginReady', readyData)
+        if (autoDetach) {
+            if (!mainWindowView) {
+                // console.log('ManagerWindow.open.autoDetach.hide')
+                AppRuntime.mainWindow.hide()
+            }
+        }
     },
     async subInputChange(win: BrowserWindow, keywords: string) {
         const view = win.getBrowserView()
@@ -301,28 +288,48 @@ export const ManagerWindow = {
             })
         }
     },
-    async detach(option?: {}) {
-        // const bounds = AppRuntime.mainWindow.getBounds()
-        const view: BrowserView = mainWindowView
-        if (!view) {
-            throw 'MainViewNotFound'
+    async _showInMainWindow(view: BrowserView, option: {
+        pluginState: PluginState,
+        width: number,
+        height: number,
+    }) {
+        // console.log('showInMainWindow', view._plugin.name, option)
+        if (mainWindowView) {
+            await this.close(mainWindowView._plugin)
+            mainWindowView = null
         }
-        const bounds = view.getBounds()
-        // console.log('view.bounds', view.getBounds())
-        const viewWidth = bounds.width
-        const viewHeight = bounds.height
-        AppRuntime.mainWindow.removeBrowserView(view);
-        mainWindowView = null
-        const pluginState: PluginState = await executeHooks(AppRuntime.mainWindow, 'PluginState')
+        view._window = AppRuntime.mainWindow
+        AppRuntime.mainWindow.setSize(WindowConfig.mainWidth, WindowConfig.mainHeight);
+        mainWindowView = view
+        AppRuntime.mainWindow.addBrowserView(view);
+        return new Promise((resolve, reject) => {
+            view.webContents.once('dom-ready', async () => {
+                AppRuntime.mainWindow.setSize(option.width, WindowConfig.mainHeight + option.height)
+                view.setBounds({
+                    x: 0,
+                    y: WindowConfig.mainHeight,
+                    width: option.width,
+                    height: option.height,
+                })
+                resolve(undefined)
+            })
+        })
+    },
+    async _showInDetachWindow(view: BrowserView, option: {
+        pluginState: PluginState,
+        width: number,
+        height: number,
+    }) {
+        const plugin = view._plugin
         let alwaysOnTop = false;
         let win = new BrowserWindow({
-            height: viewHeight + WindowConfig.detachWindowTitleHeight,
-            minHeight: viewHeight + WindowConfig.detachWindowTitleHeight,
-            width: viewWidth,
+            height: option.height + WindowConfig.detachWindowTitleHeight,
+            minHeight: option.height + WindowConfig.detachWindowTitleHeight,
+            width: option.width,
             autoHideMenuBar: true,
             titleBarStyle: 'hidden',
             trafficLightPosition: {x: 10, y: 11},
-            title: view._plugin.title,
+            title: plugin.title,
             resizable: true,
             frame: false,
             show: false,
@@ -345,7 +352,7 @@ export const ManagerWindow = {
                 preload: preloadDefault,
             },
         });
-        // console.log('DetachWindow', win._name)
+        win._name = `DetachWindow.${view._plugin.name}`
         view._window = win
         remoteMain.enable(win.webContents)
         win.on('close', () => {
@@ -362,28 +369,6 @@ export const ManagerWindow = {
             view && win.webContents?.focus();
         });
         DevToolsManager.register(`DetachWindow.${view._plugin.name}`, win)
-        const pluginJson = JSON.parse(JSON.stringify(view._plugin))
-        win.webContents.once('did-finish-load', async () => {
-            await executeDarkMode(win, {
-                isSystem: true
-            })
-            view.setAutoResize({width: true, height: true});
-            win.setBrowserView(view);
-            view.setBounds({
-                x: 0,
-                y: WindowConfig.detachWindowTitleHeight,
-                width: viewWidth,
-                height: viewHeight,
-            });
-            DevToolsManager.autoShow(win)
-            const pluginParam = {
-                alwaysOnTop
-            };
-            await executeHooks(win, 'PluginInit', {plugin: pluginJson, state: pluginState, param: pluginParam})
-            await executeHooks(AppRuntime.mainWindow, 'PluginDetached')
-            win.show()
-            AppRuntime.mainWindow.hide()
-        })
         win.on('maximize', () => {
             executeHooks(win, 'Maximize');
             const display = screen.getDisplayMatching(win.getBounds());
@@ -433,8 +418,51 @@ export const ManagerWindow = {
         win.webContents.setWindowOpenHandler(() => {
             return {action: "deny"};
         });
-        rendererLoadPath(win, 'page/detachWindow.html')
-        addDetachWindows(win)
+        const pluginJson = JSON.parse(JSON.stringify(view._plugin))
+        return new Promise((resolve, reject) => {
+            win.webContents.once('did-finish-load', async () => {
+                await executeDarkMode(win, {
+                    isSystem: true
+                })
+                view.setAutoResize({width: true, height: true});
+                win.setBrowserView(view);
+                view.setBounds({
+                    x: 0,
+                    y: WindowConfig.detachWindowTitleHeight,
+                    width: option.width,
+                    height: option.height,
+                });
+                DevToolsManager.autoShow(win)
+                const pluginParam = {
+                    alwaysOnTop
+                };
+                await executeHooks(win, 'PluginInit', {
+                    plugin: pluginJson,
+                    state: option.pluginState,
+                    param: pluginParam
+                })
+                resolve(undefined)
+                win.show()
+            })
+            rendererLoadPath(win, 'page/detachWindow.html')
+            addDetachWindows(win)
+        })
+    },
+    async detach(option?: {}) {
+        if (!mainWindowView) {
+            throw 'MainViewNotFound'
+        }
+        const pluginState: PluginState = await executeHooks(AppRuntime.mainWindow, 'PluginState')
+        AppRuntime.mainWindow.removeBrowserView(mainWindowView);
+        const bounds = mainWindowView.getBounds()
+        await this._showInDetachWindow(mainWindowView, {
+            pluginState,
+            width: bounds.width,
+            height: bounds.height
+        })
+        mainWindowView = null
+        await executeHooks(AppRuntime.mainWindow, 'PluginDetached')
+        AppRuntime.mainWindow.hide()
     },
     async toggleDetachPluginAlwaysOnTop(view: BrowserView, alwaysOnTop: boolean, option?: {}) {
         view._window.setAlwaysOnTop(alwaysOnTop)
