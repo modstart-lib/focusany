@@ -2,6 +2,7 @@
 import {onMounted, ref, toRaw} from "vue";
 import {LaunchRecord} from "../../types/Manager";
 import HotkeyInput from "./components/HotkeyInput.vue";
+import {Dialog} from "../../lib/dialog";
 
 const records = ref<LaunchRecord[]>([])
 
@@ -30,6 +31,15 @@ const doDelete = async (index: number) => {
     await doSave()
 }
 
+const doTest = async (index: number) => {
+    const record = records.value[index]
+    if (!record.keyword) {
+        Dialog.tipError('请输入指令名称')
+        return
+    }
+    focusany.redirect(record.keyword)
+}
+
 const doHotkeyChange = async (index: number, hotkey: any) => {
     records.value[index].hotkey = hotkey
     await doSave()
@@ -53,7 +63,15 @@ const doHotkeyChange = async (index: number, hotkey: any) => {
                         <HotkeyInput :value="r.hotkey" @change="doHotkeyChange(rIndex,$event)"/>
                     </div>
                     <div class="ml-3 flex-grow">
-                        <a-input v-model="r.keyword" @change="doSave()" placeholder="指令名称"/>
+                        <a-input v-model="r.keyword" @change="doSave()" placeholder="指令名称，如 截图"/>
+                    </div>
+                    <div class="ml-2">
+                        <a-button @click="doTest(rIndex)">
+                            <template #icon>
+                                <icon-play-arrow/>
+                            </template>
+                            测试
+                        </a-button>
                     </div>
                     <div class="ml-2">
                         <a-button type="primary" status="danger"
