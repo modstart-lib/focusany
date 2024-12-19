@@ -246,6 +246,7 @@ export const ManagerWindow = {
         if (autoDetach) {
             if (!mainWindowView) {
                 // console.log('ManagerWindow.open.autoDetach.hide')
+                AppRuntime.mainWindow.setSize(WindowConfig.mainWidth, WindowConfig.mainHeight);
                 AppRuntime.mainWindow.hide()
             }
         }
