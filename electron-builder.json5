@@ -41,6 +41,13 @@
                     "win"
                 ]
             }
+        ],
+        "fileAssociations": [
+            {
+                "ext": "fadata",
+                "name": "FocusAny Data File",
+                "role": "Editor"
+            }
         ]
     },
     "nsis": {
@@ -96,6 +103,13 @@
             "NSDownloadsFolderUsageDescription": "Application requests access to the user's Downloads folder.",
             "NSAccessibilityUsageDescription": "Application requests access to the user's Accessibility features.",
         },
+        "fileAssociations": [
+            {
+                "ext": "fadata",
+                "name": "FocusAny Data File",
+                "role": "Editor"
+            }
+        ],
         "type": "development",
         "notarize": false,
         "darkModeSupport": false,
@@ -133,6 +147,13 @@
                     "common",
                     "linux"
                 ]
+            }
+        ],
+        "fileAssociations": [
+            {
+                "ext": "fadata",
+                "name": "FocusAny Data File",
+                "role": "Editor"
             }
         ]
     },

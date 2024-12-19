@@ -24,6 +24,7 @@ import {executeHooks} from "../mapi/manager/lib/hooks";
 import {AppPosition} from "../mapi/app/lib/position";
 import {DevToolsManager} from "../lib/devtools";
 import {AppsMain} from "../mapi/app/main";
+import {ManagerFile} from "../mapi/manager/file";
 
 const isDummyNew = isDummy
 
@@ -140,6 +141,11 @@ async function createWindow() {
     FastPanelMain.init()
 }
 
+app.on('open-file', (event, path) => {
+    event.preventDefault()
+    ManagerFile.openQueue(path)
+})
+
 app.whenReady()
     .then(() => {
         remoteMain.initialize()
@@ -193,4 +199,3 @@ app.on('activate', () => {
         createWindow().then()
     }
 })
-
