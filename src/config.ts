@@ -3,15 +3,10 @@ import dayjs from "dayjs";
 
 const BASE_URL = 'https://focusany.com';
 
-let version = packageJson.version
-if (version.includes('-beta')) {
-    version = version.replace('-beta', `-beta-${dayjs().format('YYYYMMDD_HHmmss')}`);
-}
-
 export const AppConfig = {
     name: 'FocusAny',
     slogan: '专注提效的AI工具条',
-    version: version,
+    version: packageJson.version,
     website: `${BASE_URL}`,
     websiteGithub: 'https://github.com/modstart-lib/focusany',
     websiteGitee: 'https://gitee.com/modstart-lib/focusany',
