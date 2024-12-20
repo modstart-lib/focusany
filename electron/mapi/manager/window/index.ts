@@ -326,7 +326,6 @@ export const ManagerWindow = {
         let alwaysOnTop = false;
         let win = new BrowserWindow({
             height: option.height + WindowConfig.detachWindowTitleHeight,
-            minHeight: option.height + WindowConfig.detachWindowTitleHeight,
             width: option.width,
             autoHideMenuBar: true,
             titleBarStyle: 'hidden',
