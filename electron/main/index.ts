@@ -141,6 +141,21 @@ async function createWindow() {
     FastPanelMain.init()
 }
 
+const handleArgsForOpenFile = (argv: string[]) => {
+    let filePath = null
+    for (let i = 1; i < argv.length; i++) {
+        const arg = argv[i]
+        if (arg.startsWith('--')) {
+            continue
+        }
+        filePath = arg
+        break
+    }
+    if (filePath) {
+        ManagerFile.openQueue(filePath)
+    }
+}
+
 app.on('open-file', (event, path) => {
     event.preventDefault()
     ManagerFile.openQueue(path)
@@ -168,6 +183,7 @@ app.whenReady()
             optimizer.watchWindowShortcuts(window)
         })
         createWindow().then()
+        handleArgsForOpenFile(process.argv)
     })
 
 app.on('will-quit', () => {
@@ -178,7 +194,7 @@ app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') app.quit()
 })
 
-app.on('second-instance', () => {
+app.on('second-instance', (event, argv) => {
     if (AppRuntime.mainWindow) {
         if (AppRuntime.mainWindow.isMinimized()) {
             AppRuntime.mainWindow.restore()
@@ -186,6 +202,7 @@ app.on('second-instance', () => {
         AppRuntime.mainWindow.show()
         AppRuntime.mainWindow.focus()
     }
+    handleArgsForOpenFile(argv)
 })
 
 app.on('activate', () => {
