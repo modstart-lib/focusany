@@ -41,7 +41,6 @@ export type PluginRecord = {
         autoDetach?: boolean,
         width?: string,
         height?: string,
-        keepCodeDevTools?: boolean,
         singleton?: boolean,
         zoom?: number,
         preloadBase?: string,
@@ -51,6 +50,8 @@ export type PluginRecord = {
         env?: 'dev' | 'prod',
         main?: string,
         mainFastPanel?: string,
+        keepCodeDevTools?: boolean,
+        showFastPanelDevTools?: boolean,
     },
 
     type?: PluginType,

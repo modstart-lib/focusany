@@ -165,9 +165,15 @@ ipcMain.handle('manager:searchFastPanelAction', async (event, query: SearchQuery
                 nodeIntegration,
                 preloadBase,
                 mainFastPanel,
+                showFastPanelDevTools: !!(plugin.development && plugin.development.showFastPanelDevTools)
             }
             for (const k of ['preloadBase', 'mainFastPanel']) {
-                if (a.runtime.view[k] && !a.runtime.view[k].startsWith('file://')) {
+                if (a.runtime.view[k]
+                    &&
+                    !a.runtime.view[k].startsWith('file://')
+                    &&
+                    !a.runtime.view[k].startsWith('http://')
+                ) {
                     a.runtime.view[k] = 'file://' + a.runtime.view[k]
                 }
             }

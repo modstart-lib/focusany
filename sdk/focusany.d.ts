@@ -120,6 +120,7 @@ interface FocusAnyApi {
             actionMatchFiles: FileItem[],
             requestId: string,
             reenter: boolean,
+            isFastPanel: boolean,
         }) => void
     ): void;
 

@@ -368,6 +368,14 @@
                 "previewDoc": {
                     "type": "string",
                     "description": "插件预览文档，参照插件选择根目录，默认为 preview.md，使用 markdown 格式，每行一个图片链接。"
+                },
+                "keepCodeDevTools": {
+                    "type": "boolean",
+                    "description": "是否在code执行完成后保留开发者窗口（便于调试）"
+                },
+                "showFastPanelDevTools": {
+                    "type": "boolean",
+                    "description": "是否在view中显示开发者窗口（便于调试）"
                 }
             }
         },
@@ -385,10 +393,6 @@
                 "width": {
                     "type": "string",
                     "description": "窗口宽度，支持 数字 或 百分比，设置后窗口大小将默认为分离模式"
-                },
-                "keepCodeDevTools": {
-                    "type": "boolean",
-                    "description": "是否在执行完成后保留开发者窗口（便于调试）"
                 },
                 "singleton": {
                     "type": "boolean",

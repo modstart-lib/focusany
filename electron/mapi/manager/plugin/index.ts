@@ -216,9 +216,9 @@ export const ManagerPlugin = {
         plugin.author = plugin.author || null
         plugin.homepage = plugin.homepage || null
 
-        plugin.setting = Object.assign({
+        plugin.development = Object.assign({
             keepCodeDevTools: false,
-        }, plugin.setting)
+        }, plugin.development)
 
         plugin.type = option.type
         plugin.env = PluginEnv.PROD

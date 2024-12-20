@@ -65,6 +65,8 @@ const queryWeb = () => {
         readyData['actionMatch'] = a.runtime?.match
         readyData['actionMatchFiles'] = a.runtime?.matchFiles
         readyData['requestId'] = a.runtime?.requestId as any
+        readyData['reenter'] = false
+        readyData['isFastPanel'] = true;
         ((aa) => {
             aa['_web'].addEventListener('did-finish-load', async () => {
                 if (setting.shouldDarkMode()) {
@@ -79,10 +81,12 @@ const queryWeb = () => {
             })
             aa['_web'].addEventListener('dom-ready', async () => {
                 await executePluginHooks(a['_web'], 'PluginReady', readyData)
-                // aa['_web'].openDevTools({
-                //     mode: 'detach',
-                //     activate: false,
-                // })
+                if (aa.runtime?.view?.showFastPanelDevTools) {
+                    aa['_web'].openDevTools({
+                        mode: 'detach',
+                        activate: false,
+                    })
+                }
             })
             aa['_web'].addEventListener('ipc-message', (event) => {
                 if ('FocusAny.FastPanel' === event.channel) {
@@ -92,7 +96,7 @@ const queryWeb = () => {
                             aa['_height'] = data.height
                             break
                         case 'fastPanel.getHeight':
-                            console.log('fastPanel.getHeight', aa['_height'])
+                            // console.log('fastPanel.getHeight', aa['_height'])
                             aa['_web'].send(`FocusAny.FastPanel.${id}`, aa['_height'])
                             break
                     }

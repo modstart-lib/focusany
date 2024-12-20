@@ -1,4 +1,4 @@
-import {ActionRecord, PluginRecord, PluginState, PluginType} from "../../../../src/types/Manager";
+import {ActionRecord, PluginEnv, PluginRecord, PluginState, PluginType} from "../../../../src/types/Manager";
 import {AppEnv, AppRuntime} from "../../env";
 import {preloadDefault, preloadPluginDefault, rendererIsUrl, rendererLoadPath} from "../../../lib/env-main";
 import {WindowConfig} from "../../../config/window";
@@ -130,7 +130,9 @@ export const ManagerWindow = {
                         // console.log('ManagerWindow.openForCode.evalJs.finally')
                         AppRuntime.mainWindow.removeBrowserView(view)
                         removeBrowserViews(view)
-                        if (view._plugin.setting && view._plugin.setting.keepCodeDevTools) {
+                        if (view._plugin.development
+                            && view._plugin.development.env === PluginEnv.DEV
+                            && view._plugin.development.keepCodeDevTools) {
                             // 保留最后调试信息
                         } else {
                             // @ts-ignore
@@ -160,6 +162,7 @@ export const ManagerWindow = {
         readyData['actionMatchFiles'] = action.runtime?.matchFiles
         readyData['requestId'] = action.runtime?.requestId
         readyData['reenter'] = false
+        readyData['isFastPanel'] = false
         if (singleton) {
             for (const v of this.listBrowserViews()) {
                 if (v._plugin.name === plugin.name) {
