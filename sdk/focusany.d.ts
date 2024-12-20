@@ -119,6 +119,7 @@ interface FocusAnyApi {
             actionMatch: ActionMatch | null,
             actionMatchFiles: FileItem[],
             requestId: string,
+            reenter: boolean,
         }) => void
     ): void;
 

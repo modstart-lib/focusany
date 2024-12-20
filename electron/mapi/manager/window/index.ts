@@ -154,12 +154,20 @@ export const ManagerWindow = {
             zoom
         } = ManagerPlugin.getInfo(plugin)
         // console.log('ManagerWindow.open', {nodeIntegration, preload, main, width, height, autoDetach})
+        const readyData = {}
+        readyData['actionName'] = action.name
+        readyData['actionMatch'] = action.runtime?.match
+        readyData['actionMatchFiles'] = action.runtime?.matchFiles
+        readyData['requestId'] = action.runtime?.requestId
+        readyData['reenter'] = false
         if (singleton) {
             for (const v of this.listBrowserViews()) {
                 if (v._plugin.name === plugin.name) {
                     v._window.show()
                     v._window.focus()
                     await executeHooks(AppRuntime.mainWindow, 'PluginAlreadyOpened', {})
+                    readyData['reenter'] = true
+                    await executePluginHooks(v, 'PluginReady', readyData)
                     return
                 }
             }
@@ -237,11 +245,6 @@ export const ManagerWindow = {
         } else {
             await this._showInMainWindow(view, windowOption)
         }
-        const readyData = {}
-        readyData['actionName'] = action.name
-        readyData['actionMatch'] = action.runtime?.match
-        readyData['actionMatchFiles'] = action.runtime?.matchFiles
-        readyData['requestId'] = action.runtime?.requestId
         // console.log('open.readyData', readyData)
         await executePluginHooks(view, 'PluginReady', readyData)
         if (autoDetach) {
