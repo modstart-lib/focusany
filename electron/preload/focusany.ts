@@ -1,6 +1,7 @@
 import os from "os";
 import electronRemote from "@electron/remote";
 import path from "path";
+import fs from "fs";
 import {EncodeUtil, FileUtil, StrUtil, TimeUtil} from "../lib/util";
 import {ipcRenderer, SaveDialogOptions, shell} from 'electron'
 
@@ -110,7 +111,17 @@ export const FocusAny = {
     }): (string[]) | (undefined) {
         return ipcSendSync('showOpenDialog', options);
     },
-    showSaveDialog(options: SaveDialogOptions) {
+    showSaveDialog(options: {
+        title?: string,
+        defaultPath?: string,
+        buttonLabel?: string,
+        filters?: { name: string, extensions: string[] }[],
+        message?: string,
+        nameFieldLabel?: string,
+        showsTagField?: string,
+        properties?: Array<'showHiddenFiles' | 'createDirectory' | 'treatPackageAsDirectory' | 'showOverwriteConfirmation' | 'dontAddToRecent'>,
+        securityScopedBookmarks?: boolean
+    }): (string) | (undefined) {
         return ipcSendSync('showSaveDialog', options);
     },
     setExpendHeight(height: number) {
@@ -395,6 +406,25 @@ export const FocusAny = {
         },
         md5(data: string): string {
             return EncodeUtil.md5(data)
+        },
+        save(filename: string, data: string | Uint8Array, option?: {
+            isBase64?: boolean,
+        }): boolean {
+            const path = FocusAny.showSaveDialog({
+                defaultPath: filename,
+            })
+            if (!path) {
+                return false
+            }
+            if (option?.isBase64) {
+                // remove prefix data:image/svg+xml;base64,
+                if ((data as string).startsWith('data:')) {
+                    data = (data as string).split(',')[1]
+                }
+                data = Buffer.from(data as string, 'base64')
+            }
+            fs.writeFileSync(path, data)
+            return true
         }
     },
 }

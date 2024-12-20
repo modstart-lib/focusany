@@ -72,8 +72,7 @@ export const Manager = {
         }
     },
     async openAction(action: ActionRecord) {
-        const plugin = await Manager.getPlugin(action.fullName.split('/')[0])
-        // console.log('manager:openAction', plugin, action, action.fullName.split('/')[0])
+        const plugin = await Manager.getPlugin(action.pluginName)
         if (!plugin) {
             return
         }
@@ -189,6 +188,7 @@ export const Manager = {
             currentFiles: [],
             currentImage: '',
             currentText: '',
+            activeWindow: this.activeWindow,
         }, query)
         const actions = await this.listAction(request)
         const uniqueRemover = new Set<string>()
@@ -245,7 +245,7 @@ export const Manager = {
     },
     async matchActions(uniqueRemover: Set<string>, actions: ActionRecord[], query: SearchQuery): Promise<ActionRecord[]> {
         let results = []
-        if (!query.keywords && !query.currentImage && !query.currentFiles.length && !query.currentText && !this.activeWindow) {
+        if (!query.keywords && !query.currentImage && !query.currentFiles.length && !query.currentText && !query.activeWindow) {
             return results
         }
         const keywords = query.currentText || query.keywords
@@ -313,7 +313,7 @@ export const Manager = {
                     runtimeSearchTitleMatched = (m as ActionMatchFile).title || a.title
                     runtimeMatch = m
                 } else if (m.type === ActionMatchTypeEnum.WINDOW) {
-                    const activeWindow = this.activeWindow
+                    const activeWindow = query.activeWindow
                     if (!activeWindow) {
                         continue
                     }

@@ -3,6 +3,7 @@ import nodePath from "node:path";
 import {Log} from "../../log/main";
 import {Manager} from "../manager";
 import {SearchQuery} from "../type";
+import {AppsMain} from "../../app/main";
 
 export const ManagerEditor = {
     filePath: null,
@@ -45,6 +46,9 @@ export const ManagerEditor = {
             if (!fileType) {
                 continue
             }
+            if (types.includes(fileType)) {
+                newFiles.push(file)
+            }
         }
         return newFiles
     },
@@ -77,9 +81,15 @@ export const ManagerEditor = {
                 }
                 const actions = await Manager.matchActionSimple({
                     currentFiles: [file],
+                    activeWindow: null,
                 } as SearchQuery)
+                // Log.info('ManagerEditor.openFileEditor.Actions', JSON.stringify(actions, null, 2))
                 if (actions.length > 0) {
-                    Manager.openAction(actions[0]).then()
+                    Manager.openAction(JSON.parse(JSON.stringify(actions[0]))).then()
+                } else {
+                    AppsMain.toast('没有找到可以打开文件的插件', {
+                        status: 'error'
+                    })
                 }
                 resolve(undefined)
             }

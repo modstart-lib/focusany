@@ -155,13 +155,13 @@ const handleArgsForOpenFile = (argv: string[]) => {
         break
     }
     if (filePath) {
-        ManagerEditor.openQueue(filePath)
+        ManagerEditor.openQueue(filePath).then()
     }
 }
 
 app.on('open-file', (event, path) => {
     event.preventDefault()
-    ManagerEditor.openQueue(path)
+    ManagerEditor.openQueue(path).then()
 })
 
 app.whenReady()

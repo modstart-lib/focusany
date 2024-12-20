@@ -290,6 +290,9 @@ interface FocusAnyApi {
         base64Encode(data: any): string;
         base64Decode(data: string): any;
         md5(data: string): string;
+        save(filename: string, data: string | Uint8Array, option?: {
+            isBase64?: boolean,
+        }): boolean;
     };
 }
 

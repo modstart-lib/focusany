@@ -132,6 +132,7 @@ ipcMain.handle('manager:searchFastPanelAction', async (event, query: SearchQuery
         currentFiles: [],
         currentImage: '',
         currentText: '',
+        activeWindow: Manager.activeWindow,
     }, query)
 
     // console.log('manager:searchFastPanelAction', query)
@@ -182,6 +183,7 @@ ipcMain.handle('manager:searchAction', async (event, query: SearchQuery, option?
         currentFiles: [],
         currentImage: '',
         currentText: '',
+        activeWindow: Manager.activeWindow,
     }, query)
     // console.log('manager:searchAction', query)
 

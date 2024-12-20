@@ -1,5 +1,5 @@
 import {BrowserView, BrowserWindow} from "electron";
-import {PluginRecord} from "../../../src/types/Manager";
+import {ActiveWindow, PluginRecord} from "../../../src/types/Manager";
 
 
 export type PluginContext = (BrowserView | {}) & {
@@ -12,4 +12,5 @@ export type SearchQuery = {
     currentFiles?: FileItem[],
     currentImage?: string,
     currentText?: string,
+    activeWindow?: ActiveWindow,
 }
