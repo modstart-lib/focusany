@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import {computed, nextTick, onMounted, ref} from "vue";
 import {
-    ActionMatchBase,
+    ActionMatchBase, ActionMatchEditor,
     ActionMatchKey,
     ActionMatchRegex,
-    ActionMatchText,
+    ActionMatchText, ActionMatchWindow,
     ActionRecord, PluginActionRecord,
     PluginRecord, PluginType
 } from "../../types/Manager";
@@ -221,7 +221,7 @@ const doPin = async (action: ActionRecord) => {
                             <div class="mr-2">{{ a.title }}</div>
                         </div>
                         <div
-                            v-for="m in a.matches.filter(m=>['image','file','regex'].includes((m as ActionMatchBase).type))"
+                            v-for="m in a.matches.filter(m=>['image','file','regex','window','editor'].includes((m as ActionMatchBase).type))"
                             class="mr-1 mb-1 inline-block">
                             <a-dropdown>
                                 <a-button-group>
@@ -245,6 +245,31 @@ const doPin = async (action: ActionRecord) => {
                                               @click.stop="actionMatchDetailDialog?.show(a as any,m as any)"
                                               size="small">
                                         文件
+                                    </a-button>
+                                    <a-button v-else-if="(m as ActionMatchBase).type==='window'"
+                                              :type="m['_disable']?undefined:'primary'"
+                                              @click.stop="actionMatchDetailDialog?.show(a as any,m as any)"
+                                              size="small">
+                                        窗口
+                                        <div class="inline-block max-w-32 overflow-hidden truncate">
+                                            {{(m as ActionMatchWindow).nameRegex}}
+                                            {{(m as ActionMatchWindow).titleRegex}}
+                                            {{(m as ActionMatchWindow).attrRegex}}
+                                        </div>
+                                    </a-button>
+                                    <a-button v-else-if="(m as ActionMatchBase).type==='editor'"
+                                              :type="m['_disable']?undefined:'primary'"
+                                              @click.stop="actionMatchDetailDialog?.show(a as any,m as any)"
+                                              size="small">
+                                        打开文件
+                                        <div class="inline-block max-w-32 overflow-hidden truncate">
+                                        <span v-if="(m as ActionMatchEditor).faDataTypes">
+                                            {{(m as ActionMatchEditor).faDataTypes?.join(',')}}
+                                        </span>
+                                            <span v-if="(m as ActionMatchEditor).extensions">
+                                            {{(m as ActionMatchEditor).extensions.join(',')}}
+                                        </span>
+                                        </div>
                                     </a-button>
                                     <a-button :type="m['_disable']?undefined:'primary'"
                                               size="small">

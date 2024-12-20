@@ -29,6 +29,7 @@ declare type ActionMatch = (
     | ActionMatchFile
     | ActionMatchImage
     | ActionMatchWindow
+    | ActionMatchEditor
     )
 
 declare enum ActionMatchTypeEnum {
@@ -38,6 +39,7 @@ declare enum ActionMatchTypeEnum {
     IMAGE = 'image',
     FILE = 'file',
     WINDOW = 'window',
+    EDITOR = 'editor',
 }
 
 type SearchQuery = {
@@ -90,8 +92,14 @@ declare type ActionMatchImage = ActionMatchBase & {
 }
 
 declare type ActionMatchWindow = ActionMatchBase & {
-    title: string,
+    nameRegex: string,
     titleRegex: string,
+    attrRegex: Record<string, string>,
+}
+
+declare type ActionMatchEditor = ActionMatchBase & {
+    extensions: string[],
+    faDataTypes: string[],
 }
 
 interface PluginAction {

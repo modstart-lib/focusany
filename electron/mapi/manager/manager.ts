@@ -3,9 +3,11 @@ import {
     ActionMatchKey,
     ActionMatchRegex,
     ActionMatchText,
-    ActionMatchTypeEnum, ActionMatchWindow,
+    ActionMatchTypeEnum,
+    ActionMatchWindow,
     ActionRecord,
-    ActionTypeEnum, ActiveWindow,
+    ActionTypeEnum,
+    ActiveWindow,
     PluginRecord,
     SelectedContent
 } from "../../../src/types/Manager";
@@ -21,7 +23,7 @@ import {ManagerCode} from "./code";
 import {ManagerBackend} from "./backend";
 import {ReUtil, StrUtil} from "../../lib/util";
 import {Events} from "../event/main";
-import {AppRuntime} from "../env";
+import {ManagerFile} from "./file";
 
 type SearchRequest = {
     id: string,
@@ -318,6 +320,25 @@ export const Manager = {
                         if (!pass) {
                             continue
                         }
+                    }
+                    searchScoreMax = 1
+                    runtimeSearchTitleMatched = a.title
+                    runtimeMatch = m
+                    break
+                } else if (m.type === ActionMatchTypeEnum.EDITOR) {
+                    let files = query.currentFiles
+                    if (files.length <= 0) {
+                        continue
+                    }
+                    // console.log('file', JSON.stringify({m, files}, null, 2))
+                    if ('extensions' in m) {
+                        files = files.filter(f => f.isFile && (m as ActionMatchEditor).extensions.includes(f.fileExt))
+                    }
+                    if ('faDataTypes' in m) {
+                        files = await ManagerFile.filterFaDataType(files, (m as ActionMatchEditor).faDataTypes)
+                    }
+                    if (files.length <= 0) {
+                        continue
                     }
                     searchScoreMax = 1
                     runtimeSearchTitleMatched = a.title

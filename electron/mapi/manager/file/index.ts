@@ -1,4 +1,5 @@
 import {Files} from "../../file/main";
+import nodePath from "node:path";
 
 export const ManagerFile = {
     filePath: null,
@@ -8,6 +9,41 @@ export const ManagerFile = {
     },
     async ready() {
         this.isReady = true
+    },
+    faDataTypeCache: {},
+    async getFaDataTypeCached(file: string) {
+        if (file in this.faDataTypeCache) {
+            return this.faDataTypeCache[file]
+        }
+        const fileExt = nodePath.extname(file).toLowerCase()
+        if (fileExt !== '.fadata') {
+            return null
+        }
+        try {
+            const result = await Files.read(file, {
+                isFullPath: true
+            })
+            const json = JSON.parse(result)
+            this.faDataTypeCache[file] = json['type']
+            return null
+        } catch (e) {
+            this.faDataTypeCache[file] = null
+        }
+        return null
+    },
+    async filterFaDataType(files: ClipboardFileItem[], types: string[]) {
+        const newFiles = []
+        for (const file of files) {
+            const fileExt = nodePath.extname(file.path).toLowerCase()
+            if (fileExt !== '.fadata') {
+                continue
+            }
+            const fileType = await this.getFaDataTypeCached(file.path)
+            if (!fileType) {
+                continue
+            }
+        }
+        return newFiles
     },
     openQueue(filePath: string) {
         this.filePath = filePath

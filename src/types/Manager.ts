@@ -75,6 +75,7 @@ export type ActionMatch = (
     | ActionMatchFile
     | ActionMatchImage
     | ActionMatchWindow
+    | ActionMatchEditor
     )
 
 export enum ActionMatchTypeEnum {
@@ -84,6 +85,7 @@ export enum ActionMatchTypeEnum {
     IMAGE = 'image',
     FILE = 'file',
     WINDOW = 'window',
+    EDITOR = 'editor',
 }
 
 export type ActionMatchBase = {
@@ -124,6 +126,11 @@ export type ActionMatchWindow = ActionMatchBase & {
     nameRegex: string,
     titleRegex: string,
     attrRegex: Record<string, string>,
+}
+
+export type ActionMatchEditor = ActionMatchBase & {
+    extensions: string[],
+    faDataTypes: string[],
 }
 
 export type SelectedContent = {
@@ -191,7 +198,7 @@ export enum ActionTypeEnum {
     WEB = 'web',
     CODE = 'code',
     BACKEND = 'backend',
-    VIEW = 'view'
+    VIEW = 'view',
 }
 
 

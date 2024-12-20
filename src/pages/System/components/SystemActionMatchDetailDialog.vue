@@ -112,6 +112,37 @@ defineExpose({
                     </div>
                 </div>
             </div>
+            <div v-else-if="match?.type===ActionMatchTypeEnum.WINDOW">
+                <div class="mb-3">
+                    <icon-info-circle/>
+                    当激活窗口标题匹配到以下内容时
+                </div>
+                <div class="bg-gray-100 dark:bg-gray-700 rounded-lg p-3">
+                    <div v-if="'nameRegex' in match">
+                        名称匹配：{{ (match as ActionMatchWindow).nameRegex }}
+                    </div>
+                    <div v-if="'titleRegex' in match">
+                        标题匹配: {{ (match as ActionMatchWindow).titleRegex }}
+                    </div>
+                    <div v-if="'attrRegex' in match">
+                        属性匹配: {{ (match as ActionMatchWindow).attrRegex }}
+                    </div>
+                </div>
+            </div>
+            <div v-else-if="match?.type===ActionMatchTypeEnum.EDITOR">
+                <div class="mb-3">
+                    <icon-info-circle/>
+                    当文件匹配到以下后缀和类型时打开
+                </div>
+                <div class="bg-gray-100 dark:bg-gray-700 rounded-lg p-3">
+                    <div v-if="'extensions' in match">
+                        后缀：{{ (match as ActionMatchEditor).extensions.join(',') }}
+                    </div>
+                    <div v-if="'faDataTypes' in match">
+                        类型：{{ (match as ActionMatchEditor).faDataTypes.join(',') }}
+                    </div>
+                </div>
+            </div>
         </div>
     </a-modal>
 </template>
