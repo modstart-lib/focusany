@@ -102,6 +102,9 @@ export const useSearchOperate = (emit) => {
             if (file.isDirectory) {
                 result.extName = 'ext.folder';
             }
+            if (result.name.endsWith('.fadata')) {
+                result.name = result.name.substring(0, result.name.length - 7);
+            }
             return result;
         }
         // 如果全部是目录

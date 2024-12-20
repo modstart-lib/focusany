@@ -244,6 +244,7 @@ export const Manager = {
             let searchScoreMax = 0
             let runtimeSearchTitleMatched = ''
             let runtimeMatch = null
+            let matchFiles = []
             for (const m of a.matches) {
                 if (m.type === ActionMatchTypeEnum.REGEX) {
                     if (!keywords) {
@@ -289,6 +290,7 @@ export const Manager = {
                     searchScoreMax = 1
                     runtimeSearchTitleMatched = (m as ActionMatchFile).title || a.title
                     runtimeMatch = m
+                    matchFiles = files
                     break
                 } else if (m.type === ActionMatchTypeEnum.IMAGE) {
                     const image = query.currentImage
@@ -343,6 +345,7 @@ export const Manager = {
                     searchScoreMax = 1
                     runtimeSearchTitleMatched = a.title
                     runtimeMatch = m
+                    matchFiles = files
                     break
                 }
             }
@@ -351,6 +354,7 @@ export const Manager = {
                 a.runtime.searchScore = searchScoreMax
                 a.runtime.searchTitleMatched = runtimeSearchTitleMatched
                 a.runtime.match = runtimeMatch
+                a.runtime.matchFiles = matchFiles
                 results.push(a)
                 uniqueRemover.add(a.fullName)
             }

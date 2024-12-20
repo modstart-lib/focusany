@@ -180,7 +180,8 @@ export type ActionRecord = {
         searchTitleMatched?: string,
         match?: ActionMatch | null,
         requestId?: string | null,
-        view?: any
+        view?: any,
+        matchFiles?: FileItem[],
     },
 }
 

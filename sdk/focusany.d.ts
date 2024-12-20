@@ -117,6 +117,7 @@ interface FocusAnyApi {
         callback: (data: {
             actionName: string,
             actionMatch: ActionMatch | null,
+            actionMatchFiles: FileItem[],
             requestId: string,
         }) => void
     ): void;

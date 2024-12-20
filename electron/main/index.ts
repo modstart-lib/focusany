@@ -148,6 +148,9 @@ const handleArgsForOpenFile = (argv: string[]) => {
         if (arg.startsWith('--')) {
             continue
         }
+        if (['.'].includes(arg)) {
+            continue
+        }
         filePath = arg
         break
     }

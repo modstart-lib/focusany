@@ -27,6 +27,7 @@ import unknown from './FileExtAssets/unknown.svg'
 import xls from './FileExtAssets/xls.svg'
 import xlsx from './FileExtAssets/xlsx.svg'
 import zip from './FileExtAssets/zip.svg'
+import fadata from './../../assets/image/logo-file.svg'
 import {computed} from "vue";
 
 const images = {
@@ -57,7 +58,8 @@ const images = {
     unknown,
     xls,
     xlsx,
-    zip
+    zip,
+    fadata
 }
 
 const props = withDefaults(defineProps<{
@@ -87,7 +89,7 @@ const extSrcUrl = computed(() => {
 </script>
 
 <template>
-    <div class="pb-file-ext"
+    <div class="pb-file-ext rounded"
          :style="{width: props.size, height: props.size, backgroundImage:extSrcUrl}">
     </div>
 </template>

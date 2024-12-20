@@ -240,6 +240,7 @@ export const ManagerWindow = {
         const readyData = {}
         readyData['actionName'] = action.name
         readyData['actionMatch'] = action.runtime?.match
+        readyData['actionMatchFiles'] = action.runtime?.matchFiles
         readyData['requestId'] = action.runtime?.requestId
         // console.log('open.readyData', readyData)
         await executePluginHooks(view, 'PluginReady', readyData)

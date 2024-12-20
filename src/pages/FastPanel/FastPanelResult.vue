@@ -63,6 +63,7 @@ const queryWeb = () => {
         const readyData = {}
         readyData['actionName'] = a.name
         readyData['actionMatch'] = a.runtime?.match
+        readyData['actionMatchFiles'] = a.runtime?.matchFiles
         readyData['requestId'] = a.runtime?.requestId as any
         ((aa) => {
             aa['_web'].addEventListener('did-finish-load', async () => {
