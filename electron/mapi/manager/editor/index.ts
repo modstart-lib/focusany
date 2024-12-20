@@ -1,5 +1,8 @@
 import {Files} from "../../file/main";
 import nodePath from "node:path";
+import {Log} from "../../log/main";
+import {Manager} from "../manager";
+import {SearchQuery} from "../type";
 
 export const ManagerEditor = {
     filePath: null,
@@ -45,27 +48,42 @@ export const ManagerEditor = {
         }
         return newFiles
     },
-    openQueue(filePath: string) {
+    async openQueue(filePath: string) {
         this.filePath = filePath
-        this.openFileEditor()
+        await this.openFileEditor()
     },
-    openFileEditor() {
-        console.log('openFileEditor', {
-            filePath: this.filePath,
-            isReady: this.isReady
-        })
-        if (!this.isReady) {
-            setTimeout(() => {
-                this.openFileEditor()
-            }, 100)
-            return
-        }
-        try {
-            console.log('openFileEditor.start')
-            Files.write('openFile.json', JSON.stringify({filePath: this.filePath}))
-            console.log('openFileEditor.end')
-        } catch (e) {
-            console.error('openFileEditor.error', e)
-        }
+    async openFileEditor() {
+        return new Promise<any>(async (resolve) => {
+            const run = async () => {
+                if (!this.isReady) {
+                    setTimeout(run, 100)
+                    return
+                }
+                if (!this.filePath) {
+                    Log.info('ManagerEditor.openFileEditor.Empty', this.filePath)
+                    return
+                }
+                if (!await Files.exists(this.filePath, {isFullPath: true})) {
+                    Log.info('ManagerEditor.openFileEditor.NotFound', this.filePath)
+                    return
+                }
+                const fileExt = nodePath.extname(this.filePath).toLowerCase()
+                const file: FileItem = {
+                    name: nodePath.basename(this.filePath),
+                    isDirectory: false,
+                    isFile: true,
+                    path: this.filePath,
+                    fileExt: fileExt.replace('.', ''),
+                }
+                const actions = await Manager.matchActionSimple({
+                    currentFiles: [file],
+                } as SearchQuery)
+                if (actions.length > 0) {
+                    Manager.openAction(actions[0]).then()
+                }
+                resolve(undefined)
+            }
+            run().then()
+        });
     }
 }

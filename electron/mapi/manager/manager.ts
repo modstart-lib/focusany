@@ -182,6 +182,18 @@ export const Manager = {
         }
         return action
     },
+    async matchActionSimple(query: SearchQuery): Promise<ActionRecord[]> {
+        const request = this.createSearchRequest(query)
+        query = Object.assign({
+            keywords: '',
+            currentFiles: [],
+            currentImage: '',
+            currentText: '',
+        }, query)
+        const actions = await this.listAction(request)
+        const uniqueRemover = new Set<string>()
+        return await this.matchActions(uniqueRemover, actions, query)
+    },
     async searchActions(uniqueRemover: Set<string>, actions: ActionRecord[], query: SearchQuery): Promise<ActionRecord[]> {
         let results = []
         if (!query.keywords) {
