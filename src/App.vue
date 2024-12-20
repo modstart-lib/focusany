@@ -78,10 +78,13 @@ window.__page.onPluginState(() => {
         placeholder: manager.searchSubPlaceholder,
     }
 })
-window.__page.onSetSubInput((param: {
-    placeholder: string,
-    isFocus: boolean,
-}) => {
+window.__page.onSetSubInput((
+    param: {
+        placeholder: string,
+        isFocus: boolean,
+        isVisible: boolean,
+    }
+) => {
     // console.log('main.onSetSubInput', param)
     manager.setSubInput(param);
 })

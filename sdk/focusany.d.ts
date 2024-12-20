@@ -139,7 +139,7 @@ interface FocusAnyApi {
 
     setExpendHeight(height: number): void;
 
-    setSubInput(onChange: (keywords: string) => void, placeholder?: string, isFocus?: boolean): boolean;
+    setSubInput(onChange: (keywords: string) => void, placeholder?: string, isFocus?: boolean, isVisible?: boolean): boolean;
 
     removeSubInput(): boolean;
 

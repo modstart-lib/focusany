@@ -127,14 +127,14 @@ export const FocusAny = {
     setExpendHeight(height: number) {
         ipcSend('setExpendHeight', height);
     },
-
-    setSubInput(onChange: Function, placeholder: string = '', isFocus: boolean = true) {
+    setSubInput(onChange: Function, placeholder: string = '', isFocus: boolean = true, isVisible: boolean = true) {
         if (typeof onChange === 'function') {
             FocusAny.hooks.onSubInputChange = onChange
         }
         ipcSendSync('setSubInput', {
             placeholder,
             isFocus,
+            isVisible,
         });
     },
     removeSubInput() {

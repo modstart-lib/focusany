@@ -115,6 +115,7 @@ export const ManagerPluginEvent = {
         const payload = {
             placeholder: data.placeholder,
             isFocus: data.isFocus,
+            isVisible: data.isVisible,
         };
         if (data.isFocus) {
             win.webContents.focus();

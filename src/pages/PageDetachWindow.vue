@@ -17,6 +17,7 @@ const alwaysOnTop = ref(false)
 const searchInput = ref<any>(null)
 const searchPlaceholder = ref('')
 const searchValue = ref('')
+const searchVisible = ref(false)
 
 const subInputChangeDebounce = debounce((keywords) => {
     window.$mapi.manager.subInputChange(keywords)
@@ -61,9 +62,11 @@ window.__page.onSetSubInput((
     param: {
         placeholder: string,
         isFocus: boolean,
+        isVisible: boolean,
     }
 ) => {
     searchPlaceholder.value = param.placeholder
+    searchVisible.value = param.isVisible
 })
 window.__page.onRemoveSubInput(() => {
     searchPlaceholder.value = ''
@@ -103,7 +106,7 @@ window.__page.onLeaveFullScreen(() => {
                     {{ plugin.title }}
                 </div>
             </div>
-            <div class="search">
+            <div class="search" v-if="searchVisible">
                 <a-input ref="searchInput"
                          size="small"
                          @input="(e) => onSubInputChange(e)"
