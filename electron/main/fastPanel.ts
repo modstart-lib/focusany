@@ -10,6 +10,7 @@ import {BrowserWindow} from "electron";
 import path from "node:path";
 import {executeHooks} from "../mapi/manager/lib/hooks";
 import {DevToolsManager} from "../lib/devtools";
+import ConfigMain from "../mapi/config/main";
 
 export const FastPanelMain = {
     init() {
@@ -59,7 +60,10 @@ export const FastPanelMain = {
             await executeHooks(AppRuntime.fastPanelWindow, 'Hide')
         });
         AppRuntime.fastPanelWindow.on('blur', async () => {
-            AppRuntime.fastPanelWindow.hide()
+            const fastPanelAutoHide = await ConfigMain.getEnv('fastPanelAutoHide', true)
+            if (fastPanelAutoHide) {
+                AppRuntime.fastPanelWindow.hide()
+            }
         })
 
         rendererLoadPath(AppRuntime.fastPanelWindow, 'page/fastPanel.html')

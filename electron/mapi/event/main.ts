@@ -10,7 +10,7 @@ const init = () => {
 
 type NameType = 'main' | 'fastPanel' | string
 type EventType = 'APP_READY' | 'CALL_PAGE' | 'CHANNEL' | 'BROADCAST'
-type BroadcastType = 'ConfigChange' | 'UserChange' | 'DarkModeChange' | 'HotkeyWatch' | 'Notice'
+type BroadcastType = 'ConfigChange' | 'ConfigEnvChange' | 'UserChange' | 'DarkModeChange' | 'HotkeyWatch' | 'Notice'
 
 const broadcast = (type: BroadcastType, data: any, option?: {
     limit?: boolean,
