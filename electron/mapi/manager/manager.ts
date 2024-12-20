@@ -23,7 +23,7 @@ import {ManagerCode} from "./code";
 import {ManagerBackend} from "./backend";
 import {ReUtil, StrUtil} from "../../lib/util";
 import {Events} from "../event/main";
-import {ManagerFile} from "./file";
+import {ManagerEditor} from "./editor";
 
 type SearchRequest = {
     id: string,
@@ -337,7 +337,7 @@ export const Manager = {
                         files = files.filter(f => f.isFile && (m as ActionMatchEditor).extensions.includes(f.fileExt))
                     }
                     if ('faDataTypes' in m) {
-                        files = await ManagerFile.filterFaDataType(files, (m as ActionMatchEditor).faDataTypes)
+                        files = await ManagerEditor.filterFaDataType(files, (m as ActionMatchEditor).faDataTypes)
                     }
                     if (files.length <= 0) {
                         continue

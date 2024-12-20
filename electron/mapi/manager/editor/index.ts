@@ -1,7 +1,7 @@
 import {Files} from "../../file/main";
 import nodePath from "node:path";
 
-export const ManagerFile = {
+export const ManagerEditor = {
     filePath: null,
     isReady: false,
     async init() {

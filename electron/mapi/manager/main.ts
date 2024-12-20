@@ -17,11 +17,11 @@ import {Permissions} from "../../lib/permission";
 import {Page} from "../../page";
 import {ManagerAutomation} from "./automation";
 import {ManagerBackend} from "./backend";
-import {ManagerFile} from "./file";
+import {ManagerEditor} from "./editor";
 
 const init = () => {
     ManagerClipboard.init().then()
-    ManagerFile.init().then()
+    ManagerEditor.init().then()
 }
 
 const ready = () => {
@@ -39,7 +39,7 @@ const ready = () => {
             Page.open('setup').then()
         }
     })
-    ManagerFile.ready().then()
+    ManagerEditor.ready().then()
 }
 
 const destroy = () => {
