@@ -44,12 +44,12 @@ declare enum ActionMatchTypeEnum {
 
 type SearchQuery = {
     keywords: string,
-    currentFiles?: ClipboardFileItem[],
+    currentFiles?: FileItem[],
     currentImage?: string,
     currentText?: string,
 }
 
-type ClipboardFileItem = {
+type FileItem = {
     name: string,
     isDirectory: boolean,
     isFile: boolean,
@@ -225,7 +225,7 @@ interface FocusAnyApi {
 
     getClipboardImage(): string;
 
-    getClipboardFiles(): ClipboardFileItem[];
+    getClipboardFiles(): FileItem[];
 
     shellOpenPath(fullPath: string): void;
 

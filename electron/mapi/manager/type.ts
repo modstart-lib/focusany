@@ -9,7 +9,7 @@ export type PluginContext = (BrowserView | {}) & {
 
 export type SearchQuery = {
     keywords: string,
-    currentFiles?: ClipboardFileItem[],
+    currentFiles?: FileItem[],
     currentImage?: string,
     currentText?: string,
 }

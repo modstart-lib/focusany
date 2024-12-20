@@ -31,7 +31,7 @@ export const ManagerFile = {
         }
         return null
     },
-    async filterFaDataType(files: ClipboardFileItem[], types: string[]) {
+    async filterFaDataType(files: FileItem[], types: string[]) {
         const newFiles = []
         for (const file of files) {
             const fileExt = nodePath.extname(file.path).toLowerCase()

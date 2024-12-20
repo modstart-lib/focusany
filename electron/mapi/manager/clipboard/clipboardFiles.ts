@@ -6,7 +6,7 @@ import ofs from 'original-fs';
 import {isLinux, isMac, isWin} from "../../../lib/env";
 import electronClipboardEx from 'electron-clipboard-ex';
 
-export const getClipboardFiles = (): ClipboardFileItem[] => {
+export const getClipboardFiles = (): FileItem[] => {
     let fileInfo: any;
     if (isMac) {
         if (!clipboard.has('NSFilenamesPboardType')) {

@@ -31,7 +31,7 @@ export const EntryListener = {
         // 文件
         manager.setCurrentFiles([])
         if (selectedContent && selectedContent.type === 'file' && selectedContent.files?.length > 0) {
-            manager.setCurrentFiles(selectedContent.files as ClipboardFileItem[])
+            manager.setCurrentFiles(selectedContent.files as FileItem[])
         } else {
             files = await window.$mapi.manager.getClipboardFiles()
             const filesJson = JSON.stringify(files);
@@ -40,10 +40,10 @@ export const EntryListener = {
                 clipboardState.filesInit = true
             } else if (clipboardState.filesLastJson !== filesJson) {
                 clipboardState.filesLastJson = filesJson
-                manager.setCurrentFiles(files as ClipboardFileItem[])
+                manager.setCurrentFiles(files as FileItem[])
             } else if (option.isPaste) {
                 clipboardState.filesLastJson = filesJson
-                manager.setCurrentFiles(files as ClipboardFileItem[])
+                manager.setCurrentFiles(files as FileItem[])
             }
         }
 

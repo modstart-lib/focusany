@@ -42,7 +42,7 @@ export const managerStore = defineStore("manager", {
         selectedAction: null as ActionRecord | null,
         activePlugin: null as PluginRecord | null,
 
-        currentFiles: [] as ClipboardFileItem[],
+        currentFiles: [] as FileItem[],
         currentImage: '',
         currentText: '',
 
@@ -90,7 +90,7 @@ export const managerStore = defineStore("manager", {
         setSelectedAction(action: ActionRecord) {
             this.selectedAction = action
         },
-        setCurrentFiles(files: ClipboardFileItem[]) {
+        setCurrentFiles(files: FileItem[]) {
             this.currentFiles = files
         },
         setCurrentImage(image: string) {

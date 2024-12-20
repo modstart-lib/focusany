@@ -135,7 +135,7 @@ export type ActionMatchEditor = ActionMatchBase & {
 
 export type SelectedContent = {
     type: 'file' | 'image' | 'text',
-    files?: ClipboardFileItem[],
+    files?: FileItem[],
     image?: string,
     text?: string
 }
@@ -148,7 +148,7 @@ export type ActiveWindow = {
 
 export type ClipboardDataType = {
     type: 'file' | 'image' | 'text',
-    files?: ClipboardFileItem[],
+    files?: FileItem[],
     image?: string,
     text?: string
 }
@@ -156,7 +156,7 @@ export type ClipboardDataType = {
 export type ClipboardHistoryRecord = {
     type: 'file' | 'image' | 'text',
     timestamp: number,
-    files?: ClipboardFileItem[],
+    files?: FileItem[],
     image?: string,
     text?: string,
 }
