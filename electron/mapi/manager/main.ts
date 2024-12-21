@@ -1,5 +1,12 @@
 import {BrowserWindow, ipcMain} from "electron";
-import {ActionRecord, ActionTypeEnum, FilePluginRecord, LaunchRecord, PluginRecord} from "../../../src/types/Manager";
+import {
+    ActionRecord,
+    ActionTypeEnum,
+    FilePluginRecord,
+    LaunchRecord,
+    PluginEnv,
+    PluginRecord
+} from "../../../src/types/Manager";
 import {ManagerPlugin} from "./plugin";
 import {ManagerWindow} from "./window";
 import {ManagerPluginEvent} from "./plugin/event";
@@ -168,7 +175,7 @@ ipcMain.handle('manager:searchFastPanelAction', async (event, query: SearchQuery
                 showFastPanelDevTools: false,
                 heightFastPanel: 100,
             }
-            if (plugin.development && plugin.development.showFastPanelDevTools) {
+            if (plugin.development && plugin.development === PluginEnv.DEV && plugin.development.showFastPanelDevTools) {
                 a.runtime.view.showFastPanelDevTools = true
             }
             if (plugin.setting && plugin.setting.heightFastPanel) {
