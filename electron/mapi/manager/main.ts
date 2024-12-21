@@ -165,7 +165,14 @@ ipcMain.handle('manager:searchFastPanelAction', async (event, query: SearchQuery
                 nodeIntegration,
                 preloadBase,
                 mainFastPanel,
-                showFastPanelDevTools: !!(plugin.development && plugin.development.showFastPanelDevTools)
+                showFastPanelDevTools: false,
+                heightFastPanel: 100,
+            }
+            if (plugin.development && plugin.development.showFastPanelDevTools) {
+                a.runtime.view.showFastPanelDevTools = true
+            }
+            if (plugin.setting && plugin.setting.heightFastPanel) {
+                a.runtime.view.heightFastPanel = plugin.setting.heightFastPanel
             }
             for (const k of ['preloadBase', 'mainFastPanel']) {
                 if (a.runtime.view[k]

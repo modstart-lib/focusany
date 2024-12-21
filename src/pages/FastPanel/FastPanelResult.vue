@@ -29,7 +29,7 @@ const actions = computed(() => {
         if (a.type === ActionTypeEnum.VIEW) {
             a['_web'] = null
             a['_webInit'] = false
-            a['_height'] = 200
+            a['_height'] = a.runtime?.view?.heightFastPanel || 100
         }
         return a
     })

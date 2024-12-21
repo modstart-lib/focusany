@@ -114,9 +114,9 @@ export const ManagerPlugin = {
             }
         }
         // singleton
-        let singleton = false
-        if (plugin.setting && plugin.setting.singleton) {
-            singleton = true
+        let singleton = true
+        if (plugin.setting && ('singleton' in plugin.setting)) {
+            singleton = false
         }
         // zoom
         let zoom = 100

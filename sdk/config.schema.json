@@ -394,9 +394,13 @@
                     "type": "string",
                     "description": "窗口宽度，支持 数字 或 百分比，设置后窗口大小将默认为分离模式"
                 },
+                "heightFastPanel": {
+                    "type": "string",
+                    "description": "快速面板高度，单位为像素，默认为 100"
+                },
                 "singleton": {
                     "type": "boolean",
-                    "description": "是否只允许打开一个窗口"
+                    "description": "是否只允许打开一个窗口，默认为 true"
                 },
                 "zoom": {
                     "type": "number",
