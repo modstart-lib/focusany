@@ -220,7 +220,7 @@ interface FocusAnyApi {
 
     copyFile(file: string | string[]): boolean;
 
-    copyImage(img: string): boolean;
+    copyImage(image: string): boolean;
 
     copyText(text: string): boolean;
 
@@ -238,7 +238,7 @@ interface FocusAnyApi {
 
     shellBeep(): void;
 
-    simulateKeyboardTap(key: string, ...modifier: ('control' | 'ctrl' | 'shift' | 'option' | 'alt' | 'command' | 'super')[]): void;
+    simulateKeyboardTap(key: string, modifiers: ('ctrl' | 'shift' | 'command' | 'option' | 'alt')[]): void;
 
     getCursorScreenPoint(): { x: number, y: number };
 
@@ -283,6 +283,28 @@ interface FocusAnyApi {
          * 获取超级面板当前插件渲染区域的高度
          */
         getHeight(): Promise<number>;
+    },
+
+    detach: {
+        /**
+         * 设置分离窗口的标题
+         * @param title
+         */
+        setTitle(title: string): void;
+        /**
+         * 设置分离窗口的位置
+         * @param position
+         */
+        setPosition(position: 'center' | 'right-bottom' | 'left-top' | 'right-top' | 'left-bottom'): void;
+        /**
+         * 设置分离窗口是否置顶
+         * @param alwaysOnTop
+         */
+        setAlwaysOnTop(alwaysOnTop: boolean): void;
+        /**
+         * 设置分离窗口的大小
+         */
+        setSize(width: number, height: number): void;
     },
 
     util: {

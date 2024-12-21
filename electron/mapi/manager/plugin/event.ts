@@ -224,13 +224,14 @@ export const ManagerPluginEvent = {
         return false;
     },
     copyImage: async (context: PluginContext, data: any) => {
-        let image;
-        if (data.img.startsWith('data:image/')) {
-            image = nativeImage.createFromDataURL(data.img);
+        const {image} = data;
+        let imageData;
+        if (image.startsWith('data:image/')) {
+            imageData = nativeImage.createFromDataURL(image);
         } else {
-            image = nativeImage.createFromPath(data.img);
+            imageData = nativeImage.createFromPath(image);
         }
-        clipboard.writeImage(image);
+        clipboard.writeImage(imageData);
     },
     copyText: async (context: PluginContext, data: any) => {
         clipboard.writeText(String(data.text));
@@ -268,8 +269,22 @@ export const ManagerPluginEvent = {
         shell.showItemInFolder(data.path);
     },
     simulateKeyboardTap: async (context: PluginContext, data: any) => {
-        const {key, modifier} = data;
-        ManagerHotkeySimulate.keyTap(ManagerHotkeySimulate.toCode(key), modifier || [])
+        const {key, modifiers} = data;
+        // 'ctrl' | 'shift' | 'command' | 'option' | 'alt'
+        const modifiersNumber = modifiers.map(m => {
+            switch (m) {
+                case 'ctrl':
+                    return ManagerHotkeySimulate.toCode('Ctrl')
+                case 'shift':
+                    return ManagerHotkeySimulate.toCode('Shift')
+                case 'command':
+                    return ManagerHotkeySimulate.toCode('Meta')
+                case 'option':
+                case 'alt':
+                    return ManagerHotkeySimulate.toCode('Alt')
+            }
+        })
+        ManagerHotkeySimulate.keyTap(ManagerHotkeySimulate.toCode(key), modifiersNumber)
     },
     screenCapture: async (context: PluginContext, data: any) => {
         screenCapture((image: string) => {
@@ -407,4 +422,30 @@ export const ManagerPluginEvent = {
         if (!result) return;
         await KVDBMain.remove(plugin.name, result);
     },
+    detachSetTitle: async (context: PluginContext, data: any) => {
+        const {title} = data;
+        await executeHooks(context._window, 'DetachSet', {
+            title
+        })
+    },
+    detachSetPosition: async (context: PluginContext, data: any) => {
+        const {position} = data;
+        const win = context._window
+        const winSize = win.getSize();
+        const {x, y} = AppsMain.calcPositionInCurrentDisplay(position, winSize[0], winSize[1]);
+        win.setPosition(x, y);
+    },
+    detachSetAlwaysOnTop: async (context: PluginContext, data: any) => {
+        const {alwaysOnTop} = data;
+        const win = context._window
+        win.setAlwaysOnTop(alwaysOnTop);
+        await executeHooks(context._window, 'DetachSet', {
+            alwaysOnTop
+        })
+    },
+    detachSetSize: async (context: PluginContext, data: any) => {
+        const {width, height} = data;
+        const win = context._window
+        win.setSize(width, height);
+    }
 }

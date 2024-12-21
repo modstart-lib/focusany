@@ -11,6 +11,7 @@ import {ManagerPlugin} from "../plugin";
 import {Log} from "../../log/main";
 import {Events} from "../../event/main";
 import {ManagerSystem} from "../system";
+import {AppsMain} from "../../app/main";
 
 const browserViews = new Map<WebContents, BrowserView>()
 const detachWindows = new Map<WebContents, BrowserWindow>()
@@ -313,6 +314,7 @@ export const ManagerWindow = {
                 const pluginState: PluginState = {
                     value: '',
                     placeholder: '',
+                    isVisible: false
                 }
                 await executeHooks(view._window, 'PluginInit', {
                     plugin: view._plugin,
@@ -330,6 +332,14 @@ export const ManagerWindow = {
     }) {
         const plugin = view._plugin
         let alwaysOnTop = false;
+        if (plugin.setting?.detachAlwaysOnTop) {
+            alwaysOnTop = true;
+        }
+        const {x, y} = AppsMain.calcPositionInCurrentDisplay(
+            plugin.setting?.detachPosition || 'center',
+            option.width,
+            option.height + WindowConfig.detachWindowTitleHeight
+        )
         let win = new BrowserWindow({
             height: option.height + WindowConfig.detachWindowTitleHeight,
             width: option.width,
@@ -344,8 +354,8 @@ export const ManagerWindow = {
             enableLargerThanScreen: true,
             backgroundColor: '#fff',
             alwaysOnTop,
-            // x: bounds.x,
-            // y: bounds.y,
+            x,
+            y,
             center: true,
             webPreferences: {
                 webSecurity: false,

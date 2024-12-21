@@ -185,8 +185,8 @@ export const FocusAny = {
         });
     },
 
-    copyImage(img: string) {
-        return ipcSendSync('copyImage', {img});
+    copyImage(image: string) {
+        return ipcSendSync('copyImage', {image});
     },
     copyText(text: string) {
         return ipcSendSync('copyText', {text});
@@ -224,8 +224,8 @@ export const FocusAny = {
     getFileIcon(path: string) {
         return ipcSendSync('getFileIcon', {path});
     },
-    simulateKeyboardTap(key: string, ...modifier: any[]) {
-        ipcSend('simulateKeyboardTap', {key, modifier});
+    simulateKeyboardTap(key: string, modifiers: ('ctrl' | 'shift' | 'command' | 'option' | 'alt')[]) {
+        ipcSend('simulateKeyboardTap', {key, modifiers});
     },
     getCursorScreenPoint() {
         return electronRemote.screen.getCursorScreenPoint();
@@ -386,6 +386,21 @@ export const FocusAny = {
         },
         getHeight(): Promise<number> {
             return ipcSendToHost('fastPanel.getHeight', {}, true)
+        }
+    },
+
+    detach: {
+        setTitle(title: string) {
+            ipcSend('detachSetTitle', {title})
+        },
+        setPosition(position: 'center' | 'right-bottom' | 'left-top' | 'right-top' | 'left-bottom') {
+            ipcSend('detachSetPosition', {position})
+        },
+        setAlwaysOnTop(alwaysOnTop: boolean) {
+            ipcSend('detachSetAlwaysOnTop', {alwaysOnTop})
+        },
+        setSize(width: number, height: number) {
+            ipcSend('detachSetSize', {width, height})
         }
     },
 

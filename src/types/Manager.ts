@@ -39,6 +39,8 @@ export type PluginRecord = {
     homepage?: string,
     setting?: {
         autoDetach?: boolean,
+        detachPosition?: 'center' | 'left-top' | 'right-top' | 'left-bottom' | 'right-bottom',
+        detachAlwaysOnTop?: boolean,
         width?: string,
         height?: string,
         singleton?: boolean,
@@ -67,6 +69,7 @@ export type PluginRecord = {
 export type PluginState = {
     value: string
     placeholder: string
+    isVisible: boolean
 }
 
 export type ActionMatch = (

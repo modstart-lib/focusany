@@ -394,6 +394,21 @@
                     "type": "boolean",
                     "description": "是否默认分离模式打开"
                 },
+                "detachPosition": {
+                    "type": "string",
+                    "description": "分离模式默认位置",
+                    "enum": [
+                        "center",
+                        "left-top",
+                        "right-top",
+                        "left-bottom",
+                        "right-bottom"
+                    ]
+                },
+                "detachAlwaysOnTop": {
+                    "type": "boolean",
+                    "description": "分离模式默认是否置顶"
+                },
                 "height": {
                     "type": "string",
                     "description": "窗口高度，支持 数字 或 百分比，设置后窗口大小将默认为分离模式"

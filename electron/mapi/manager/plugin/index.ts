@@ -172,7 +172,7 @@ export const ManagerPlugin = {
             fullName: `${plugin.name}/${action.name}`,
             pluginName: plugin.name,
             name: action.name,
-            title: action.title,
+            title: action.title || plugin.title,
             icon: action.icon || plugin.logo,
             type: action.type || ActionTypeEnum.WEB,
             pluginType: plugin.type,

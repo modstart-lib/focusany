@@ -27,6 +27,7 @@ declare interface Window {
         onSetSubInput: (cb: Function) => void,
         onRemoveSubInput: (cb: Function) => void,
         onSetSubInputValue: (cb: Function) => void,
+        onDetachSet: (cb: Function) => void,
     },
     focusany: FocusAnyApi,
     $mapi: {

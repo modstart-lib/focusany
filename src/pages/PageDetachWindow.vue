@@ -18,6 +18,7 @@ const searchInput = ref<any>(null)
 const searchPlaceholder = ref('')
 const searchValue = ref('')
 const searchVisible = ref(false)
+const windowTitle = ref('')
 
 const subInputChangeDebounce = debounce((keywords) => {
     window.$mapi.manager.subInputChange(keywords)
@@ -57,6 +58,8 @@ window.__page.onPluginInit((data: {
     alwaysOnTop.value = data.param.alwaysOnTop
     searchValue.value = data.state.value
     searchPlaceholder.value = data.state.placeholder
+    searchVisible.value = data.state.isVisible
+    windowTitle.value = data.plugin.title
 })
 window.__page.onSetSubInput((
     param: {
@@ -73,6 +76,17 @@ window.__page.onRemoveSubInput(() => {
 })
 window.__page.onSetSubInputValue((value: string) => {
     searchValue.value = value
+})
+window.__page.onDetachSet((param: {
+    title?: string,
+    alwaysOnTop?: boolean
+}) => {
+    if ('title' in param) {
+        windowTitle.value = param.title as string
+    }
+    if ('alwaysOnTop' in param) {
+        alwaysOnTop.value = param.alwaysOnTop as boolean
+    }
 })
 window.__page.onMaximize(() => {
     console.log('onMaximize')
@@ -103,7 +117,7 @@ window.__page.onLeaveFullScreen(() => {
                     />
                 </div>
                 <div class="title">
-                    {{ plugin.title }}
+                    {{ windowTitle }}
                 </div>
             </div>
             <div class="search" v-if="searchVisible">
@@ -188,6 +202,8 @@ window.__page.onLeaveFullScreen(() => {
 
             .icon {
                 margin-right: 10px;
+                width: 20px;
+                flex-shrink: 0;
 
                 img {
                     width: 20px;

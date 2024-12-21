@@ -21,6 +21,7 @@ type HookType = never
     | 'PluginCodeRunning'
     | 'PluginCodeSuccess'
     | 'PluginCodeError'
+    | 'DetachSet'
     | 'Maximize'
     | 'Unmaximize'
     | 'EnterFullScreen'

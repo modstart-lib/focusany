@@ -110,7 +110,11 @@ export const ManagerClipboard = {
     },
     decrypt(data: string): ClipboardHistoryRecord {
         data = EncodeUtil.aesDecode(data, this.encryptKey)
-        return JSON.parse(data) as ClipboardHistoryRecord
+        try {
+            return JSON.parse(data) as ClipboardHistoryRecord
+        } catch (e) {
+            return null
+        }
     },
     async onChange(data: ClipboardDataType) {
         // console.log('clipboard.onChange', data)
@@ -142,6 +146,9 @@ export const ManagerClipboard = {
                     continue
                 }
                 const record = this.decrypt(line)
+                if (!record) {
+                    continue
+                }
                 if (record.image) {
                     record.image = `file://${fullPath}/${dir.name}/${record.image}`
                 }
@@ -154,7 +161,7 @@ export const ManagerClipboard = {
         await Files.deletes('clipboard')
     },
     async delete(timestamp: number) {
-        const date = TimeUtil.timestampDayStart(timestamp)
+        const date = TimeUtil.timestampDayStart(timestamp * 1000)
         const data = await Files.read(`clipboard/${date}/data`)
         const lines = data.split('\n')
         const result = []
@@ -163,6 +170,9 @@ export const ManagerClipboard = {
                 continue
             }
             const record = this.decrypt(line)
+            if (!record) {
+                continue
+            }
             if (record.timestamp !== timestamp) {
                 result.push(line)
             }

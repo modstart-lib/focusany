@@ -206,11 +206,9 @@ const doInstallStore = async () => {
             </div>
             <div class="absolute bottom-0 left-0 right-0 p-3 border-t border-solid border-default">
                 <div class="text-center">
-                    <a-dropdown-button type="primary">
-                        <a-button type="primary"
-                                  @click="doInstallStore">
-                            插件市场
-                        </a-button>
+                    <a-dropdown-button type="primary" @click="doInstallStore">
+                        <icon-apps class="mr-1"/>
+                        插件市场
                         <template #content>
                             <a-doption @click="doInstallPlugin">选择本地ZIP插件</a-doption>
                             <a-doption @click="doInstallPlugin">选择本地目录插件</a-doption>
@@ -387,9 +385,9 @@ const doInstallStore = async () => {
                                           size="small">
                                     窗口
                                     <div class="inline-block max-w-32 overflow-hidden truncate">
-                                        {{(m as ActionMatchWindow).nameRegex}}
-                                        {{(m as ActionMatchWindow).titleRegex}}
-                                        {{(m as ActionMatchWindow).attrRegex}}
+                                        {{ (m as ActionMatchWindow).nameRegex }}
+                                        {{ (m as ActionMatchWindow).titleRegex }}
+                                        {{ (m as ActionMatchWindow).attrRegex }}
                                     </div>
                                 </a-button>
                                 <a-button v-else-if="(m as ActionMatchBase).type==='editor'"
@@ -399,10 +397,10 @@ const doInstallStore = async () => {
                                     打开文件
                                     <div class="inline-block max-w-32 overflow-hidden truncate">
                                         <span v-if="(m as ActionMatchEditor).faDataTypes">
-                                            {{(m as ActionMatchEditor).faDataTypes?.join(',')}}
+                                            {{ (m as ActionMatchEditor).faDataTypes?.join(',') }}
                                         </span>
                                         <span v-if="(m as ActionMatchEditor).extensions">
-                                            {{(m as ActionMatchEditor).extensions.join(',')}}
+                                            {{ (m as ActionMatchEditor).extensions.join(',') }}
                                         </span>
                                     </div>
                                 </a-button>

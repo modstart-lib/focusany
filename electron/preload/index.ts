@@ -90,6 +90,9 @@ window['__page'] = {
     onSetSubInputValue: (cb: Function) => {
         window['__page'].hooks.onSetSubInputValue = cb
     },
+    onDetachSet: (cb: Function) => {
+        window['__page'].hooks.onDetachSet = cb
+    }
 }
 
 ipcRenderer.removeAllListeners('MAIN_PROCESS_MESSAGE')
