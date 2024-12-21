@@ -22,6 +22,8 @@ export enum PluginEnv {
     PROD = 'prod',
 }
 
+export type PluginPermissionType = 'ClipboardManage' | never
+
 export type PluginRecord = {
     // 以下配置信息和原始的 config.json 一致，未经过处理
     name: string,
@@ -48,6 +50,7 @@ export type PluginRecord = {
         preloadBase?: string,
         nodeIntegration?: boolean,
     },
+    permissions: PluginPermissionType[],
     development?: {
         env?: 'dev' | 'prod',
         main?: string,

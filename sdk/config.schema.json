@@ -387,6 +387,16 @@
                 }
             }
         },
+        "permissions": {
+            "type": "array",
+            "description": "插件权限",
+            "items": {
+                "type": "string",
+                "enum": [
+                    "ClipboardManage"
+                ]
+            }
+        },
         "setting": {
             "type": "object",
             "properties": {

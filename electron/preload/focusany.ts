@@ -67,6 +67,23 @@ export const FocusAny = {
     onPluginExit(cb: Function) {
         FocusAny.hooks.onPluginExit = cb
     },
+    onPluginEvent(event: PluginEvent, callback: (data: any) => void) {
+        if (!('onPluginEvent' in FocusAny.hooks)) {
+            FocusAny.hooks.onPluginEvent = (payload: {
+                event: string, data: any
+            }) => {
+                const {event, data} = payload
+                if (event in FocusAny.hooks.onPluginEventCallbacks) {
+                    FocusAny.hooks.onPluginEventCallbacks[event](data)
+                }
+            }
+        }
+        if (!('onPluginEventCallbacks' in FocusAny.hooks)) {
+            FocusAny.hooks.onPluginEventCallbacks = {}
+        }
+        FocusAny.hooks.onPluginEventCallbacks[event] = callback
+        ipcSend('registerPluginEvent', {event})
+    },
     onLog(cb: Function) {
         FocusAny.hooks.onLog = cb
     },

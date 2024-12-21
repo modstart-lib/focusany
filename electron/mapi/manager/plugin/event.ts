@@ -21,6 +21,7 @@ import {ManagerHotkeySimulate} from "../hotkey/simulate";
 import {ManagerClipboard} from "../clipboard";
 import {ManagerAutomation} from "../automation";
 import {AppConfig} from "../../../../src/config";
+import {ManagerPluginPermission} from "./permission";
 
 const getHeadHeight = (win: BrowserWindow) => {
     if (win === AppRuntime.mainWindow) {
@@ -31,6 +32,36 @@ const getHeadHeight = (win: BrowserWindow) => {
 }
 
 export const ManagerPluginEvent = {
+    pluginEvents: {} as {
+        [event: string]: PluginContext[]
+    },
+    firePluginEvent: async (event: string, data: any) => {
+        if (event in ManagerPluginEvent.pluginEvents) {
+            for (const context of ManagerPluginEvent.pluginEvents[event]) {
+                await executePluginHooks(context as BrowserView, 'PluginEvent', {event, data});
+            }
+        }
+    },
+    registerPluginEvent: async (context: PluginContext, data: any) => {
+        // console.log('registerPluginEvent', context._plugin)
+        const {event} = data;
+        if (!(event in ManagerPluginEvent.pluginEvents)) {
+            ManagerPluginEvent.pluginEvents[event] = []
+        }
+        if (!ManagerPluginPermission.check(context._plugin, 'event', event)) {
+            AppsMain.toast(`插件没有权限(Event.${event})`, {status: 'error'})
+            return
+        }
+        ManagerPluginEvent.pluginEvents[event].push(context)
+        for (const e in ManagerPluginEvent.pluginEvents) {
+            ManagerPluginEvent.pluginEvents[e] = ManagerPluginEvent.pluginEvents[e].filter(c => {
+                return !!(c as BrowserView).webContents
+            })
+            if (ManagerPluginEvent.pluginEvents[e].length === 0) {
+                delete ManagerPluginEvent.pluginEvents[e]
+            }
+        }
+    },
     isMacOs: async (context: PluginContext, data: any) => {
         return isMac
     },

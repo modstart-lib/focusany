@@ -22,6 +22,8 @@ interface DbReturn {
 
 declare type PlatformType = 'win' | 'osx' | 'linux'
 
+declare type PluginEvent = 'ClipboardChange'
+
 declare type ActionMatch = (
     ActionMatchText
     | ActionMatchKey
@@ -125,6 +127,8 @@ interface FocusAnyApi {
     ): void;
 
     onPluginExit(callback: Function): void;
+
+    onPluginEvent(event: PluginEvent, callback: (data: any) => void): void;
 
     isMainWindowShown(): boolean;
 

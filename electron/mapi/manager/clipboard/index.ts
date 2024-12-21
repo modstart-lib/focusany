@@ -7,8 +7,11 @@ import {getClipboardFiles, setClipboardFiles} from "./clipboardFiles";
 import {clipboard} from "electron";
 import {isMac} from "../../../lib/env";
 import {KeyboardKey, ManagerHotkeySimulate} from "../hotkey/simulate";
+import {Events} from "../../event/main";
+import {ManagerPluginEvent} from "../plugin/event";
 
 export const ManagerClipboard = {
+    MAX_LIMIT: 1000,
     running: true,
     interval: 1000,
     timer: null,
@@ -133,7 +136,8 @@ export const ManagerClipboard = {
             saveData.image = imageMd5
         }
         const dataString = this.encrypt(saveData)
-        Files.appendText(`clipboard/${filename}/data`, `${dataString}\n`).then()
+        await Files.appendText(`clipboard/${filename}/data`, `${dataString}\n`)
+        await ManagerPluginEvent.firePluginEvent('ClipboardChange', saveData)
     },
     async list(): Promise<ClipboardHistoryRecord[]> {
         const fullPath = await Files.fullPath('clipboard')
@@ -153,6 +157,12 @@ export const ManagerClipboard = {
                     record.image = `file://${fullPath}/${dir.name}/${record.image}`
                 }
                 result.push(record)
+                if (result.length > ManagerClipboard.MAX_LIMIT) {
+                    break
+                }
+            }
+            if (result.length > ManagerClipboard.MAX_LIMIT) {
+                break
             }
         }
         return result.reverse()

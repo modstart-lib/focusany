@@ -4,6 +4,7 @@ import {AppsMain} from "../../app/main";
 type PluginHookType = never
     | 'PluginReady'
     | 'PluginExit'
+    | 'PluginEvent'
     | 'SubInputChange'
     | 'ScreenCapture'
 
