@@ -386,7 +386,7 @@ export const ManagerPlugin = {
     async refreshInstall(name: string) {
         const doc = await KVDBMain.get(CommonConfig.dbSystem, `${CommonConfig.dbPluginIdPrefix}/${name}`)
         if (!doc) {
-            throw `PluginNotFound : ${name}`
+            throw `PluginNotExists : ${name}`
         }
         const pluginInfo: PluginInfo = doc as any
         const root = pluginInfo.root
@@ -419,15 +419,15 @@ export const ManagerPlugin = {
     async uninstall(name: string) {
         const plugin = await this.get(name)
         if (!plugin) {
-            throw `PluginNotFound : ${name}`
+            throw `PluginNotExists:-1:${name}`
         }
         const pi = await KVDBMain.get(CommonConfig.dbSystem, `${CommonConfig.dbPluginIdPrefix}/${name}`)
         if (!pi) {
-            throw `PluginNotFound : ${name}`
+            throw `PluginNotExists:-2:${name}`
         }
         const info: PluginInfo = pi as any
         if (!info.name || !info.version || !info.type || !info.config) {
-            throw `PluginNotFound : ${name}`
+            throw `PluginNotExists:-3:${name}`
         }
         await ManagerBackend.run(plugin, 'hook', 'beforeUninstall', {})
         if (info.type === PluginType.STORE || info.type === PluginType.ZIP) {

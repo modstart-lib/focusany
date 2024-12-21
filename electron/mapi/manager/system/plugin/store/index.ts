@@ -100,6 +100,9 @@ export const ManagerPluginStore = {
         if (!configJson) {
             throw 'PluginFormatError:-10'
         }
+        if (configJson['name'] !== pluginName) {
+            throw 'PluginFormatError:-11'
+        }
         const payload = {
             plugin: pluginName,
             version: option['version'],
@@ -197,7 +200,7 @@ export const ManagerPluginStore = {
             isFullPath: true,
         })
         if (!config) {
-            throw 'PluginFormatError:-11'
+            throw 'PluginFormatError:-12'
         }
         let configJson = null
         try {
@@ -205,7 +208,7 @@ export const ManagerPluginStore = {
         } catch (e) {
         }
         if (!configJson) {
-            throw 'PluginFormatError:-12'
+            throw 'PluginFormatError:-13'
         }
         const payload = {
             plugin: pluginName,
