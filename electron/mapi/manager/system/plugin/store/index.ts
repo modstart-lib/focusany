@@ -113,7 +113,7 @@ export const ManagerPluginStore = {
         }
         configJson["development"]["releaseDoc"] = configJson["development"]["releaseDoc"] || 'release.md'
         const releaseDocPath = resolve(root, configJson["development"]["releaseDoc"]);
-        console.log('releaseDocPath', releaseDocPath)
+        // console.log('releaseDocPath', releaseDocPath)
         const releaseDoc = await Files.read(releaseDocPath, {
             isFullPath: true,
         })
@@ -148,10 +148,19 @@ export const ManagerPluginStore = {
         }
         const pluginInfo = await this._getPluginInfo(root, configJson)
         const tempFile = await Files.temp('zip')
-        await Misc.zip(tempFile, plugin.runtime.root)
+        await Misc.zip(tempFile, plugin.runtime.root, {
+            end: (archive: any) => {
+                delete configJson['development']
+                delete configJson['$schema']
+                archive.append(JSON.stringify(configJson, null, 4), {
+                    name: 'config.json',
+                })
+            }
+        })
         if (!fs.existsSync(tempFile)) {
             throw 'PluginZipError'
         }
+        // console.log('tempFile', tempFile)
         const buffer = await Files.readBuffer(tempFile, {
             isFullPath: true,
         })
