@@ -66,8 +66,8 @@ export const ManagerPlugin = {
             preload = null
         }
         // main && mainFastPanel
-        let main = plugin.main;
-        let mainFastPanel = plugin.mainFastPanel;
+        let main = plugin.main || null;
+        let mainFastPanel = plugin.mainFastPanel || null;
         if (!mainFastPanel) {
             mainFastPanel = main
         }
