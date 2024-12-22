@@ -240,11 +240,11 @@
                 },
                 "keepCodeDevTools": {
                     "type": "boolean",
-                    "description": "是否在code执行完成后保留开发者窗口（便于调试）"
+                    "description": "插件是否在code执行完成后保留开发者窗口"
                 },
                 "showFastPanelDevTools": {
                     "type": "boolean",
-                    "description": "是否在view中显示开发者窗口（便于调试）"
+                    "description": "是否在快捷面板渲染view时显示开发者窗口"
                 }
             }
         },

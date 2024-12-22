@@ -282,7 +282,7 @@ export const ManagerWindow = {
         } else {
             mainWindowView.webContents.openDevTools({
                 mode: 'detach',
-                activate: false,
+                activate: true,
                 title: `MainPluginView`,
             })
         }
@@ -494,7 +494,7 @@ export const ManagerWindow = {
     async openDetachPluginDevTools(view: BrowserView, option?: {}) {
         view.webContents.openDevTools({
             mode: 'detach',
-            activate: false,
+            activate: true,
             title: `DetachView.${view._plugin.name}`,
         })
     }
