@@ -38,7 +38,7 @@
             </td>
             <td>
                 <img style="width:100%;" 
-                     src="./screenshots/cn/plugin/CTool.png" />
+                     src="./screenshots/cn/plugin/Ctool.png" />
             </td>
         </tr>
         <tr>
