@@ -14,6 +14,64 @@
 - 数据中心：支持文件导出同步、WebDav文件同步
 - 暗黑模式：支持暗黑模式，保护眼睛
 
+## 插件支持一览
+
+<table width="100%">
+    <tbody>
+        <tr>
+            <td colspan="2">插件市场</td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <img style="width:100%;"
+                     src="./screenshots/cn/plugin/Store.png" />
+            </td>
+        </tr>
+        <tr>
+            <td width="50%">Markdown插件</td>
+            <td>Ctool程序员工具箱</td>
+        </tr>
+        <tr>
+            <td>
+                <img style="width:100%;"
+                     src="./screenshots/cn/plugin/Markdown.png" />
+            </td>
+            <td>
+                <img style="width:100%;" 
+                     src="./screenshots/cn/plugin/CTool.png" />
+            </td>
+        </tr>
+        <tr>
+            <td>翻译插件</td>
+            <td>剪切板插件</td>
+        </tr>
+        <tr>
+            <td>
+                <img style="width:100%;"
+                     src="./screenshots/cn/plugin/Translate.png" />
+            </td>
+            <td>
+                <img style="width:100%;" 
+                     src="./screenshots/cn/plugin/Clipboard.png" />
+            </td>
+        </tr>
+        <tr>
+            <td>脑图编辑器</td>
+            <td>mxGraph编辑器</td>
+        </tr>
+        <tr>
+            <td>
+                <img style="width:100%;"
+                     src="./screenshots/cn/plugin/KityminderEditor.png" />
+            </td>
+            <td>
+                <img style="width:100%;" 
+                     src="./screenshots/cn/plugin/MxgraphEditor.png" />
+            </td>
+        </tr>
+    </tbody>
+</table>
+
 ## 安装使用
 
 - 访问 [https://focusany.com](https://focusany.com) 下载 对应系统 安装包，一键安装即可
