@@ -190,31 +190,30 @@ const doInstallStore = async () => {
 
 <template>
     <div class="flex h-full">
-        <div class="w-52 flex-shrink-0 border-r border-default p-1 h-full overflow-y-auto relative">
-            <div v-for="(r,rIndex) in recordsFilter"
-                 class="flex items-center rounded-lg cursor-pointer select-none p-2 hover:bg-gray-100 dark:hover:bg-gray-600 relative"
-                 @click="doActivePlugin(rIndex)"
-                 :class="recordCurrent?.name===r.name?'bg-gray-200 dark:bg-gray-700':''"
-            >
-                <div class="w-8 rounded-lg mr-2">
-                    <img :src="r.logo"
-                         :class="r.type===PluginType.SYSTEM?'dark:invert':'plugin-logo-filter'"/>
-                </div>
-                <div class="flex-grow w-0 truncate">
-                    {{ r.title }}
+        <div class="w-52 flex-shrink-0 border-r border-default h-full flex flex-col relative">
+            <div class="flex-grow overflow-y-auto p-1">
+                <div v-for="(r,rIndex) in recordsFilter"
+                     class="flex items-center rounded-lg cursor-pointer select-none p-2 hover:bg-gray-100 dark:hover:bg-gray-600 relative"
+                     @click="doActivePlugin(rIndex)"
+                     :class="recordCurrent?.name===r.name?'bg-gray-200 dark:bg-gray-700':''">
+                    <div class="w-8 rounded-lg mr-2">
+                        <img :src="r.logo"
+                             :class="r.type===PluginType.SYSTEM?'dark:invert':'plugin-logo-filter'"/>
+                    </div>
+                    <div class="flex-grow w-0 truncate">
+                        {{ r.title }}
+                    </div>
                 </div>
             </div>
-            <div class="absolute bottom-0 left-0 right-0 p-3 border-t border-solid border-default">
-                <div class="text-center">
-                    <a-dropdown-button type="primary" @click="doInstallStore">
-                        <icon-apps class="mr-1"/>
-                        插件市场
-                        <template #content>
-                            <a-doption @click="doInstallPlugin">选择本地ZIP插件</a-doption>
-                            <a-doption @click="doInstallPlugin">选择本地目录插件</a-doption>
-                        </template>
-                    </a-dropdown-button>
-                </div>
+            <div class="border-t border-solid border-default py-2 text-center">
+                <a-dropdown-button type="primary" @click="doInstallStore" class="block">
+                    <icon-apps class="mr-1"/>
+                    插件市场
+                    <template #content>
+                        <a-doption @click="doInstallPlugin">选择本地ZIP插件</a-doption>
+                        <a-doption @click="doInstallPlugin">选择本地目录插件</a-doption>
+                    </template>
+                </a-dropdown-button>
             </div>
         </div>
         <div class="flex-grow h-full overflow-y-auto p-4" v-if="recordCurrent">

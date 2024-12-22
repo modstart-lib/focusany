@@ -147,7 +147,10 @@ export const ManagerPluginStore = {
             if (!releaseDoc) {
                 throw 'PluginReleaseDocNotFound'
             }
-            throw 'PluginReleaseDocFormatError'
+            if (!payload.feature) {
+                throw 'PluginReleaseDocFormatError:-1'
+            }
+            throw 'PluginReleaseDocFormatError:-2'
         }
         const pluginInfo = await this._getPluginInfo(root, configJson)
         const tempFile = await Files.temp('zip')
