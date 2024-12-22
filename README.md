@@ -69,6 +69,19 @@
                      src="./screenshots/cn/plugin/MxgraphEditor.png" />
             </td>
         </tr>
+        <tr>
+            <td>密码管理器</td>
+            <td>&nbsp;</td>
+        </tr>
+        <tr>
+            <td>
+                <img style="width:100%;"
+                     src="./screenshots/cn/plugin/Password.png" />
+            </td>
+            <td>
+                &nbsp;
+            </td>
+        </tr>
     </tbody>
 </table>
 
