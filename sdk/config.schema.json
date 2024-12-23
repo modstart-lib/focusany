@@ -263,11 +263,11 @@
             "properties": {
                 "autoDetach": {
                     "type": "boolean",
-                    "description": "是否默认分离模式打开"
+                    "description": "是否默认分离模式打开，默认为 false"
                 },
                 "detachPosition": {
                     "type": "string",
-                    "description": "分离模式默认位置",
+                    "description": "分离模式默认位置，默认为 center",
                     "enum": [
                         "center",
                         "left-top",
@@ -278,15 +278,15 @@
                 },
                 "detachAlwaysOnTop": {
                     "type": "boolean",
-                    "description": "分离模式默认是否置顶"
+                    "description": "分离模式默认是否置顶，默认为 false"
                 },
                 "height": {
                     "type": "string",
-                    "description": "窗口高度，支持 数字 或 百分比，设置后窗口大小将默认为分离模式"
+                    "description": "窗口高度，支持 数字 或 百分比，设置后窗口大小将默认为分离模式，默认为 600"
                 },
                 "width": {
                     "type": "string",
-                    "description": "窗口宽度，支持 数字 或 百分比，设置后窗口大小将默认为分离模式"
+                    "description": "窗口宽度，支持 数字 或 百分比，设置后窗口大小将默认为分离模式，默认为 800"
                 },
                 "heightFastPanel": {
                     "type": "integer",
@@ -298,7 +298,7 @@
                 },
                 "zoom": {
                     "type": "number",
-                    "description": "窗口缩放比例，100表示原始大小"
+                    "description": "窗口缩放比例，100表示原始大小，默认为 100"
                 },
                 "preloadBase": {
                     "type": "string",
@@ -307,6 +307,10 @@
                 "nodeIntegration": {
                     "type": "boolean",
                     "description": "是否启用 nodejs，普通应用不需要设置"
+                },
+                "darkModeSupport": {
+                    "type": "boolean",
+                    "description": "是否支持暗黑模式，默认为 false"
                 }
             }
         }

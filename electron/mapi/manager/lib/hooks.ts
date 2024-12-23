@@ -1,5 +1,6 @@
 import {BrowserView, BrowserWindow} from "electron";
 import {AppsMain} from "../../app/main";
+import {PluginRecord} from "../../../../src/types/Manager";
 
 type PluginHookType = never
     | 'PluginReady'
@@ -53,12 +54,11 @@ export const executeHooks = async (win: BrowserWindow, hook: HookType, data?: an
 }
 
 export const executeDarkMode = async (view: BrowserWindow | BrowserView, data: {
+    plugin: PluginRecord,
     isSystem: boolean,
 }) => {
-    data = Object.assign({
-        isSystem: false
-    }, data)
-    if (await AppsMain.shouldDarkMode()) {
+    // console.log('executeDarkMode', data.plugin.setting);
+    if (await AppsMain.shouldDarkMode() && (data.plugin.setting?.darkModeSupport || data.isSystem)) {
         // body and html
         view.webContents.executeJavaScript(`
         document.body.setAttribute('data-theme', 'dark');

@@ -49,6 +49,7 @@ export type PluginRecord = {
         zoom?: number,
         preloadBase?: string,
         nodeIntegration?: boolean,
+        darkModeSupport?: boolean,
     },
     permissions: PluginPermissionType[],
     development?: {

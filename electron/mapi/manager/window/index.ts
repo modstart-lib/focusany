@@ -205,6 +205,7 @@ export const ManagerWindow = {
         DevToolsManager.register(`PluginView.${plugin.name}`, view)
         view.webContents.once('did-finish-load', async () => {
             await executeDarkMode(view, {
+                plugin,
                 isSystem: ManagerSystem.match(plugin.name)
             })
             Events.sendRaw(view.webContents, 'APP_READY', {
@@ -439,6 +440,7 @@ export const ManagerWindow = {
         return new Promise((resolve, reject) => {
             win.webContents.once('did-finish-load', async () => {
                 await executeDarkMode(win, {
+                    plugin,
                     isSystem: true
                 })
                 view.setAutoResize({width: true, height: true});
