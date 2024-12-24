@@ -428,6 +428,9 @@ export const FocusAny = {
         bufferToBase64(buffer: Buffer): string {
             return FileUtil.bufferToBase64(buffer)
         },
+        base64ToBuffer(base64: string): Buffer {
+            return FileUtil.base64ToBuffer(base64)
+        },
         datetimeString(): string {
             return TimeUtil.datetimeString()
         },

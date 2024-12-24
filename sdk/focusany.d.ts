@@ -588,6 +588,10 @@ interface FocusAnyApi {
          */
         bufferToBase64(buffer: Uint8Array): string;
         /**
+         * Base64 转 Buffer
+         */
+        base64ToBuffer(base64: string): Uint8Array;
+        /**
          * 获取当前时间戳字符串
          */
         datetimeString(): string;

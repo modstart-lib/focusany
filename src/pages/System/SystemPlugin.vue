@@ -189,7 +189,7 @@ const doInstallStore = async () => {
 </script>
 
 <template>
-    <div class="flex h-full">
+    <div class="flex h-full select-none">
         <div class="w-52 flex-shrink-0 border-r border-default h-full flex flex-col relative">
             <div class="flex-grow overflow-y-auto p-1">
                 <div v-for="(r,rIndex) in recordsFilter"
@@ -223,14 +223,15 @@ const doInstallStore = async () => {
                          :class="recordCurrent.type===PluginType.SYSTEM?'dark:invert':'plugin-logo-filter'"/>
                 </div>
                 <div class="flex-grow w-0 truncate">
-                    <div class="text-lg leading-6">
-                        <span class="font-bold mr-2">{{ recordCurrent.title }}</span>
-                        <span class="text-gray-400">v{{ recordCurrent.version }}</span>
+                    <div class="text-lg leading-6 flex items-center">
+                        <div class="font-bold mr-2">{{ recordCurrent.title }}</div>
+                        <div class="text-gray-400" v-if="recordCurrent.type!==PluginType.SYSTEM">v{{ recordCurrent.version }}</div>
                         <a-tooltip :content="'本地插件:'+recordCurrent.runtime?.root">
                             <a-tag v-if="recordCurrent.type==='dir'" size="small" color="red" class="ml-2 text-xs">
                                 DEV
                             </a-tag>
                         </a-tooltip>
+                        <div class="flex-grow"></div>
                     </div>
                     <div class="text-gray-400 w-0">
                         {{ recordCurrent.description }}
