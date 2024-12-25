@@ -170,6 +170,7 @@ export default defineConfig(({command}) => {
                     workflow: path.resolve(__dirname, 'page/workflow.html'),
                     // 其他页面
                     about: path.resolve(__dirname, 'page/about.html'),
+                    feedback: path.resolve(__dirname, 'page/feedback.html'),
                     user: path.resolve(__dirname, 'page/user.html'),
                     guide: path.resolve(__dirname, 'page/guide.html'),
                     setup: path.resolve(__dirname, 'page/setup.html'),
