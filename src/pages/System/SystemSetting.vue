@@ -1,14 +1,30 @@
 <script setup lang="ts">
 import HotkeyInput from "./components/HotkeyInput.vue";
 import {useManagerStore} from "../../store/modules/manager";
-import {onMounted} from "vue";
+import {onMounted, ref} from "vue";
 import {useSettingStore} from "../../store/modules/setting";
 
 const setting = useSettingStore()
 const manager = useManagerStore()
-onMounted(() => {
 
+const isMacOs = focusany.isMacOs()
+const isWindows = focusany.isWindows()
+const isLinux = focusany.isLinux()
+const fastPanelTriggerType = ref('Ctrl')
+
+onMounted(() => {
+    fastPanelTriggerType.value = manager.configGet('fastPanelTrigger', null).value?.type || 'Ctrl'
 })
+
+const onManagerConfigChange = (key: string, value: any) => {
+    // console.log('onManagerConfigChange', key, value)
+    switch (key) {
+        case 'fastPanelTriggerType':
+            manager.onConfigChange('fastPanelTrigger', {type: value})
+            break
+    }
+}
+
 </script>
 
 <template>
@@ -16,7 +32,7 @@ onMounted(() => {
         <div class="mb-8">
             <div class="text-base font-bold mb-4">功能设置</div>
             <div class="pl-4">
-                <div class="flex mb-4">
+                <div class="flex items-center mb-6">
                     <div class="flex-grow">
                         呼出快捷键
                     </div>
@@ -25,7 +41,7 @@ onMounted(() => {
                                      @change="manager.onConfigChange('mainTrigger',$event)"/>
                     </div>
                 </div>
-                <div class="flex mb-4">
+                <div class="flex items-center mb-6">
                     <div class="flex-grow">
                         主题样式
                     </div>
@@ -38,12 +54,28 @@ onMounted(() => {
                         </a-radio-group>
                     </div>
                 </div>
-                <div v-if="0" class="flex mb-4">
+                <div class="flex items-center mb-6">
                     <div class="flex-grow">
                         快捷面板
                     </div>
                     <div>
-                        <HotkeyInput/>
+                        <a-switch :model-value="setting.configGet('fastPanelEnable',true).value"
+                                  @change="setting.onConfigChange('fastPanelEnable',$event)"/>
+                    </div>
+                </div>
+                <div class="flex items-center mb-6"
+                     v-if="setting.configGet('fastPanelEnable',true).value">
+                    <div class="flex-grow">
+                        快捷面板呼出快捷键
+                    </div>
+                    <div>
+                        <a-select :model-value="fastPanelTriggerType"
+                                  @change="onManagerConfigChange('fastPanelTriggerType',$event)">
+                            <a-option value="Ctrl">Ctrl</a-option>
+                            <a-option value="Alt" v-if="isWindows||isLinux">Alt</a-option>
+                            <a-option value="Alt" v-if="isMacOs">Option</a-option>
+                            <a-option value="Meta" v-if="isMacOs">Meta</a-option>
+                        </a-select>
                     </div>
                 </div>
             </div>

@@ -1,5 +1,6 @@
 import {ManagerPluginEvent} from "../plugin/event";
 import {ManagerConfig} from "../config/config";
+import ConfigMain from "../../config/main";
 
 
 export const ManagerHotkeyHandle = {
@@ -11,6 +12,9 @@ export const ManagerHotkeyHandle = {
         }
     },
     async fastPanelTrigger() {
+        if (!await ConfigMain.get('fastPanelEnable', true)) {
+            return
+        }
         if (await ManagerPluginEvent.isFastPanelWindowShown(null, null)) {
             await ManagerPluginEvent.hideFastPanelWindow(null, null)
         } else {
