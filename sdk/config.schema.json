@@ -99,6 +99,16 @@
                             ]
                         }
                     },
+                    "data": {
+                        "type": "object",
+                        "description": "其他补充数据。",
+                        "properties": {
+                            "command": {
+                                "type": "string",
+                                "description": "type为command时，此为必选项，表示此功能的命令。"
+                            }
+                        }
+                    },
                     "matches": {
                         "type": "array",
                         "description": "该功能下可响应的命令集，支持 6 种类型，由 matches 的类型或 matches.type 决定。",
