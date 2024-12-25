@@ -1,6 +1,7 @@
 ## v0.3.0
 
 - 新增：插件管理隐藏系统插件版本
+- 新增：工单反馈功能，便于解决问题
 - 新增：setting.darkModeSupport 配置项，默认为false
 - 新增：focusany.util.base64ToBuffer 工具类方法
 - 修复：插件管理左侧溢出样式异常问题
