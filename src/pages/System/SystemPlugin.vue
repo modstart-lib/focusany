@@ -143,11 +143,15 @@ const doRefreshInstall = async () => {
 const doPublish = async () => {
     Dialog.loadingOn('正在发布')
     try {
-        await window.$mapi.manager.storePublish(recordCurrent.value?.name as string, {
+        const res = await window.$mapi.manager.storePublish(recordCurrent.value?.name as string, {
             version: recordCurrent.value?.version as string,
         })
-        Dialog.tipSuccess('发布成功')
-        doLoad().then()
+        if (res.code === 0) {
+            Dialog.alertError('发布成功')
+            doLoad().then()
+        } else {
+            Dialog.alertError('发布失败:' + res.msg)
+        }
     } catch (e) {
         Dialog.tipError('发布失败:' + mapError(e))
     } finally {
@@ -225,7 +229,9 @@ const doInstallStore = async () => {
                 <div class="flex-grow w-0 truncate">
                     <div class="text-lg leading-6 flex items-center">
                         <div class="font-bold mr-2">{{ recordCurrent.title }}</div>
-                        <div class="text-gray-400" v-if="recordCurrent.type!==PluginType.SYSTEM">v{{ recordCurrent.version }}</div>
+                        <div class="text-gray-400" v-if="recordCurrent.type!==PluginType.SYSTEM">
+                            v{{ recordCurrent.version }}
+                        </div>
                         <a-tooltip :content="'本地插件:'+recordCurrent.runtime?.root">
                             <a-tag v-if="recordCurrent.type==='dir'" size="small" color="red" class="ml-2 text-xs">
                                 DEV
