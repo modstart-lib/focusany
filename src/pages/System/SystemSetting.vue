@@ -21,6 +21,7 @@ const onManagerConfigChange = (key: string, value: any) => {
     switch (key) {
         case 'fastPanelTriggerType':
             manager.onConfigChange('fastPanelTrigger', {type: value})
+            fastPanelTriggerType.value = value
             break
     }
 }
