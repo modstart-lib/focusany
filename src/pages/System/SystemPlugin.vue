@@ -207,6 +207,12 @@ const doInstallStore = async () => {
                     <div class="flex-grow w-0 truncate">
                         {{ r.title }}
                     </div>
+                    <div v-if="r.type==='dir'" class="text-xs bg-red-100 text-red-600 rounded px-1">
+                        DEV
+                    </div>
+                    <div v-else-if="r.type==='zip'" class="text-xs bg-gray-100 text-gray-600 rounded px-1">
+                        ZIP
+                    </div>
                 </div>
             </div>
             <div class="border-t border-solid border-default py-2 text-center">
@@ -233,9 +239,10 @@ const doInstallStore = async () => {
                             v{{ recordCurrent.version }}
                         </div>
                         <a-tooltip :content="'本地插件:'+recordCurrent.runtime?.root">
-                            <a-tag v-if="recordCurrent.type==='dir'" size="small" color="red" class="ml-2 text-xs">
+                            <div v-if="recordCurrent.type==='dir'"
+                                 class="text-xs ml-1 bg-red-100 text-red-600 rounded px-1 cursor-pointer">
                                 DEV
-                            </a-tag>
+                            </div>
                         </a-tooltip>
                         <div class="flex-grow"></div>
                     </div>

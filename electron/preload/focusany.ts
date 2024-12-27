@@ -459,7 +459,7 @@ export const FocusAny = {
                 }
                 data = Buffer.from(data as string, 'base64')
             }
-            fs.writeFileSync(path, data)
+            fs.writeFileSync(path, data as Uint8Array)
             return true
         }
     },
