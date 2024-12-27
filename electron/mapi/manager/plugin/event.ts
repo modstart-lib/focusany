@@ -82,7 +82,8 @@ export const ManagerPluginEvent = {
         AppRuntime.mainWindow.hide();
     },
     showMainWindow: async (context: PluginContext, data: any) => {
-        Manager.selectedContent = await ManagerClipboard.getSelectedContent()
+        Manager.selectedContent = null
+        // Manager.selectedContent = await ManagerClipboard.getSelectedContent()
         Manager.activeWindow = await ManagerAutomation.getActiveWindow()
         const {x: wx, y: wy} = AppPosition.get('main', (screenX, screenY, screenWidth, screenHeight) => {
             // console.log('calculator', {screenX, screenY, screenWidth, screenHeight});
