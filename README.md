@@ -90,7 +90,7 @@
         <tr>
             <td>
                 <img style="width:100%;"
-                     src="./screenshots/cn/plugin/Password.png" />
+                     src="https://ms-assets.modstart.com/data/image/2024/12/22/12047_w27p_4263.png" />
             </td>
             <td>
                 <img style="width:100%;" 
