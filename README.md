@@ -70,8 +70,22 @@
             </td>
         </tr>
         <tr>
+            <td>tldraw白板</td>
+            <td>Excalidraw白板</td>
+        </tr>
+        <tr>
+            <td>
+                <img style="width:100%;"
+                     src="https://ms-assets.modstart.com/data/image/2024/12/27/20345_in2n_2839.png" />
+            </td>
+            <td>
+                <img style="width:100%;" 
+                     src="https://ms-assets.modstart.com/data/image/2024/12/23/27895_hlat_8257.png" />
+            </td>
+        </tr>
+        <tr>
             <td>密码管理器</td>
-            <td>&nbsp;</td>
+            <td>图片美化</td>
         </tr>
         <tr>
             <td>
@@ -79,11 +93,28 @@
                      src="./screenshots/cn/plugin/Password.png" />
             </td>
             <td>
-                &nbsp;
+                <img style="width:100%;" 
+                     src="https://ms-assets.modstart.com/data/image/2024/12/22/53485_fk4f_3417.png" />
+            </td>
+        </tr>
+        <tr>
+            <td>OTP两步验证</td>
+            <td>截图与贴图</td>
+        </tr>
+        <tr>
+            <td>
+                <img style="width:100%;"
+                     src="https://ms-assets.modstart.com/data/image/2024/12/24/7709_81pr_6266.png" />
+            </td>
+            <td>
+                <img style="width:100%;" 
+                     src="https://ms-assets.modstart.com/data/image/2024/12/22/42330_u3my_6770.png" />
             </td>
         </tr>
     </tbody>
 </table>
+
+`FocusAny` 还支持持续支持更多的功能扩展，让你通过插件的方式，实现更多的功能。
 
 ## 安装使用
 
