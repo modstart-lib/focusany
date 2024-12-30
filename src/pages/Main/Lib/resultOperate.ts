@@ -4,6 +4,7 @@ import {ActionRecord, PluginRecord} from "../../../types/Manager";
 import {useManagerStore} from "../../../store/modules/manager";
 import {ComputedRef} from "@vue/reactivity";
 import {EntryListener} from "./entryListener";
+import {Dialog} from "../../../lib/dialog";
 
 const LINE_ACTION_COUNT = 8;
 type ActionGroupType = 'search' | 'match' | 'history' | 'pin' | never
@@ -213,6 +214,24 @@ export const useResultOperate = () => {
         await manager.openAction(action)
     }
 
+    const doHistoryClear = async () => {
+        Dialog.confirm('确认清除全部？')
+            .then(() => {
+                window.$mapi.manager.historyClear()
+                manager.searchRefresh().then()
+            })
+    }
+
+    const doHistoryDelete = async (action: ActionRecord) => {
+        await window.$mapi.manager.historyDelete(action.pluginName as string, action.name)
+        await manager.searchRefresh()
+    }
+
+    const doPinToggle = async (action: ActionRecord) => {
+        await window.$mapi.manager.togglePinAction(action.pluginName as string, action.name)
+        await manager.searchRefresh()
+    }
+
     return {
         hasActions,
         searchActionIsExtend,
@@ -234,5 +253,8 @@ export const useResultOperate = () => {
         onInputKey,
         onClose,
         doOpenAction,
+        doHistoryClear,
+        doHistoryDelete,
+        doPinToggle,
     }
 }

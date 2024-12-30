@@ -196,6 +196,7 @@ export type ActionRecord = {
             heightFastPanel?: number,
         },
         matchFiles?: FileItem[],
+        isPined?: boolean,
     },
 }
 

@@ -144,6 +144,14 @@ export const ManagerConfig = {
             return res['records'] || []
         })
     },
+    async getPinedActionSet(): Promise<Set<string>> {
+        const pinActions = await this.listPinAction()
+        const set = new Set<string>()
+        for (const pinAction of pinActions) {
+            set.add(`${pinAction.pluginName}/${pinAction.actionName}`)
+        }
+        return set
+    },
     async togglePinAction(pluginName: string, actionName: string) {
         let pinActions = await this.listPinAction()
         const saveAction = {
@@ -233,6 +241,23 @@ export const ManagerConfig = {
             }
             return res['records'] || []
         })
+    },
+    async clearHistoryAction() {
+        await KVDBMain.putForce(CommonConfig.dbSystem, {
+            _id: CommonConfig.dbHistoryActionId,
+            records: []
+        })
+        MemoryCacheUtil.forget('HistoryActions')
+    },
+    async deleteHistoryAction(pluginName: string, actionName: string) {
+        // console.log('deleteHistoryAction', fullName)
+        let historyActions = await this.getHistoryAction()
+        historyActions = historyActions.filter(v => v.pluginName !== pluginName || v.actionName !== actionName)
+        await KVDBMain.putForce(CommonConfig.dbSystem, {
+            _id: CommonConfig.dbHistoryActionId,
+            records: historyActions
+        })
+        MemoryCacheUtil.forget('HistoryActions')
     },
     async addHistoryAction(plugin: PluginRecord, action: ActionRecord) {
         let historyActions = await this.getHistoryAction()

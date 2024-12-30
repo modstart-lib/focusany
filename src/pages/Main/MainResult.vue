@@ -16,7 +16,9 @@
                 <div class="group-items">
                     <div class="item" v-for="(a,aIndex) in showSearchActions"
                          :class="{active: activeActionGroup === 'search' && actionActionIndex === aIndex}">
-                        <ResultItem :action="a" @click="doOpenAction(a)"/>
+                        <ResultItem :action="a" @open="doOpenAction(a)"
+                                    :show-pin="!a.runtime?.isPined" @pin="doPinToggle(a)"
+                        />
                     </div>
                 </div>
             </div>
@@ -34,43 +36,54 @@
                 <div class="group-items">
                     <div class="item" v-for="(a,aIndex) in showMatchActions"
                          :class="{active: activeActionGroup === 'match' && actionActionIndex === aIndex}">
-                        <ResultItem :action="a" @click="doOpenAction(a)"/>
+                        <ResultItem :action="a" @open="doOpenAction(a)"
+                                    :show-pin="!a.runtime?.isPined" @pin="doPinToggle(a)"
+                        />
                     </div>
                 </div>
             </div>
             <div v-if="!manager.activePlugin && showHistoryActions.length" class="group">
-                <div class="group-title" @click="doHistoryActionExtend"
+                <div class="group-title"
                      :class="!historyActionIsExtend?'has-more':''">
                     <div class="title">
                         <icon-history/>
                         最近使用
                     </div>
-                    <div class="more" v-if="!historyActionIsExtend">
-                        展开全部({{ manager.historyActions.length }})
+                    <div class="more">
+                        <a href="javascript:;" @click="doHistoryClear">
+                            <icon-delete/>
+                        </a>
+                        <a href="javascript:;" v-if="!historyActionIsExtend" @click="doHistoryActionExtend">
+                            展开全部({{ manager.historyActions.length }})
+                        </a>
                     </div>
                 </div>
                 <div class="group-items">
                     <div class="item" v-for="(a,aIndex) in showHistoryActions"
                          :class="{active: activeActionGroup === 'history' && actionActionIndex === aIndex}">
-                        <ResultItem :action="a" @click="doOpenAction(a)"/>
+                        <ResultItem :action="a" @open="doOpenAction(a)"
+                                    :show-pin="!a.runtime?.isPined" @pin="doPinToggle(a)"
+                                    show-delete @delete="doHistoryDelete(a)"/>
                     </div>
                 </div>
             </div>
             <div v-if="!manager.activePlugin && showPinActions.length" class="group">
-                <div class="group-title" @click="doPinActionExtend"
+                <div class="group-title"
                      :class="!pinActionIsExtend?'has-more':''">
                     <div class="title">
                         <i class="iconfont icon-pin"></i>
                         已固定
                     </div>
-                    <div class="more" v-if="!pinActionIsExtend">
-                        展开全部({{ manager.pinActions.length }})
+                    <div class="more">
+                        <a href="javascript:;" v-if="!pinActionIsExtend" @click="doPinActionExtend">
+                            展开全部({{ manager.pinActions.length }})
+                        </a>
                     </div>
                 </div>
                 <div class="group-items">
                     <div class="item" v-for="(a,aIndex) in showPinActions"
                          :class="{active: activeActionGroup === 'pin' && actionActionIndex === aIndex}">
-                        <ResultItem :action="a" @click="doOpenAction(a)"/>
+                        <ResultItem :action="a" @open="doOpenAction(a)" show-pin @pin="doPinToggle(a)"/>
                     </div>
                 </div>
             </div>
@@ -124,6 +137,9 @@ const {
     onInputKey,
     onClose,
     doOpenAction,
+    doHistoryClear,
+    doHistoryDelete,
+    doPinToggle,
 } = useResultOperate()
 
 const emit = defineEmits([])
@@ -166,12 +182,6 @@ defineExpose({
             cursor: pointer;
             margin-bottom: 3px;
 
-            &.has-more {
-                &:hover {
-                    background: #eee;
-                }
-            }
-
             .title {
                 flex-grow: 1;
                 font-weight: bold;
@@ -193,6 +203,16 @@ defineExpose({
             .more {
                 color: #999;
                 cursor: pointer;
+
+                a {
+                    display: inline-block;
+                    padding: 0.1rem 0.3rem;
+                    border-radius: 0.3rem;
+
+                    &:hover {
+                        background: #eee;
+                    }
+                }
             }
         }
 

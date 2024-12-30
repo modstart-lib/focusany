@@ -32,6 +32,7 @@ export const managerStore = defineStore("manager", {
     state: () => ({
         config: {} as ConfigRecord,
         searchLoading: false,
+        searchLastKeywords: '',
         searchValue: '',
         searchPlaceholder: 'FocusAny，让您的工作专注高效',
         searchSubPlaceholder: '',
@@ -117,6 +118,10 @@ export const managerStore = defineStore("manager", {
             })
         },
 
+        async searchRefresh() {
+            await this.search(this.searchLastKeywords)
+        },
+
         async search(keywords: string) {
             if (this.activePlugin) {
                 subInputChangeDebounce(keywords)
@@ -136,6 +141,7 @@ export const managerStore = defineStore("manager", {
                 historyActions: ActionRecord[],
                 pinActions: ActionRecord[],
             }) => {
+                this.searchLastKeywords = keywords
                 this.searchActions = result.searchActions
                 this.matchActions = result.matchActions
                 this.historyActions = result.historyActions

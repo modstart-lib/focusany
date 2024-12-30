@@ -230,6 +230,20 @@ ipcMain.handle('manager:searchAction', async (event, query: SearchQuery, option?
         result.pinActions = await Manager.pinActions(uniqueRemover, actions, query)
     }
 
+    const pinedSet = await ManagerConfig.getPinedActionSet()
+    result.searchActions.forEach(a => {
+        a.runtime.isPined = pinedSet.has(`${a.pluginName}/${a.name}`)
+    })
+    result.matchActions.forEach(a => {
+        a.runtime.isPined = pinedSet.has(`${a.pluginName}/${a.name}`)
+    })
+    result.historyActions.forEach(a => {
+        a.runtime.isPined = pinedSet.has(`${a.pluginName}/${a.name}`)
+    })
+    result.pinActions.forEach(a => {
+        a.runtime.isPined = true
+    })
+
     return result
 })
 
@@ -366,6 +380,14 @@ ipcMain.handle('manager:clipboardClear', async (event, option?: {}) => {
 
 ipcMain.handle('manager:clipboardDelete', async (event, timestamp: number, option?: {}) => {
     return await ManagerClipboard.delete(timestamp)
+})
+
+ipcMain.handle('manager:historyClear', async (event, option?: {}) => {
+    return await ManagerConfig.clearHistoryAction()
+})
+
+ipcMain.handle('manager:historyDelete', async (event, pluginName: string, actionName: string, option?: {}) => {
+    return await ManagerConfig.deleteHistoryAction(pluginName, actionName)
 })
 
 const getViewByEvent = (event) => {

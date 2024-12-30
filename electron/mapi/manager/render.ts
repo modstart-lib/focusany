@@ -175,6 +175,14 @@ const clipboardDelete = async (timestamp: number, option?: {}) => {
     return ipcRenderer.invoke('manager:clipboardDelete', timestamp, option)
 }
 
+const historyClear = async (option?: {}) => {
+    return ipcRenderer.invoke('manager:historyClear', option)
+}
+
+const historyDelete = async (pluginName: string, actionName: string, option?: {}) => {
+    return ipcRenderer.invoke('manager:historyDelete', pluginName, actionName, option)
+}
+
 export default {
 
     getConfig,
@@ -226,5 +234,8 @@ export default {
     clipboardList,
     clipboardClear,
     clipboardDelete,
+
+    historyClear,
+    historyDelete,
 
 }

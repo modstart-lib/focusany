@@ -297,7 +297,7 @@ declare interface Window {
             listDisabledActionMatch: (option?: {}) => Promise<any>,
             toggleDisabledActionMatch: (pluginName: string, actionName: string, matchName: string, option?: {}) => Promise<boolean>,
             listPinAction: (option?: {}) => Promise<any>,
-            togglePinAction: (actionName: string, option?: {}) => Promise<boolean>,
+            togglePinAction: (pluginName: string, actionName: string, option?: {}) => Promise<boolean>,
             clearCache: (option?: {}) => Promise<void>,
             hotKeyWatch: (option?: {}) => Promise<void>,
             hotKeyUnwatch: (option?: {}) => Promise<void>,
@@ -327,6 +327,9 @@ declare interface Window {
             clipboardList: (option?: {}) => Promise<ClipboardHistoryRecord[]>,
             clipboardClear: (option?: {}) => Promise<void>,
             clipboardDelete: (timestamp: number, option?: {}) => Promise<void>,
+
+            historyClear: (option?: {}) => Promise<void>,
+            historyDelete: (pluginName: string, actionName: string, option?: {}) => Promise<void>,
 
         }
     }
