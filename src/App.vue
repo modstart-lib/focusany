@@ -97,6 +97,12 @@ window.__page.onSetSubInputValue((value: string) => {
     manager.setSubInputValue(value);
 })
 
+window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        manager.hideMainWindow()
+    }
+})
+
 </script>
 
 <style lang="less" scoped>
