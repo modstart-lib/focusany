@@ -1,4 +1,4 @@
-import {app, BrowserWindow, desktopCapturer, session, shell} from 'electron'
+import {app, BrowserWindow, desktopCapturer, session, shell, protocol} from 'electron'
 import {optimizer} from '@electron-toolkit/utils'
 
 /** process.js 必须位于非依赖项的顶部 */
@@ -25,6 +25,7 @@ import {AppPosition} from "../mapi/app/lib/position";
 import {DevToolsManager} from "../lib/devtools";
 import {AppsMain} from "../mapi/app/main";
 import {ManagerEditor} from "../mapi/manager/editor";
+import {ProtocolMain} from "../mapi/protocol/main";
 
 const isDummyNew = isDummy
 
@@ -164,8 +165,15 @@ app.on('open-file', (event, path) => {
     ManagerEditor.openQueue(path).then()
 })
 
+app.on('open-url', (event, url) => {
+    event.preventDefault()
+    ProtocolMain.queue(url).then()
+})
+
 app.whenReady()
     .then(() => {
+        const isRegistered = app.setAsDefaultProtocolClient('focusany')
+        Log.info('ProtocolRegistered', isRegistered)
         remoteMain.initialize()
         session.defaultSession.setDisplayMediaRequestHandler((request, callback) => {
             desktopCapturer.getSources({types: ['screen']}).then((sources) => {

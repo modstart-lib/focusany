@@ -9,6 +9,7 @@ import ui from "./ui";
 import keys from "./keys/main";
 import user from "./user/main";
 import misc from "./misc/main";
+import protocol from "./protocol/main";
 
 import kvdb from "./kvdb/main";
 import server from "./server/main";
@@ -26,6 +27,7 @@ const $mapi = {
     keys,
     user,
     misc,
+    protocol,
     server,
     manager,
     kvdb,
@@ -42,6 +44,7 @@ export const MAPI = {
     ready() {
         $mapi.keys.ready()
         $mapi.manager.ready()
+        $mapi.protocol.ready()
     },
     destroy() {
         $mapi.keys.destroy()

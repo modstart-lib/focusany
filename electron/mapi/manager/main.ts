@@ -25,6 +25,8 @@ import {Page} from "../../page";
 import {ManagerAutomation} from "./automation";
 import {ManagerBackend} from "./backend";
 import {ManagerEditor} from "./editor";
+import ProtocolMain from "../protocol/main";
+import {AppsMain} from "../app/main";
 
 const init = () => {
     ManagerClipboard.init().then()
@@ -305,6 +307,45 @@ ipcMain.handle('manager:updateLaunchRecords', async (event, records: LaunchRecor
 
 ipcMain.handle('manager:storeInstall', async (event, pluginName: string, option?: {}) => {
     return await ManagerPluginStore.install(pluginName, option)
+})
+
+ProtocolMain.register('open', async (params) => {
+    const pluginName = params.pluginName
+    const pluginVersion = params.pluginVersion
+    const autoInstall = params.autoInstall
+    const plugin = await Manager.getPlugin(pluginName)
+    if (!plugin) {
+        if (autoInstall) {
+            const loading = AppsMain.loading('正在安装插件', {
+                percentAuto: true
+            })
+            try {
+                await ManagerPluginStore.install(pluginName, {
+                    version: pluginVersion
+                })
+            } catch (e) {
+                AppsMain.toast('安装插件失败', {
+                    status: 'error'
+                })
+                return
+            } finally {
+                loading.close()
+            }
+            AppsMain.toast('正在打开插件', {
+                status: 'success'
+            })
+            await Manager.openPlugin(pluginName)
+        } else {
+            AppsMain.toast(`插件 ${pluginName} 不存在`, {
+                status: 'error'
+            })
+        }
+    } else {
+        AppsMain.toast('正在打开插件', {
+            status: 'success'
+        })
+        await Manager.openPlugin(pluginName)
+    }
 })
 
 ipcMain.handle('manager:storePublish', async (event, pluginName: string, option?: {}) => {

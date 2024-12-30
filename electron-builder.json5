@@ -42,6 +42,14 @@
                 ]
             }
         ],
+        "protocols": [
+            {
+                "name": "FocusAny Protocol",
+                "schemes": [
+                    "focusany"
+                ]
+            }
+        ],
         "fileAssociations": [
             {
                 "ext": "fadata",
@@ -103,6 +111,14 @@
             "NSDownloadsFolderUsageDescription": "Application requests access to the user's Downloads folder.",
             "NSAccessibilityUsageDescription": "Application requests access to the user's Accessibility features.",
         },
+        "protocols": [
+            {
+                "name": "FocusAny Protocol",
+                "schemes": [
+                    "focusany"
+                ]
+            }
+        ],
         "fileAssociations": [
             {
                 "ext": "fadata",
@@ -146,6 +162,14 @@
                 "filter": [
                     "common",
                     "linux"
+                ]
+            }
+        ],
+        "protocols": [
+            {
+                "name": "FocusAny Protocol",
+                "schemes": [
+                    "focusany"
                 ]
             }
         ],

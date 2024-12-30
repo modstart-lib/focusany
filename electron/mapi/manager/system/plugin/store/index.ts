@@ -10,6 +10,7 @@ import fs from "node:fs";
 import {resolve} from "node:path";
 import {MarkdownUtil} from "../../../../../lib/util";
 import {map} from "lodash-es";
+import {AppsMain} from "../../../../app/main";
 
 export const ManagerPluginStore = {
     async install(pluginName: string, option?: {
@@ -62,6 +63,9 @@ export const ManagerPluginStore = {
             // console.log('ManagerPluginStore.install.start');
             await ManagerPlugin.installFromFileOrDir(tempFile, PluginType.STORE)
             // console.log('ManagerPluginStore.install.end');
+            AppsMain.toast(`插件 ${infoRes.data['config']['title']} 安装完成`, {
+                status: 'success',
+            })
         } catch (e) {
             throw mapError(e)
         }
