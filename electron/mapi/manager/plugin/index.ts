@@ -23,6 +23,7 @@ import {WindowConfig} from "../../../config/window";
 import {AppsMain} from "../../app/main";
 import {ManagerConfig} from "../config/config";
 import {ManagerBackend} from "../backend";
+import {session} from "electron";
 
 type PluginInfo = {
     type: PluginType,
@@ -439,6 +440,7 @@ export const ManagerPlugin = {
         }
         await KVDBMain.remove(CommonConfig.dbSystem, pi)
         await this.clearCache()
+        await this.clearViewSession(plugin)
     },
     async getPluginInstalledVersion(name: string) {
         const plugin = await this.get(name)
@@ -527,5 +529,12 @@ export const ManagerPlugin = {
             }
             return actions
         })
+    },
+    async getViewSession(plugin: PluginRecord) {
+        return session.fromPartition('<' + plugin.name + '>');
+    },
+    async clearViewSession(plugin: PluginRecord) {
+        const viewSession = this.getViewSession(plugin)
+        await viewSession.clearStorageData()
     }
 }

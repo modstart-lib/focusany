@@ -2,7 +2,7 @@ import {ActionRecord, PluginEnv, PluginRecord, PluginState, PluginType} from "..
 import {AppEnv, AppRuntime} from "../../env";
 import {preloadDefault, preloadPluginDefault, rendererIsUrl, rendererLoadPath} from "../../../lib/env-main";
 import {WindowConfig} from "../../../config/window";
-import {BrowserView, BrowserWindow, screen, session, shell, WebContents} from "electron";
+import {BrowserView, BrowserWindow, screen, shell, WebContents} from "electron";
 import {isMac} from "../../../lib/env";
 import * as remoteMain from "@electron/remote/main";
 import {executeDarkMode, executeHooks, executePluginHooks} from "../lib/hooks";
@@ -70,9 +70,9 @@ export const ManagerWindow = {
             main,
         } = ManagerPlugin.getInfo(plugin)
         // console.log('openForCode', {preload, main, height})
-        const windowSession = session.fromPartition('<' + plugin.name + '>');
+        const viewSession = await ManagerPlugin.getViewSession(plugin)
         if (preloadBase) {
-            windowSession.setPreloads([preloadBase]);
+            viewSession.setPreloads([preloadBase]);
         }
         const view = new BrowserView({
             webPreferences: {
@@ -83,7 +83,7 @@ export const ManagerWindow = {
                 devTools: true,
                 webviewTag: true,
                 preload,
-                session: windowSession,
+                session: viewSession,
                 defaultFontSize: 14,
                 defaultFontFamily: {
                     standard: 'system-ui',
@@ -176,9 +176,9 @@ export const ManagerWindow = {
                 }
             }
         }
-        const windowSession = session.fromPartition('<' + plugin.name + '>');
+        const viewSession = await ManagerPlugin.getViewSession(plugin)
         if (preloadBase) {
-            windowSession.setPreloads([preloadBase]);
+            viewSession.setPreloads([preloadBase]);
         }
         // console.log('preload', {preloadPluginDefault, preload})
         const view = new BrowserView({
@@ -190,7 +190,7 @@ export const ManagerWindow = {
                 devTools: true,
                 webviewTag: true,
                 preload,
-                session: windowSession,
+                session: viewSession,
                 defaultFontSize: 14,
                 defaultFontFamily: {
                     standard: 'system-ui',
