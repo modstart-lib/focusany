@@ -162,10 +162,6 @@ export const managerStore = defineStore("manager", {
             await window.$mapi.manager.hide()
         },
         async openAction(action: ActionRecord) {
-            this.searchActions = []
-            this.matchActions = []
-            this.historyActions = []
-            this.pinActions = []
             await window.$mapi.manager.openAction(toRaw(action))
             if (action.type === ActionTypeEnum.COMMAND
                 || action.type === ActionTypeEnum.CODE
@@ -173,6 +169,10 @@ export const managerStore = defineStore("manager", {
                 this.searchValue = ''
                 await window.$mapi.manager.hide()
             }
+            this.searchActions = []
+            this.matchActions = []
+            this.historyActions = []
+            this.pinActions = []
         },
         async closeMainPlugin(plugin?: PluginRecord) {
             await window.$mapi.manager.closeMainPlugin(plugin ? toRaw(plugin) : null);
