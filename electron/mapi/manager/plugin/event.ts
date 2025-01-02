@@ -22,6 +22,7 @@ import {ManagerClipboard} from "../clipboard";
 import {ManagerAutomation} from "../automation";
 import {AppConfig} from "../../../../src/config";
 import {ManagerPluginPermission} from "./permission";
+import User from "../../user/main";
 
 const getHeadHeight = (win: BrowserWindow) => {
     if (win === AppRuntime.mainWindow) {
@@ -343,6 +344,24 @@ export const ManagerPluginEvent = {
     },
     isDarkColors: async (context: PluginContext, data: any) => {
         return await AppsMain.shouldDarkMode()
+    },
+    getUser: async (context: PluginContext, data: any): Promise<{
+        avatar: string,
+        nickname: string,
+        vipFlag: string,
+        deviceCode: string
+    } | null> => {
+        const info = await User.get()
+        const user = info.user
+        if (!user.id) {
+            return null
+        }
+        return {
+            avatar: user.avatar,
+            nickname: user.name,
+            vipFlag: info.data?.vip?.flag || '',
+            deviceCode: user.deviceCode
+        }
     },
     redirect: async (context: PluginContext, data: any) => {
         let {keywordsOrAction, query} = data;

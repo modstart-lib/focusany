@@ -249,6 +249,16 @@ interface FocusAnyApi {
     isDarkColors(): boolean;
 
     /**
+     * 获取用户
+     */
+    getUser(): {
+        avatar: string,
+        nickname: string,
+        vipFlag: string,
+        deviceCode: string
+    } | null;
+
+    /**
      * 设置插件动作
      * @param action
      */

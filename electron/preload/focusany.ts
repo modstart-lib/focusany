@@ -355,6 +355,15 @@ export const FocusAny = {
         })
     },
 
+    getUser(): {
+        avatar: string,
+        nickname: string,
+        vipFlag: string,
+        deviceCode: string
+    } | null {
+        return ipcSendSync('getUser')
+    },
+
     db: {
         put(doc: DbDoc) {
             return ipcSendSync('dbPut', {doc})
