@@ -103,6 +103,8 @@ declare interface Window {
                 buildTime: string,
             }>,
             collect: (options?: {}) => Promise<any>,
+            setAutoLaunch: (enable: boolean, options?: {}) => Promise<boolean>,
+            getAutoLaunch: (options?: {}) => Promise<boolean>,
         },
         config: {
             get: (key: string, defaultValue: any = null) => Promise<any>,

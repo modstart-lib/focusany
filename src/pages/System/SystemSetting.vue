@@ -11,17 +11,25 @@ const isMacOs = focusany.isMacOs()
 const isWindows = focusany.isWindows()
 const isLinux = focusany.isLinux()
 const fastPanelTriggerType = ref('Ctrl')
+const autoLaunchEnable = ref(false)
 
 onMounted(() => {
     fastPanelTriggerType.value = manager.configGet('fastPanelTrigger', null).value?.type || 'Ctrl'
+    autoLaunchEnable.value = setting.configGet('autoLaunchEnable', false).value
 })
 
-const onManagerConfigChange = (key: string, value: any) => {
+const onManagerConfigChange = async (key: string, value: any) => {
     // console.log('onManagerConfigChange', key, value)
     switch (key) {
         case 'fastPanelTriggerType':
-            manager.onConfigChange('fastPanelTrigger', {type: value})
+            await manager.onConfigChange('fastPanelTrigger', {type: value})
             fastPanelTriggerType.value = value
+            break
+        case 'autoLaunchEnable':
+            await setting.onConfigChange('autoLaunchEnable', value)
+            autoLaunchEnable.value = value
+            await window.$mapi.app.setAutoLaunch(autoLaunchEnable.value)
+            autoLaunchEnable.value = await window.$mapi.app.getAutoLaunch()
             break
     }
 }
@@ -77,6 +85,15 @@ const onManagerConfigChange = (key: string, value: any) => {
                             <a-option value="Alt" v-if="isMacOs">Option</a-option>
                             <a-option value="Meta" v-if="isMacOs">Meta</a-option>
                         </a-select>
+                    </div>
+                </div>
+                <div class="flex items-center mb-6">
+                    <div class="flex-grow">
+                        开机启动
+                    </div>
+                    <div>
+                        <a-switch :model-value="autoLaunchEnable"
+                                  @change="onManagerConfigChange('autoLaunchEnable',$event)"/>
                     </div>
                 </div>
             </div>
