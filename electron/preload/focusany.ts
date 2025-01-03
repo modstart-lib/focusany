@@ -16,6 +16,17 @@ const ipcSendSync = (type: string, data?: any) => {
     return result;
 };
 
+const ipcSendAsync = async (type: string, data?: any) => {
+    executeHook('Log', `${type}`, data)
+    const result = await ipcRenderer.invoke('FocusAny.Plugin.Async', {
+        type,
+        data,
+    })
+    executeHook('Log', `${type}.result`, result)
+    if (result instanceof Error) throw result;
+    return result;
+}
+
 const ipcSend = (type: string, data?: any) => {
     ipcRenderer.send('FocusAny.Plugin', {
         type,
@@ -362,6 +373,39 @@ export const FocusAny = {
         deviceCode: string
     } | null {
         return ipcSendSync('getUser')
+    },
+
+    getUserAccessToken(): Promise<{ token: string, expireAt: number }> {
+        return ipcSendAsync('getUserAccessToken')
+    },
+
+    openGoodsPayment(
+        options: {
+            goodsId: string,
+            price?: string,
+            outOrderId?: string,
+            outParam?: string,
+        }
+    ): Promise<{
+        paySuccess: boolean,
+    }> {
+        return ipcSendAsync('openGoodsPayment', {options})
+    },
+
+    queryGoodsOrders(options: {
+        goodsId?: string,
+        page?: number,
+        pageSize?: number,
+    }): Promise<{
+        page: number,
+        total: number,
+        records: {
+            id: string,
+            goodsId: string,
+            status: 'Paid' | 'Unpaid',
+        }[]
+    }> {
+        return ipcSendAsync('queryGoodsOrders', {options})
     },
 
     db: {

@@ -22,7 +22,8 @@ import {ManagerClipboard} from "../clipboard";
 import {ManagerAutomation} from "../automation";
 import {AppConfig} from "../../../../src/config";
 import {ManagerPluginPermission} from "./permission";
-import User from "../../user/main";
+import User, {UserApi} from "../../user/main";
+import {PagePayment} from "../../../page/payment";
 
 const getHeadHeight = (win: BrowserWindow) => {
     if (win === AppRuntime.mainWindow) {
@@ -410,6 +411,118 @@ export const ManagerPluginEvent = {
         return true
     },
 
+    getUserAccessToken: async (context: PluginContext, data: any) => {
+        const res = await UserApi.post<{
+            token: string,
+            expireAt: number
+        }>('client/getUserAccessToken', {
+            pluginName: context._plugin.name
+        })
+        return {
+            token: res.data.token,
+            expireAt: res.data.expireAt
+        }
+    },
+
+    openGoodsPayment: async (context: PluginContext, data: any) => {
+        const {options} = data as {
+            options: {
+                goodsId: string,
+                price?: string,
+                outOrderId?: string,
+                outParam?: string,
+            }
+        };
+        const payResult = {
+            paySuccess: false
+        }
+        return new Promise((resolve, reject) => {
+            let watchUrl = null as any
+            let controller = null as any
+            PagePayment.open({
+                onRefresh: async () => {
+                    // console.log('onRefresh')
+                    const res = await UserApi.post<{
+                        payUrl: string,
+                        watchUrl: string,
+                        payExpireSeconds: number,
+                        body: string,
+                    }>('client/createGoodsOrder', {
+                        pluginName: context._plugin.name,
+                        ...options
+                    })
+                    watchUrl = res.data.watchUrl
+                    return {
+                        payUrl: res.data.payUrl,
+                        watchUrl: res.data.watchUrl,
+                        payExpireSeconds: res.data.payExpireSeconds,
+                        body: res.data.body,
+                    }
+                },
+                onWatch: async () => {
+                    // console.log('onWatch')
+                    let status = 'Error' as 'WaitPay' | 'Scanned' | 'Payed' | 'Expired' | 'Error'
+                    const res = await UserApi.post<{
+                        status: 'unknown' | 'WaitPay' | 'Payed',
+                        scanStatus: null | 'Scanned',
+                    }>(watchUrl, {})
+                    if (res.data.status === 'WaitPay') {
+                        if (res.data.scanStatus === 'Scanned') {
+                            status = 'Scanned'
+                        } else {
+                            status = 'WaitPay'
+                        }
+                    } else if (res.data.status === 'Payed') {
+                        status = 'Payed'
+                    } else if (res.data.status === 'unknown') {
+                        status = 'Error'
+                    }
+                    if ('Payed' === status) {
+                        payResult.paySuccess = true
+                        setTimeout(() => {
+                            controller.close()
+                        }, 3000)
+                    }
+                    // console.log('watch', status, res)
+                    return {
+                        status
+                    }
+                },
+                onClose: async () => {
+                    resolve(payResult)
+                }
+            }).then(c => {
+                controller = c
+            })
+        })
+    },
+
+    queryGoodsOrders: async (context: PluginContext, data: any) => {
+        const {options} = data as {
+            options: {
+                goodsId?: string,
+                page?: number,
+                pageSize?: number,
+            }
+        };
+        const res = await UserApi.post<{
+            page: number,
+            total: number,
+            records: {
+                id: string,
+                goodsId: string,
+                status: 'Paid' | 'Unpaid',
+            }[]
+        }>('client/queryGoodsOrders', {
+            pluginName: context._plugin.name,
+            ...options
+        })
+        return {
+            page: res.data.page,
+            total: res.data.total,
+            records: res.data.records
+        }
+    },
 
     // db
     dbPut: async (context: PluginContext, data: any) => {

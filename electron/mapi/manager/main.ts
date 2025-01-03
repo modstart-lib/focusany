@@ -434,6 +434,15 @@ ipcMain.on('FocusAny.Plugin', (event, payload: {
     })
 })
 
+ipcMain.handle('FocusAny.Plugin.Async', async (event, payload: {
+    type: string,
+    data: any
+}) => {
+    const view = getViewByEvent(event)
+    const {type, data} = payload
+    return await ManagerPluginEvent[type](view, data)
+})
+
 ipcMain.on('SendTo', (event, winId: number, type: string, ...args: any) => {
     // console.log('SendTo', event.sender.getType(), event.sender.id, {winId, type, payload})
     BrowserWindow.getAllWindows().forEach(w => {

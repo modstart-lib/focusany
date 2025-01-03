@@ -259,6 +259,86 @@ interface FocusAnyApi {
     } | null;
 
     /**
+     * 获取用户服务端临时令牌
+     */
+    getUserAccessToken(): Promise<{ token: string, expireAt: number }>;
+
+    /**
+     * 创建订单并显示
+     * @param options 订单参数
+     */
+    openGoodsPayment(
+        options: {
+            /**
+             * 插件商品ID
+             */
+            goodsId: string,
+            /**
+             * 插件商品价格，固定价格商品无需传入，动态价格商品需传入价格，如 0.01
+             */
+            price?: string,
+            /**
+             * 第三方订单号，字符串，最大长度 64 字符
+             */
+            outOrderId?: string,
+            /**
+             * 参数数据，长度不超过 200 字符
+             */
+            outParam?: string,
+        }
+    ): Promise<{
+        /**
+         * 是否支付成功
+         */
+        paySuccess: boolean,
+    }>;
+
+    /**
+     * 查询插件商品订单
+     * @param options
+     */
+    queryGoodsOrders(options: {
+        /**
+         * 插件商品ID，可选
+         */
+        goodsId?: string,
+        /**
+         * 分页页码，从 1 开始，可选
+         */
+        page?: number,
+        /**
+         * 分页大小，可选，默认是 10
+         */
+        pageSize?: number,
+    }): Promise<{
+        /**
+         * 当前页数
+         */
+        page: number,
+        /**
+         * 总订单数
+         */
+        total: number,
+        /**
+         * 订单列表
+         */
+        records: {
+            /**
+             * 订单号
+             */
+            id: string,
+            /**
+             * 商品ID
+             */
+            goodsId: string,
+            /**
+             * 状态 Paid: 已支付, Unpaid: 未支付
+             */
+            status: 'Paid' | 'Unpaid',
+        }[]
+    }>;
+
+    /**
      * 设置插件动作
      * @param action
      */

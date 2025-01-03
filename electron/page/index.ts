@@ -8,11 +8,13 @@ import {PageSetup} from "./setup";
 import {PageAbout} from "./about";
 import {DevToolsManager} from "../lib/devtools";
 import {PageFeedback} from "./feedback";
+import {PagePayment} from "./payment";
 
 const Pages = {
     'user': PageUser,
     'guide': PageGuide,
     'setup': PageSetup,
+    'payment': PagePayment,
     'about': PageAbout,
     'feedback': PageFeedback,
 }

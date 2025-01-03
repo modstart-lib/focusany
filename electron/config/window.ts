@@ -15,6 +15,8 @@ export const WindowConfig = {
     feedbackHeight: 600,
     guideWidth: 800,
     guideHeight: 540,
+    paymentWidth: 500,
+    paymentHeight: 400,
     setupWidth: 800,
     setupHeight: 540,
     fastPanelWidth: 260,
