@@ -19,7 +19,6 @@ import {ManagerSystemPluginFile} from "./system/plugin/file";
 import {Manager} from "./manager";
 import {PluginContext, SearchQuery} from "./type";
 import {ManagerPluginStore} from "./system/plugin/store/index";
-import {getClipboardFiles} from "./clipboard/clipboardFiles";
 import {Permissions} from "../../lib/permission";
 import {Page} from "../../page";
 import {ManagerAutomation} from "./automation";
@@ -72,8 +71,12 @@ ipcMain.handle('manager:hide', async (event) => {
     return await ManagerPluginEvent.hideMainWindow(null, null)
 })
 
-ipcMain.handle('manager:getClipboardFiles', async (event) => {
-    return getClipboardFiles()
+ipcMain.handle('manager:getClipboardContent', async (event) => {
+    return await ManagerClipboard.getClipboardContent()
+})
+
+ipcMain.handle('manager:getClipboardChangeTime', async (event) => {
+    return ManagerClipboard.lastChangeTimestamp
 })
 
 ipcMain.handle('manager:getSelectedContent', async (event) => {

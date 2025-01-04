@@ -1,13 +1,12 @@
 import {AppsMain} from "../../app/main";
 import {ClipboardDataType, ClipboardHistoryRecord} from "../../../../src/types/Manager";
 import {Files} from "../../file/main";
-import {EncodeUtil, FileUtil, StrUtil, TimeUtil} from "../../../lib/util";
+import {EncodeUtil, FileUtil, sleep, StrUtil, TimeUtil} from "../../../lib/util";
 import StorageMain from "../../storage/main";
 import {getClipboardFiles, setClipboardFiles} from "./clipboardFiles";
 import {clipboard} from "electron";
 import {isMac} from "../../../lib/env";
 import {KeyboardKey, ManagerHotkeySimulate} from "../hotkey/simulate";
-import {Events} from "../../event/main";
 import {ManagerPluginEvent} from "../plugin/event";
 
 export const ManagerClipboard = {
@@ -15,7 +14,9 @@ export const ManagerClipboard = {
     running: true,
     interval: 1000,
     timer: null,
-    lastContent: null,
+    watchNextTime: 0,
+    lastContentJson: null,
+    lastChangeTimestamp: 0,
     encryptKey: null,
     gettingSelectedContent: false,
     async getSelectedContent(): Promise<ClipboardDataType | null> {
@@ -75,30 +76,34 @@ export const ManagerClipboard = {
         }
         return null
     },
-    async _watchChange() {
-        if (this.gettingSelectedContent) {
-            return
+    async getClipboardContent(): Promise<ClipboardDataType | null> {
+        while (this.gettingSelectedContent) {
+            await sleep(10)
         }
         const content = await this._getClipboardContent()
-        // console.log('content', content)
-        if (content === null) {
-            return
-        }
-        if (null == this.lastContent || JSON.stringify(content) !== JSON.stringify(this.lastContent)) {
-            this.lastContent = content
+        this.watchNextTime = Date.now() + this.interval
+        const contentJson = JSON.stringify(content)
+        if (null == this.lastContentJson || contentJson !== this.lastContentJson) {
+            this.lastContentJson = contentJson
+            this.lastChangeTimestamp = TimeUtil.timestamp()
             this.onChange(content).then()
-            return
         }
+        return content
     },
     _watch() {
-        this._watchChange()
-            .finally(() => {
-                if (this.running) {
-                    setTimeout(() => {
-                        this._watch()
-                    }, this.interval);
-                }
-            })
+        if (this.watchNextTime > Date.now()) {
+            setTimeout(() => {
+                this._watch()
+            }, Math.max(this.watchNextTime - Date.now(), 0))
+            return
+        }
+        this.getClipboardContent().finally(() => {
+            if (this.running) {
+                setTimeout(() => {
+                    this._watch()
+                }, Math.max(this.watchNextTime - Date.now(), 0));
+            }
+        })
     },
     monitorStart() {
         this.running = true;

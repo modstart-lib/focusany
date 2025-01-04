@@ -264,7 +264,8 @@ declare interface Window {
             show: () => Promise<void>,
             hide: () => Promise<void>,
 
-            getClipboardFiles: () => Promise<any[]>,
+            getClipboardContent: () => Promise<ClipboardDataType | null>,
+            getClipboardChangeTime: () => Promise<number>,
             getSelectedContent: () => Promise<SelectedContent>,
 
             searchFastPanelAction: (query: {

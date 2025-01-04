@@ -1,15 +1,7 @@
 import {useManagerStore} from "../../../store/modules/manager";
+import {ClipboardDataType, SelectedContent} from "../../../types/Manager";
 
 const manager = useManagerStore()
-
-let clipboardState = {
-    textInit: false,
-    textLast: '' as string,
-    imageInit: false,
-    imageLast: '',
-    filesInit: false,
-    filesLastJson: '' as string,
-}
 
 export const EntryListener = {
     prepareSearch: async (option: {
@@ -19,67 +11,50 @@ export const EntryListener = {
         isFastPanel?: boolean,
     }) => {
 
+        option = Object.assign({
+            isPaste: false,
+            isFastPanel: false,
+        }, option)
+
         // console.log('EntryListener.prepareSearch', option)
 
         let searchValue = manager.searchValue
 
-        let files, image, text
+        // 选中，只有快捷面板才获取
+        let selectedContent: SelectedContent | null = null
+        if (option.isFastPanel) {
+            selectedContent = await window.$mapi.manager.getSelectedContent()
+        }
 
-        // 选中
-        const selectedContent = await window.$mapi.manager.getSelectedContent()
+        const clipboardContent: ClipboardDataType | null = await window.$mapi.manager.getClipboardContent()
+        const clipboardChangeTime = await window.$mapi.manager.getClipboardChangeTime()
+        // 最近6秒内的剪切板变更才会被视为有效
+        const useClipboard = clipboardChangeTime > Date.now() / 1000 - 6
 
         // 文件
         manager.setCurrentFiles([])
-        if (selectedContent && selectedContent.type === 'file' && selectedContent.files?.length > 0) {
+        if (selectedContent && selectedContent.type === 'file' && selectedContent.files?.length) {
             manager.setCurrentFiles(selectedContent.files as FileItem[])
-        } else {
-            files = await window.$mapi.manager.getClipboardFiles()
-            const filesJson = JSON.stringify(files);
-            if (!clipboardState.filesInit) {
-                clipboardState.filesLastJson = filesJson
-                clipboardState.filesInit = true
-            } else if (clipboardState.filesLastJson !== filesJson) {
-                clipboardState.filesLastJson = filesJson
-                manager.setCurrentFiles(files as FileItem[])
-            } else if (option.isPaste) {
-                clipboardState.filesLastJson = filesJson
-                manager.setCurrentFiles(files as FileItem[])
+        } else if (clipboardContent && clipboardContent.type === 'file' && clipboardContent.files?.length) {
+            if (useClipboard || option.isPaste) {
+                manager.setCurrentFiles(clipboardContent.files as FileItem[])
             }
         }
 
         // 图片
         manager.setCurrentImage('')
-        if (!manager.currentFiles.length) {
-            image = await window.$mapi.app.getClipboardImage()
-            if (!clipboardState.imageInit) {
-                clipboardState.imageLast = image
-                clipboardState.imageInit = true
-            } else if (clipboardState.imageLast !== image) {
-                clipboardState.imageLast = image
-                manager.setCurrentImage(image)
-            } else if (option.isPaste) {
-                clipboardState.imageLast = image
-                manager.setCurrentImage(image)
+        if (clipboardContent && clipboardContent.type === 'image' && clipboardContent.image) {
+            if (useClipboard || option.isPaste) {
+                manager.setCurrentImage(clipboardContent.image)
             }
         }
         // 文本
         manager.setCurrentText('')
-        if (!manager.currentFiles.length && !manager.currentImage) {
-            if (selectedContent && selectedContent.type === 'text' && selectedContent.text) {
-                manager.setCurrentText(selectedContent.text)
-            } else {
-                text = await window.$mapi.app.getClipboardText()
-                // console.log('text', text, clipboardState.textInit, clipboardState.textLast, option.isPaste)
-                if (!clipboardState.textInit) {
-                    clipboardState.textLast = text
-                    clipboardState.textInit = true
-                } else if (clipboardState.textLast !== text) {
-                    clipboardState.textLast = text
-                    manager.setCurrentText(text)
-                } else if (option.isPaste) {
-                    clipboardState.textLast = text
-                    manager.setCurrentText(text)
-                }
+        if (selectedContent && selectedContent.type === 'text' && selectedContent.text) {
+            manager.setCurrentText(selectedContent.text)
+        } else if (clipboardContent && clipboardContent.type === 'text' && clipboardContent.text) {
+            if (useClipboard || option.isPaste) {
+                manager.setCurrentText(clipboardContent.text)
             }
         }
         if (!option.isFastPanel && manager.currentText) {
@@ -100,15 +75,16 @@ export const EntryListener = {
             await manager.search(searchValue)
         }
 
-        // console.log('prepareSearch', {selectedContent, searchValue, files, image, text})
-        // nextTick(() => {
-        //     console.log('state', JSON.stringify({
-        //         searchValue,
-        //         image: manager.currentImage,
-        //         files: manager.currentFiles,
-        //         text: manager.currentText
-        //     }, null, 2))
-        // })
+        console.log('state', JSON.stringify({
+            searchValue,
+            option,
+            useClipboard,
+            clipboardContent,
+            clipboardChangeTime,
+            image: manager.currentImage,
+            files: manager.currentFiles,
+            text: manager.currentText
+        }, null, 2))
     }
 }
 

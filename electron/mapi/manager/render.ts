@@ -17,8 +17,12 @@ const hide = async () => {
     return ipcRenderer.invoke('manager:hide')
 }
 
-const getClipboardFiles = async () => {
-    return ipcRenderer.invoke('manager:getClipboardFiles')
+const getClipboardContent = () => {
+    return ipcRenderer.invoke('manager:getClipboardContent')
+}
+
+const getClipboardChangeTime = () => {
+    return ipcRenderer.invoke('manager:getClipboardChangeTime')
 }
 
 const getSelectedContent = async () => {
@@ -191,7 +195,8 @@ export default {
     show,
     hide,
 
-    getClipboardFiles,
+    getClipboardContent,
+    getClipboardChangeTime,
     getSelectedContent,
     listPlugin,
     installPlugin,
