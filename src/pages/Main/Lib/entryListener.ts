@@ -75,16 +75,16 @@ export const EntryListener = {
             await manager.search(searchValue)
         }
 
-        console.log('state', JSON.stringify({
-            searchValue,
-            option,
-            useClipboard,
-            clipboardContent,
-            clipboardChangeTime,
-            image: manager.currentImage,
-            files: manager.currentFiles,
-            text: manager.currentText
-        }, null, 2))
+        // console.log('state', JSON.stringify({
+        //     searchValue,
+        //     option,
+        //     useClipboard,
+        //     clipboardContent,
+        //     clipboardChangeTime,
+        //     image: manager.currentImage,
+        //     files: manager.currentFiles,
+        //     text: manager.currentText
+        // }, null, 2))
     }
 }
 

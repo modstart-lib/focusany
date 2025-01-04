@@ -47,26 +47,30 @@
                 </div>
             </div>
         </div>
-        <a-input
-            id="search"
-            ref="mainInput"
-            class="main-input"
-            size="large"
-            @input="(e) => onSearchValueChange(e)"
-            @focus="onFocus"
-            @keydown.left="(e) => onSearchKeydown(e, 'left')"
-            @keydown.right="(e) => onSearchKeydown(e, 'right')"
-            @keydown.down="(e) => onSearchKeydown(e, 'down')"
-            @keydown.tab="(e) => onSearchKeydown(e, 'down')"
-            @keydown.up="(e) => onSearchKeydown(e, 'up')"
-            @keydown.esc="(e) => onSearchKeydown(e, 'esc')"
-            @keypress.enter="(e) => onSearchKeydown(e, 'enter')"
-            @keypress.space="(e) => onSearchKeydown(e, 'space')"
-            @keydown="(e) => onSearchKeydown(e, 'custom')"
-            @dblclick="onSearchDoubleClick"
-            :model-value="manager.searchValue"
-            :placeholder="manager.activePlugin?manager.searchSubPlaceholder:manager.searchPlaceholder">
-        </a-input>
+        <div class="main-search">
+            <a-input
+                id="search"
+                ref="mainInput"
+                size="large"
+                @input="(e) => onSearchValueChange(e)"
+                @focus="onFocus"
+                @keydown.left="(e) => onSearchKeydown(e, 'left')"
+                @keydown.right="(e) => onSearchKeydown(e, 'right')"
+                @keydown.down="(e) => onSearchKeydown(e, 'down')"
+                @keydown.tab="(e) => onSearchKeydown(e, 'down')"
+                @keydown.up="(e) => onSearchKeydown(e, 'up')"
+                @keydown.esc="(e) => onSearchKeydown(e, 'esc')"
+                @keypress.enter="(e) => onSearchKeydown(e, 'enter')"
+                @keypress.space="(e) => onSearchKeydown(e, 'space')"
+                @keydown="(e) => onSearchKeydown(e, 'custom')"
+                @dblclick="onSearchDoubleClick"
+                :model-value="manager.searchValue">
+            </a-input>
+            <div class="placeholder"
+                 v-if="manager.searchValue===''">
+                {{ manager.activePlugin ? manager.searchSubPlaceholder : manager.searchPlaceholder }}
+            </div>
+        </div>
         <div class="content-right"
              @click="doShowMenu">
             <div class="more" v-if="manager.activePlugin">
@@ -89,7 +93,7 @@
 </template>
 
 <script setup lang="ts">
-import {ref} from 'vue';
+import {onMounted, ref} from 'vue';
 import FileExt from "../../components/common/FileExt.vue";
 import {useManagerStore} from "../../store/modules/manager";
 import {useSearchOperate} from "./Lib/searchOperate";
@@ -109,6 +113,9 @@ const manager = useManagerStore()
 
 const {onDragWindowMouseDown} = useDragWindow({
     name: 'main',
+    ignore: (e) => {
+        return !!(e.target && ((e.target as any).tagName === 'INPUT'))
+    },
 });
 
 const {
@@ -118,8 +125,21 @@ const {
     clipboardFilesInfo,
 } = useSearchOperate(emit)
 
+let input = {
+    ele: null as any,
+    context: null as any,
+}
+
 const onSearchValueChange = (value: string) => {
     manager.search(value);
+    if (!input.ele) {
+        input.ele = document.querySelector('.pb-search input[type="text"]')
+        const canvas = document.createElement("canvas");
+        input.context = canvas.getContext("2d") as any
+        input.context.font = window.getComputedStyle(input.ele).font;
+    }
+    const width = input.context.measureText(value).width;
+    input.ele.style.width = (width + 10) + 'px';
 };
 
 const onShow = () => {
@@ -328,15 +348,38 @@ defineExpose({
         }
     }
 
-    .main-input {
+    .main-search {
         height: 40px !important;
-        box-sizing: border-box;
         flex: 1;
-        border: none;
-        outline: none;
-        box-shadow: none !important;
-        background-color: transparent;
-        padding-left: 8px;
+        width: 0;
+        position: relative;
+
+        .placeholder {
+            position: absolute;
+            top: 0;
+            left: 10px;
+            line-height: 40px;
+            font-size: 20px;
+            color: #999;
+            z-index: 0;
+        }
+
+        :deep(.arco-input-wrapper) {
+            position: absolute;
+            z-index: 1;
+            height: 40px !important;
+            box-sizing: border-box;
+            border: none;
+            outline: none;
+            box-shadow: none !important;
+            background-color: transparent;
+            padding-left: 8px;
+            cursor: default;
+        }
+
+        :deep(input) {
+            cursor: text !important;
+        }
 
         &:hover {
             background-color: transparent !important;

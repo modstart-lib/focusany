@@ -1,8 +1,10 @@
 export const useDragWindow = (
     {
         name,
+        ignore
     }: {
         name: string | null;
+        ignore?: (e: MouseEvent) => boolean;
     }
 ) => {
     name = name || null
@@ -15,7 +17,12 @@ export const useDragWindow = (
 
     const onDragWindowMouseDown = (e) => {
         // 右击不移动
-        if (e.button === 2) return;
+        if (e.button === 2) {
+            return;
+        }
+        if (ignore && ignore(e)) {
+            return;
+        }
         draggable = true;
         mouseX = e.clientX;
         mouseY = e.clientY;
