@@ -18,6 +18,7 @@ import about from './about.svg'
 import apple from './apple.svg'
 import windows from './windows.svg'
 import linux from './linux.svg'
+import lock from './lock.svg'
 
 export const SystemIcons = {
 
@@ -41,4 +42,5 @@ export const SystemIcons = {
     apple,
     windows,
     linux,
+    lock,
 }

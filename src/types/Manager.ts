@@ -51,7 +51,7 @@ export type PluginRecord = {
         nodeIntegration?: boolean,
         darkModeSupport?: boolean,
     },
-    permissions: PluginPermissionType[],
+    permissions?: PluginPermissionType[],
     development?: {
         env?: 'dev' | 'prod',
         main?: string,

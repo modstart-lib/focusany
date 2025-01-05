@@ -91,6 +91,15 @@ export const SystemPlugin: PluginRecord = {
             matches: [
                 '新手指引', 'guide'
             ] as any
+        },
+        {
+            name: 'lock',
+            title: "锁屏",
+            type: ActionTypeEnum.CODE,
+            icon: SystemIcons.lock,
+            matches: [
+                '锁屏', 'lock'
+            ] as any
         }
     ]
 }
