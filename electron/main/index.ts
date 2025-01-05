@@ -198,7 +198,7 @@ app.whenReady()
     })
 
 app.on('before-quit', (event) => {
-    if (!(app as any).forceQuit) {
+    if (!(app as any).forceQuit && isPackaged) {
         event.preventDefault();
     }
 });

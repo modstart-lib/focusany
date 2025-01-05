@@ -100,6 +100,15 @@ export const SystemPlugin: PluginRecord = {
             matches: [
                 '锁屏', 'lock'
             ] as any
+        },
+        {
+            name: 'ip',
+            title: "局域网IP",
+            type: ActionTypeEnum.CODE,
+            icon: SystemIcons.ip,
+            matches: [
+                'IP',
+            ] as any
         }
     ]
 }
