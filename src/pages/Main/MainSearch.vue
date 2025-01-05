@@ -93,13 +93,12 @@
 </template>
 
 <script setup lang="ts">
-import {onMounted, ref} from 'vue';
+import {ref, watch} from 'vue';
 import FileExt from "../../components/common/FileExt.vue";
 import {useManagerStore} from "../../store/modules/manager";
 import {useSearchOperate} from "./Lib/searchOperate";
 import {EntryListener} from "./Lib/entryListener";
 import {useDragWindow} from "../../app/dragWindow";
-import {SystemIcons} from "../../../electron/mapi/manager/system/asset/icon";
 import {PluginType} from "../../types/Manager";
 
 const mainInput = ref<any>(null);
@@ -130,8 +129,7 @@ let input = {
     context: null as any,
 }
 
-const onSearchValueChange = (value: string) => {
-    manager.search(value);
+watch(() => manager.searchValue, (value) => {
     if (!input.ele) {
         input.ele = document.querySelector('.pb-search input[type="text"]')
         const canvas = document.createElement("canvas");
@@ -140,6 +138,10 @@ const onSearchValueChange = (value: string) => {
     }
     const width = input.context.measureText(value).width;
     input.ele.style.width = (width + 10) + 'px';
+})
+
+const onSearchValueChange = (value: string) => {
+    manager.search(value);
 };
 
 const onShow = () => {
