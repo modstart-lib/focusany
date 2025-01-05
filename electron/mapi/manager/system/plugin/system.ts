@@ -107,7 +107,7 @@ export const SystemPlugin: PluginRecord = {
             type: ActionTypeEnum.CODE,
             icon: SystemIcons.ip,
             matches: [
-                'IP',
+                '局域网IP',
             ] as any
         }
     ]

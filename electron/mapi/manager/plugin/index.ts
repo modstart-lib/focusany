@@ -535,6 +535,8 @@ export const ManagerPlugin = {
     },
     async clearViewSession(plugin: PluginRecord) {
         const viewSession = this.getViewSession(plugin)
-        await viewSession.clearStorageData()
+        if(viewSession){
+            await viewSession.clearStorageData()
+        }
     }
 }
