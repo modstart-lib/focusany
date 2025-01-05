@@ -23,6 +23,7 @@ const hideApp = () => {
 }
 
 const quitApp = () => {
+    (app as any).forceQuit = true
     app.quit()
 }
 

@@ -197,6 +197,12 @@ app.whenReady()
         handleArgsForOpenFile(process.argv)
     })
 
+app.on('before-quit', (event) => {
+    if (!(app as any).forceQuit) {
+        event.preventDefault();
+    }
+});
+
 app.on('will-quit', () => {
     MAPI.destroy()
 });
