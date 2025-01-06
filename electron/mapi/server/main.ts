@@ -1,6 +1,7 @@
 import ServerApi from './api'
 import {ipcMain} from "electron";
 import {Log} from "../log/main";
+import {mapError} from "./error";
 
 const serverModule = {}
 
@@ -18,8 +19,9 @@ const getModule = async (serverInfo: ServerInfo) => {
             await module.default.init(ServerApi)
             serverModule[serverInfo.localPath] = module.default
         } catch (e) {
-            Log.error('mapi.server.getModule.error', e)
-            throw new Error(e)
+            const error = mapError(e)
+            Log.error('mapi.server.getModule.error', error)
+            throw error
         }
     }
     return serverModule[serverInfo.localPath]
@@ -30,8 +32,9 @@ ipcMain.handle('server:start', async (event, serverInfo: ServerInfo) => {
     try {
         return await module.start(serverInfo)
     } catch (e) {
-        Log.error('mapi.server.start.error', e)
-        throw new Error(e)
+        const error = mapError(e)
+        Log.error('mapi.server.start.error', error)
+        throw error
     }
 })
 
@@ -40,8 +43,9 @@ ipcMain.handle('server:ping', async (event, serverInfo: ServerInfo) => {
     try {
         return await module.ping()
     } catch (e) {
-        Log.error('mapi.server.ping.error', e)
-        throw new Error(e)
+        const error = mapError(e)
+        Log.error('mapi.server.ping.error', error)
+        throw error
     }
 })
 
@@ -50,8 +54,9 @@ ipcMain.handle('server:stop', async (event, serverInfo: ServerInfo) => {
     try {
         return await module.stop(serverInfo)
     } catch (e) {
-        Log.error('mapi.server.stop.error', e)
-        throw new Error(e)
+        const error = mapError(e)
+        Log.error('mapi.server.stop.error', error)
+        throw error
     }
 })
 
@@ -60,8 +65,9 @@ ipcMain.handle('server:config', async (event, serverInfo: ServerInfo) => {
     try {
         return await module.config()
     } catch (e) {
-        Log.error('mapi.server.config.error', e)
-        throw new Error(e)
+        const error = mapError(e)
+        Log.error('mapi.server.config.error', error)
+        throw error
     }
 })
 
@@ -76,8 +82,9 @@ ipcMain.handle('server:callFunction', async (event, serverInfo: ServerInfo, meth
     try {
         return await func.bind(module)(serverInfo, data)
     } catch (e) {
-        Log.error('mapi.server.callFunction.error', e)
-        throw new Error(e)
+        const error = mapError(e)
+        Log.error('mapi.server.callFunction.error', error)
+        throw error
     }
 })
 
