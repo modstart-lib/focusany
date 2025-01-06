@@ -33,12 +33,26 @@ if (process.env['ELECTRON_ENV_PROD']) {
     DevToolsManager.setEnable(false)
 }
 
-process.on('uncaughtException', (error) => {
+process.on('uncaughtException', (reason) => {
+    let error: any = reason
+    if (error instanceof Error) {
+        error = [
+            error.message,
+            error.stack,
+        ].join("\n")
+    }
     Log.error('UncaughtException', error);
 });
 
 process.on('unhandledRejection', (reason) => {
-    Log.error('UnhandledRejection', reason);
+    let error: any = reason
+    if (error instanceof Error) {
+        error = [
+            error.message,
+            error.stack,
+        ].join("\n")
+    }
+    Log.error('UnhandledRejection', error);
 });
 
 // Set application name for Windows 10+ notifications

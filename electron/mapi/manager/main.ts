@@ -230,7 +230,7 @@ ipcMain.handle('manager:searchAction', async (event, query: SearchQuery, option?
     result.matchActions = await Manager.matchActions(uniqueRemover, actions, query)
     if (!query.keywords) {
         result.historyActions = await Manager.historyActions(uniqueRemover, actions, query)
-        result.pinActions = await Manager.pinActions(uniqueRemover, actions, query)
+        result.pinActions = await Manager.pinActions(new Set(), actions, query)
     }
 
     const pinedSet = await ManagerConfig.getPinedActionSet()

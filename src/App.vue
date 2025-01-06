@@ -98,8 +98,8 @@ window.__page.onSetSubInputValue((value: string) => {
 })
 
 window.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-        manager.hideMainWindow()
+    if (!manager.activePlugin) {
+        mainSearch.value?.onKeyDown(e)
     }
 })
 

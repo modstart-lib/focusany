@@ -67,7 +67,7 @@
                 :model-value="manager.searchValue">
             </a-input>
             <div class="placeholder"
-                 v-if="manager.searchValue===''">
+                 v-if="manager.searchValue===''&&searchValueCompositingValue===''">
                 {{ manager.activePlugin ? manager.searchSubPlaceholder : manager.searchPlaceholder }}
             </div>
         </div>
@@ -93,7 +93,7 @@
 </template>
 
 <script setup lang="ts">
-import {ref, watch} from 'vue';
+import {onMounted, ref, watch} from 'vue';
 import FileExt from "../../components/common/FileExt.vue";
 import {useManagerStore} from "../../store/modules/manager";
 import {useSearchOperate} from "./Lib/searchOperate";
@@ -128,16 +128,32 @@ let input = {
     ele: null as any,
     context: null as any,
 }
+let searchValueCompositingValue = ref('')
 
-watch(() => manager.searchValue, (value) => {
+const updateWidth = () => {
     if (!input.ele) {
         input.ele = document.querySelector('.pb-search input[type="text"]')
         const canvas = document.createElement("canvas");
         input.context = canvas.getContext("2d") as any
         input.context.font = window.getComputedStyle(input.ele).font;
+        if (input.ele) {
+            input.ele.addEventListener('input', (event) => {
+                updateWidth()
+            })
+        }
     }
-    const width = input.context.measureText(value).width;
+    searchValueCompositingValue.value = input.ele.value || manager.searchValue
+    const width = input.context.measureText(searchValueCompositingValue.value).width;
+    // console.log('width', {value: searchValueCompositingValue.value, value2: manager.searchValue, width})
     input.ele.style.width = (width + 10) + 'px';
+}
+
+watch(() => manager.searchValue, (value) => {
+    updateWidth()
+})
+
+onMounted(() => {
+    updateWidth()
 })
 
 const onSearchValueChange = (value: string) => {
@@ -147,6 +163,25 @@ const onSearchValueChange = (value: string) => {
 const onShow = () => {
     mainInput.value.focus();
 };
+
+const onKeyDown = (e: KeyboardEvent) => {
+    // ignore input event for fire twice
+    if (!!(e.target && ((e.target as any).tagName === 'INPUT'))) {
+        return
+    }
+    const map = {
+        'Escape': 'esc',
+        'ArrowLeft': 'left',
+        'ArrowRight': 'right',
+        'ArrowDown': 'down',
+        'ArrowUp': 'up',
+        'Enter': 'enter',
+        ' ': 'space',
+    }
+    if (e.key in map) {
+        onSearchKeydown(e, map[e.key])
+    }
+}
 
 const doLogoClick = () => {
     window.focusany.redirect(['system', 'page-setting'])
@@ -160,6 +195,7 @@ const onFocus = () => {
 
 defineExpose({
     onShow,
+    onKeyDown,
 });
 
 </script>

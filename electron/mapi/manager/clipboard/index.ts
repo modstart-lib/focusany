@@ -125,6 +125,9 @@ export const ManagerClipboard = {
         }
     },
     async onChange(data: ClipboardDataType) {
+        if (!data) {
+            return
+        }
         // console.log('clipboard.onChange', data)
         const filename = TimeUtil.timestampDayStart()
         const saveData = {
