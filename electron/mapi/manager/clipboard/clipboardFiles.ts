@@ -4,7 +4,18 @@ import fs from 'fs';
 import path from 'path';
 import ofs from 'original-fs';
 import {isLinux, isMac, isWin} from "../../../lib/env";
-import electronClipboardEx from 'electron-clipboard-ex';
+
+let electronClipboardEx = null
+if (isMac || isWin) {
+    (async () => {
+        try {
+            electronClipboardEx = await import('electron-clipboard-ex');
+            electronClipboardEx = electronClipboardEx.default;
+            console.log('electronClipboardEx', electronClipboardEx);
+        } catch (e) {
+        }
+    })()
+}
 
 export const getClipboardFiles = (): FileItem[] => {
     let fileInfo: any;
