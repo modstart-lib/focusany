@@ -1,5 +1,6 @@
 import {app, BrowserWindow, desktopCapturer, session, shell, protocol} from 'electron'
 import {optimizer} from '@electron-toolkit/utils'
+import fs from 'node:fs'
 
 /** process.js 必须位于非依赖项的顶部 */
 import {isDummy} from "../lib/process";
@@ -31,6 +32,13 @@ const isDummyNew = isDummy
 
 if (process.env['ELECTRON_ENV_PROD']) {
     DevToolsManager.setEnable(false)
+}
+
+const logDebugContent = (label: string, content: any) => {
+    const filePath = AppEnv.userData + '/debug.log'
+    const msg = label + " - " + JSON.stringify(content)
+    console.log(msg)
+    fs.appendFileSync(filePath, msg + '\n')
 }
 
 process.on('uncaughtException', (reason) => {
@@ -156,8 +164,9 @@ async function createWindow() {
     FastPanelMain.init()
 }
 
-const handleArgsForOpenFile = (argv: string[]) => {
+const handleArgsForApp = (argv: string[]) => {
     let filePath = null
+    let url = null
     for (let i = 1; i < argv.length; i++) {
         const arg = argv[i]
         if (arg.startsWith('--')) {
@@ -166,11 +175,18 @@ const handleArgsForOpenFile = (argv: string[]) => {
         if (['.'].includes(arg)) {
             continue
         }
+        if (arg.startsWith('focusany://')) {
+            url = arg
+            continue
+        }
         filePath = arg
         break
     }
     if (filePath) {
         ManagerEditor.openQueue(filePath).then()
+    }
+    if (url) {
+        ProtocolMain.queue(url).then()
     }
 }
 
@@ -208,7 +224,7 @@ app.whenReady()
             optimizer.watchWindowShortcuts(window)
         })
         createWindow().then()
-        handleArgsForOpenFile(process.argv)
+        handleArgsForApp(process.argv)
     })
 
 app.on('before-quit', (event) => {
@@ -233,7 +249,7 @@ app.on('second-instance', (event, argv) => {
         AppRuntime.mainWindow.show()
         AppRuntime.mainWindow.focus()
     }
-    handleArgsForOpenFile(argv)
+    handleArgsForApp(argv)
 })
 
 app.on('activate', () => {
