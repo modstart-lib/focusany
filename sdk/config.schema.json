@@ -282,7 +282,7 @@
                     "type": "boolean",
                     "description": "插件是否在code执行完成后保留开发者窗口"
                 },
-                "showFastPanelDevTools": {
+                "showViewDevTools": {
                     "type": "boolean",
                     "description": "是否在快捷面板渲染view时显示开发者窗口"
                 }
@@ -328,7 +328,7 @@
                     "type": "string",
                     "description": "窗口宽度，支持 数字 或 百分比，设置后窗口大小将默认为分离模式，默认为 800"
                 },
-                "heightFastPanel": {
+                "heightView": {
                     "type": "integer",
                     "description": "快速面板高度，单位为像素，默认为 100"
                 },

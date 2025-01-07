@@ -28,14 +28,14 @@ export const useViewOperate = (type: 'fastPanel' | 'main') => {
             return manager.viewActions.map(a => {
                 a['_web'] = null
                 a['_webInit'] = false
-                a['_height'] = a.runtime?.view?.heightFastPanel || 100
+                a['_height'] = a.runtime?.view?.heightView || 100
                 return a
             })
         }
         return manager.fastPanelViewActions.map(a => {
             a['_web'] = null
             a['_webInit'] = false
-            a['_height'] = a.runtime?.view?.heightFastPanel || 100
+            a['_height'] = a.runtime?.view?.heightView || 100
             return a
         })
     })
@@ -72,7 +72,7 @@ export const useViewOperate = (type: 'fastPanel' | 'main') => {
                 })
                 aa['_web'].addEventListener('dom-ready', async () => {
                     await executePluginHooks(a['_web'], 'PluginReady', readyData)
-                    if (aa.runtime?.view?.showFastPanelDevTools) {
+                    if (aa.runtime?.view?.showViewDevTools) {
                         aa['_web'].openDevTools({
                             mode: 'detach',
                             activate: false,

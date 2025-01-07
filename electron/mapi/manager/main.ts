@@ -150,14 +150,14 @@ const mergeViewActionRuntime = async (actions: ActionRecord[]) => {
             nodeIntegration,
             preloadBase,
             mainView,
-            showFastPanelDevTools: false,
-            heightFastPanel: 100,
+            showViewDevTools: false,
+            heightView: 100,
         }
-        if (plugin.development && plugin.development === PluginEnv.DEV && plugin.development.showFastPanelDevTools) {
-            a.runtime.view.showFastPanelDevTools = true
+        if (plugin.development && plugin.development === PluginEnv.DEV && plugin.development.showViewDevTools) {
+            a.runtime.view.showViewDevTools = true
         }
-        if (plugin.setting && plugin.setting.heightFastPanel) {
-            a.runtime.view.heightFastPanel = plugin.setting.heightFastPanel
+        if (plugin.setting && plugin.setting.heightView) {
+            a.runtime.view.heightView = plugin.setting.heightView
         }
         for (const k of ['preloadBase', 'mainView']) {
             if (a.runtime.view[k]
