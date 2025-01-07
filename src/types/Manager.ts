@@ -31,7 +31,7 @@ export type PluginRecord = {
     version: string,
     logo: string,
     main: string,
-    mainFastPanel?: string,
+    mainView?: string,
     actions: ActionRecord[],
     description?: string,
     preload?: string,
@@ -55,7 +55,7 @@ export type PluginRecord = {
     development?: {
         env?: 'dev' | 'prod',
         main?: string,
-        mainFastPanel?: string,
+        mainView?: string,
         keepCodeDevTools?: boolean,
         showFastPanelDevTools?: boolean,
     },
@@ -179,7 +179,11 @@ export type ActionRecord = {
     platform?: PlatformType[],
     icon?: string,
     data?: {
+        // type = command
         command?: string
+        // type = view
+        showFastPanel: boolean,
+        showMainPanel: boolean,
     },
 
     type?: ActionTypeEnum,
@@ -191,7 +195,7 @@ export type ActionRecord = {
         view?: {
             nodeIntegration?: boolean,
             preloadBase?: string,
-            mainFastPanel?: string,
+            mainView?: string,
             showFastPanelDevTools?: boolean,
             heightFastPanel?: number,
         },

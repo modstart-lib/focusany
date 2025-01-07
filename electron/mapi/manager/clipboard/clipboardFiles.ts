@@ -11,7 +11,6 @@ if (isMac || isWin) {
         try {
             electronClipboardEx = await import('electron-clipboard-ex');
             electronClipboardEx = electronClipboardEx.default;
-            console.log('electronClipboardEx', electronClipboardEx);
         } catch (e) {
         }
     })()

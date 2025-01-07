@@ -42,9 +42,9 @@
             "type": "string",
             "description": "入口文件，当该配置为空时，表示插件应用为模板插件应用。 main 与 preload 至少存在其一。"
         },
-        "mainFastPanel": {
+        "mainView": {
             "type": "string",
-            "description": "快速面板入口文件，当该配置为空时，使用主入口文件。"
+            "description": "智能视图入口文件，当该配置为空时，使用主入口文件。"
         },
         "preload": {
             "type": "string",
@@ -105,7 +105,15 @@
                         "properties": {
                             "command": {
                                 "type": "string",
-                                "description": "type为command时，此为必选项，表示此功能的命令。"
+                                "description": "type=command时，此为必选项，表示此功能的命令。"
+                            },
+                            "showFastPanel": {
+                                "type": "boolean",
+                                "description": "type=view时，是否在快捷面板中显示，默认为 false"
+                            },
+                            "showMainPanel": {
+                                "type": "boolean",
+                                "description": "type=view时，是否在主面板中显示，默认为 true"
                             }
                         }
                     },
@@ -232,7 +240,7 @@
                     "type": "string",
                     "description": "入口文件，当该配置为空时，表示插件应用为模板插件应用。 main 与 preload 至少存在其一。"
                 },
-                "mainFastPanel": {
+                "mainView": {
                     "type": "string",
                     "description": "快速面板入口文件，当该配置为空时，使用主入口文件。"
                 },

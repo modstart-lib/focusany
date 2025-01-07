@@ -450,12 +450,12 @@ export const FocusAny = {
         },
     },
 
-    fastPanel: {
+    view: {
         setHeight(height: number) {
-            ipcSendToHost('fastPanel.setHeight', {height}).then()
+            ipcSendToHost('view.setHeight', {height}).then()
         },
         getHeight(): Promise<number> {
-            return ipcSendToHost('fastPanel.getHeight', {}, true)
+            return ipcSendToHost('view.getHeight', {}, true)
         }
     },
 

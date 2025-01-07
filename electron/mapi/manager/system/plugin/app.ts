@@ -87,6 +87,7 @@ type ActionInfo = {
 }
 
 let listActionRunning = false
+let listActionFirstRunning = true
 export const getAppPlugin = async () => {
     AppPlugin.actions = []
     let toastTimer = null
@@ -95,8 +96,11 @@ export const getAppPlugin = async () => {
     let shouldNotice = false
     if (!cacheInfo.isCache || cacheInfo.expire < Date.now()) {
         if (!listActionRunning) {
-            shouldNotice = true
             listActionRunning = true
+            if (listActionFirstRunning) {
+                listActionFirstRunning = false
+                shouldNotice = true
+            }
             listActions().then(actions => {
                 // console.log('find.actions', actions)
                 AppPlugin.actions = actions

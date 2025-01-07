@@ -50,7 +50,9 @@
                         最近使用
                     </div>
                     <div class="more">
-                        <a href="javascript:;" @click="doHistoryClear">
+                        <a href="javascript:;"
+                           class="auto-hide"
+                           @click="doHistoryClear">
                             <icon-delete/>
                         </a>
                         <a href="javascript:;" v-if="!historyActionIsExtend" @click="doHistoryActionExtend">
@@ -182,6 +184,14 @@ defineExpose({
             cursor: pointer;
             margin-bottom: 3px;
 
+            &:hover {
+                .more {
+                    a.auto-hide {
+                        display: inline-block;
+                    }
+                }
+            }
+
             .title {
                 flex-grow: 1;
                 font-weight: bold;
@@ -209,6 +219,10 @@ defineExpose({
                     padding: 0.1rem 0.3rem;
                     border-radius: 0.3rem;
 
+                    &.auto-hide {
+                        display: none;
+                    }
+
                     &:hover {
                         background: #eee;
                     }
@@ -226,6 +240,12 @@ defineExpose({
                 height: 100px;
                 flex-shrink: 0;
                 text-align: center;
+
+                &:active {
+                    :deep(.item-box) {
+                        background-color: #f8dfab;
+                    }
+                }
 
                 &.active {
                     :deep(.item-box) {

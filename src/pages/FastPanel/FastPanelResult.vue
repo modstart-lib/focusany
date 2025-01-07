@@ -66,7 +66,7 @@ const queryWeb = () => {
         readyData['actionMatchFiles'] = a.runtime?.matchFiles
         readyData['requestId'] = a.runtime?.requestId as any
         readyData['reenter'] = false
-        readyData['isFastPanel'] = true;
+        readyData['isView'] = true;
         ((aa) => {
             aa['_web'].addEventListener('did-finish-load', async () => {
                 if (setting.shouldDarkMode()) {
@@ -92,11 +92,11 @@ const queryWeb = () => {
                 if ('FocusAny.FastPanel' === event.channel) {
                     const {id, type, data} = event.args[0]
                     switch (type) {
-                        case 'fastPanel.setHeight':
+                        case 'view.setHeight':
                             aa['_height'] = data.height
                             break
-                        case 'fastPanel.getHeight':
-                            // console.log('fastPanel.getHeight', aa['_height'])
+                        case 'view.getHeight':
+                            // console.log('view.getHeight', aa['_height'])
                             aa['_web'].send(`FocusAny.FastPanel.${id}`, aa['_height'])
                             break
                     }
@@ -137,9 +137,9 @@ const queryWeb = () => {
                              :ref="el=>(r['_web']=el)"
                              :style="{height: r['_height'] + 'px'}"
                              :id="r.fullName"
-                             :preload="r.runtime?.view.preloadBase"
-                             :src="r.runtime?.view.mainFastPanel"
-                             :nodeintegration="r.runtime?.view.nodeIntegration"
+                             :preload="r.runtime?.view?.preloadBase"
+                             :src="r.runtime?.view?.mainView"
+                             :nodeintegration="r.runtime?.view?.nodeIntegration"
                              :useragent="`${webUserAgent} PluginAction/${r.fullName}`"
                              webpreferences="contextIsolation=false,sandbox=false"
                              disablewebsecurity></webview>

@@ -66,11 +66,11 @@ export const ManagerPlugin = {
         if (preload && preloadBase === preload) {
             preload = null
         }
-        // main && mainFastPanel
+        // main && mainView
         let main = plugin.main || null;
-        let mainFastPanel = plugin.mainFastPanel || null;
-        if (!mainFastPanel) {
-            mainFastPanel = main
+        let mainView = plugin.mainView || null;
+        if (!mainView) {
+            mainView = main
         }
         if (plugin.runtime?.root) {
             if (!rendererIsUrl(main)) {
@@ -81,15 +81,15 @@ export const ManagerPlugin = {
             main = rendererDistPath(main)
         }
         if (plugin.runtime?.root) {
-            if (!rendererIsUrl(mainFastPanel)) {
-                mainFastPanel = join(plugin.runtime?.root, mainFastPanel)
+            if (!rendererIsUrl(mainView)) {
+                mainView = join(plugin.runtime?.root, mainView)
             }
-        } else if (mainFastPanel.includes('<root>')) {
-            mainFastPanel = mainFastPanel.replace('<root>/', '')
-            mainFastPanel = rendererDistPath(mainFastPanel)
+        } else if (mainView.includes('<root>')) {
+            mainView = mainView.replace('<root>/', '')
+            mainView = rendererDistPath(mainView)
         }
-        if (!rendererIsUrl(mainFastPanel)) {
-            mainFastPanel = `file://${mainFastPanel}`
+        if (!rendererIsUrl(mainView)) {
+            mainView = `file://${mainView}`
         }
 
         // auto detach
@@ -132,7 +132,7 @@ export const ManagerPlugin = {
             preloadBase,
             preload,
             main,
-            mainFastPanel,
+            mainView,
             width,
             height,
             autoDetach,
@@ -212,7 +212,7 @@ export const ManagerPlugin = {
 
         plugin.logo = plugin.logo || null
         plugin.main = plugin.main || null
-        plugin.mainFastPanel = plugin.mainFastPanel || plugin.main
+        plugin.mainView = plugin.mainView || plugin.main
         plugin.preload = plugin.preload || null
         plugin.author = plugin.author || null
         plugin.homepage = plugin.homepage || null
@@ -254,8 +254,8 @@ export const ManagerPlugin = {
                     if (configJson['development'].main) {
                         plugin.main = configJson['development'].main
                     }
-                    if (configJson['development'].mainFastPanel) {
-                        plugin.mainFastPanel = configJson['development'].mainFastPanel
+                    if (configJson['development'].mainView) {
+                        plugin.mainView = configJson['development'].mainView
                     }
                 }
             }

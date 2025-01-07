@@ -163,7 +163,7 @@ export const ManagerWindow = {
         readyData['actionMatchFiles'] = action.runtime?.matchFiles
         readyData['requestId'] = action.runtime?.requestId
         readyData['reenter'] = false
-        readyData['isFastPanel'] = false
+        readyData['isView'] = false
         if (singleton) {
             for (const v of this.listBrowserViews()) {
                 if (v._plugin.name === plugin.name) {

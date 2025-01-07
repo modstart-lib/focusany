@@ -126,7 +126,7 @@ interface FocusAnyApi {
             actionMatchFiles: FileItem[],
             requestId: string,
             reenter: boolean,
-            isFastPanel: boolean,
+            isView: boolean,
         }) => void
     ): void;
 
@@ -624,9 +624,9 @@ interface FocusAnyApi {
     };
 
     /**
-     * 快捷面板
+     * 智能区域
      */
-    fastPanel: {
+    view: {
         /**
          * 设置快捷面板当前插件渲染区域的高度
          * @param height

@@ -171,12 +171,12 @@ ipcMain.handle('manager:searchFastPanelAction', async (event, query: SearchQuery
             const {
                 nodeIntegration,
                 preloadBase,
-                mainFastPanel,
+                mainView,
             } = ManagerPlugin.getInfo(plugin)
             a.runtime.view = {
                 nodeIntegration,
                 preloadBase,
-                mainFastPanel,
+                mainView,
                 showFastPanelDevTools: false,
                 heightFastPanel: 100,
             }
@@ -186,7 +186,7 @@ ipcMain.handle('manager:searchFastPanelAction', async (event, query: SearchQuery
             if (plugin.setting && plugin.setting.heightFastPanel) {
                 a.runtime.view.heightFastPanel = plugin.setting.heightFastPanel
             }
-            for (const k of ['preloadBase', 'mainFastPanel']) {
+            for (const k of ['preloadBase', 'mainView']) {
                 if (a.runtime.view[k]
                     &&
                     !a.runtime.view[k].startsWith('file://')

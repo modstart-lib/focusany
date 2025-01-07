@@ -1,6 +1,6 @@
 {
     "name": "focusany",
-    "version": "0.4.0",
+    "version": "0.5.0-beta",
     "main": "dist-electron/main/index.js",
     "description": "FocusAny",
     "author": "ModStartLib",
