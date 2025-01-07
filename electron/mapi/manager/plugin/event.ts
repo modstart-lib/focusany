@@ -354,12 +354,9 @@ export const ManagerPluginEvent = {
     } | null> => {
         const info = await User.get()
         const user = info.user
-        if (!user.id) {
-            return null
-        }
         return {
-            avatar: user.avatar,
-            nickname: user.name,
+            avatar: user.avatar || '',
+            nickname: user.name || '',
             vipFlag: info.data?.vip?.flag || '',
             deviceCode: user.deviceCode
         }

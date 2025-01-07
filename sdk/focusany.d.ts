@@ -256,7 +256,7 @@ interface FocusAnyApi {
         nickname: string,
         vipFlag: string,
         deviceCode: string
-    } | null;
+    };
 
     /**
      * 获取用户服务端临时令牌
