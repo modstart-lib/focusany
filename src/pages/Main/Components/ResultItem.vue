@@ -24,7 +24,7 @@ const props = defineProps({
 </script>
 
 <template>
-    <div class="item-box hover:bg-gray-100 dark:hover:bg-gray-700">
+    <div class="item-box hover:bg-gray-100 dark:hover:bg-gray-700" :data-action="action.fullName">
         <div class="icon" @click="emit('open')">
             <img draggable="false"
                  :class="action.pluginType===PluginType.SYSTEM?'dark:invert':'plugin-logo-filter'"

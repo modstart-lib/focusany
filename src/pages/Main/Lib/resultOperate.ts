@@ -6,7 +6,6 @@ import {ComputedRef} from "@vue/reactivity";
 import {EntryListener} from "./entryListener";
 import {Dialog} from "../../../lib/dialog";
 
-const LINE_ACTION_COUNT = 8;
 type ActionGroupType = 'search' | 'match' | 'history' | 'pin' | never
 
 const manager = useManagerStore()
@@ -18,6 +17,12 @@ export const useResultOperate = () => {
             || manager.historyActions.length > 0
             || manager.pinActions.length > 0;
     });
+    const hasViewActions = computed(() => {
+        return manager.viewActions.length > 0
+    })
+    const lineActionCount = computed(() => {
+        return manager.viewActions.length > 0 ? 6 : 8;
+    })
 
     const searchActionIsExtend = ref<Boolean>(false)
     const matchActionIsExtend = ref<Boolean>(false)
@@ -25,19 +30,19 @@ export const useResultOperate = () => {
     const pinActionIsExtend = ref<Boolean>(false)
 
     watch(() => manager.searchActions, () => {
-        searchActionIsExtend.value = manager.searchActions.length <= LINE_ACTION_COUNT
+        searchActionIsExtend.value = manager.searchActions.length <= lineActionCount.value
         resetActive()
     });
     watch(() => manager.matchActions, () => {
-        matchActionIsExtend.value = manager.matchActions.length <= LINE_ACTION_COUNT
+        matchActionIsExtend.value = manager.matchActions.length <= lineActionCount.value
         resetActive()
     });
     watch(() => manager.historyActions, () => {
-        historyActionIsExtend.value = manager.historyActions.length <= LINE_ACTION_COUNT
+        historyActionIsExtend.value = manager.historyActions.length <= lineActionCount.value
         resetActive()
     });
     watch(() => manager.pinActions, () => {
-        pinActionIsExtend.value = manager.pinActions.length <= LINE_ACTION_COUNT
+        pinActionIsExtend.value = manager.pinActions.length <= lineActionCount.value
         resetActive()
     });
 
@@ -67,16 +72,16 @@ export const useResultOperate = () => {
     }
 
     const showSearchActions: ComputedRef<ActionRecord[]> = computed(() => {
-        return searchActionIsExtend.value ? manager.searchActions : manager.searchActions.slice(0, LINE_ACTION_COUNT)
+        return searchActionIsExtend.value ? manager.searchActions : manager.searchActions.slice(0, lineActionCount.value)
     })
     const showMatchActions: ComputedRef<ActionRecord[]> = computed(() => {
-        return matchActionIsExtend.value ? manager.matchActions : manager.matchActions.slice(0, LINE_ACTION_COUNT)
+        return matchActionIsExtend.value ? manager.matchActions : manager.matchActions.slice(0, lineActionCount.value)
     })
     const showHistoryActions: ComputedRef<ActionRecord[]> = computed(() => {
-        return historyActionIsExtend.value ? manager.historyActions : manager.historyActions.slice(0, LINE_ACTION_COUNT)
+        return historyActionIsExtend.value ? manager.historyActions : manager.historyActions.slice(0, lineActionCount.value)
     })
     const showPinActions: ComputedRef<ActionRecord[]> = computed(() => {
-        return pinActionIsExtend.value ? manager.pinActions : manager.pinActions.slice(0, LINE_ACTION_COUNT)
+        return pinActionIsExtend.value ? manager.pinActions : manager.pinActions.slice(0, lineActionCount.value)
     })
 
 
@@ -110,7 +115,7 @@ export const useResultOperate = () => {
                     index: itemIndex,
                 })
             })
-            chunk(items, LINE_ACTION_COUNT).forEach((chunk) => {
+            chunk(items, lineActionCount.value).forEach((chunk) => {
                 grids.push(chunk)
             })
         });
@@ -234,6 +239,7 @@ export const useResultOperate = () => {
 
     return {
         hasActions,
+        hasViewActions,
         searchActionIsExtend,
         matchActionIsExtend,
         historyActionIsExtend,

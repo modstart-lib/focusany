@@ -272,7 +272,8 @@ declare interface Window {
                 currentFiles: any[],
                 currentImage: string,
             }, option?: {}) => Promise<{
-                searchActions: ActionRecord[],
+                matchActions: ActionRecord[],
+                viewActions: ActionRecord[],
             }>,
             searchAction: (query: {
                 keywords: string,
@@ -281,6 +282,7 @@ declare interface Window {
             }, option?: {}) => Promise<{
                 searchActions: ActionRecord[],
                 matchActions: ActionRecord[],
+                viewActions: ActionRecord[],
                 historyActions: ActionRecord[],
                 pinActions: ActionRecord[],
             }>,

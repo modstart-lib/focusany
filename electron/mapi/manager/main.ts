@@ -138,6 +138,40 @@ ipcMain.handle('manager::listAction', async (event) => {
     return Manager.listAction()
 })
 
+const mergeViewActionRuntime = async (actions: ActionRecord[]) => {
+    for (const a of actions) {
+        const plugin = await Manager.getPlugin(a.pluginName)
+        const {
+            nodeIntegration,
+            preloadBase,
+            mainView,
+        } = ManagerPlugin.getInfo(plugin)
+        a.runtime.view = {
+            nodeIntegration,
+            preloadBase,
+            mainView,
+            showFastPanelDevTools: false,
+            heightFastPanel: 100,
+        }
+        if (plugin.development && plugin.development === PluginEnv.DEV && plugin.development.showFastPanelDevTools) {
+            a.runtime.view.showFastPanelDevTools = true
+        }
+        if (plugin.setting && plugin.setting.heightFastPanel) {
+            a.runtime.view.heightFastPanel = plugin.setting.heightFastPanel
+        }
+        for (const k of ['preloadBase', 'mainView']) {
+            if (a.runtime.view[k]
+                &&
+                !a.runtime.view[k].startsWith('file://')
+                &&
+                !a.runtime.view[k].startsWith('http://')
+            ) {
+                a.runtime.view[k] = 'file://' + a.runtime.view[k]
+            }
+        }
+    }
+}
+
 ipcMain.handle('manager:searchFastPanelAction', async (event, query: SearchQuery, option?: {}) => {
     query = Object.assign({
         keywords: '',
@@ -152,52 +186,21 @@ ipcMain.handle('manager:searchFastPanelAction', async (event, query: SearchQuery
     const request = Manager.createSearchRequest(query)
     const result = {
         id: request.id,
-        fastPanelActions: [] as ActionRecord[],
+        matchActions: [] as ActionRecord[],
+        viewActions: [] as ActionRecord[],
     }
 
     let actions: ActionRecord[] = await Manager.listAction(request)
-    // Files.write('actions.json', JSON.stringify(actions))
 
     const uniqueRemover = new Set<string>()
-    result.fastPanelActions = [
+    result.matchActions = [
         ...await Manager.matchActions(uniqueRemover, actions, query),
         ...await Manager.searchActions(uniqueRemover, actions, query),
-        ...await Manager.historyActions(uniqueRemover, actions, query),
     ]
+    result.viewActions = result.matchActions.filter(a => a.type === ActionTypeEnum.VIEW && a.data?.showFastPanel)
+    result.matchActions = result.matchActions.filter(a => a.type !== ActionTypeEnum.VIEW)
 
-    for (const a of result.fastPanelActions) {
-        if (a.type === ActionTypeEnum.VIEW) {
-            const plugin = await Manager.getPlugin(a.pluginName)
-            const {
-                nodeIntegration,
-                preloadBase,
-                mainView,
-            } = ManagerPlugin.getInfo(plugin)
-            a.runtime.view = {
-                nodeIntegration,
-                preloadBase,
-                mainView,
-                showFastPanelDevTools: false,
-                heightFastPanel: 100,
-            }
-            if (plugin.development && plugin.development === PluginEnv.DEV && plugin.development.showFastPanelDevTools) {
-                a.runtime.view.showFastPanelDevTools = true
-            }
-            if (plugin.setting && plugin.setting.heightFastPanel) {
-                a.runtime.view.heightFastPanel = plugin.setting.heightFastPanel
-            }
-            for (const k of ['preloadBase', 'mainView']) {
-                if (a.runtime.view[k]
-                    &&
-                    !a.runtime.view[k].startsWith('file://')
-                    &&
-                    !a.runtime.view[k].startsWith('http://')
-                ) {
-                    a.runtime.view[k] = 'file://' + a.runtime.view[k]
-                }
-            }
-        }
-    }
+    await mergeViewActionRuntime(result.viewActions)
 
     return result
 })
@@ -217,6 +220,7 @@ ipcMain.handle('manager:searchAction', async (event, query: SearchQuery, option?
         id: request.id,
         searchActions: [],
         matchActions: [],
+        viewActions: [],
         historyActions: [],
         pinActions: [],
     }
@@ -228,6 +232,12 @@ ipcMain.handle('manager:searchAction', async (event, query: SearchQuery, option?
     const uniqueRemover = new Set<string>()
     result.searchActions = await Manager.searchActions(uniqueRemover, actions, query)
     result.matchActions = await Manager.matchActions(uniqueRemover, actions, query)
+    result.viewActions = [
+        ...result.searchActions.filter(a => a.type === ActionTypeEnum.VIEW && a.data?.showMainPanel),
+        ...result.matchActions.filter(a => a.type === ActionTypeEnum.VIEW && a.data?.showMainPanel),
+    ]
+    result.searchActions = result.searchActions.filter(a => a.type !== ActionTypeEnum.VIEW)
+    result.matchActions = result.matchActions.filter(a => a.type !== ActionTypeEnum.VIEW)
     if (!query.keywords) {
         result.historyActions = await Manager.historyActions(uniqueRemover, actions, query)
         result.pinActions = await Manager.pinActions(new Set(), actions, query)
@@ -246,6 +256,8 @@ ipcMain.handle('manager:searchAction', async (event, query: SearchQuery, option?
     result.pinActions.forEach(a => {
         a.runtime.isPined = true
     })
+
+    await mergeViewActionRuntime(result.viewActions)
 
     return result
 })

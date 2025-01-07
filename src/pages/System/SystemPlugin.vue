@@ -304,6 +304,7 @@ const doInstallStore = async () => {
                         <img class="w-6 h-6 object-contain mr-2"
                              :class="recordCurrent?.type===PluginType.SYSTEM?'dark:invert':'plugin-logo-filter'"
                              :src="a.icon"/>
+                        <div class="mr-2" v-if="0">{{ a.type }}</div>
                         <div class="mr-2">{{ a.title }}</div>
                         <a-tooltip :content="a['_pin']?'固定到搜索框':'从搜索框取消固定'" position="left">
                             <a href="javascript:;"
@@ -364,6 +365,7 @@ const doInstallStore = async () => {
                         <img class="w-6 h-6 object-contain mr-2"
                              :class="recordCurrent?.type===PluginType.SYSTEM?'dark:invert':'plugin-logo-filter'"
                              :src="a.icon"/>
+                        <div class="mr-2" v-if="0">{{ a.type }}</div>
                         <div class="mr-2">{{ a.title }}</div>
                     </div>
                     <div

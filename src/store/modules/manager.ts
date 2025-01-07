@@ -36,10 +36,13 @@ export const managerStore = defineStore("manager", {
         searchValue: '',
         searchPlaceholder: 'FocusAny，让您的工作专注高效',
         searchSubPlaceholder: '',
+
         searchActions: [] as ActionRecord[],
         matchActions: [] as ActionRecord[],
         historyActions: [] as ActionRecord[],
         pinActions: [] as ActionRecord[],
+        viewActions: [] as ActionRecord[],
+
         selectedAction: null as ActionRecord | null,
         activePlugin: null as PluginRecord | null,
 
@@ -48,7 +51,8 @@ export const managerStore = defineStore("manager", {
         currentText: '',
 
         fastPanelActionLoading: false,
-        fastPanelActions: [] as ActionRecord[],
+        fastPanelMatchActions: [] as ActionRecord[],
+        fastPanelViewActions: [] as ActionRecord[],
 
         notice: null as {
             text: string,
@@ -90,6 +94,11 @@ export const managerStore = defineStore("manager", {
         },
         setSelectedAction(action: ActionRecord) {
             this.selectedAction = action
+            document.querySelector(`[data-action="${action.fullName}"]`)?.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center',
+                inline: 'center',
+            })
         },
         setCurrentFiles(files: FileItem[]) {
             this.currentFiles = files
@@ -102,7 +111,8 @@ export const managerStore = defineStore("manager", {
         },
 
         async searchFastPanel(keywords: string) {
-            this.fastPanelActions = []
+            this.fastPanelMatchActions = []
+            this.fastPanelViewActions = []
             this.fastPanelActionLoading = true
             searchFastPanelActionDebounce({
                 keywords: keywords,
@@ -110,10 +120,11 @@ export const managerStore = defineStore("manager", {
                 currentImage: this.currentImage,
                 currentText: this.currentText,
             }, (result: {
-                fastPanelActions: ActionRecord[],
+                matchActions: ActionRecord[],
+                viewActions: ActionRecord[],
             }) => {
-                // console.log('searchFastPanel', result)
-                this.fastPanelActions = result.fastPanelActions
+                this.fastPanelMatchActions = result.matchActions
+                this.fastPanelViewActions = result.viewActions
                 this.fastPanelActionLoading = false
             })
         },
@@ -138,12 +149,14 @@ export const managerStore = defineStore("manager", {
             }, (result: {
                 searchActions: ActionRecord[],
                 matchActions: ActionRecord[],
+                viewActions: ActionRecord[],
                 historyActions: ActionRecord[],
                 pinActions: ActionRecord[],
             }) => {
                 this.searchLastKeywords = keywords
                 this.searchActions = result.searchActions
                 this.matchActions = result.matchActions
+                this.viewActions = result.viewActions
                 this.historyActions = result.historyActions
                 this.pinActions = result.pinActions
                 this.searchLoading = false
@@ -171,6 +184,7 @@ export const managerStore = defineStore("manager", {
             }
             this.searchActions = []
             this.matchActions = []
+            this.viewActions = []
             this.historyActions = []
             this.pinActions = []
         },

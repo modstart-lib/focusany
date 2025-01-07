@@ -157,6 +157,10 @@
                                             "type": "string",
                                             "description": "匹配标题"
                                         },
+                                        "text": {
+                                            "type": "string",
+                                            "description": "匹配文本"
+                                        },
                                         "minLength": {
                                             "type": "number",
                                             "description": "最小匹配长度",
@@ -198,9 +202,27 @@
                                                 "type": "string"
                                             }
                                         },
+                                        "nameRegex": {
+                                            "type": "string",
+                                            "description": "匹配名称正则"
+                                        },
                                         "titleRegex": {
                                             "type": "string",
                                             "description": "匹配标题正则"
+                                        },
+                                        "attrRegex": {
+                                            "type": "object",
+                                            "description": "匹配属性正则",
+                                            "properties": {
+                                                "name": {
+                                                    "type": "string",
+                                                    "description": "属性名称"
+                                                },
+                                                "value": {
+                                                    "type": "string",
+                                                    "description": "属性值正则表达式"
+                                                }
+                                            }
                                         },
                                         "extensions": {
                                             "type": "array",

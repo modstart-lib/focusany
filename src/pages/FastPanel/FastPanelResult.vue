@@ -1,110 +1,16 @@
 <script setup lang="ts">
 import {useManagerStore} from "../../store/modules/manager";
 import {useResultOperate} from "./Lib/resultOperate";
-import {computed, ref, toRaw, watch} from "vue";
-import {ActionTypeEnum, PluginType} from "../../types/Manager";
-import {useSettingStore} from "../../store/modules/setting";
+import {PluginType} from "../../types/Manager";
+import {useViewOperate} from "../Main/Lib/viewOperate";
 
-const executePluginHooks = async (web: any, hook: string, data?: any) => {
-    const evalJs = `
-    if(window.focusany && window.focusany.hooks && typeof window.focusany.hooks.on${hook} === 'function' ) {
-        try {
-            window.focusany.hooks.on${hook}(${JSON.stringify(data)});
-        } catch(e) {
-            console.log('executePluginHooks.on${hook}.error', e);
-        }
-    }`;
-    return web.executeJavaScript(evalJs);
-};
-
-const web = ref<any | null>(null)
 const manager = useManagerStore()
-const webUserAgent = window.$mapi.app.getUserAgent()
-const setting = useSettingStore()
-
 const {doOpenAction} = useResultOperate()
 
-const actions = computed(() => {
-    return manager.fastPanelActions.map(a => {
-        if (a.type === ActionTypeEnum.VIEW) {
-            a['_web'] = null
-            a['_webInit'] = false
-            a['_height'] = a.runtime?.view?.heightFastPanel || 100
-        }
-        return a
-    })
-})
-
-const viewActions = computed(() => {
-    return actions.value.filter(a => a.type === ActionTypeEnum.VIEW)
-})
-
-const otherActions = computed(() => {
-    return actions.value.filter(a => a.type !== ActionTypeEnum.VIEW)
-})
-
-watch(() => actions.value, () => {
-    queryWeb()
-}, {
-    deep: true
-})
-
-const queryWeb = () => {
-    // console.log('queryWeb.entry', viewActions.value.map(a => a['_web']))
-    for (const a of manager.fastPanelActions) {
-        if (a.type !== ActionTypeEnum.VIEW) {
-            continue
-        }
-        if (!a['_web'] || a['_webInit']) {
-            continue
-        }
-        a['_webInit'] = true
-        // console.log('queryWeb', a['_web'])
-        const readyData = {}
-        readyData['actionName'] = a.name
-        readyData['actionMatch'] = a.runtime?.match
-        readyData['actionMatchFiles'] = a.runtime?.matchFiles
-        readyData['requestId'] = a.runtime?.requestId as any
-        readyData['reenter'] = false
-        readyData['isView'] = true;
-        ((aa) => {
-            aa['_web'].addEventListener('did-finish-load', async () => {
-                if (setting.shouldDarkMode()) {
-                    aa['_web'].executeJavaScript(`
-                        document.body.setAttribute('data-theme', 'dark');
-                        document.documentElement.setAttribute('data-theme', 'dark');
-                    `);
-                    if (aa.pluginType === PluginType.SYSTEM) {
-                        aa['_web'].executeJavaScript(`document.body.setAttribute('arco-theme', 'dark');`);
-                    }
-                }
-            })
-            aa['_web'].addEventListener('dom-ready', async () => {
-                await executePluginHooks(a['_web'], 'PluginReady', readyData)
-                if (aa.runtime?.view?.showFastPanelDevTools) {
-                    aa['_web'].openDevTools({
-                        mode: 'detach',
-                        activate: false,
-                    })
-                }
-            })
-            aa['_web'].addEventListener('ipc-message', (event) => {
-                if ('FocusAny.FastPanel' === event.channel) {
-                    const {id, type, data} = event.args[0]
-                    switch (type) {
-                        case 'view.setHeight':
-                            aa['_height'] = data.height
-                            break
-                        case 'view.getHeight':
-                            // console.log('view.getHeight', aa['_height'])
-                            aa['_web'].send(`FocusAny.FastPanel.${id}`, aa['_height'])
-                            break
-                    }
-                }
-            })
-        })(a)
-    }
-}
+const {
+    webUserAgent,
+    viewActions,
+} = useViewOperate('fastPanel')
 
 </script>
 
@@ -117,8 +23,7 @@ const queryWeb = () => {
                 <div class="view-item-head">
                     <div class="icon">
                         <img :src="r.icon"
-                             :class="r.pluginType===PluginType.SYSTEM?'dark:invert':'plugin-logo-filter'"
-                        />
+                             :class="r.pluginType===PluginType.SYSTEM?'dark:invert':'plugin-logo-filter'"/>
                     </div>
                     <div class="text">
                         {{ r.title }}
@@ -147,7 +52,7 @@ const queryWeb = () => {
             </div>
         </div>
         <div class="action">
-            <div v-for="a in otherActions" class="action-item">
+            <div v-for="a in manager.fastPanelMatchActions" class="action-item">
                 <div class="action-item-box" @click="doOpenAction(a)">
                     <div class="icon">
                         <img :src="a.icon"

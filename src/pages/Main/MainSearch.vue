@@ -212,6 +212,7 @@ defineExpose({
     padding: 10px;
     background-color: var(--color-background);
     user-select: none;
+    z-index: 1;
 
     .content-left {
         display: flex;

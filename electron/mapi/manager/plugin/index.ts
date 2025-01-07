@@ -534,7 +534,7 @@ export const ManagerPlugin = {
         return session.fromPartition('<' + plugin.name + '>');
     },
     async clearViewSession(plugin: PluginRecord) {
-        const viewSession = this.getViewSession(plugin)
+        const viewSession = await this.getViewSession(plugin)
         if(viewSession){
             await viewSession.clearStorageData()
         }
