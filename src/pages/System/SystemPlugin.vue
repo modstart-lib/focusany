@@ -172,9 +172,15 @@ const doPublishInfo = async () => {
         Dialog.loadingOff()
     }
 }
-const doInstallPlugin = async () => {
+const doInstallPlugin = async (type: 'zip' | 'dir') => {
+    const properties: string[] = []
+    if (type === 'zip') {
+        properties.push('openFile')
+    } else if (type === 'dir') {
+        properties.push('openDirectory')
+    }
     const file = await window.$mapi.file.openFile({
-        properties: ['openDirectory', 'openFile'],
+        properties
     })
     if (!file) {
         return
@@ -220,8 +226,8 @@ const doInstallStore = async () => {
                     <icon-apps class="mr-1"/>
                     插件市场
                     <template #content>
-                        <a-doption @click="doInstallPlugin">选择本地ZIP插件</a-doption>
-                        <a-doption @click="doInstallPlugin">选择本地目录插件</a-doption>
+                        <a-doption @click="doInstallPlugin('zip')">选择本地ZIP插件</a-doption>
+                        <a-doption @click="doInstallPlugin('dir')">选择本地目录插件</a-doption>
                     </template>
                 </a-dropdown-button>
             </div>
