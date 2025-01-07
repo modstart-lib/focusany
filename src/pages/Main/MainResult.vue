@@ -230,7 +230,7 @@ defineExpose({
         &.has-actions.has-view-actions {
             .group-items {
                 .item {
-                    width: 16.6666%;
+                    width: 18.8%;
                 }
             }
         }
