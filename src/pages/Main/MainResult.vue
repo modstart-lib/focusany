@@ -242,6 +242,8 @@ defineExpose({
         .group-right {
             width: 260px;
             border-left: 1px solid var(--color-border);
+            border-top: 1px solid var(--color-border);
+            border-radius: 0.5rem 0 0 0;
             flex-shrink: 0;
 
             .view-item-head {

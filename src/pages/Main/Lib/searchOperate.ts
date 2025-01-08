@@ -8,7 +8,10 @@ const manager = useManagerStore()
 export const useSearchOperate = (emit) => {
 
     const hasActions = computed(() => {
-        return manager.searchActions.length > 0 || manager.historyActions.length > 0 || manager.pinActions.length > 0;
+        return manager.searchActions.length > 0
+            || manager.matchActions.length > 0
+            || manager.historyActions.length > 0
+            || manager.pinActions.length > 0;
     });
 
     const doShowMenu = () => {

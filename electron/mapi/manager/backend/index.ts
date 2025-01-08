@@ -12,7 +12,7 @@ export const ManagerBackend = {
             rejectIfError: false
         }, option)
         if (!plugin.runtime?.root) {
-            throw `PluginRootNotFound:${plugin.name}`
+            throw `PluginRootNotFound:${plugin.name}:${type}:${key}`
         }
         const backendPath = `${plugin.runtime?.root}/backend.cjs`
         if (!fs.existsSync(backendPath)) {

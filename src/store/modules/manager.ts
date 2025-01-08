@@ -141,6 +141,7 @@ export const managerStore = defineStore("manager", {
             }
             this.searchLoading = true
             this.searchValue = keywords
+            this.viewActions = []
             searchDebounce({
                 keywords,
                 currentFiles: toRaw(this.currentFiles),
