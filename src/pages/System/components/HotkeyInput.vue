@@ -1,8 +1,13 @@
 <script setup lang="ts">
-import {computed, ref, watch} from "vue";
+import {computed, onBeforeMount, ref, watch} from "vue";
 import {HotkeyKeyItem} from "../../../../electron/mapi/keys/type";
 
 const focus = ref(false);
+const platformName = ref<'win' | 'osx' | 'linux' | null>('');
+
+onBeforeMount(() => {
+    platformName.value = window.$mapi?.app?.platformName() as any
+})
 
 const props = defineProps({
     value: {
@@ -42,13 +47,27 @@ const showHotkey = computed(() => {
     const {key, altKey, ctrlKey, metaKey, shiftKey} = currentValue.value as HotkeyKeyItem
     const texts: string[] = []
     if (ctrlKey) {
-        texts.push('Ctrl')
+        if (platformName.value === 'osx') {
+            texts.push('Control')
+        } else {
+            texts.push('Ctrl')
+        }
     }
     if (altKey) {
-        texts.push('Alt')
+        if (platformName.value === 'osx') {
+            texts.push('Option')
+        } else {
+            texts.push('Alt')
+        }
     }
     if (metaKey) {
-        texts.push('Meta')
+        if (platformName.value === 'osx') {
+            texts.push('Command')
+        } else if (platformName.value === 'win') {
+            texts.push('Win')
+        } else {
+            texts.push('Meta')
+        }
     }
     if (shiftKey) {
         texts.push('Shift')
