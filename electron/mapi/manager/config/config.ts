@@ -26,6 +26,7 @@ const defaultConfig: ConfigRecord = {
     },
     fastPanelTrigger: {
         type: 'Ctrl',
+        times: 1,
     }
     // fastPanelTriggerButton: {
     //     button: HotkeyMouseButtonEnum.RIGHT,

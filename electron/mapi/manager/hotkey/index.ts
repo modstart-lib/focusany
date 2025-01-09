@@ -5,7 +5,6 @@ import {HotkeyMouseButtonEnum} from "../../keys/type";
 import {Events} from "../../event/main";
 import {KeysMain} from "../../keys/main";
 import {globalShortcut} from "electron";
-import {isMac} from "../../../lib/env";
 
 type HotkeyKeyItem = {
     name: string
@@ -23,7 +22,8 @@ type HotkeyKeyItem = {
 type HotkeyKeySimpleItem = {
     name: string
 
-    type: 'Ctrl' | 'Alt' | 'Meta'
+    type: 'Ctrl' | 'Alt' | 'Meta',
+    times: number
 }
 
 type HotkeyMouseItem = {
@@ -70,7 +70,8 @@ export const ManagerHotkey = {
     keySimpleConfigs: [
         // {
         //     name: 'fastPanelTrigger',
-        //     type: 'Ctrl'
+        //     type: 'Ctrl',
+        //     times: 2,
         // }
     ] as HotkeyKeySimpleItem[],
     mouseLongPressTime: 500,
@@ -89,9 +90,13 @@ export const ManagerHotkey = {
     ] as HotkeyMouseItem[],
 
     _keySimple: {
-        Ctrl: null as null | 'down' | 'up',
-        Alt: null as null | 'down' | 'up',
-        Meta: null as null | 'down' | 'up',
+        // Ctrl: null as null | 'down' | 'up',
+        // Alt: null as null | 'down' | 'up',
+        // Meta: null as null | 'down' | 'up',
+        down: null as null | 'Ctrl' | 'Alt' | 'Meta',
+        key: null as null | 'Ctrl' | 'Alt' | 'Meta',
+        expire: 0,
+        times: 0,
     },
 
     init() {
@@ -109,6 +114,7 @@ export const ManagerHotkey = {
                 return
             }
             // console.log('ManagerHotkey.keydown', e, this.keyConfigs)
+            // keyConfigs start
             for (const item of this.keyConfigs) {
                 if (item.keycode !== e.keycode ||
                     item.altKey !== e.altKey ||
@@ -119,49 +125,56 @@ export const ManagerHotkey = {
                 }
                 if (!item.times || item.times <= 1) {
                     this.fire(item.name)
-                    continue
+                    return
                 }
                 const now = Date.now()
-                if (!item.expireTime) {
+                if (!item.expireTime || now > item.expireTime) {
                     item.expireTime = now + this.keyMultiDelayTime
                     item.expireCount = 1
                 } else {
-                    if (now > item.expireTime) {
-                        item.expireTime = now + this.keyMultiDelayTime
-                        item.expireCount = 1
-                    } else {
-                        item.expireCount++
-                        if (item.expireCount >= item.times) {
-                            this.fire(item.name)
-                            item.expireTime = 0
-                            item.expireCount = 0
-                        }
+                    item.expireCount++
+                    if (item.expireCount >= item.times) {
+                        this.fire(item.name)
+                        item.expireTime = 0
+                        item.expireCount = 0
+                        return
                     }
                 }
             }
-            for (const k in this._keySimple) {
-                if (this._keySimple[k] === 'down') {
-                    this._keySimple[k] = null
-                }
-            }
+            // keyConfigs end
+            // keySimpleConfigs start
             if (e.keycode === UiohookKey.Ctrl && !e.altKey && e.ctrlKey && !e.metaKey && !e.shiftKey) {
-                this._keySimple.Ctrl = 'down'
+                this._keySimple.down = 'Ctrl'
             } else if (e.keycode === UiohookKey.Alt && e.altKey && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
-                this._keySimple.Alt = 'down'
+                this._keySimple.down = 'Alt'
             } else if (e.keycode === UiohookKey.Meta && !e.altKey && !e.ctrlKey && e.metaKey && !e.shiftKey) {
-                this._keySimple.Meta = 'down'
+                this._keySimple.down = 'Meta'
+            } else {
+                this._keySimple.down = null
             }
+            // keySimpleConfigs end
         })
+        const keySimpleUp = (key: 'Ctrl' | 'Alt' | 'Meta') => {
+            // console.log('keySimpleUp', key, JSON.stringify(this.keySimpleConfigs))
+            const now = Date.now()
+            if (this._keySimple.expire > now && key === this._keySimple.key) {
+                this._keySimple.times++
+            } else {
+                this._keySimple.times = 1
+                this._keySimple.key = key
+            }
+            this._keySimple.expire = now + this.keyMultiDelayTime
+            this.keySimpleConfigs
+                .filter(o => (o.type === key && o.times <= this._keySimple.times))
+                .forEach(o => this.fire(o.name))
+        }
         uIOhook.on('keyup', (e) => {
-            if (e.keycode === UiohookKey.Ctrl && !e.altKey && !e.ctrlKey && !e.metaKey && !e.shiftKey && this._keySimple.Ctrl === 'down') {
-                this._keySimple.Ctrl = 'up'
-                this.keySimpleConfigs.filter(item => item.type === 'Ctrl').forEach(item => this.fire(item.name))
-            } else if (e.keycode === UiohookKey.Alt && !e.altKey && !e.ctrlKey && !e.metaKey && !e.shiftKey && this._keySimple.Alt === 'down') {
-                this._keySimple.Alt = 'up'
-                this.keySimpleConfigs.filter(item => item.type === 'Alt').forEach(item => this.fire(item.name))
-            } else if (e.keycode === UiohookKey.Meta && !e.altKey && !e.ctrlKey && !e.metaKey && !e.shiftKey && this._keySimple.Meta === 'down') {
-                this._keySimple.Meta = 'up'
-                this.keySimpleConfigs.filter(item => item.type === 'Meta').forEach(item => this.fire(item.name))
+            if (e.keycode === UiohookKey.Ctrl && !e.altKey && !e.ctrlKey && !e.metaKey && !e.shiftKey && this._keySimple.down === 'Ctrl') {
+                keySimpleUp('Ctrl')
+            } else if (e.keycode === UiohookKey.Alt && !e.altKey && !e.ctrlKey && !e.metaKey && !e.shiftKey && this._keySimple.down === 'Alt') {
+                keySimpleUp('Alt')
+            } else if (e.keycode === UiohookKey.Meta && !e.altKey && !e.ctrlKey && !e.metaKey && !e.shiftKey && this._keySimple.down === 'Meta') {
+                keySimpleUp('Meta')
             }
         })
         // uIOhook.on('mousedown', (e) => {
@@ -255,6 +268,7 @@ export const ManagerHotkey = {
             this.keySimpleConfigs.push({
                 name: 'fastPanelTrigger',
                 type: config.fastPanelTrigger.type,
+                times: config.fastPanelTrigger.times || 1,
             })
         }
 

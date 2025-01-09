@@ -22,7 +22,12 @@ const onManagerConfigChange = async (key: string, value: any) => {
     // console.log('onManagerConfigChange', key, value)
     switch (key) {
         case 'fastPanelTriggerType':
-            await manager.onConfigChange('fastPanelTrigger', {type: value})
+            let valueArr = value.split(':')
+            let valueObj = {
+                type: valueArr[0],
+                times: valueArr.length > 1 ? parseInt(valueArr[1]) : 1
+            }
+            await manager.onConfigChange('fastPanelTrigger', valueObj)
             fastPanelTriggerType.value = value
             break
         case 'autoLaunchEnable':
@@ -80,10 +85,16 @@ const onManagerConfigChange = async (key: string, value: any) => {
                     <div>
                         <a-select :model-value="fastPanelTriggerType"
                                   @change="onManagerConfigChange('fastPanelTriggerType',$event)">
-                            <a-option value="Ctrl">Ctrl</a-option>
-                            <a-option value="Alt" v-if="isWindows||isLinux">Alt</a-option>
-                            <a-option value="Alt" v-if="isMacOs">Option</a-option>
-                            <a-option value="Meta" v-if="isMacOs">Meta</a-option>
+                            <a-option value="Ctrl" v-if="isWindows||isLinux">Ctrl单击</a-option>
+                            <a-option value="Ctrl" v-else-if="isMacOs">Control单击</a-option>
+                            <a-option value="Ctrl:2" v-if="isWindows||isLinux">Ctrl双击</a-option>
+                            <a-option value="Ctrl:2" v-else-if="isMacOs">Control双击</a-option>
+                            <a-option value="Alt" v-if="isWindows||isLinux">Alt单击</a-option>
+                            <a-option value="Alt" v-else-if="isMacOs">Option单击</a-option>
+                            <a-option value="Alt:2" v-if="isWindows||isLinux">Alt双击</a-option>
+                            <a-option value="Alt:2" v-else-if="isMacOs">Option双击</a-option>
+                            <a-option value="Meta" v-if="isMacOs">Command单击</a-option>
+                            <a-option value="Meta:2" v-if="isMacOs">Command双击</a-option>
                         </a-select>
                     </div>
                 </div>
