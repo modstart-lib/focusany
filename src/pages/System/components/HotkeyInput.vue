@@ -3,7 +3,7 @@ import {computed, onBeforeMount, ref, watch} from "vue";
 import {HotkeyKeyItem} from "../../../../electron/mapi/keys/type";
 
 const focus = ref(false);
-const platformName = ref<'win' | 'osx' | 'linux' | null>('');
+const platformName = ref<'win' | 'osx' | 'linux' | null>(null);
 
 onBeforeMount(() => {
     platformName.value = window.$mapi?.app?.platformName() as any
@@ -131,7 +131,15 @@ const onBlur = () => {
         emit('change', newValue)
     }
 }
-const content = "使用方式：① 点击激活 ② 先按功能键（Ctrl、Shift、Alt）再按其他普通键，也可快速按快功能键2次"
+const content = computed(() => {
+    return [
+        '使用方式：',
+        '① 点击激活',
+        platformName.value === 'osx'
+            ? '② 先按功能键（Control、Command、Option）再按其他普通键，也可快速按快功能键2次'
+            : '② 先按功能键（Ctrl、Shift、Alt）再按其他普通键，也可快速按快功能键2次',
+    ].join('')
+})
 </script>
 
 <template>
