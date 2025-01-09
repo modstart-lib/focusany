@@ -196,6 +196,8 @@ ipcMain.handle('manager:searchFastPanelAction', async (event, query: SearchQuery
     result.matchActions = [
         ...await Manager.matchActions(uniqueRemover, actions, query),
         ...await Manager.searchActions(uniqueRemover, actions, query),
+        ...await Manager.pinActions(uniqueRemover, actions, query),
+        ...await Manager.historyActions(uniqueRemover, actions, query),
     ]
     result.viewActions = result.matchActions.filter(a => a.type === ActionTypeEnum.VIEW && a.data?.showFastPanel)
     result.matchActions = result.matchActions.filter(a => a.type !== ActionTypeEnum.VIEW)

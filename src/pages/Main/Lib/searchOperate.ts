@@ -59,9 +59,7 @@ export const useSearchOperate = (emit) => {
                 }
                 break;
             case 'esc':
-                if (manager.searchValue === '') {
-                    manager.hideMainWindow().then()
-                }
+                manager.hideMainWindow().then()
                 break
             default:
                 switch (e.keyCode) {

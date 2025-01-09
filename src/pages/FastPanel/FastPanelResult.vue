@@ -56,6 +56,7 @@ const {
                 <div class="action-item-box" @click="doOpenAction(a)">
                     <div class="icon">
                         <img :src="a.icon"
+                             draggable="false"
                              :class="a.pluginType===PluginType.SYSTEM?'dark:invert':'plugin-logo-filter'"/>
                     </div>
                     <div class="text">
@@ -81,6 +82,7 @@ const {
 }
 
 .pb-fastpanel-result {
+    user-select: none;
 
     .view-item-head {
         display: flex;
@@ -145,6 +147,10 @@ const {
 
         &:hover {
             background-color: #F8F8F8;
+        }
+
+        &:active {
+            background-color: #E8E8E8;
         }
 
         .icon {

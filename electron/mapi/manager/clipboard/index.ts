@@ -24,7 +24,7 @@ export const ManagerClipboard = {
         const old = await this._getClipboardContent()
         clipboard.clear();
         ManagerHotkeySimulate.keyTap(KeyboardKey.C, [isMac ? KeyboardKey.Meta : KeyboardKey.Ctrl])
-        // await new Promise((resolve) => setTimeout(resolve, 200));
+        await new Promise((resolve) => setTimeout(resolve, 200));
         const select = await this._getClipboardContent()
         clipboard.clear();
         if (old) {

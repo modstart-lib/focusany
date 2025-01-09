@@ -45,14 +45,17 @@ defineExpose({
                 <img :src="manager.currentImage"/>
             </div>
             <div v-else-if="manager.currentText" class="text">
-                {{ manager.currentText }}
+                <i class="iconfont icon-text"></i>
+                <div class="content">
+                    {{ manager.currentText }}
+                </div>
             </div>
             <div v-else>
                 快捷指令
             </div>
         </div>
         <div class="right">
-            <div class="icon">
+            <div class="icon" @click="manager.showMainWindow()">
                 <img src="./../../assets/image/logo.svg"/>
             </div>
         </div>
@@ -72,6 +75,7 @@ defineExpose({
     background-color: var(--color-background);
     border-bottom: 1px solid var(--color-border);
     z-index: 10;
+    user-select: none;
 
     .left {
         display: flex;
@@ -82,10 +86,31 @@ defineExpose({
         width: 0;
 
         .text {
-            user-select: none;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            height: 30px;
+            line-height: 30px;
+            padding: 0 10px;
+            margin-right: 5px;
+            border-radius: 5px;
+            box-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
+            background: var(--color-background-content);
+            max-width: 10rem;
+            display: flex;
+            align-items: center;
+            flex-wrap: nowrap;
+
+            .iconfont {
+                flex-shrink: 0;
+                width: 20px;
+                height: 20px;
+                line-height: 20px;
+                display: block;
+            }
+
+            .content {
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
         }
 
         .image {
@@ -109,6 +134,7 @@ defineExpose({
             padding: 0 10px;
             height: 30px;
             background-color: var(--color-background);
+            max-width: 90%;
 
             .type {
                 width: 20px;
@@ -120,6 +146,10 @@ defineExpose({
                 line-height: 20px;
                 color: #333;
                 font-weight: bold;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                flex-grow: 1;
             }
 
             .count {
