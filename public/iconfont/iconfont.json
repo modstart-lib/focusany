@@ -6,6 +6,48 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "38207392",
+      "name": "backend",
+      "font_class": "backend",
+      "unicode": "e61c",
+      "unicode_decimal": 58908
+    },
+    {
+      "icon_id": "35089476",
+      "name": "command",
+      "font_class": "command",
+      "unicode": "e6aa",
+      "unicode_decimal": 59050
+    },
+    {
+      "icon_id": "321908",
+      "name": "view",
+      "font_class": "view",
+      "unicode": "e6e1",
+      "unicode_decimal": 59105
+    },
+    {
+      "icon_id": "5428337",
+      "name": "code",
+      "font_class": "code",
+      "unicode": "e6b0",
+      "unicode_decimal": 59056
+    },
+    {
+      "icon_id": "19418435",
+      "name": "info",
+      "font_class": "info",
+      "unicode": "e72a",
+      "unicode_decimal": 59178
+    },
+    {
+      "icon_id": "7009016",
+      "name": "success",
+      "font_class": "success",
+      "unicode": "e72d",
+      "unicode_decimal": 59181
+    },
+    {
       "icon_id": "924549",
       "name": "text",
       "font_class": "text",

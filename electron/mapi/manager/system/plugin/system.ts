@@ -40,11 +40,11 @@ export const SystemPlugin: PluginRecord = {
         },
         {
             name: "page-action",
-            title: "指令管理",
+            title: "动作管理",
             type: ActionTypeEnum.WEB,
             icon: SystemIcons.command,
             matches: [
-                '指令管理', 'action'
+                '动作管理', 'action'
             ] as any
         },
         {

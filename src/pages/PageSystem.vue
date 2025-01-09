@@ -50,7 +50,7 @@ window.focusany.onPluginReady(data => {
                      @click="tab='action'"
                      :class="tab==='action'?'bg-gray-200 dark:bg-gray-500':'hover:bg-gray-100 dark:hover:bg-gray-600'">
                     <img class="w-6 h-6 object-contain mr-2 ml-2 dark:invert" :src="SystemIcons.command"/>
-                    指令管理
+                    动作管理
                 </div>
                 <div class="flex items-center leading-10 py-1 px-1 rounded-lg cursor-pointer"
                      @click="tab='file'"

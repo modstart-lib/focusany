@@ -36,11 +36,11 @@ defineExpose({
         <template #title>
             <div v-if="['text','key'].includes(match?.type as string)" class="flex items-center">
                 <img class="w-6 h-6 object-contain mr-2" :src="SystemIcons.searchKeyword"/>
-                功能指令
+                搜索动作
             </div>
             <div v-else class="flex items-center">
                 <img class="w-6 h-6 object-contain mr-2" :src="SystemIcons.searchMatch"/>
-                匹配指令
+                匹配动作
             </div>
         </template>
         <template #footer>
@@ -62,7 +62,7 @@ defineExpose({
             <div v-if="match?.type===ActionMatchTypeEnum.TEXT">
                 <div class="mb-3">
                     <icon-info-circle/>
-                    输入匹配以下关键词则显示此指令，包含全拼、首字母简写
+                    输入匹配以下关键词，包含全拼、首字母简写
                 </div>
                 <div class="text-center text-lg bg-gray-100 dark:bg-gray-700 rounded-lg p-3 font-weight">
                     {{ (match as ActionMatchText).text }}
@@ -71,7 +71,7 @@ defineExpose({
             <div v-else-if="match?.type===ActionMatchTypeEnum.KEY">
                 <div class="mb-3">
                     <icon-info-circle/>
-                    输入完全等于以下关键词则显示此指令
+                    输入完全等于以下关键词
                 </div>
                 <div class="text-center text-lg bg-gray-100 dark:bg-gray-700 rounded-lg p-3 font-weight">
                     {{ (match as ActionMatchKey).key }}
@@ -80,7 +80,7 @@ defineExpose({
             <div v-else-if="match?.type===ActionMatchTypeEnum.REGEX">
                 <div class="mb-3">
                     <icon-info-circle/>
-                    输入匹配以下正则表达式则显示此指令
+                    输入匹配以下正则表达式
                 </div>
                 <div class="text-center text-lg bg-gray-100 dark:bg-gray-700 rounded-lg p-3 font-weight">
                     {{ (match as ActionMatchRegex).regex }}
@@ -89,13 +89,13 @@ defineExpose({
             <div v-else-if="match?.type===ActionMatchTypeEnum.IMAGE">
                 <div class="mb-3">
                     <icon-info-circle/>
-                    当匹配到图片时显示此指令
+                    当匹配到图片时
                 </div>
             </div>
             <div v-else-if="match?.type===ActionMatchTypeEnum.FILE">
                 <div class="mb-3">
                     <icon-info-circle/>
-                    当使用以下规则匹配到文件时显示此指令
+                    当使用以下规则匹配成功时
                 </div>
                 <div class="bg-gray-100 dark:bg-gray-700 rounded-lg p-3">
                     <div v-if="'minCount' in match">
@@ -115,7 +115,7 @@ defineExpose({
             <div v-else-if="match?.type===ActionMatchTypeEnum.WINDOW">
                 <div class="mb-3">
                     <icon-info-circle/>
-                    当激活窗口标题匹配到以下内容时
+                    当激活窗口匹配以下条件成功时
                 </div>
                 <div class="bg-gray-100 dark:bg-gray-700 rounded-lg p-3">
                     <div v-if="'nameRegex' in match">
@@ -132,7 +132,7 @@ defineExpose({
             <div v-else-if="match?.type===ActionMatchTypeEnum.EDITOR">
                 <div class="mb-3">
                     <icon-info-circle/>
-                    当文件匹配到以下后缀和类型时打开
+                    当文件匹配到以下后缀和类型时
                 </div>
                 <div class="bg-gray-100 dark:bg-gray-700 rounded-lg p-3">
                     <div v-if="'extensions' in match">

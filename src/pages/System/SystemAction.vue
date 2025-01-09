@@ -11,6 +11,7 @@ import {
 import {Dialog} from "../../lib/dialog";
 import SystemActionMatchDetailDialog from "./components/SystemActionMatchDetailDialog.vue";
 import {SystemIcons} from "../../../electron/mapi/manager/system/asset/icon";
+import ActionTypeIcon from "./components/ActionTypeIcon.vue";
 
 const actionMatchDetailDialog = ref<InstanceType<typeof SystemActionMatchDetailDialog> | null>(null);
 const records = ref<PluginRecord[]>([])
@@ -100,7 +101,7 @@ const doPin = async (action: ActionRecord) => {
 
 <template>
     <div class="flex h-full">
-        <div class="w-52 flex-shrink-0 border-r border-default p-1 h-full overflow-y-auto">
+        <div class="w-56 flex-shrink-0 border-r border-default p-1 h-full overflow-y-auto">
             <div class="p-2 text-gray-400 font-bold">内置</div>
             <template v-for="(p,pIndex) in records">
                 <div
@@ -108,7 +109,7 @@ const doPin = async (action: ActionRecord) => {
                     class="flex items-center rounded-lg cursor-pointer select-none p-2 hover:bg-gray-100 dark:hover:bg-gray-600"
                     :class="pIndex===recordCurrentIndex?'bg-gray-200 dark:bg-gray-700':''"
                     @click="doActivePlugin(pIndex)">
-                    <div class="w-8 rounded-lg mr-2">
+                    <div class="w-7 rounded-lg mr-2">
                         <img :src="p.logo"
                              :class="p.type===PluginType.SYSTEM?'dark:invert':'plugin-logo-filter'"/>
                     </div>
@@ -140,13 +141,13 @@ const doPin = async (action: ActionRecord) => {
                         <a-radio value="keyword">
                             <div class="flex items-center">
                                 <img class="w-6 h-6 mr-1 object-contain dark:invert" :src="SystemIcons.searchKeyword"/>
-                                功能指令
+                                搜索动作
                             </div>
                         </a-radio>
                         <a-radio value="match">
                             <div class="flex items-center">
                                 <img class="w-6 h-6 mr-1 object-contain dark:invert" :src="SystemIcons.searchMatch"/>
-                                匹配指令
+                                匹配动作
                             </div>
                         </a-radio>
                     </a-radio-group>
@@ -161,6 +162,7 @@ const doPin = async (action: ActionRecord) => {
                                  :class="recordCurrent?.type===PluginType.SYSTEM?'dark:invert':'plugin-logo-filter'"
                                  :src="a.icon"/>
                             <div class="mr-2">{{ a.title }}</div>
+                            <ActionTypeIcon class="mr-2" :type="a.type"/>
                             <a-tooltip :content="a['_pin']?'固定到搜索框':'从搜索框取消固定'" position="left">
                                 <a href="javascript:;"
                                    class="inline-block w-6 h-6 mr-2 bg-gray-100 dark:bg-gray-600 text-center leading-6 rounded-full"
@@ -219,6 +221,7 @@ const doPin = async (action: ActionRecord) => {
                         <div class="mb-4 flex items-center">
                             <img class="w-6 h-6 object-contain mr-2" :src="a.icon"/>
                             <div class="mr-2">{{ a.title }}</div>
+                            <ActionTypeIcon class="mr-2" :type="a.type"/>
                         </div>
                         <div
                             v-for="m in a.matches.filter(m=>['image','file','regex','window','editor'].includes((m as ActionMatchBase).type))"
@@ -252,9 +255,9 @@ const doPin = async (action: ActionRecord) => {
                                               size="small">
                                         窗口
                                         <div class="inline-block max-w-32 overflow-hidden truncate">
-                                            {{(m as ActionMatchWindow).nameRegex}}
-                                            {{(m as ActionMatchWindow).titleRegex}}
-                                            {{(m as ActionMatchWindow).attrRegex}}
+                                            {{ (m as ActionMatchWindow).nameRegex }}
+                                            {{ (m as ActionMatchWindow).titleRegex }}
+                                            {{ (m as ActionMatchWindow).attrRegex }}
                                         </div>
                                     </a-button>
                                     <a-button v-else-if="(m as ActionMatchBase).type==='editor'"
@@ -264,10 +267,10 @@ const doPin = async (action: ActionRecord) => {
                                         打开文件
                                         <div class="inline-block max-w-32 overflow-hidden truncate">
                                         <span v-if="(m as ActionMatchEditor).faDataTypes">
-                                            {{(m as ActionMatchEditor).faDataTypes?.join(',')}}
+                                            {{ (m as ActionMatchEditor).faDataTypes?.join(',') }}
                                         </span>
                                             <span v-if="(m as ActionMatchEditor).extensions">
-                                            {{(m as ActionMatchEditor).extensions.join(',')}}
+                                            {{ (m as ActionMatchEditor).extensions.join(',') }}
                                         </span>
                                         </div>
                                     </a-button>

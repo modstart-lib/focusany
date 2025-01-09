@@ -51,7 +51,7 @@ defineExpose({
                 </div>
             </div>
             <div v-else>
-                快捷指令
+                快捷动作
             </div>
         </div>
         <div class="right">

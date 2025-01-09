@@ -34,7 +34,7 @@ const doDelete = async (index: number) => {
 const doTest = async (index: number) => {
     const record = records.value[index]
     if (!record.keyword) {
-        Dialog.tipError('请输入指令名称')
+        Dialog.tipError('请输入动作名称')
         return
     }
     focusany.redirect(record.keyword)
@@ -63,7 +63,7 @@ const doHotkeyChange = async (index: number, hotkey: any) => {
                         <HotkeyInput :value="r.hotkey" @change="doHotkeyChange(rIndex,$event)"/>
                     </div>
                     <div class="ml-3 flex-grow">
-                        <a-input v-model="r.keyword" @change="doSave()" placeholder="指令名称，如 截图"/>
+                        <a-input v-model="r.keyword" @change="doSave()" placeholder="动作名称，如 截图"/>
                     </div>
                     <div class="ml-2">
                         <a-button @click="doTest(rIndex)">
@@ -88,7 +88,7 @@ const doHotkeyChange = async (index: number, hotkey: any) => {
                     <template #icon>
                         <icon-plus/>
                     </template>
-                    增加一个启动指令
+                    增加一个启动动作
                 </a-button>
             </div>
         </div>
