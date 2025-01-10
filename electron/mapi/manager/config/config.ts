@@ -13,7 +13,7 @@ import {ManagerHotkey} from "../hotkey";
 import {MemoryCacheUtil} from "../../../lib/util";
 import {ManagerPlugin} from "../plugin";
 import {ManagerSystem} from "../system";
-import {isWin} from "../../../lib/env";
+import {isLinux, isMac, isWin} from "../../../lib/env";
 
 const defaultConfig: ConfigRecord = {
     mainTrigger: {
@@ -24,10 +24,18 @@ const defaultConfig: ConfigRecord = {
         shiftKey: false,
         times: 1,
     },
+    detachWindowTrigger: {
+        key: 'D',
+        altKey: false,
+        ctrlKey: !isMac,
+        metaKey: isMac,
+        shiftKey: false,
+        times: 1,
+    },
     fastPanelTrigger: {
         type: 'Ctrl',
         times: 1,
-    }
+    },
     // fastPanelTriggerButton: {
     //     button: HotkeyMouseButtonEnum.RIGHT,
     //     type: 'longPress',
@@ -86,17 +94,17 @@ export const ManagerConfig = {
             ...config
         }
         await KVDBMain.putForce(CommonConfig.dbSystem, doc)
-        let changed = false
+        let hotkeyChanged = false
         if (this.configOld) {
-            if (!changed && JSON.stringify(this.configOld.mainTrigger) !== JSON.stringify(config.mainTrigger)) {
-                changed = true
-            }
-            if (!changed && JSON.stringify(this.configOld.fastPanelTrigger) !== JSON.stringify(config.fastPanelTrigger)) {
-                changed = true
+            for (const k of ['mainTrigger', 'fastPanelTrigger']) {
+                if (JSON.stringify(this.configOld[k]) !== JSON.stringify(config[k])) {
+                    hotkeyChanged = true
+                    break
+                }
             }
         }
         MemoryCacheUtil.forget('Config')
-        if (changed) {
+        if (hotkeyChanged) {
             ManagerHotkey.configInit().then()
         }
     },

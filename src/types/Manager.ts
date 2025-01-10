@@ -2,6 +2,7 @@ import {HotkeyKeyItem, HotkeyKeySimpleItem,} from "../../electron/mapi/keys/type
 
 export type ConfigRecord = {
     mainTrigger: HotkeyKeyItem,
+    detachWindowTrigger: HotkeyKeyItem,
     fastPanelTrigger: HotkeyKeySimpleItem,
 }
 

@@ -252,16 +252,18 @@ export const ManagerHotkey = {
         this.keyConfigs = []
 
         const config = await ManagerConfig.get()
-        if (config.mainTrigger) {
-            this.keyConfigs.push({
-                name: 'mainTrigger',
-                keycode: keyToKeyCode(config.mainTrigger.key),
-                altKey: config.mainTrigger.altKey,
-                ctrlKey: config.mainTrigger.ctrlKey,
-                metaKey: config.mainTrigger.metaKey,
-                shiftKey: config.mainTrigger.shiftKey,
-                times: config.mainTrigger.times,
-            })
+        for (const k of ['mainTrigger']) {
+            if (config[k]) {
+                this.keyConfigs.push({
+                    name: k,
+                    keycode: keyToKeyCode(config[k].key),
+                    altKey: config[k].altKey,
+                    ctrlKey: config[k].ctrlKey,
+                    metaKey: config[k].metaKey,
+                    shiftKey: config[k].shiftKey,
+                    times: config[k].times,
+                })
+            }
         }
         this.keySimpleConfigs = []
         if (config.fastPanelTrigger) {

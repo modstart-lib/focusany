@@ -322,6 +322,7 @@ export const ManagerWindow = {
                     state: pluginState,
                     param: pluginParam
                 })
+                AppRuntime.mainWindow.focus()
                 resolve(undefined)
             })
         })

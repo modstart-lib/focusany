@@ -107,6 +107,15 @@ const onManagerConfigChange = async (key: string, value: any) => {
                                   @change="onManagerConfigChange('autoLaunchEnable',$event)"/>
                     </div>
                 </div>
+                <div class="flex items-center mb-6">
+                    <div class="flex-grow">
+                        分离窗口快捷键
+                    </div>
+                    <div>
+                        <HotkeyInput :value="manager.configGet('detachWindowTrigger',null)"
+                                     @change="manager.onConfigChange('detachWindowTrigger',$event)"/>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

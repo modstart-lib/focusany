@@ -47,13 +47,14 @@ window.__page.onPluginInit((data: {
         alwaysOnTop: boolean
     }
 }) => {
-    // console.log('main.onPluginInit', data)
+    console.log('main.onPluginInit', data)
     manager.setActivePlugin(data.plugin)
     manager.setSubInput({
         placeholder: '',
         isFocus: false,
     })
     manager.setSubInputValue('')
+    mainSearch.value?.focus()
 })
 window.__page.onPluginAlreadyOpened(() => {
     // console.log('main.onPluginAlreadyOpened')
@@ -97,7 +98,38 @@ window.__page.onSetSubInputValue((value: string) => {
     manager.setSubInputValue(value);
 })
 
+let detachHotKey: any = null
+let detachHotkeyExpire = 0
+let detachHotkeyTimes = 0
 window.addEventListener('keydown', (e) => {
+    if (!detachHotKey) {
+        detachHotKey = manager.configGet('detachWindowTrigger', null)
+    }
+    // console.log('keydown', detachHotKey.value, detachHotkeyExpire)
+    // {"key":"D","altKey":false,"ctrlKey":false,"metaKey":true,"shiftKey":false,"times":1}
+    if (detachHotKey && detachHotKey.value) {
+        // console.log('detachHotkeyExpire', detachHotKey.value.key, detachHotkeyExpire)
+        if (
+            detachHotKey.value.key === e.key.toUpperCase()
+            && detachHotKey.value.altKey === e.altKey
+            && detachHotKey.value.ctrlKey === e.ctrlKey
+            && detachHotKey.value.metaKey === e.metaKey
+            && detachHotKey.value.shiftKey === e.shiftKey
+        ) {
+            if (!detachHotkeyExpire || Date.now() > detachHotkeyExpire) {
+                detachHotkeyExpire = Date.now() + 500
+                detachHotkeyTimes = 1
+            } else {
+                detachHotkeyTimes++
+            }
+            if (detachHotkeyTimes >= detachHotKey.value.times) {
+                detachHotkeyExpire = 0
+                detachHotkeyTimes = 0
+                manager.detachPlugin()
+                return
+            }
+        }
+    }
     if (!manager.activePlugin) {
         mainSearch.value?.onKeyDown(e)
     }

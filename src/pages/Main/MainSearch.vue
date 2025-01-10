@@ -164,6 +164,10 @@ const onShow = () => {
     mainInput.value.focus();
 };
 
+const focus = () => {
+    mainInput.value.focus();
+};
+
 const onKeyDown = (e: KeyboardEvent) => {
     // ignore input event for fire twice
     if (!!(e.target && ((e.target as any).tagName === 'INPUT'))) {
@@ -196,6 +200,7 @@ const onFocus = () => {
 defineExpose({
     onShow,
     onKeyDown,
+    focus,
 });
 
 </script>
