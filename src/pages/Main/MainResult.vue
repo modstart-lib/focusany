@@ -142,6 +142,9 @@
                                          :useragent="`${webUserAgent} PluginAction/${r.fullName}`"
                                          webpreferences="contextIsolation=false,sandbox=false"
                                          disablewebsecurity></webview>
+                                <div class="view-item-loading" v-if="!r['_webReady']">
+                                    <icon-loading/>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -296,8 +299,20 @@ defineExpose({
             }
 
             .view-item-body {
+                position: relative;
+
                 .web {
                     transition: height 0.3s;
+                }
+
+                .view-item-loading {
+                    position: absolute;
+                    inset: 0;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    background: rgba(255, 255, 255, 0.8);
+                    z-index: 1;
                 }
             }
         }

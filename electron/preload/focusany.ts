@@ -42,16 +42,16 @@ const ipcSendToHost = (type: string, data?: any, hasResult?: boolean): Promise<a
         if (hasResult) {
             const timeoutTimer = setTimeout(() => {
                 executeHook('Log', `${type}.timeout`)
-                ipcRenderer.removeAllListeners(`FocusAny.FastPanel.${id}`)
+                ipcRenderer.removeAllListeners(`FocusAny.View.${id}`)
                 reject(new Error('timeout'))
             }, 60 * 1000)
-            ipcRenderer.once(`FocusAny.FastPanel.${id}`, (_event, result) => {
+            ipcRenderer.once(`FocusAny.View.${id}`, (_event, result) => {
                 executeHook('Log', `${type}.result`, result)
                 clearTimeout(timeoutTimer)
                 resolve(result)
             })
         }
-        ipcRenderer.sendToHost('FocusAny.FastPanel', {
+        ipcRenderer.sendToHost('FocusAny.View', {
             id,
             type,
             data,

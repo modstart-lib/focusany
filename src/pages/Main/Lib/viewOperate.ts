@@ -28,6 +28,7 @@ export const useViewOperate = (type: 'fastPanel' | 'main') => {
             return manager.viewActions.map(a => {
                 a['_web'] = null
                 a['_webInit'] = false
+                a['_webReady'] = false
                 a['_height'] = a.runtime?.view?.heightView || 100
                 return a
             })
@@ -35,6 +36,7 @@ export const useViewOperate = (type: 'fastPanel' | 'main') => {
         return manager.fastPanelViewActions.map(a => {
             a['_web'] = null
             a['_webInit'] = false
+            a['_webReady'] = false
             a['_height'] = a.runtime?.view?.heightView || 100
             return a
         })
@@ -60,6 +62,8 @@ export const useViewOperate = (type: 'fastPanel' | 'main') => {
             readyData['isView'] = true;
             ((aa) => {
                 aa['_web'].addEventListener('did-finish-load', async () => {
+                    aa['_webReady'] = true
+                    aa['_web'].insertCSS(`body{overflow: hidden;}`)
                     if (setting.shouldDarkMode()) {
                         aa['_web'].executeJavaScript(`
                         document.body.setAttribute('data-theme', 'dark');
@@ -80,7 +84,7 @@ export const useViewOperate = (type: 'fastPanel' | 'main') => {
                     }
                 })
                 aa['_web'].addEventListener('ipc-message', (event) => {
-                    if ('FocusAny.FastPanel' === event.channel) {
+                    if ('FocusAny.View' === event.channel) {
                         const {id, type, data} = event.args[0]
                         switch (type) {
                             case 'view.setHeight':
@@ -88,7 +92,7 @@ export const useViewOperate = (type: 'fastPanel' | 'main') => {
                                 break
                             case 'view.getHeight':
                                 // console.log('view.getHeight', aa['_height'])
-                                aa['_web'].send(`FocusAny.FastPanel.${id}`, aa['_height'])
+                                aa['_web'].send(`FocusAny.View.${id}`, aa['_height'])
                                 break
                         }
                     }
