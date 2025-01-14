@@ -1,5 +1,6 @@
 import {useManagerStore} from "../../../store/modules/manager";
 import {ClipboardDataType, SelectedContent} from "../../../types/Manager";
+import {TimeUtil} from "../../../lib/util";
 
 const manager = useManagerStore()
 
@@ -18,6 +19,14 @@ export const EntryListener = {
 
         // console.log('EntryListener.prepareSearch', option)
 
+        // 清除搜索框
+        if (manager.searchValue) {
+            // 如果10分钟未变化，清空搜索框
+            if (manager.searchValueUpdateTimestamp > 0 && manager.searchValueUpdateTimestamp < TimeUtil.timestamp() - 10 * 60) {
+                manager.searchValue = ''
+            }
+        }
+
         let searchValue = manager.searchValue
 
         // 选中，只有快捷面板才获取
@@ -29,7 +38,12 @@ export const EntryListener = {
         const clipboardContent: ClipboardDataType | null = await window.$mapi.manager.getClipboardContent()
         const clipboardChangeTime = await window.$mapi.manager.getClipboardChangeTime()
         // 最近6秒内的剪切板变更才会被视为有效
-        const useClipboard = clipboardChangeTime > Date.now() / 1000 - 6
+        let useClipboard = false
+        if (manager.searchValueUpdateTimestamp > 0 && !manager.searchValue) {
+            if (clipboardChangeTime > TimeUtil.timestamp() - 6) {
+                useClipboard = true
+            }
+        }
 
         // 文件
         manager.setCurrentFiles([])

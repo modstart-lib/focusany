@@ -9,6 +9,7 @@ import {
 import debounce from "lodash/debounce";
 import {WindowConfig} from "../../../electron/config/window";
 import {computed, toRaw} from "vue";
+import {TimeUtil} from "../../lib/util";
 
 const searchFastPanelActionDebounce = debounce((query, cb) => {
     window.$mapi.manager.searchFastPanelAction(query)
@@ -33,6 +34,7 @@ export const managerStore = defineStore("manager", {
         config: {} as ConfigRecord,
         searchLoading: false,
         searchLastKeywords: '',
+        searchValueUpdateTimestamp: 0,
         searchValue: '',
         searchPlaceholder: 'FocusAny，让您的工作专注高效',
         searchSubPlaceholder: '',
@@ -141,6 +143,7 @@ export const managerStore = defineStore("manager", {
             }
             this.searchLoading = true
             this.searchValue = keywords
+            this.searchValueUpdateTimestamp = TimeUtil.timestamp()
             this.viewActions = []
             searchDebounce({
                 keywords,

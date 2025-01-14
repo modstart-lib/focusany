@@ -47,7 +47,7 @@ window.__page.onPluginInit((data: {
         alwaysOnTop: boolean
     }
 }) => {
-    console.log('main.onPluginInit', data)
+    // console.log('main.onPluginInit', data)
     manager.setActivePlugin(data.plugin)
     manager.setSubInput({
         placeholder: '',
