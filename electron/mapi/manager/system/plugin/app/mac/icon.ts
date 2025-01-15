@@ -19,12 +19,7 @@ const getIconFile = (appFileInput) => {
                 const mat = plistContent.match(/<key>CFBundleIconFile<\/key>\s*<string>(.*?)<\/string>/)
                 if (mat) {
                     const CFBundleIconFile = mat[1]
-                    const iconFile = path.join(
-                        appFileInput,
-                        'Contents',
-                        'Resources',
-                        CFBundleIconFile
-                    );
+                    const iconFile = path.join(appFileInput, 'Contents', 'Resources', CFBundleIconFile);
                     const iconFiles = [iconFile, iconFile + '.icns', iconFile + '.tiff']
                     const existedIcon = iconFiles.find((iconFile) => {
                         return fs.existsSync(iconFile);

@@ -1,5 +1,4 @@
 import {Files} from "../../../../../file/main";
-import fs from "node:fs";
 import {IconvUtil} from "../../../../../../lib/util";
 
 const langDirMap = {

@@ -183,8 +183,8 @@ export type ActionRecord = {
         // type = command
         command?: string
         // type = view
-        showFastPanel: boolean,
-        showMainPanel: boolean,
+        showFastPanel?: boolean,
+        showMainPanel?: boolean,
     },
 
     type?: ActionTypeEnum,

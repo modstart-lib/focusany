@@ -139,6 +139,20 @@ npm run dev
 npm run build
 ```
 
+### Ubuntu 开发环境
+
+```shell
+sudo apt install -y make gcc g++ python3
+```
+
+### Windows 开发环境
+
+- 安装 `Visual Studio 2019`，并安装 `Desktop Development with C++` 相关组件
+
+### MacOS 开发环境
+
+- 安装 `Python3`
+
 ## 加入交流群
 
 <table width="100%">
