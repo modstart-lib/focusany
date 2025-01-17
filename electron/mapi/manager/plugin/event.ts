@@ -341,7 +341,11 @@ export const ManagerPluginEvent = {
         return AppConfig.version
     },
     outPlugin: async (context: PluginContext, data: any) => {
-        await ManagerWindow.close(context._plugin);
+        const option: any = {}
+        if (context && context._window) {
+            option.window = context._window
+        }
+        await ManagerWindow.close(context._plugin, option);
     },
     isDarkColors: async (context: PluginContext, data: any) => {
         return await AppsMain.shouldDarkMode()

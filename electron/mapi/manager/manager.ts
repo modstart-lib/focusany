@@ -88,9 +88,6 @@ export const Manager = {
                 exec(action.data.command)
                 break
             case ActionTypeEnum.WEB:
-                if (!await ManagerPluginEvent.isMainWindowShown(null, null)) {
-                    await ManagerPluginEvent.showMainWindow(null, null)
-                }
                 await ManagerWindow.open(plugin, action)
                 break
             case ActionTypeEnum.CODE:

@@ -117,8 +117,8 @@ export const ManagerClipboard = {
         return EncodeUtil.aesEncode(dataJson, this.encryptKey)
     },
     decrypt(data: string): ClipboardHistoryRecord {
-        data = EncodeUtil.aesDecode(data, this.encryptKey)
         try {
+            data = EncodeUtil.aesDecode(data, this.encryptKey)
             return JSON.parse(data) as ClipboardHistoryRecord
         } catch (e) {
             return null

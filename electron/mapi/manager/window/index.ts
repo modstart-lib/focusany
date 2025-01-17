@@ -12,6 +12,7 @@ import {Log} from "../../log/main";
 import {Events} from "../../event/main";
 import {ManagerSystem} from "../system";
 import {AppsMain} from "../../app/main";
+import {ManagerPluginEvent} from "../plugin/event";
 
 const browserViews = new Map<WebContents, BrowserView>()
 const detachWindows = new Map<WebContents, BrowserWindow>()
@@ -264,8 +265,11 @@ export const ManagerWindow = {
         const view = win.getBrowserView()
         await executePluginHooks(view, 'SubInputChange', keywords);
     },
-    async close(plugin?: PluginRecord, option?: {}) {
+    async close(plugin?: PluginRecord, option?: {
+        window?: BrowserWindow
+    }) {
         if (mainWindowView && (!plugin || mainWindowView._plugin.name === plugin.name)) {
+            // 主窗口插件
             await executePluginHooks(mainWindowView, 'PluginExit', null).then()
             await executeHooks(AppRuntime.mainWindow, 'PluginExit', null).then()
             removeBrowserViews(mainWindowView)
@@ -274,7 +278,11 @@ export const ManagerWindow = {
             mainWindowView.webContents?.destroy();
         } else {
             // detach的插件窗口
-            //TODO
+            if (option.window) {
+                option.window.close()
+            } else {
+                Log.error('ManagerWindow.close', 'windowNotFound')
+            }
         }
     },
     async openMainPluginDevTools(plugin: PluginRecord, option?: {}) {
@@ -293,6 +301,9 @@ export const ManagerWindow = {
         width: number,
         height: number,
     }) {
+        if (!await ManagerPluginEvent.isMainWindowShown(null, null)) {
+            await ManagerPluginEvent.showMainWindow(null, null)
+        }
         // console.log('showInMainWindow', view._plugin.name, option)
         if (mainWindowView) {
             await this.close(mainWindowView._plugin)
