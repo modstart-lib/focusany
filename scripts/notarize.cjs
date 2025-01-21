@@ -1,5 +1,3 @@
-process.env.DEBUG = 'electron-notarize*'
-
 const {notarize} = require("@electron/notarize");
 
 exports.default = async function notarizing(context) {
@@ -30,6 +28,7 @@ exports.default = async function notarizing(context) {
         appleId: APPLE_ID,
         appleIdPassword: APPLE_ID_PASSWORD,
         teamId: APPLE_TEAM_ID,
+        verbose: true,
     }
     console.log(`  • Notarizing`, `appPath:${appPath} notarizeOption:${JSON.stringify(notarizeOption)}`);
     return await notarize(notarizeOption);
