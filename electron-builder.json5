@@ -126,6 +126,10 @@
                 "role": "Editor"
             }
         ],
+        "electronLanguages": [
+            "zh-CN",
+            "en-US"
+        ],
         "type": "development",
         "notarize": false,
         "darkModeSupport": false,
@@ -181,5 +185,5 @@
             }
         ]
     },
-    "afterSign": "./scripts/notarize.cjs",
+//    "afterSign": "./scripts/notarize.cjs",
 }

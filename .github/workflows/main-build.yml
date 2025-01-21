@@ -13,12 +13,12 @@ jobs:
     strategy:
       matrix:
           include:
-#              - os: ubuntu-latest
-#                arch: [arm64, amd64]
+              - os: ubuntu-latest
+                arch: [arm64, amd64]
               - os: macos-latest
                 arch: [arm64, amd64]
-#              - os: windows-latest
-#                arch: [arm64, amd64]
+              - os: windows-latest
+                arch: [arm64, amd64]
 
     steps:
       - name: Checkout Code
@@ -67,6 +67,7 @@ jobs:
       - name: Build Release Files
         run: npm run build
         env:
+          DEBUG: "electron-notarize:*"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}

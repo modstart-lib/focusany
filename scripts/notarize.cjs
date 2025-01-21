@@ -31,5 +31,13 @@ exports.default = async function notarizing(context) {
         verbose: true,
     }
     console.log(`  • Notarizing`, `appPath:${appPath} notarizeOption:${JSON.stringify(notarizeOption)}`);
-    return await notarize(notarizeOption);
+    try {
+        const result = await notarize(notarizeOption);
+        console.log("  • Notarization successful!");
+        return result;
+    } catch (error) {
+        console.error("  • Notarization failed:", error.message);
+        console.error("  • Stack trace:", error.stack);
+    }
+
 };
