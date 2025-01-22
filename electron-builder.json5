@@ -185,5 +185,5 @@
             }
         ]
     },
-//    "afterSign": "./scripts/notarize.cjs",
+    "afterSign": "./scripts/notarize.cjs",
 }
