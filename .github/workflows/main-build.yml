@@ -101,10 +101,10 @@ jobs:
             zone: ${{ secrets.KODO_ZONE }}
             callback: ${{ secrets.OSS_CALLBACK }}
             assets: |
-                dist-release/*.exe:focusany/focusany-${{ env.DIST_FILE_NAME }}/
-                dist-release/*.dmg:focusany/focusany-${{ env.DIST_FILE_NAME }}/
-                dist-release/*.AppImage:focusany/focusany-${{ env.DIST_FILE_NAME }}/
-                dist-release/*.deb:focusany/focusany-${{ env.DIST_FILE_NAME }}/
+                dist-release/*.exe:apps/focusany-${{ env.DIST_FILE_NAME }}/
+                dist-release/*.dmg:apps/focusany-${{ env.DIST_FILE_NAME }}/
+                dist-release/*.AppImage:apps/focusany-${{ env.DIST_FILE_NAME }}/
+                dist-release/*.deb:focusany/apps-${{ env.DIST_FILE_NAME }}/
 
 #      - name: Upload Artifact Windows
 #        if: runner.os == 'Windows'
