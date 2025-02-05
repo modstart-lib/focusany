@@ -283,8 +283,8 @@ export const ManagerPlugin = {
         if (!config.versionRequire) {
             config.versionRequire = '*'
         }
-        if (!VersionUtil.match(config.versionRequire, AppConfig.version)) {
-            throw `PluginVersionNotMatch : ${config.name}`
+        if (!VersionUtil.match(AppConfig.version, config.versionRequire)) {
+            throw `PluginVersionNotMatch:-2:${config.name}`
         }
     },
     async parsePackage(file: string, option?: {}) {
@@ -362,8 +362,8 @@ export const ManagerPlugin = {
         if (!plugin.platform.includes(platformName())) {
             throw `PluginNotSupportPlatform : ${plugin.name}`
         }
-        if (!VersionUtil.match(plugin.versionRequire, AppConfig.version)) {
-            throw `PluginVersionNotMatch : ${plugin.name}`
+        if (!VersionUtil.match(AppConfig.version, plugin.versionRequire)) {
+            throw `PluginVersionNotMatch:-1:${plugin.name}`
         }
         const runtime = plugin.runtime
         delete plugin.runtime
