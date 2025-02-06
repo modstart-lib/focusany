@@ -144,16 +144,26 @@ export const ManagerClipboard = {
             saveData.image = imageMd5
         }
         const dataString = this.encrypt(saveData)
+        // console.log('clipboard.write', `clipboard/${filename}/data`, dataString)
         await Files.appendText(`clipboard/${filename}/data`, `${dataString}\n`)
         await ManagerPluginEvent.firePluginEvent('ClipboardChange', saveData)
     },
     async list(): Promise<ClipboardHistoryRecord[]> {
         const fullPath = await Files.fullPath('clipboard')
         const dateDir = await Files.list('clipboard')
+        // 按照倒序排列 pathname
+        dateDir.sort((a, b) => {
+            return b.pathname.localeCompare(a.pathname)
+        })
         const result = []
+        let maxLimitReached = false
         for (const dir of dateDir) {
+            if (maxLimitReached) {
+                await Files.deletes(`clipboard/${dir.name}`)
+                continue
+            }
             const data = await Files.read(`clipboard/${dir.name}/data`)
-            for (const line of data.split('\n')) {
+            for (const line of data.split('\n').reverse()) {
                 if (!line) {
                     continue
                 }
@@ -166,14 +176,12 @@ export const ManagerClipboard = {
                 }
                 result.push(record)
                 if (result.length > ManagerClipboard.MAX_LIMIT) {
+                    maxLimitReached = true
                     break
                 }
             }
-            if (result.length > ManagerClipboard.MAX_LIMIT) {
-                break
-            }
         }
-        return result.reverse()
+        return result
     },
     async clear() {
         await Files.deletes('clipboard')
