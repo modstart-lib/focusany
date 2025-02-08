@@ -41,16 +41,14 @@ const listFiles = (dir, recursive) => {
     return list;
 }
 
-console.log('BuildOptimize', {
-    name: platformName(),
-    arch: platformArch(),
-});
-
 exports.default = async function (context) {
-    console.log('BuildOptimize.output', {
-        context: context,
+    console.log('BuildOptimize.output', JSON.stringify({
+        name: platformName(),
+        arch: platformArch(),
+        appOutDir: context.appOutDir,
+        outDir: context.outDir,
         root: context.appOutDir
-    })
+    }))
     listFiles(context.appOutDir, true).forEach((p) => {
         // console.log('BuildOptimize.path', (p.isDir ? 'D:' : 'F:') + p.path);
     })
