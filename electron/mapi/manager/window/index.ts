@@ -235,16 +235,19 @@ export const ManagerWindow = {
             DevToolsManager.autoShow(view)
         });
         const windowOption = {
-            width, height,
+            width,
+            height,
             pluginState: {
                 value: '',
                 placeholder: '',
+            },
+            loadUrl: () => {
+                if (rendererIsUrl(main)) {
+                    view.webContents.loadURL(main).then()
+                } else {
+                    view.webContents.loadFile(main).then()
+                }
             }
-        }
-        if (rendererIsUrl(main)) {
-            view.webContents.loadURL(main).then()
-        } else {
-            view.webContents.loadFile(main).then()
         }
         if (autoDetach) {
             await this._showInDetachWindow(view, windowOption)
@@ -297,6 +300,7 @@ export const ManagerWindow = {
         }
     },
     async _showInMainWindow(view: BrowserView, option: {
+        loadUrl: () => void,
         pluginState: PluginState,
         width: number,
         height: number,
@@ -336,9 +340,11 @@ export const ManagerWindow = {
                 AppRuntime.mainWindow.focus()
                 resolve(undefined)
             })
+            option.loadUrl()
         })
     },
     async _showInDetachWindow(view: BrowserView, option: {
+        loadUrl: () => void,
         pluginState: PluginState,
         width: number,
         height: number,
@@ -448,6 +454,7 @@ export const ManagerWindow = {
         win.webContents.setWindowOpenHandler(() => {
             return {action: "deny"};
         });
+        option.loadUrl()
         const pluginJson = JSON.parse(JSON.stringify(view._plugin))
         return new Promise((resolve, reject) => {
             win.webContents.once('did-finish-load', async () => {
