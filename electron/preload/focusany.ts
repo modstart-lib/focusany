@@ -366,6 +366,10 @@ export const FocusAny = {
         })
     },
 
+    showUserLogin() {
+        ipcSend('showUserLogin')
+    },
+
     getUser(): {
         avatar: string,
         nickname: string,
@@ -377,6 +381,19 @@ export const FocusAny = {
 
     getUserAccessToken(): Promise<{ token: string, expireAt: number }> {
         return ipcSendAsync('getUserAccessToken')
+    },
+
+    listGoods(query?: {
+        ids?: string[]
+    }): Promise<{
+        id: string,
+        title: string,
+        cover: string,
+        priceType: 'fixed' | 'dynamic',
+        fixedPrice: string,
+        description: string,
+    }[]> {
+        return ipcSendAsync('listGoods', {query})
     },
 
     openGoodsPayment(

@@ -454,7 +454,9 @@ export const ManagerWindow = {
         win.webContents.setWindowOpenHandler(() => {
             return {action: "deny"};
         });
-        option.loadUrl()
+        if(option.loadUrl){
+            option.loadUrl()
+        }
         const pluginJson = JSON.parse(JSON.stringify(view._plugin))
         return new Promise((resolve, reject) => {
             win.webContents.once('did-finish-load', async () => {

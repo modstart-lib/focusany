@@ -204,6 +204,17 @@ export const PluginSdkCreate = (plugin: PluginRecord) => {
         async removeAction(name: string) {
             return ManagerPluginEvent.removeAction(context, {name})
         },
+        async getUser(): Promise<{
+            avatar: string,
+            nickname: string,
+            vipFlag: string,
+            deviceCode: string
+        } | null> {
+            return ManagerPluginEvent.getUser(context, {})
+        },
+        async getUserAccessToken(): Promise<{ token: string, expireAt: number }>{
+            return ManagerPluginEvent.getUserAccessToken(context, {})
+        },
         db: {
             async put(doc: {
                 _id: string,

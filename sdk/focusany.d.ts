@@ -249,9 +249,15 @@ interface FocusAnyApi {
     isDarkColors(): boolean;
 
     /**
+     * 显示用户登录对话框
+     */
+    showUserLogin(): void;
+
+    /**
      * 获取用户
      */
     getUser(): {
+        isLogin: boolean,
         avatar: string,
         nickname: string,
         vipFlag: string,
@@ -262,6 +268,21 @@ interface FocusAnyApi {
      * 获取用户服务端临时令牌
      */
     getUserAccessToken(): Promise<{ token: string, expireAt: number }>;
+
+    /**
+     * 列出插件商品
+     * @param query
+     */
+    listGoods(query?: {
+        ids?: string[]
+    }): Promise<{
+        id: string,
+        title: string,
+        cover: string,
+        priceType: 'fixed' | 'dynamic',
+        fixedPrice: string,
+        description: string,
+    }[]>;
 
     /**
      * 创建订单并显示

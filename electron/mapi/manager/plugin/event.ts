@@ -24,6 +24,7 @@ import {AppConfig} from "../../../../src/config";
 import {ManagerPluginPermission} from "./permission";
 import User, {UserApi} from "../../user/main";
 import {PagePayment} from "../../../page/payment";
+import {PageUser} from "../../../page/user";
 
 const getHeadHeight = (win: BrowserWindow) => {
     if (win === AppRuntime.mainWindow) {
@@ -349,7 +350,11 @@ export const ManagerPluginEvent = {
     isDarkColors: async (context: PluginContext, data: any) => {
         return await AppsMain.shouldDarkMode()
     },
+    showUserLogin: async (context: PluginContext, data: any) => {
+        await PageUser.open({})
+    },
     getUser: async (context: PluginContext, data: any): Promise<{
+        isLogin: boolean,
         avatar: string,
         nickname: string,
         vipFlag: string,
@@ -358,6 +363,7 @@ export const ManagerPluginEvent = {
         const info = await User.get()
         const user = info.user
         return {
+            isLogin: !!(user && user.id),
             avatar: user.avatar || '',
             nickname: user.name || '',
             vipFlag: info.data?.vip?.flag || '',
@@ -422,6 +428,25 @@ export const ManagerPluginEvent = {
             token: res.data.token,
             expireAt: res.data.expireAt
         }
+    },
+
+    listGoods: async (context: PluginContext, data: any) => {
+        const {query} = data
+        const res = await UserApi.post<{
+            total: number,
+            records: {
+                id: string,
+                title: string,
+                cover: string,
+                priceType: 'fixed' | 'dynamic',
+                fixedPrice: string,
+                description: string,
+            }[]
+        }>('client/listGoods', {
+            pluginName: context._plugin.name,
+            query
+        })
+        return res.data.records
     },
 
     openGoodsPayment: async (context: PluginContext, data: any) => {
@@ -529,9 +554,10 @@ export const ManagerPluginEvent = {
             return
         }
         const {url, body, option} = data
-        return await UserApi.post(url, body, {
+        const res = await UserApi.post(url, body || {}, {
             catchException: false,
         })
+        return res
     },
 
     // db
