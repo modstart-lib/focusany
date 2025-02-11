@@ -23,7 +23,7 @@ export enum PluginEnv {
     PROD = 'prod',
 }
 
-export type PluginPermissionType = 'ClipboardManage' | never
+export type PluginPermissionType = 'ClipboardManage' | 'Api' | never
 
 export type PluginRecord = {
     // 以下配置信息和原始的 config.json 一致，未经过处理

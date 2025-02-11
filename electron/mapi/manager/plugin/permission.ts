@@ -1,24 +1,24 @@
-import {PluginRecord} from "../../../../src/types/Manager";
+import {PluginPermissionType, PluginRecord} from "../../../../src/types/Manager";
 import {AppsMain} from "../../app/main";
 
 
 export const ManagerPluginPermission = {
-    check(plugin: PluginRecord, type: 'event', typeData: string): boolean {
-        if (!plugin.permissions || !plugin.permissions.length) {
-            return false
+    checkPermit(plugin: PluginRecord, permission: PluginPermissionType): boolean {
+        if (plugin.permissions && plugin.permissions.length > 0 && plugin.permissions.includes(permission)) {
+            return true
         }
-        switch (type) {
-            case 'event':
-                switch (typeData) {
-                    case 'ClipboardChange':
-                        if (plugin.permissions.includes('ClipboardManage')) {
-                            return true
-                        }
-                        AppsMain.toast(`插件没有权限(ClipboardManage)`, {status: 'error'})
-                        break;
-                }
-                break
+        AppsMain.toast(`插件没有权限(${permission})`, {status: 'error'})
+        return false
+    },
+    check(plugin: PluginRecord, type: 'basic' | 'event', typeData: string): boolean {
+        if ('basic' === type) {
+            return this.checkPermit(plugin, typeData as PluginPermissionType)
+        } else if ('event' === type) {
+            if (typeData === 'ClipboardChange') {
+                return this.checkPermit(plugin, 'ClipboardManage')
+            }
         }
+        AppsMain.toast(`插件没有权限(${type}.${typeData})`, {status: 'error'})
         return false
     }
 }

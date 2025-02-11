@@ -524,6 +524,16 @@ export const ManagerPluginEvent = {
         }
     },
 
+    apiPost: async (context: PluginContext, data: any) => {
+        if (!ManagerPluginPermission.check(context._plugin, 'basic', 'Api')) {
+            return
+        }
+        const {url, body, option} = data
+        return await UserApi.post(url, body, {
+            catchException: false,
+        })
+    },
+
     // db
     dbPut: async (context: PluginContext, data: any) => {
         return await KVDBMain.put(context._plugin.name, data.doc);

@@ -339,6 +339,19 @@ interface FocusAnyApi {
     }>;
 
     /**
+     * 请求官方接口
+     */
+    apiPost(
+        url: string,
+        body: any,
+        option: {}
+    ): Promise<{
+        code: number,
+        msg: string,
+        data: any,
+    }>;
+
+    /**
      * 设置插件动作
      * @param action
      */

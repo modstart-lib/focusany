@@ -408,6 +408,18 @@ export const FocusAny = {
         return ipcSendAsync('queryGoodsOrders', {options})
     },
 
+    apiPost(
+        url: string,
+        body: any,
+        option: {}
+    ): Promise<{
+        code: number,
+        msg: string,
+        data: any,
+    }> {
+        return ipcSendAsync('apiPost', {url, body, option})
+    },
+
     db: {
         put(doc: DbDoc) {
             return ipcSendSync('dbPut', {doc})
