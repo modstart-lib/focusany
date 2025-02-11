@@ -1,5 +1,4 @@
 import packageJson from '../package.json';
-import dayjs from "dayjs";
 
 const BASE_URL = 'https://focusany.com';
 

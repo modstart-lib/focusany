@@ -1,4 +1,5 @@
 import {PluginRecord} from "../../../../src/types/Manager";
+import {AppsMain} from "../../app/main";
 
 
 export const ManagerPluginPermission = {
@@ -10,7 +11,11 @@ export const ManagerPluginPermission = {
             case 'event':
                 switch (typeData) {
                     case 'ClipboardChange':
-                        return plugin.permissions.includes('ClipboardManage')
+                        if (plugin.permissions.includes('ClipboardManage')) {
+                            return true
+                        }
+                        AppsMain.toast(`插件没有权限(ClipboardManage)`, {status: 'error'})
+                        break;
                 }
                 break
         }

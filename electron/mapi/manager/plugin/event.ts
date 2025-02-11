@@ -51,7 +51,6 @@ export const ManagerPluginEvent = {
             ManagerPluginEvent.pluginEvents[event] = []
         }
         if (!ManagerPluginPermission.check(context._plugin, 'event', event)) {
-            AppsMain.toast(`插件没有权限(Event.${event})`, {status: 'error'})
             return
         }
         ManagerPluginEvent.pluginEvents[event].push(context)
