@@ -7,6 +7,7 @@ import {AppsMain} from "../app/main";
 import Apps from "../app";
 import StorageMain from "../storage/main";
 import {Log} from "../log/main";
+import {ManagerPluginEvent} from "../manager/plugin/event";
 
 const init = () => {
     setTimeout(() => {
@@ -70,11 +71,15 @@ const save = async (data: {
     data: any,
     basic: {},
 }) => {
+    const userChanged = (JSON.stringify(userData.user) !== JSON.stringify(data.user))
     userData.apiToken = data.apiToken || ''
     userData.user = data.user || {}
     userData.data = data.data || {}
     userData.user.id = userData.user.id || ''
-    Events.broadcast('UserChange', {})
+    if (userChanged) {
+        Events.broadcast('UserChange', {})
+        ManagerPluginEvent.firePluginEvent('UserChange', {}).then()
+    }
     await StorageMain.set('user', 'data', {
         apiToken: data.apiToken,
         user: data.user,

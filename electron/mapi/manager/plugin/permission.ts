@@ -16,6 +16,8 @@ export const ManagerPluginPermission = {
         } else if ('event' === type) {
             if (typeData === 'ClipboardChange') {
                 return this.checkPermit(plugin, 'ClipboardManage')
+            } else if (['UserChange'].includes(typeData)) {
+                return true
             }
         }
         AppsMain.toast(`插件没有权限(${type}.${typeData})`, {status: 'error'})

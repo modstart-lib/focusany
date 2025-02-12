@@ -21,7 +21,7 @@ interface DbReturn {
 
 declare type PlatformType = 'win' | 'osx' | 'linux'
 
-declare type PluginEvent = 'ClipboardChange'
+declare type PluginEvent = 'ClipboardChange' | 'UserChange'
 
 declare type ActionMatch = (
     ActionMatchText
@@ -137,11 +137,24 @@ interface FocusAnyApi {
     onPluginExit(callback: Function): void;
 
     /**
-     * 插件事件触发
+     * 插件事件监听
      * @param event
      * @param callback
      */
     onPluginEvent(event: PluginEvent, callback: (data: any) => void): void;
+
+    /**
+     * 插件事件解绑
+     * @param event
+     * @param callback
+     */
+    offPluginEvent(event: PluginEvent, callback: (data: any) => void): void;
+
+    /**
+     * 插件事件解绑全部
+     * @param event
+     */
+    offPluginEventAll(event: PluginEvent): void;
 
     /**
      * 插件主窗口是否显示

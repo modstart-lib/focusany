@@ -85,15 +85,43 @@ export const FocusAny = {
             }) => {
                 const {event, data} = payload
                 if (event in FocusAny.hooks.onPluginEventCallbacks) {
-                    FocusAny.hooks.onPluginEventCallbacks[event](data)
+                    FocusAny.hooks.onPluginEventCallbacks[event].forEach((cb: (data: any) => void) => {
+                        cb(data)
+                    })
                 }
             }
         }
         if (!('onPluginEventCallbacks' in FocusAny.hooks)) {
             FocusAny.hooks.onPluginEventCallbacks = {}
         }
-        FocusAny.hooks.onPluginEventCallbacks[event] = callback
+        if (!(event in FocusAny.hooks.onPluginEventCallbacks)) {
+            FocusAny.hooks.onPluginEventCallbacks[event] = []
+        }
+        FocusAny.hooks.onPluginEventCallbacks[event].push(callback)
         ipcSend('registerPluginEvent', {event})
+    },
+    offPluginEvent(event: PluginEvent, callback: (data: any) => void) {
+        if (!('onPluginEventCallbacks' in FocusAny.hooks)) {
+            FocusAny.hooks.onPluginEventCallbacks = {}
+        }
+        if (!(event in FocusAny.hooks.onPluginEventCallbacks)) {
+            return
+        }
+        FocusAny.hooks.onPluginEventCallbacks[event] = FocusAny.hooks.onPluginEventCallbacks[event].filter(c => c !== callback)
+        if (FocusAny.hooks.onPluginEventCallbacks[event].length === 0) {
+            delete FocusAny.hooks.onPluginEventCallbacks[event]
+            ipcSend('unregisterPluginEvent', {event})
+        }
+    },
+    offPluginEventAll(event: PluginEvent) {
+        if (!('onPluginEventCallbacks' in FocusAny.hooks)) {
+            FocusAny.hooks.onPluginEventCallbacks = {}
+        }
+        if (!(event in FocusAny.hooks.onPluginEventCallbacks)) {
+            return
+        }
+        delete FocusAny.hooks.onPluginEventCallbacks[event]
+        ipcSend('unregisterPluginEvent', {event})
     },
     onLog(cb: Function) {
         FocusAny.hooks.onLog = cb

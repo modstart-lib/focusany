@@ -38,7 +38,7 @@ export const ManagerPluginEvent = {
     pluginEvents: {} as {
         [event: string]: PluginContext[]
     },
-    firePluginEvent: async (event: string, data: any) => {
+    firePluginEvent: async (event: PluginEvent, data: any) => {
         if (event in ManagerPluginEvent.pluginEvents) {
             for (const context of ManagerPluginEvent.pluginEvents[event]) {
                 await executePluginHooks(context as BrowserView, 'PluginEvent', {event, data});
@@ -63,6 +63,13 @@ export const ManagerPluginEvent = {
                 delete ManagerPluginEvent.pluginEvents[e]
             }
         }
+    },
+    unregisterPluginEvent: async (context: PluginContext, data: any) => {
+        const {event} = data;
+        if (!(event in ManagerPluginEvent.pluginEvents)) {
+            return
+        }
+        ManagerPluginEvent.pluginEvents[event] = ManagerPluginEvent.pluginEvents[event].filter(c => c !== context)
     },
     isMacOs: async (context: PluginContext, data: any) => {
         return isMac
@@ -362,7 +369,6 @@ export const ManagerPluginEvent = {
     } | null> => {
         const info = await User.get()
         const user = info.user
-        console.log('getUser', user)
         return {
             isLogin: !!(user && user.id),
             avatar: user.avatar || '',
