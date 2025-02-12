@@ -362,6 +362,7 @@ export const ManagerPluginEvent = {
     } | null> => {
         const info = await User.get()
         const user = info.user
+        console.log('getUser', user)
         return {
             isLogin: !!(user && user.id),
             avatar: user.avatar || '',
