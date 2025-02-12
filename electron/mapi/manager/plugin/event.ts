@@ -472,6 +472,7 @@ export const ManagerPluginEvent = {
             let watchUrl = null as any
             let controller = null as any
             PagePayment.open({
+                parent: context._window,
                 onRefresh: async () => {
                     // console.log('onRefresh')
                     const res = await UserApi.post<{
