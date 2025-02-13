@@ -37,7 +37,8 @@ const doDevSettingTriggerClick = () => {
     <div class="flex overflow-auto" style="height:calc(100vh - 2.5rem);">
         <div class="p-4 m-auto">
             <div class="flex pb-6">
-                <div class="m-auto">
+                <div class="m-auto"
+                     @click="doDevSettingTriggerClick">
                     <div>
                         <img class="w-14 h-14 mx-auto" src="./../assets/image/logo.svg"/>
                     </div>
@@ -46,16 +47,34 @@ const doDevSettingTriggerClick = () => {
                     </div>
                 </div>
             </div>
-            <div class="flex mb-3 items-center">
+            <div v-if="devSettingVisible" class="bg-gray-100 p-3 mb-3 rounded-lg">
+                <div class="flex mb-4 items-center">
+                    <icon-code class="mr-2"/>
+                    开发模式设置
+                </div>
+                <div class="flex mb-4">
+                    <div class="flex-grow">
+                        快速面板失焦隐藏
+                    </div>
+                    <div>
+                        <a-radio-group :model-value="setting.configEnvGet('fastPanelAutoHide',true).value"
+                                       @change="setting.onConfigEnvChange('fastPanelAutoHide',$event)">
+                            <a-radio :value="true">是</a-radio>
+                            <a-radio :value="false">否</a-radio>
+                        </a-radio-group>
+                    </div>
+                </div>
+            </div>
+            <div class="flex mb-3 items-start">
                 <div class="w-20">{{ t('版本') }}</div>
                 <div class="flex-grow">
-                    <div class="inline-block">
+                    <div>
                         v{{ AppConfig.version }}
                         Build {{ setting.buildInfo.buildId }}
                     </div>
-                </div>
-                <div class="inline-block ml-3">
-                    <UpdaterButton/>
+                    <div class="pt-2">
+                        <UpdaterButton/>
+                    </div>
                 </div>
             </div>
             <div class="flex mb-3 items-center">
@@ -100,26 +119,7 @@ const doDevSettingTriggerClick = () => {
                     <div class="flex-grow">Gitee</div>
                 </a>
             </div>
-            <div v-if="devSettingVisible" class="bg-gray-100 p-3 rounded-lg">
-                <div class="flex mb-4 items-center">
-                    <icon-code class="mr-2"/>
-                    开发模式设置
-                </div>
-                <div class="flex mb-4">
-                    <div class="flex-grow">
-                        快速面板失焦隐藏
-                    </div>
-                    <div>
-                        <a-radio-group :model-value="setting.configEnvGet('fastPanelAutoHide',true).value"
-                                       @change="setting.onConfigEnvChange('fastPanelAutoHide',$event)">
-                            <a-radio :value="true">是</a-radio>
-                            <a-radio :value="false">否</a-radio>
-                        </a-radio-group>
-                    </div>
-                </div>
-            </div>
-            <div class="text-gray-400 text-center select-none"
-                 @click="doDevSettingTriggerClick">
+            <div class="text-gray-400 text-center select-none">
                 &copy; {{ licenseYear }} {{ AppConfig.name }}
             </div>
         </div>

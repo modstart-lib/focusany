@@ -14,6 +14,7 @@ import protocol from "./protocol/main";
 import kvdb from "./kvdb/main";
 import server from "./server/main";
 import manager from "./manager/main";
+import {UpdaterMain} from "./updater/main";
 
 const $mapi = {
     app,
@@ -45,6 +46,9 @@ export const MAPI = {
         $mapi.keys.ready()
         $mapi.manager.ready()
         $mapi.protocol.ready()
+        setTimeout(() => {
+            UpdaterMain.checkAndNoticeIfNeed().then()
+        }, 3000)
     },
     destroy() {
         $mapi.keys.destroy()

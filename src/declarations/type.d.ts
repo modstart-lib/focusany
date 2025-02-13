@@ -206,6 +206,8 @@ declare interface Window {
         },
         updater: {
             checkForUpdate: () => Promise<ApiResult<any>>,
+            getCheckAtLaunch: () => Promise<'yes' | 'no'>,
+            setCheckAtLaunch: (value: 'yes' | 'no') => Promise<void>,
         },
         statistics: {
             tick: (name: string, data: any = null) => Promise<void>,

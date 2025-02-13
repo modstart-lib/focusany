@@ -79,7 +79,8 @@
             "zh-CN",
             "en-US",
             "zh-TW"
-        ]
+        ],
+        "artifactName": "${productName}-${version}-win-appx-${arch}.${ext}",
     },
     "mac": {
         "icon": "logo.icns",
@@ -139,7 +140,6 @@
     },
     "linux": {
         "icon": "logo.icns",
-        "desktop": "logo",
         "maintainer": "FocusAny",
         "category": "Utility",
         "target": [

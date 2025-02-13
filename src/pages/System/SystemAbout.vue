@@ -22,14 +22,14 @@ const doOpenLog = async () => {
             </div>
         </div>
         <div class="pt-4">
-            <div class="flex mb-3 items-center">
+            <div class="flex mb-3 items-start">
                 <div class="w-20">{{ t('版本') }}</div>
                 <div class="flex-grow">
-                    <div class="inline-block">
+                    <div>
                         v{{ AppConfig.version }}
                         Build {{ setting.buildInfo.buildId }}
                     </div>
-                    <div class="inline-block ml-3">
+                    <div class="pt-2">
                         <UpdaterButton/>
                     </div>
                 </div>
