@@ -290,7 +290,7 @@ export const ManagerPlugin = {
         if (!config.editionRequire) {
             config.editionRequire = ['open', 'pro']
         }
-        if (!config.editionRequire.include('open')) {
+        if (!config.editionRequire.includes('open')) {
             throw `PluginEditionNotMatch:-1:${config.name}`
         }
     },

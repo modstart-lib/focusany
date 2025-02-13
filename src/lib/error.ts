@@ -19,7 +19,7 @@ export function mapError(msg: any) {
             // regex PluginReleaseDocFormatError:-11
             const regex = new RegExp(`${key}:(-?\\d+):?([\\w\\d]*)`)
             const match = msg.match(regex)
-            console.log('match', match)
+            // console.log('match', match)
             if (match) {
                 error += `(${match[1]})`
                 if (match[2]) {
