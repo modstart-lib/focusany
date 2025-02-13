@@ -14,17 +14,31 @@
             "description": "插件版本，此为必选项。"
         },
         "platform": {
-            "type": "string",
+            "type": "array",
             "description": "支持的平台，此为选填，留空表示支持所有平台。",
-            "enum": [
-                "win",
-                "osx",
-                "linux"
-            ]
+            "items": {
+                "type": "string",
+                "enum": [
+                    "win",
+                    "osx",
+                    "linux"
+                ]
+            }
         },
         "versionRequire": {
             "type": "string",
             "description": "FocusAny 版本要求，如 * 或 >=1.0.0 或 <=1.0.0 或 >1.0.0 或 <1.0.0，此为选填，留空表示不限制 FocusAny 版本。"
+        },
+        "editionRequire": {
+            "type": "array",
+            "description": "FocusAny 类型要求，此为选填，留空表示不限制 FocusAny 类型（open社区版、pro专业版）。",
+            "items": {
+                "type": "string",
+                "enum": [
+                    "open",
+                    "pro"
+                ]
+            }
         },
         "title": {
             "type": "string",

@@ -38,6 +38,7 @@ export type PluginRecord = {
     preload?: string,
     platform?: PlatformType[],
     versionRequire?: string,
+    editionRequire?: EditionType[],
     author?: string,
     homepage?: string,
     setting?: {

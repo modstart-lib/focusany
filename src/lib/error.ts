@@ -9,6 +9,7 @@ export function mapError(msg: any) {
         'PluginAlreadyExists': '插件已存在',
         'PluginNotSupportPlatform': '插件不支持当前平台',
         'PluginVersionNotMatch': 'FocusAny版本不满足插件要求',
+        'PluginEditionNotMatch': 'FocusAny类型不满足插件要求',
         'PluginReleaseDocNotFound': '插件release文档不存在',
         'PluginReleaseDocFormatError': '插件release文档格式错误',
     }

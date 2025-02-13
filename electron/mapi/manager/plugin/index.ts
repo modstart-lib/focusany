@@ -209,6 +209,7 @@ export const ManagerPlugin = {
 
         plugin.platform = plugin.platform || ['win', 'osx', 'linux']
         plugin.versionRequire = plugin.versionRequire || '*'
+        plugin.editionRequire = plugin.editionRequire || ['open', 'pro']
 
         plugin.logo = plugin.logo || null
         plugin.main = plugin.main || null
@@ -285,6 +286,12 @@ export const ManagerPlugin = {
         }
         if (!VersionUtil.match(AppConfig.version, config.versionRequire)) {
             throw `PluginVersionNotMatch:-2:${config.name}`
+        }
+        if (!config.editionRequire) {
+            config.editionRequire = ['open', 'pro']
+        }
+        if (!config.editionRequire.include('open')) {
+            throw `PluginEditionNotMatch:-1:${config.name}`
         }
     },
     async parsePackage(file: string, option?: {}) {
@@ -364,6 +371,9 @@ export const ManagerPlugin = {
         }
         if (!VersionUtil.match(AppConfig.version, plugin.versionRequire)) {
             throw `PluginVersionNotMatch:-1:${plugin.name}`
+        }
+        if (!plugin.editionRequire.includes('open')) {
+            throw `PluginEditionNotMatch:-2:${plugin.name}`
         }
         const runtime = plugin.runtime
         delete plugin.runtime

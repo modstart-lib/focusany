@@ -21,6 +21,8 @@ interface DbReturn {
 
 declare type PlatformType = 'win' | 'osx' | 'linux'
 
+declare type EditionType = 'open' | 'pro'
+
 declare type PluginEvent = 'ClipboardChange' | 'UserChange'
 
 declare type ActionMatch = (
