@@ -10,7 +10,7 @@ export const AppConfig = {
     websiteGithub: 'https://github.com/modstart-lib/focusany',
     websiteGitee: 'https://gitee.com/modstart-lib/focusany',
     apiBaseUrl: `${BASE_URL}/api`,
-    updaterUrl: `${BASE_URL}/app_manager/updater`,
+    updaterUrl: `${BASE_URL}/app_manager/updater/open`,
     downloadUrl: `${BASE_URL}/app_manager/download`,
     feedbackUrl: `${BASE_URL}/feedback_ticket`,
     statisticsUrl: `${BASE_URL}/app_manager/collect`,
