@@ -358,7 +358,9 @@ export const ManagerPluginEvent = {
         return await AppsMain.shouldDarkMode()
     },
     showUserLogin: async (context: PluginContext, data: any) => {
-        await PageUser.open({})
+        await PageUser.open({
+            parent: context._window,
+        })
     },
     getUser: async (context: PluginContext, data: any): Promise<{
         isLogin: boolean,
