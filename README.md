@@ -2,6 +2,11 @@
 
 ![](./screenshots/cn/home.png)
 
+![star](https://img.shields.io/badge/Framework-TS+Vue3+Electron-blue)
+![star](https://img.shields.io/github/stars/modstart-lib/focusany.svg)
+![star](https://gitee.com/modstart-lib/focusany/badge/star.svg)
+![star](https://gitcode.com/modstart-lib/focusany/star/badge.svg)
+
 `FocusAny` 是一个桌面工具条系统，支持市场插件、本地插件的一键启动，快速扩展功能，提高工作效率。
 
 ## 功能特性
