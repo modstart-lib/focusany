@@ -103,31 +103,5 @@ jobs:
                 dist-release/*.exe:apps/focusany-${{ env.DIST_FILE_NAME }}/
                 dist-release/*.dmg:apps/focusany-${{ env.DIST_FILE_NAME }}/
                 dist-release/*.AppImage:apps/focusany-${{ env.DIST_FILE_NAME }}/
-                dist-release/*.deb:focusany/apps-${{ env.DIST_FILE_NAME }}/
-
-#      - name: Upload Artifact Windows
-#        if: runner.os == 'Windows'
-#        uses: actions/upload-artifact@v4
-#        with:
-#            name: windows-artifact
-#            path: |
-#                dist-release/*.exe
-#
-#      - name: Upload Artifact Macos
-#        if: runner.os == 'macOS'
-#        uses: actions/upload-artifact@v4
-#        with:
-#            name: macos-artifact
-#            path: |
-#                dist-release/*.dmg
-#
-#      - name: Upload Artifact Linux
-#        if: runner.os == 'Linux'
-#        uses: actions/upload-artifact@v4
-#        with:
-#            name: linux-artifact
-#            path: |
-#                dist-release/*.AppImage
-#                dist-release/*.deb
-
+                dist-release/*.deb:apps/focusany-${{ env.DIST_FILE_NAME }}/
 

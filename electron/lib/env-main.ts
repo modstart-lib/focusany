@@ -57,7 +57,7 @@ export const getGpuInfo = async () => {
     }[]
     try {
         // @ts-ignore
-        const si = await import('systeminformation')
+        const si = await import(/* @vite-ignore */ 'systeminformation')
         const graphics = await si.graphics()
         graphics.controllers.forEach((controller, index) => {
             list.push({
