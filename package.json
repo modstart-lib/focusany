@@ -61,7 +61,7 @@
         "@codemirror/state": "^6.4.1",
         "@devicefarmer/adbkit": "^3.2.6",
         "@electron-toolkit/preload": "^3.0.1",
-        "@electron-toolkit/utils": "^3.0.0",
+        "@electron-toolkit/utils": "^4.0.0",
         "@electron/remote": "^2.1.2",
         "@gradio/client": "^1.7.0",
         "@types/showdown": "^2.0.6",
