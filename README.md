@@ -8,7 +8,7 @@
 [![star](https://gitee.com/modstart-lib/focusany/badge/star.svg)](https://gitee.com/modstart-lib/focusany)
 [![star](https://gitcode.com/modstart-lib/focusany/star/badge.svg)](https://gitcode.com/modstart-lib/focusany)
 
-`FocusAny` 是一个桌面工具条系统，支持市场插件、本地插件的一键启动，快速扩展功能，提高工作效率。
+`FocusAny` 是一个智能AI办公助理，支持市场插件、本地插件的一键启动，快速扩展功能，提高工作效率。
 
 ## 功能特性
 
