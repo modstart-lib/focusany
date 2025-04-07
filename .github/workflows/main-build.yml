@@ -3,11 +3,10 @@ name: Build
 on:
     push:
         branches:
-            - main
+            - mainx
 
 jobs:
   build:
-    # runs-on: self-hosted
     runs-on: ${{ matrix.os }}
 
     strategy:
