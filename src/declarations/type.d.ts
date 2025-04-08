@@ -28,6 +28,7 @@ declare interface Window {
         onRemoveSubInput: (cb: Function) => void,
         onSetSubInputValue: (cb: Function) => void,
         onDetachSet: (cb: Function) => void,
+        onDetachWindowClosed: (cb: Function) => void,
     },
     focusany: FocusAnyApi,
     $mapi: {
@@ -271,6 +272,7 @@ declare interface Window {
             getConfig: () => Promise<ConfigRecord>,
             setConfig: (config: ConfigRecord) => Promise<void>,
 
+            isShown: () => Promise<boolean>,
             show: () => Promise<void>,
             hide: () => Promise<void>,
 
@@ -285,11 +287,13 @@ declare interface Window {
                 matchActions: ActionRecord[],
                 viewActions: ActionRecord[],
             }>,
+            listDetachWindowActions: (option?: {}) => Promise<ActionRecord[]>,
             searchAction: (query: {
                 keywords: string,
                 currentFiles: any[],
                 currentImage: string,
             }, option?: {}) => Promise<{
+                detachWindowActions: ActionRecord[],
                 searchActions: ActionRecord[],
                 matchActions: ActionRecord[],
                 viewActions: ActionRecord[],
@@ -299,7 +303,8 @@ declare interface Window {
             subInputChange: (keywords: string, option?: {}) => void,
 
             openPlugin: (pluginName: string, option?: {}) => Promise<void>,
-            openAction: (action: ActionRecord, option?: {}) => Promise<void>,
+            openAction: (action: ActionRecord) => Promise<void>,
+            openActionForWindow: (type: 'open', action: ActionRecord) => Promise<void>,
 
             closeMainPlugin: (plugin?: PluginRecord, option?: {}) => Promise<void>,
             openMainPluginDevTools: (plugin?: PluginRecord, option?: {}) => Promise<void>,

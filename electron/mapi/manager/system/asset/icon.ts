@@ -5,6 +5,7 @@ import pluginApp from './plugin-app.svg'
 
 import searchKeyword from './search-keyword.svg'
 import searchMatch from './search-match.svg'
+import searchWindow from './search-window.svg'
 
 import command from './command.svg'
 import database from './database.svg'
@@ -30,6 +31,7 @@ export const SystemIcons = {
 
     searchKeyword,
     searchMatch,
+    searchWindow,
 
     command,
     database,

@@ -6,13 +6,14 @@ import {ComputedRef} from "@vue/reactivity";
 import {EntryListener} from "./entryListener";
 import {Dialog} from "../../../lib/dialog";
 
-type ActionGroupType = 'search' | 'match' | 'history' | 'pin' | never
+type ActionGroupType = 'window' | 'search' | 'match' | 'history' | 'pin' | never
 
 const manager = useManagerStore()
 
 export const useResultOperate = () => {
     const hasActions = computed(() => {
-        return manager.searchActions.length > 0
+        return manager.detachWindowActions.length > 0
+            || manager.searchActions.length > 0
             || manager.matchActions.length > 0
             || manager.historyActions.length > 0
             || manager.pinActions.length > 0;
@@ -21,7 +22,7 @@ export const useResultOperate = () => {
         return manager.viewActions.length > 0
     })
     const lineActionCount = computed(() => {
-        return manager.viewActions.length > 0 ? 6 : 8;
+        return manager.viewActions.length > 0 ? 5 : 8;
     })
 
     const searchActionIsExtend = ref<Boolean>(false)
@@ -71,6 +72,9 @@ export const useResultOperate = () => {
         pinActionIsExtend.value = true
     }
 
+    const showDetachWindowActions: ComputedRef<ActionRecord[]> = computed(() => {
+        return manager.detachWindowActions
+    })
     const showSearchActions: ComputedRef<ActionRecord[]> = computed(() => {
         return searchActionIsExtend.value ? manager.searchActions : manager.searchActions.slice(0, lineActionCount.value)
     })
@@ -88,7 +92,9 @@ export const useResultOperate = () => {
     const activeActionGroup = ref<ActionGroupType>('search');
     const actionActionIndex = ref<number>(0);
     const resetActive = () => {
-        if (manager.searchActions.length > 0) {
+        if (manager.detachWindowActions.length > 0) {
+            activeActionGroup.value = 'window'
+        } else if (manager.searchActions.length > 0) {
             activeActionGroup.value = 'search';
         } else if (manager.matchActions.length > 0) {
             activeActionGroup.value = 'match';
@@ -103,6 +109,7 @@ export const useResultOperate = () => {
     const doActionNavigate = (direction: string) => {
         const grids: any[][] = [];
         [
+            [showDetachWindowActions.value, 'window'],
             [showSearchActions.value, 'search'],
             [showMatchActions.value, 'match'],
             [showHistoryActions.value, 'history'],
@@ -165,6 +172,9 @@ export const useResultOperate = () => {
     const getActiveAction = () => {
         let activeAction: any = null
         switch (activeActionGroup.value) {
+            case 'window':
+                activeAction = showDetachWindowActions.value[actionActionIndex.value]
+                break
             case 'search':
                 activeAction = showSearchActions.value[actionActionIndex.value]
                 break
@@ -187,7 +197,11 @@ export const useResultOperate = () => {
         } else if ('enter' === key) {
             const action = getActiveAction()
             if (action) {
-                doOpenAction(action).then()
+                if (activeActionGroup.value === 'window') {
+                    openActionForWindow('open', action).then()
+                } else {
+                    doOpenAction(action).then()
+                }
             }
         } else if ('delete' === key) {
             if ('' === manager.searchValue) {
@@ -219,6 +233,10 @@ export const useResultOperate = () => {
         await manager.openAction(action)
     }
 
+    const openActionForWindow = async (type: 'open', action: ActionRecord) => {
+        await manager.openActionForWindow(type, action)
+    }
+
     const doHistoryClear = async () => {
         Dialog.confirm('确认清除全部？')
             .then(() => {
@@ -248,6 +266,7 @@ export const useResultOperate = () => {
         doMatchActionExtend,
         doHistoryActionExtend,
         doPinActionExtend,
+        showDetachWindowActions,
         showSearchActions,
         showMatchActions,
         showHistoryActions,
@@ -259,6 +278,7 @@ export const useResultOperate = () => {
         onInputKey,
         onClose,
         doOpenAction,
+        openActionForWindow,
         doHistoryClear,
         doHistoryDelete,
         doPinToggle,

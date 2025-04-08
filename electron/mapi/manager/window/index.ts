@@ -61,6 +61,28 @@ export const ManagerWindow = {
         }
         return null
     },
+    detachWindowOperate: (type: 'open' | 'close', action: ActionRecord) => {
+        let win = null
+        for (const w of ManagerWindow.listDetachWindows()) {
+            if (w.id === action.runtime.windowId) {
+                win = w
+                break
+            }
+        }
+        if (!win) {
+            throw 'DetachWindowNotFound'
+        }
+        if (type === 'open') {
+            win.show()
+            win.focus()
+        } else {
+            win.close()
+        }
+        AppRuntime.mainWindow.setSize(WindowConfig.mainWidth, WindowConfig.mainHeight);
+        setTimeout(() => {
+            AppRuntime.mainWindow.hide()
+        }, 100)
+    },
     async openForCode(plugin: PluginRecord, action: ActionRecord, option?: {
         codeData?: any
     }) {
@@ -249,20 +271,27 @@ export const ManagerWindow = {
                 }
             }
         }
-        if (autoDetach) {
-            await this._showInDetachWindow(view, windowOption)
-        } else {
-            await this._showInMainWindow(view, windowOption)
-        }
         // console.log('open.readyData', readyData)
         await executePluginHooks(view, 'PluginReady', readyData)
         if (autoDetach) {
             if (!mainWindowView) {
-                // console.log('ManagerWindow.open.autoDetach.hide')
                 AppRuntime.mainWindow.setSize(WindowConfig.mainWidth, WindowConfig.mainHeight);
-                AppRuntime.mainWindow.hide()
             }
         }
+        setTimeout(async () => {
+            if (autoDetach) {
+                if (!mainWindowView) {
+                    AppRuntime.mainWindow.hide()
+                }
+            }
+            if (autoDetach) {
+                await this._showInDetachWindow(view, windowOption)
+            } else {
+                await this._showInMainWindow(view, windowOption)
+            }
+            // Log.info('open.PluginReady', JSON.stringify({readyData, action}))
+            await executePluginHooks(view, 'PluginReady', readyData)
+        }, 100)
     },
     async subInputChange(win: BrowserWindow, keywords: string) {
         const view = win.getBrowserView()
@@ -389,6 +418,7 @@ export const ManagerWindow = {
             },
         });
         win._name = `DetachWindow.${view._plugin.name}`
+        win._plugin = view._plugin
         view._window = win
         remoteMain.enable(win.webContents)
         win.on('close', () => {
@@ -396,10 +426,11 @@ export const ManagerWindow = {
             removeBrowserViews(view)
             removeDetachWindows(win)
         });
-        win.on('closed', () => {
+        win.on('closed', async () => {
             // @ts-ignore
             view.webContents?.destroy();
             win = undefined;
+            await executeHooks(AppRuntime.mainWindow, 'DetachWindowClosed', {})
         });
         win.on('focus', () => {
             view && win.webContents?.focus();
@@ -454,7 +485,7 @@ export const ManagerWindow = {
         win.webContents.setWindowOpenHandler(() => {
             return {action: "deny"};
         });
-        if(option.loadUrl){
+        if (option.loadUrl) {
             option.loadUrl()
         }
         const pluginJson = JSON.parse(JSON.stringify(view._plugin))

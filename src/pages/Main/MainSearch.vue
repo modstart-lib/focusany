@@ -208,9 +208,6 @@ defineExpose({
 <style scoped lang="less">
 .pb-search {
     display: flex;
-    position: fixed;
-    top: 0;
-    left: 0;
     width: 100%;
     align-items: center;
     height: 60px;

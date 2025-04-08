@@ -20,6 +20,7 @@ export const useResultResize = (groupContainer: any) => {
 }
 
 export const fireResultResize = (groupContainer: any) => {
+    // console.log('fireResultResize', groupContainer.value)
     UI.fireResize(groupContainer.value)
 }
 

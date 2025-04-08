@@ -73,6 +73,11 @@ window.__page.onPluginDetached(() => {
     manager.search('')
     mainResult.value?.onPluginDetached()
 })
+window.__page.onDetachWindowClosed(async () => {
+    if (await manager.isMainWindowShown() && !manager.activePlugin) {
+        await manager.detachWindowActionsRefresh()
+    }
+})
 window.__page.onPluginState(() => {
     return {
         value: manager.searchValue,

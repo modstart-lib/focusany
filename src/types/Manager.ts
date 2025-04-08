@@ -203,6 +203,9 @@ export type ActionRecord = {
         },
         matchFiles?: FileItem[],
         isPined?: boolean,
+        windowId?: number,
+        windowIndex?: number,
+        windowCount?: number,
     },
 }
 

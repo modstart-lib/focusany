@@ -39,6 +39,7 @@ export const managerStore = defineStore("manager", {
         searchPlaceholder: 'FocusAny，让您的工作专注高效',
         searchSubPlaceholder: '',
 
+        detachWindowActions: [] as ActionRecord[],
         searchActions: [] as ActionRecord[],
         matchActions: [] as ActionRecord[],
         historyActions: [] as ActionRecord[],
@@ -151,6 +152,7 @@ export const managerStore = defineStore("manager", {
                 currentImage: this.currentImage,
                 currentText: this.currentText,
             }, (result: {
+                detachWindowActions: ActionRecord[],
                 searchActions: ActionRecord[],
                 matchActions: ActionRecord[],
                 viewActions: ActionRecord[],
@@ -158,6 +160,7 @@ export const managerStore = defineStore("manager", {
                 pinActions: ActionRecord[],
             }) => {
                 this.searchLastKeywords = keywords
+                this.detachWindowActions = result.detachWindowActions
                 this.searchActions = result.searchActions
                 this.matchActions = result.matchActions
                 this.viewActions = result.viewActions
@@ -166,11 +169,17 @@ export const managerStore = defineStore("manager", {
                 this.searchLoading = false
             })
         },
+        async detachWindowActionsRefresh() {
+            this.detachWindowActions = await window.$mapi.manager.listDetachWindowActions()
+        },
         async resize(width: number, height: number) {
             height = Math.min(height, WindowConfig.mainMaxHeight)
             await window.$mapi.app.windowSetSize(null, WindowConfig.mainWidth, height, {
                 center: false,
             });
+        },
+        async isMainWindowShown() {
+            return await window.$mapi.manager.isShown()
         },
         async showMainWindow() {
             await window.$mapi.manager.show()
@@ -178,7 +187,10 @@ export const managerStore = defineStore("manager", {
         async hideMainWindow() {
             await window.$mapi.manager.hide()
         },
-        async openAction(action: ActionRecord) {
+        async openAction(
+            action: ActionRecord,
+            group: undefined | 'window' = undefined
+        ) {
             await window.$mapi.manager.openAction(toRaw(action))
             if (action.type === ActionTypeEnum.COMMAND
                 || action.type === ActionTypeEnum.CODE
@@ -186,11 +198,15 @@ export const managerStore = defineStore("manager", {
                 this.searchValue = ''
                 await window.$mapi.manager.hide()
             }
+            this.detachWindowActions = []
             this.searchActions = []
             this.matchActions = []
             this.viewActions = []
             this.historyActions = []
             this.pinActions = []
+        },
+        async openActionForWindow(type: 'open', action: ActionRecord) {
+            await window.$mapi.manager.openActionForWindow(type, toRaw(action))
         },
         async closeMainPlugin(plugin?: PluginRecord) {
             await window.$mapi.manager.closeMainPlugin(plugin ? toRaw(plugin) : null);

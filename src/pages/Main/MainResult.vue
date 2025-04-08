@@ -1,16 +1,32 @@
 <template>
     <div class="pb-result">
-        <div style="height:60px;"></div>
         <div ref="groupContainer">
             <div class="group-container"
                  :class="{'has-actions':hasActions,'has-view-actions':hasViewActions}"
                  v-if="!manager.activePlugin">
                 <div class="group-main">
+                    <div v-if="showDetachWindowActions.length" class="group">
+                        <div class="group-title">
+                            <div class="title">
+                                <img draggable="false" class="dark:invert" :src="SystemIcons.searchWindow"/>
+                                窗口
+                            </div>
+                            <div class="more">
+                                &nbsp;
+                            </div>
+                        </div>
+                        <div class="group-items">
+                            <div class="item" v-for="(a,aIndex) in showDetachWindowActions"
+                                 :class="{active: activeActionGroup === 'window' && actionActionIndex === aIndex}">
+                                <ResultWindowItem :action="a" @open="openActionForWindow('open',a)"/>
+                            </div>
+                        </div>
+                    </div>
                     <div v-if="showSearchActions.length" class="group">
                         <div class="group-title" @click="doSearchActionExtend"
                              :class="!searchActionIsExtend?'has-more':''">
                             <div class="title">
-                                <img draggable="false" :src="SystemIcons.searchKeyword"/>
+                                <img draggable="false" class="dark:invert" :src="SystemIcons.searchKeyword"/>
                                 搜索结果
                             </div>
                             <div class="more" v-if="!searchActionIsExtend">
@@ -30,7 +46,7 @@
                         <div class="group-title" @click="doMatchActionExtend"
                              :class="!matchActionIsExtend?'has-more':''">
                             <div class="title">
-                                <img :src="SystemIcons.searchMatch"/>
+                                <img class="dark:invert" :src="SystemIcons.searchMatch"/>
                                 匹配结果
                             </div>
                             <div class="more" v-if="!matchActionIsExtend">
@@ -163,6 +179,7 @@ import ResultItem from "./Components/ResultItem.vue";
 import {SystemIcons} from "../../../electron/mapi/manager/system/asset/icon";
 import {useViewOperate} from "./Lib/viewOperate";
 import {PluginType} from "../../types/Manager";
+import ResultWindowItem from "./Components/ResultWindowItem.vue";
 
 const manager = useManagerStore()
 
@@ -177,6 +194,7 @@ const {
     doMatchActionExtend,
     doHistoryActionExtend,
     doPinActionExtend,
+    showDetachWindowActions,
     showSearchActions,
     showMatchActions,
     showHistoryActions,
@@ -188,6 +206,7 @@ const {
     onInputKey,
     onClose,
     doOpenAction,
+    openActionForWindow,
     doHistoryClear,
     doHistoryDelete,
     doPinToggle,
@@ -224,19 +243,30 @@ defineExpose({
 .pb-result {
     overflow-y: auto;
     overflow-x: hidden;
-    max-height: calc(100vh);
+    max-height: calc(100vh - 60px);
     user-select: none;
+
+    &::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: #F1F1F1;
+        border-radius: 3px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: #AAAAAA;
+        border-radius: 3px;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+        background: #BBBBBB;
+    }
 
     .group-container {
         display: flex;
-
-        &.has-actions.has-view-actions {
-            .group-items {
-                .item {
-                    width: 18.8%;
-                }
-            }
-        }
 
         .group-main {
             flex-grow: 1;
@@ -248,6 +278,8 @@ defineExpose({
             border-top: 1px solid var(--color-border);
             border-radius: 0.5rem 0 0 0;
             flex-shrink: 0;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+            margin-top: 5px;
 
             .view-item-head {
                 display: flex;
@@ -381,20 +413,19 @@ defineExpose({
             padding: 0 10px;
 
             .item {
-                width: 12.5%;
-
+                width: 96px;
+                //margin-right: 2px;
                 height: 100px;
                 flex-shrink: 0;
                 text-align: center;
 
-                &:active {
-                    :deep(.item-box) {
-                        background-color: #f8dfab;
-                    }
-                }
-
                 &.active {
                     :deep(.item-box) {
+                        background-color: #EEEEEE;
+                    }
+
+                    :deep(.item-window-box) {
+                        border-color: #eaa109;
                         background-color: #f8dfab;
                     }
                 }
@@ -406,6 +437,19 @@ defineExpose({
 
 [data-theme="dark"] {
     .pb-result {
+
+        &::-webkit-scrollbar-track {
+            background: #333;
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background: #555;
+        }
+
+        &::-webkit-scrollbar-thumb:hover {
+            background: #777;
+        }
+
         .group {
             .group-title {
                 &.has-more {

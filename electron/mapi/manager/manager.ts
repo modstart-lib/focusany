@@ -17,13 +17,13 @@ import {ManagerConfig} from "./config/config";
 import {SearchQuery} from "./type";
 import {PinyinUtil} from "../../lib/pinyin-util";
 import {exec} from "child_process";
-import {ManagerPluginEvent} from "./plugin/event";
 import {ManagerWindow} from "./window";
 import {ManagerCode} from "./code";
 import {ManagerBackend} from "./backend";
 import {ReUtil, StrUtil} from "../../lib/util";
 import {Events} from "../event/main";
 import {ManagerEditor} from "./editor";
+import {cloneDeep} from "lodash";
 
 type SearchRequest = {
     id: string,
@@ -70,6 +70,9 @@ export const Manager = {
                 return
             }
         }
+    },
+    async openActionForWindow(type: 'open' | 'close', action: ActionRecord) {
+        await ManagerWindow.detachWindowOperate(type, action)
     },
     async openAction(action: ActionRecord) {
         const plugin = await Manager.getPlugin(action.pluginName)
@@ -157,10 +160,14 @@ export const Manager = {
             currentText: '',
         }, query)
         const actions = await this.listAction(request)
+        const actionFullNameMap = new Map<string, ActionRecord>()
+        for (const a of actions) {
+            actionFullNameMap.set(a.fullName, a)
+        }
         let action: ActionRecord = null
         if (typeof keywordsOrAction === 'string') {
             const uniqueRemover = new Set<string>()
-            const results = await this.searchActions(uniqueRemover, actions, {
+            const results = await this.searchActions(uniqueRemover, actionFullNameMap, {
                 ...query,
                 keywords: keywordsOrAction,
             })
@@ -374,39 +381,65 @@ export const Manager = {
         })
         return results
     },
-    async historyActions(uniqueRemover: Set<string>, actions: ActionRecord[], query: SearchQuery) {
-        const historyActions = await ManagerConfig.getHistoryAction()
-        const actionMap = new Map()
-        for (const a of actions) {
-            actionMap.set(a.fullName, a)
+    async detachWindowActions(uniqueRemover: Set<string>, actionFullNameMap: Map<string, ActionRecord>) {
+        const results = []
+        const pluginCount = {}
+        for (const win of ManagerWindow.listDetachWindows()) {
+            let actionWeb = null
+            for (const a of win._plugin.actions) {
+                if (a.type === ActionTypeEnum.WEB) {
+                    actionWeb = a
+                    break
+                }
+            }
+            if (!actionWeb) {
+                continue
+            }
+            const fullName = actionWeb.pluginName + '/' + actionWeb.name
+            if (actionFullNameMap.has(fullName)) {
+                const action = actionFullNameMap.get(fullName)
+                const actionClone = cloneDeep(action)
+                actionClone.runtime.windowId = win.id
+                if (pluginCount[actionWeb.pluginName]) {
+                    pluginCount[actionWeb.pluginName]++
+                } else {
+                    pluginCount[actionWeb.pluginName] = 1
+                }
+                actionClone.runtime.windowIndex = pluginCount[actionWeb.pluginName]
+                results.push(actionClone)
+                uniqueRemover.add(fullName)
+            }
         }
+        for (const r of results) {
+            r.runtime.windowCount = results.filter(a => a.pluginName === r.pluginName).length
+        }
+        return results
+    },
+    async historyActions(uniqueRemover: Set<string>, actionFullNameMap: Map<string, ActionRecord>, query: SearchQuery) {
+        const historyActions = await ManagerConfig.getHistoryAction()
         const results = []
         for (const h of historyActions) {
             const fullName = h.pluginName + '/' + h.actionName
             if (uniqueRemover.has(fullName)) {
                 continue
             }
-            if (actionMap.has(fullName)) {
-                results.push(actionMap.get(fullName))
+            if (actionFullNameMap.has(fullName)) {
+                results.push(actionFullNameMap.get(fullName))
                 uniqueRemover.add(fullName)
             }
         }
         return results
     },
-    async pinActions(uniqueRemover: Set<string>, actions: ActionRecord[], query: SearchQuery) {
+    async pinActions(uniqueRemover: Set<string>, actionFullNameMap: Map<string, ActionRecord>, query: SearchQuery) {
         const pinActions = await ManagerConfig.listPinAction()
-        const actionMap = new Map()
-        for (const a of actions) {
-            actionMap.set(a.fullName, a)
-        }
         const results: ActionRecord[] = []
         for (const p of pinActions) {
             const fullName = p.pluginName + '/' + p.actionName
             if (uniqueRemover.has(fullName)) {
                 continue
             }
-            if (actionMap.has(fullName)) {
-                results.push(actionMap.get(fullName))
+            if (actionFullNameMap.has(fullName)) {
+                results.push(actionFullNameMap.get(fullName))
                 uniqueRemover.add(fullName)
             }
         }

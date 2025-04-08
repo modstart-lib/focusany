@@ -92,7 +92,10 @@ window['__page'] = {
     },
     onDetachSet: (cb: Function) => {
         window['__page'].hooks.onDetachSet = cb
-    }
+    },
+    onDetachWindowClosed: (cb: Function) => {
+        window['__page'].hooks.onDetachWindowClosed = cb
+    },
 }
 
 ipcRenderer.removeAllListeners('MAIN_PROCESS_MESSAGE')

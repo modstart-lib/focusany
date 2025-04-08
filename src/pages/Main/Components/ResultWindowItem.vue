@@ -24,7 +24,7 @@ const props = defineProps({
 </script>
 
 <template>
-    <div class="item-box hover:bg-gray-100 dark:hover:bg-gray-700" :data-action="action.fullName">
+    <div class="item-window-box hover:bg-gray-100 dark:hover:bg-gray-700" :data-action="action.fullName">
         <div class="icon" @click="emit('open')">
             <img draggable="false"
                  :class="action.pluginType===PluginType.SYSTEM?'dark:invert':'plugin-logo-filter'"
@@ -34,7 +34,9 @@ const props = defineProps({
             <span v-if="action.runtime?.searchTitleMatched"
                   v-html="action.runtime?.searchTitleMatched"></span>
             <span v-else>{{ action.title }}</span>
-            <div v-if="0" class="absolute left-0 top-0" style="font-size:8px;">{{action.fullName}}</div>
+        </div>
+        <div class="index" v-if="action.runtime?.windowCount&&action.runtime?.windowCount>1">
+            {{ action.runtime?.windowIndex }}
         </div>
         <div class="action" v-if="showDelete || showPin">
             <a href="javascript:;" v-if="showDelete" @click="emit('delete')">
@@ -48,11 +50,14 @@ const props = defineProps({
 </template>
 
 <style lang="less" scoped>
-.item-box {
-    height: 96px;
+.item-window-box {
+    height: 90px;
     border-radius: 10px;
-    padding-top: 12px;
     position: relative;
+    padding-top: 4px;
+    border: 2px solid #EEE;
+    border-top-width: 8px;
+    margin-right: 5px;
 
     &:hover {
         .action {
@@ -79,6 +84,20 @@ const props = defineProps({
                 color: var(--color-primary);
             }
         }
+    }
+
+    .index {
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        width: 20px;
+        height: 20px;
+        line-height: 20px;
+        text-align: center;
+        color: #FFF;
+        background-color: #999;
+        font-size: 12px;
+        border-radius: 50%;
     }
 
     :deep(mark) {

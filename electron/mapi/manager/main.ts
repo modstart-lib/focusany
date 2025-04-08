@@ -63,6 +63,10 @@ ipcMain.handle('manager:setConfig', async (event, config) => {
     return await ManagerConfig.save(config)
 })
 
+ipcMain.handle('manager:isShown', async (event) => {
+    return await ManagerPluginEvent.isMainWindowShown(null, null)
+})
+
 ipcMain.handle('manager:show', async (event) => {
     return await ManagerPluginEvent.showMainWindow(null, null)
 })
@@ -153,7 +157,8 @@ const mergeViewActionRuntime = async (actions: ActionRecord[]) => {
             showViewDevTools: false,
             heightView: 100,
         }
-        if (plugin.development && plugin.development === PluginEnv.DEV && plugin.development.showViewDevTools) {
+        // console.log('mergeViewActionRuntime', plugin.development)
+        if (plugin.development && plugin.development.env === PluginEnv.DEV && plugin.development.showViewDevTools) {
             a.runtime.view.showViewDevTools = true
         }
         if (plugin.setting && plugin.setting.heightView) {
@@ -190,14 +195,17 @@ ipcMain.handle('manager:searchFastPanelAction', async (event, query: SearchQuery
         viewActions: [] as ActionRecord[],
     }
 
-    let actions: ActionRecord[] = await Manager.listAction(request)
-
+    const actions = await Manager.listAction(request)
+    const actionFullNameMap = new Map()
+    for (const a of actions) {
+        actionFullNameMap.set(a.fullName, a)
+    }
     const uniqueRemover = new Set<string>()
     result.matchActions = [
         ...await Manager.matchActions(uniqueRemover, actions, query),
         ...await Manager.searchActions(uniqueRemover, actions, query),
-        ...await Manager.pinActions(uniqueRemover, actions, query),
-        ...await Manager.historyActions(uniqueRemover, actions, query),
+        ...await Manager.pinActions(uniqueRemover, actionFullNameMap, query),
+        ...await Manager.historyActions(uniqueRemover, actionFullNameMap, query),
     ]
     result.viewActions = result.matchActions.filter(a => a.type === ActionTypeEnum.VIEW && a.data?.showFastPanel)
     result.matchActions = result.matchActions.filter(a => a.type !== ActionTypeEnum.VIEW)
@@ -220,6 +228,7 @@ ipcMain.handle('manager:searchAction', async (event, query: SearchQuery, option?
     const request = Manager.createSearchRequest(query)
     const result = {
         id: request.id,
+        detachWindowActions: [],
         searchActions: [],
         matchActions: [],
         viewActions: [],
@@ -227,11 +236,18 @@ ipcMain.handle('manager:searchAction', async (event, query: SearchQuery, option?
         pinActions: [],
     }
 
-    let actions: ActionRecord[] = await Manager.listAction(request)
-
+    // 所有已知的动作
+    const actions = await Manager.listAction(request)
+    const actionFullNameMap = new Map()
+    for (const a of actions) {
+        actionFullNameMap.set(a.fullName, a)
+    }
     // Files.write('actions.json', JSON.stringify(actions))
 
     const uniqueRemover = new Set<string>()
+    if (!query.keywords) {
+        result.detachWindowActions = await Manager.detachWindowActions(uniqueRemover, actionFullNameMap)
+    }
     result.searchActions = await Manager.searchActions(uniqueRemover, actions, query)
     result.matchActions = await Manager.matchActions(uniqueRemover, actions, query)
     result.viewActions = [
@@ -241,8 +257,8 @@ ipcMain.handle('manager:searchAction', async (event, query: SearchQuery, option?
     result.searchActions = result.searchActions.filter(a => a.type !== ActionTypeEnum.VIEW)
     result.matchActions = result.matchActions.filter(a => a.type !== ActionTypeEnum.VIEW)
     if (!query.keywords) {
-        result.historyActions = await Manager.historyActions(uniqueRemover, actions, query)
-        result.pinActions = await Manager.pinActions(new Set(), actions, query)
+        result.historyActions = await Manager.historyActions(uniqueRemover, actionFullNameMap, query)
+        result.pinActions = await Manager.pinActions(new Set(), actionFullNameMap, query)
     }
 
     const pinedSet = await ManagerConfig.getPinedActionSet()
@@ -264,6 +280,18 @@ ipcMain.handle('manager:searchAction', async (event, query: SearchQuery, option?
     return result
 })
 
+ipcMain.handle('manager:listDetachWindowActions', async (event, option?: {}) => {
+    const actions = await Manager.listAction()
+    const actionFullNameMap = new Map()
+    for (const a of actions) {
+        actionFullNameMap.set(a.fullName, a)
+    }
+    const uniqueRemover = new Set<string>()
+    const result = await Manager.detachWindowActions(uniqueRemover, actionFullNameMap)
+    await mergeViewActionRuntime(result)
+    return result
+})
+
 ipcMain.handle('manager:subInputChange', async (event, keywords: string, option?: {}) => {
     const senderWindow = BrowserWindow.fromWebContents(event.sender);
     await ManagerWindow.subInputChange(senderWindow, keywords)
@@ -274,8 +302,12 @@ ipcMain.handle('manager:openPlugin', async (event, pluginName: string, option?: 
     await Manager.openPlugin(pluginName)
 })
 
-ipcMain.handle('manager:openAction', async (event, action: ActionRecord, option?: {}) => {
+ipcMain.handle('manager:openAction', async (event, action: ActionRecord) => {
     await Manager.openAction(action)
+})
+
+ipcMain.handle('manager:openActionForWindow', async (event, type: 'open' | 'close', action: ActionRecord) => {
+    await Manager.openActionForWindow(type, action)
 })
 
 ipcMain.handle('manager:closeMainPlugin', async (event, plugin?: PluginRecord, option?: {}) => {

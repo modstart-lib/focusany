@@ -9,6 +9,10 @@ const setConfig = async (config: ConfigRecord) => {
     return ipcRenderer.invoke('manager:setConfig', config)
 }
 
+const isShown = async () => {
+    return ipcRenderer.invoke('manager:isShown')
+}
+
 const show = async () => {
     return ipcRenderer.invoke('manager:show')
 }
@@ -92,6 +96,10 @@ const searchAction = async (query: {
     return ipcRenderer.invoke('manager:searchAction', query, option)
 }
 
+const listDetachWindowActions = async (option?: {}) => {
+    return ipcRenderer.invoke('manager:listDetachWindowActions', option)
+}
+
 const subInputChange = (keywords: string, option?: {}) => {
     return ipcRenderer.invoke('manager:subInputChange', keywords, option)
 }
@@ -100,8 +108,12 @@ const openPlugin = async (pluginName: string, option?: {}) => {
     return ipcRenderer.invoke('manager:openPlugin', pluginName, option)
 }
 
-const openAction = async (action: ActionRecord, option?: {}) => {
-    return ipcRenderer.invoke('manager:openAction', action, option)
+const openAction = async (action: ActionRecord) => {
+    return ipcRenderer.invoke('manager:openAction', action)
+}
+
+const openActionForWindow = async (type: 'open' | 'close', action: ActionRecord) => {
+    return ipcRenderer.invoke('manager:openActionForWindow', type, action)
 }
 
 const closeMainPlugin = async (plugin?: PluginRecord, option?: {}) => {
@@ -192,6 +204,7 @@ export default {
     getConfig,
     setConfig,
 
+    isShown,
     show,
     hide,
 
@@ -213,9 +226,11 @@ export default {
 
     searchFastPanelAction,
     searchAction,
+    listDetachWindowActions,
     subInputChange,
     openPlugin,
     openAction,
+    openActionForWindow,
     closeMainPlugin,
     openMainPluginDevTools,
     detachPlugin,

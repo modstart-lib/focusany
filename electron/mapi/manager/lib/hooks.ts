@@ -28,6 +28,7 @@ type HookType = never
     | 'Unmaximize'
     | 'EnterFullScreen'
     | 'LeaveFullScreen'
+    | 'DetachWindowClosed'
 
 export const executePluginHooks = async (view: BrowserView, hook: PluginHookType, data?: any) => {
     const evalJs = `

@@ -85,7 +85,7 @@ export const ManagerPluginEvent = {
     },
     isMainWindowShown: async (context: PluginContext, data: any) => {
         const win = AppRuntime.mainWindow
-        return win.isVisible() && win.isFocused();
+        return win.isVisible()
     },
     hideMainWindow: async (context: PluginContext, data: any) => {
         AppRuntime.mainWindow.hide();
