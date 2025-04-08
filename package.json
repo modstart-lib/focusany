@@ -1,10 +1,10 @@
 {
     "name": "focusany",
-    "version": "0.7.0",
+    "version": "0.8.0",
     "main": "dist-electron/main/index.js",
     "description": "FocusAny",
     "author": "ModStartLib",
-    "license": "AGPL-3.0",
+    "license": "Apache-2.0",
     "private": true,
     "keywords": [
         "electron",

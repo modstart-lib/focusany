@@ -190,4 +190,4 @@ sudo apt install -y make gcc g++ python3
 
 ## License
 
-AGPL-3.0
+Apache-2.0
