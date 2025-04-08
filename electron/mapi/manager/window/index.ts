@@ -1,6 +1,6 @@
-import {ActionRecord, PluginEnv, PluginRecord, PluginState, PluginType} from "../../../../src/types/Manager";
+import {ActionRecord, PluginEnv, PluginRecord, PluginState} from "../../../../src/types/Manager";
 import {AppEnv, AppRuntime} from "../../env";
-import {preloadDefault, preloadPluginDefault, rendererIsUrl, rendererLoadPath} from "../../../lib/env-main";
+import {preloadDefault, rendererIsUrl, rendererLoadPath} from "../../../lib/env-main";
 import {WindowConfig} from "../../../config/window";
 import {BrowserView, BrowserWindow, screen, shell, WebContents} from "electron";
 import {isMac} from "../../../lib/env";
@@ -271,8 +271,7 @@ export const ManagerWindow = {
                 }
             }
         }
-        // console.log('open.readyData', readyData)
-        await executePluginHooks(view, 'PluginReady', readyData)
+        // 这里分步处理，避免设置没有来得及响应，下次启动时闪烁的问题
         if (autoDetach) {
             if (!mainWindowView) {
                 AppRuntime.mainWindow.setSize(WindowConfig.mainWidth, WindowConfig.mainHeight);
@@ -460,6 +459,7 @@ export const ManagerWindow = {
             });
         });
         win.webContents.once('render-process-gone', () => {
+            // console.log('detach.render-process-gone')
             win.close();
         });
         view.webContents.on('before-input-event', (event, input) => {
