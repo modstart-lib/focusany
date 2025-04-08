@@ -1,6 +1,6 @@
 {
     "name": "focusany-sdk",
-    "version": "0.2.3",
+    "version": "0.2.4",
     "description": "TypeScript definitions for FocusAny",
     "repository": {
         "type": "git",
@@ -10,7 +10,7 @@
         "FocusAny"
     ],
     "author": "ModStartLib",
-    "license": "AGPL-3.0",
+    "license": "Apache-2.0",
     "bugs": {
         "url": "https://github.com/modstart-lib/focusany-sdk/issues"
     },
