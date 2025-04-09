@@ -232,7 +232,18 @@ interface FocusAnyApi {
     /**
      * 获取插件信息
      */
-    getPluginInfo(): any;
+    getPluginInfo(): {
+        nodeIntegration: boolean,
+        preloadBase: string,
+        preload: string,
+        main: string,
+        mainView: string,
+        width: number,
+        height: number,
+        autoDetach: boolean,
+        singleton: boolean,
+        zoom: number,
+    };
 
     /**
      * 获取插件环境
@@ -259,7 +270,7 @@ interface FocusAnyApi {
     outPlugin(): boolean;
 
     /**
-     * 获取插件的主窗口
+     * 是否是暗色主题
      */
     isDarkColors(): boolean;
 
@@ -276,13 +287,17 @@ interface FocusAnyApi {
         avatar: string,
         nickname: string,
         vipFlag: string,
-        deviceCode: string
+        deviceCode: string,
+        openId: string,
     };
 
     /**
      * 获取用户服务端临时令牌
      */
-    getUserAccessToken(): Promise<{ token: string, expireAt: number }>;
+    getUserAccessToken(): Promise<{
+        token: string,
+        expireAt: number,
+    }>;
 
     /**
      * 列出插件商品
@@ -388,7 +403,7 @@ interface FocusAnyApi {
     }>;
 
     /**
-     * 设置插件动作
+     * 动态设置插件动作
      * @param action
      */
     setAction(action: PluginAction | PluginAction[]): boolean;
@@ -493,7 +508,7 @@ interface FocusAnyApi {
     getPath(name: 'home' | 'appData' | 'userData' | 'temp' | 'exe' | 'desktop' | 'documents' | 'downloads' | 'music' | 'pictures' | 'videos' | 'logs'): string;
 
     /**
-     * 获取文件图标
+     * 获取文件图标的Base64
      * @param path
      */
     getFileIcon(path: string): string;
@@ -532,13 +547,13 @@ interface FocusAnyApi {
     getClipboardFiles(): FileItem[];
 
     /**
-     * 打开路径
+     * 使用默认的应用打开文件
      * @param fullPath
      */
     shellOpenPath(fullPath: string): void;
 
     /**
-     * 显示文件夹
+     * 在文件管理器中显示文件
      * @param fullPath
      */
     shellShowItemInFolder(fullPath: string): void;
@@ -550,7 +565,7 @@ interface FocusAnyApi {
     shellOpenExternal(url: string): void;
 
     /**
-     * 播放声音
+     * 播放提示音
      */
     shellBeep(): void;
 
@@ -590,7 +605,7 @@ interface FocusAnyApi {
     /**
      * 获取平台架构
      */
-    getPlatformArch(): string;
+    getPlatformArch(): 'x86' | 'arm64' | null;
 
     /**
      * 发送后端事件

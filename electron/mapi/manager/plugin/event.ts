@@ -367,17 +367,34 @@ export const ManagerPluginEvent = {
         avatar: string,
         nickname: string,
         vipFlag: string,
-        deviceCode: string
+        deviceCode: string,
+        openId: string,
     } | null> => {
         const info = await User.get()
         const user = info.user
-        return {
+        const result = {
             isLogin: !!(user && user.id),
             avatar: user.avatar || '',
             nickname: user.name || '',
             vipFlag: info.data?.vip?.flag || '',
-            deviceCode: user.deviceCode
+            deviceCode: user.deviceCode,
+            openId: '',
         }
+        if (result.isLogin) {
+            const res = await UserApi.post<{
+                openId: string,
+            }>('client/getUser', {
+                pluginName: context._plugin.name
+            }, {
+                catchException: false,
+            })
+            if (res.code === 0) {
+                if (res.data) {
+                    result.openId = res.data.openId
+                }
+            }
+        }
+        return result
     },
     redirect: async (context: PluginContext, data: any) => {
         let {keywordsOrAction, query} = data;

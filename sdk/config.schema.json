@@ -58,7 +58,7 @@
         },
         "mainView": {
             "type": "string",
-            "description": "智能视图入口文件，当该配置为空时，使用主入口文件。"
+            "description": "快捷面板/智能识图快速面板入口文件，当该配置为空时，使用主入口文件。"
         },
         "preload": {
             "type": "string",
@@ -74,7 +74,7 @@
         },
         "actions": {
             "type": "array",
-            "description": "actions 描述了当 FocusAny 主输入框内容产生变化时，此插件应用是否显示在搜索结果列表中，一个插件应用可以有多个功能，一个功能可以提供多个命令供用户搜索。",
+            "description": "插件动作，描述了当 FocusAny 主输入框内容产生变化时，此插件应用是否显示在搜索结果列表中，一个插件应用可以有多个功能，一个功能可以提供多个命令供用户搜索。",
             "items": {
                 "type": "object",
                 "properties": {
@@ -274,11 +274,19 @@
                 },
                 "main": {
                     "type": "string",
-                    "description": "入口文件，当该配置为空时，表示插件应用为模板插件应用。 main 与 preload 至少存在其一。"
+                    "description": "dev环境 入口文件，通常为开发环境如 http://localhost:8080"
                 },
                 "mainView": {
                     "type": "string",
-                    "description": "快速面板入口文件，当该配置为空时，使用主入口文件。"
+                    "description": "dev环境 快捷面板/智能视图快速面板入口文件，通常为开发环境如 http://localhost:8080"
+                },
+                "keepCodeDevTools": {
+                    "type": "boolean",
+                    "description": "dev环境 插件是否在code执行完成后保留开发者窗口"
+                },
+                "showViewDevTools": {
+                    "type": "boolean",
+                    "description": "dev环境 是否在快捷面板/智能视图渲染view时显示开发者窗口"
                 },
                 "releaseDoc": {
                     "type": "string",
@@ -291,14 +299,6 @@
                 "previewDoc": {
                     "type": "string",
                     "description": "插件预览文档，参照插件选择根目录，默认为 preview.md，使用 markdown 格式，每行一个图片链接。"
-                },
-                "keepCodeDevTools": {
-                    "type": "boolean",
-                    "description": "插件是否在code执行完成后保留开发者窗口"
-                },
-                "showViewDevTools": {
-                    "type": "boolean",
-                    "description": "是否在快捷面板渲染view时显示开发者窗口"
                 }
             }
         },
