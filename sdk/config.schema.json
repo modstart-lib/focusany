@@ -54,15 +54,15 @@
         },
         "main": {
             "type": "string",
-            "description": "入口文件，当该配置为空时，表示插件应用为模板插件应用。 main 与 preload 至少存在其一。"
+            "description": "主入口文件"
         },
         "mainView": {
             "type": "string",
-            "description": "快捷面板/智能识图快速面板入口文件，当该配置为空时，使用主入口文件。"
+            "description": "快捷面板/智能视图 入口文件，当该配置为空时，使用主入口文件"
         },
         "preload": {
             "type": "string",
-            "description": "这是一个关键文件，你可以在此文件内调用 FocusAny、 nodejs、 electron 提供的 api。 main 与 preload 至少存在其一。"
+            "description": "插件预加载文件，相对于插件目录，需要是 cjs 文件"
         },
         "author": {
             "type": "string",
