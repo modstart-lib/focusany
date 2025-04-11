@@ -68,6 +68,9 @@ export const ManagerPlugin = {
         }
         // main && mainView
         let main = plugin.main || null;
+        if (!main) {
+            main = rendererDistPath('static/pluginEmpty.html')
+        }
         let mainView = plugin.mainView || null;
         if (!mainView) {
             mainView = main

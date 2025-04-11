@@ -92,7 +92,7 @@ export const ManagerWindow = {
             preload,
             main,
         } = ManagerPlugin.getInfo(plugin)
-        // console.log('openForCode', {preload, main, height})
+        // console.log('openForCode', {preload, main})
         const viewSession = await ManagerPlugin.getViewSession(plugin)
         if (preloadBase) {
             viewSession.setPreloads([preloadBase]);
