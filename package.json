@@ -67,7 +67,6 @@
         "@types/showdown": "^2.0.6",
         "@uiw/codemirror-theme-dracula": "^4.23.0",
         "@uiw/codemirror-theme-quietlight": "^4.23.0",
-        "@vue-flow/core": "^1.41.5",
         "@vue-js-cron/light": "^4.0.9",
         "@xterm/addon-fit": "^0.10.0",
         "@xterm/xterm": "^5.5.0",

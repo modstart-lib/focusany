@@ -1,8 +1,6 @@
 <script setup lang="ts">
 
 import {ref} from "vue";
-import WorkflowList from "./Workflow/WorkflowList.vue";
-import WorkflowEdit from "./Workflow/WorkflowEdit.vue";
 
 const tab = ref('list')
 
@@ -40,8 +38,8 @@ const doModelClose = () => {
             </div>
         </div>
         <div class="flex-grow overflow-y-auto">
-            <WorkflowList v-if="tab==='list'"/>
-            <WorkflowEdit v-else-if="tab==='edit'"/>
+<!--            <WorkflowList v-if="tab==='list'"/>-->
+<!--            <WorkflowEdit v-else-if="tab==='edit'"/>-->
         </div>
     </div>
 </template>
