@@ -23,6 +23,11 @@ export const StringUtil = {
             const v = c === 'x' ? r : (r & 0x3 | 0x8)
             return v.toString(16)
         })
+    },
+    replaceParam: (str: string, param: any) => {
+        return str.replace(/{(.*?)}/g, (match: string, key: string) => {
+            return param[key] || match
+        })
     }
 }
 
@@ -160,3 +165,10 @@ export const ShellUtil = {
         return `"${p}"`
     }
 }
+
+export const ObjectUtil = {
+    clone(obj: any) {
+        return JSON.parse(JSON.stringify(obj))
+    },
+}
+

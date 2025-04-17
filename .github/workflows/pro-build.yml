@@ -1,4 +1,4 @@
-name: Build Pro
+name: ProBuild
 
 on:
   push:
