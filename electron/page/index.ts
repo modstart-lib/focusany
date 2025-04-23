@@ -9,6 +9,7 @@ import {PageAbout} from "./about";
 import {DevToolsManager} from "../lib/devtools";
 import {PageFeedback} from "./feedback";
 import {PagePayment} from "./payment";
+import {PageMonitor} from "./monitor";
 
 const Pages = {
     'user': PageUser,
@@ -17,6 +18,7 @@ const Pages = {
     'payment': PagePayment,
     'about': PageAbout,
     'feedback': PageFeedback,
+    'monitor': PageMonitor,
 }
 
 export const Page = {
@@ -58,6 +60,7 @@ export const Page = {
     open: async (name: string, option?: {
         singleton?: boolean,
         parent?: BrowserWindow,
+        [key: string]: any
     }) => {
         option = Object.assign({
             singleton: true,

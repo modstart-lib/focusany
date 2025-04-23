@@ -96,6 +96,18 @@ window['__page'] = {
     onDetachWindowClosed: (cb: Function) => {
         window['__page'].hooks.onDetachWindowClosed = cb
     },
+    ipcSendToHost: (channel: string, type: string, data?: any) => {
+        ipcRenderer.sendToHost(channel, {
+            type,
+            data,
+        });
+    },
+    ipcSend: (channel: string, type: string, data?: any) => {
+        ipcRenderer.send(channel, {
+            type,
+            data,
+        });
+    }
 }
 
 ipcRenderer.removeAllListeners('MAIN_PROCESS_MESSAGE')
