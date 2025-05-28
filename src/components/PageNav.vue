@@ -42,7 +42,7 @@ const doUser = async () => {
     <div class="flex flex-col h-full border-r border-default">
         <div class="py-4 px-3 " :class="setting.basic.userEnable?'cursor-pointer':''" @click="doUser">
             <a-tooltip v-if="setting.basic.userEnable"
-                       :content="userTip as string" position="right">
+                       :content="userTip as string" position="right" mini>
                 <img v-if="!user.isInit||!user.user.id"
                      class="rounded-full border border-solid border-gray-200"
                      src="./../assets/image/avatar.svg"/>
