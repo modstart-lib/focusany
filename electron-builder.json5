@@ -4,6 +4,7 @@
     "appId": "FocusAny",
     "asar": true,
     "npmRebuild": true,
+    "publish": [],
     "productName": "FocusAny",
     "directories": {
         "output": "dist-release",

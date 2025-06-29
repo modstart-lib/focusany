@@ -113,6 +113,19 @@ jobs:
           Write-Host "::add-mask::$DIST_FILE_NAME"
           echo "DIST_FILE_NAME=$DIST_FILE_NAME" >> $env:GITHUB_ENV
 
+
+      - name: Rename output files (Linux/macOS)
+        if: runner.os == 'Linux' || runner.os == 'macOS'
+        run: |
+            find code/dist-release/ -type f -name 'FocusAnyPro-*' -exec bash -c 'f="{}"; mv "$f" "${f/FocusAnyPro-/FocusAny-}"' \;
+
+      - name: Rename output files (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+            Get-ChildItem code\dist-release\FocusAnyPro-* | Rename-Item -NewName { $_.Name -replace 'FocusAnyPro-','FocusAny-' }
+
+
       - name: Release Assets
         uses: softprops/action-gh-release@v2
         with:
