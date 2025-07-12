@@ -46,9 +46,6 @@ export const MAPI = {
         $mapi.keys.ready()
         $mapi.manager.ready()
         $mapi.protocol.ready()
-        setTimeout(() => {
-            UpdaterMain.checkAndNoticeIfNeed().then()
-        }, 3000)
     },
     destroy() {
         $mapi.keys.destroy()

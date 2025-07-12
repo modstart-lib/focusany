@@ -139,7 +139,15 @@ window.addEventListener('keydown', (e) => {
         mainSearch.value?.onKeyDown(e)
     }
 })
-
+onMounted(() => {
+    setTimeout(async () => {
+        const checkAtLaunch = await window.$mapi.config.get('updaterCheckAtLaunch', 'yes')
+        if ('yes' !== checkAtLaunch) {
+            return
+        }
+        doCheckForUpdate().then()
+    }, 6000);
+});
 </script>
 
 <style lang="less" scoped>
