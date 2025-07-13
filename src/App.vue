@@ -14,13 +14,14 @@
 </template>
 
 <script setup lang="ts">
-import {ref} from "vue";
+import {onMounted, ref} from "vue";
 
 import MainSearch from "./pages/Main/MainSearch.vue";
 import MainResult from "./pages/Main/MainResult.vue";
 import {useManagerStore} from "./store/modules/manager";
 import {PluginRecord, PluginState} from "./types/Manager";
 import {useLocale} from "./app/locale";
+import {doCheckForUpdate} from "./components/common/util";
 
 const manager = useManagerStore()
 

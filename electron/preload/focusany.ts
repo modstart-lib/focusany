@@ -3,7 +3,7 @@ import electronRemote from "@electron/remote";
 import path from "path";
 import fs from "fs";
 import {EncodeUtil, FileUtil, StrUtil, TimeUtil} from "../lib/util";
-import {ipcRenderer, SaveDialogOptions, shell} from 'electron'
+import {ipcRenderer, shell} from 'electron'
 
 const ipcSendSync = (type: string, data?: any) => {
     executeHook('Log', `${type}`, data)
@@ -465,6 +465,24 @@ export const FocusAny = {
         return ipcSendAsync('apiPost', {url, body, option})
     },
 
+    file: {
+        exists(path: string): Promise<boolean> {
+            return ipcSendAsync('fileExists', {path})
+        },
+        read(path: string): Promise<string> {
+            return ipcSendAsync('fileRead', {path})
+        },
+        write(path: string, data: string): Promise<void> {
+            return ipcSendAsync('fileWrite', {path, data})
+        },
+        remove(path: string): Promise<void> {
+            return ipcSendAsync('fileRemove', {path})
+        },
+        ext(path: string): Promise<string> {
+            return ipcSendAsync('fileExt', {path})
+        },
+    },
+
     db: {
         put(doc: DbDoc) {
             return ipcSendSync('dbPut', {doc})
@@ -514,6 +532,28 @@ export const FocusAny = {
         getHeight(): Promise<number> {
             return ipcSendToHost('view.getHeight', {}, true)
         }
+    },
+
+    fada: {
+        async read(type: string, path: string): Promise<any> {
+            const fileData = await ipcSendAsync('fileRead', {path})
+            if (!fileData) {
+                throw '文件不存在或读取失败'
+            }
+            const fileDataJson = JSON.parse(fileData)
+            if (fileDataJson['type'] !== type) {
+                throw '不支持的文件类型'
+            }
+            return fileDataJson['data']
+        },
+        async write(type: string, path: string, data: any): Promise<void> {
+            const fileData = {
+                type,
+                data,
+            }
+            const fileDataJson = JSON.stringify(fileData, null, 2)
+            await ipcSendAsync('fileWrite', {path, data: fileDataJson})
+        },
     },
 
     detach: {

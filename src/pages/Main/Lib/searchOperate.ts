@@ -103,8 +103,8 @@ export const useSearchOperate = (emit) => {
             if (file.isDirectory) {
                 result.extName = 'ext.folder';
             }
-            if (result.name.endsWith('.fadata')) {
-                result.name = result.name.substring(0, result.name.length - 7);
+            if (result.name.endsWith('.fada')) {
+                result.name = result.name.substring(0, result.name.length - 5);
             }
             return result;
         }

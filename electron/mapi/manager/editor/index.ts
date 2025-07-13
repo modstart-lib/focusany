@@ -20,7 +20,7 @@ export const ManagerEditor = {
             return this.faDataTypeCache[file]
         }
         const fileExt = nodePath.extname(file).toLowerCase()
-        if (fileExt !== '.fadata') {
+        if (fileExt !== '.fada') {
             return null
         }
         try {
@@ -39,7 +39,7 @@ export const ManagerEditor = {
         const newFiles = []
         for (const file of files) {
             const fileExt = nodePath.extname(file.path).toLowerCase()
-            if (fileExt !== '.fadata') {
+            if (fileExt !== '.fada') {
                 continue
             }
             const fileType = await this.getFaDataTypeCached(file.path)

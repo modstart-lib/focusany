@@ -10,11 +10,10 @@ import keys from "./keys/main";
 import user from "./user/main";
 import misc from "./misc/main";
 import protocol from "./protocol/main";
-
 import kvdb from "./kvdb/main";
 import server from "./server/main";
+import updater from "./updater/main";
 import manager from "./manager/main";
-import {UpdaterMain} from "./updater/main";
 
 const $mapi = {
     app,
@@ -30,6 +29,7 @@ const $mapi = {
     misc,
     protocol,
     server,
+    updater,
     manager,
     kvdb,
 }

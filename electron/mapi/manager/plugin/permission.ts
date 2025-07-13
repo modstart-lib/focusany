@@ -10,7 +10,14 @@ export const ManagerPluginPermission = {
         AppsMain.toast(`插件没有权限(${permission})`, {status: 'error'})
         return false
     },
+    /**
+     * check if the plugin has permission for a specific type and typeData
+     * @param plugin
+     * @param type basic | event
+     * @param typeData
+     */
     check(plugin: PluginRecord, type: 'basic' | 'event', typeData: string): boolean {
+        // console.log('ManagerPluginPermission.check', JSON.stringify(plugin, null, 2))
         if ('basic' === type) {
             return this.checkPermit(plugin, typeData as PluginPermissionType)
         } else if ('event' === type) {

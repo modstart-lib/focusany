@@ -687,6 +687,57 @@ interface FocusAnyApi {
         removeItem(key: string): void;
     };
 
+
+    /**
+     * 文件
+     */
+    file: {
+        /**
+         * 判断文件或目录是否存在
+         * @param path
+         */
+        exists(path: string): Promise<boolean>;
+        /**
+         * 读取文件内容
+         * @param path 文件路径
+         */
+        read(path: string): Promise<string>;
+        /**
+         * 写入文件内容
+         * @param path 文件路径
+         * @param data 文件内容
+         */
+        write(path: string, data: string): Promise<void>;
+        /**
+         * 删除文件或目录
+         * @param path 文件或目录路径
+         */
+        remove(path: string): Promise<void>;
+        /**
+         * 获取文件后缀
+         */
+        ext(path: string): Promise<string>;
+    },
+
+    /**
+     * 快捷文件
+     */
+    fada: {
+        /**
+         * 读取快捷文件内容
+         * @param type
+         * @param path
+         */
+        read(type: string, path: string): Promise<any>;
+        /**
+         * 写入快捷文件内容
+         * @param type
+         * @param path
+         * @param data
+         */
+        write(type: string, path: string, data: any): Promise<void>;
+    },
+
     /**
      * 智能区域
      */

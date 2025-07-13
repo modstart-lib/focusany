@@ -405,6 +405,7 @@ export const ManagerPlugin = {
         const pluginInfo: PluginInfo = doc as any
         const root = pluginInfo.root
         const p = await this._readPluginInfo(root)
+        // console.log('refreshInstall', JSON.stringify({name, root, p}, null, 2))
         if (!p) {
             throw `PluginNotValid : ${root}`
         }

@@ -25,6 +25,7 @@ import {ManagerPluginPermission} from "./permission";
 import User, {UserApi} from "../../user/main";
 import {PagePayment} from "../../../page/payment";
 import {PageUser} from "../../../page/user";
+import {Files} from "../../file/main";
 
 const getHeadHeight = (win: BrowserWindow) => {
     if (win === AppRuntime.mainWindow) {
@@ -386,7 +387,7 @@ export const ManagerPluginEvent = {
             }>('client/getUser', {
                 pluginName: context._plugin.name
             }, {
-                catchException: false,
+                throwException: false,
             })
             if (res.code === 0) {
                 if (res.data) {
@@ -582,9 +583,53 @@ export const ManagerPluginEvent = {
         }
         const {url, body, option} = data
         const res = await UserApi.post(url, body || {}, {
-            catchException: false,
+            throwException: false,
         })
         return res
+    },
+
+    // file
+    fileExists: async (context: PluginContext, data: any) => {
+        if (!ManagerPluginPermission.check(context._plugin, 'basic', 'File')) {
+            return
+        }
+        const {path} = data;
+        return await Files.exists(path,{
+            isFullPath: true
+        });
+    },
+    fileRead: async (context: PluginContext, data: any) => {
+        if (!ManagerPluginPermission.check(context._plugin, 'basic', 'File')) {
+            return
+        }
+        const {path} = data;
+        return await Files.read(path, {
+            isFullPath: true,
+            encoding: 'utf-8'
+        })
+    },
+    fileWrite: async (context: PluginContext, data: any) => {
+        if (!ManagerPluginPermission.check(context._plugin, 'basic', 'File')) {
+            return
+        }
+        const {path, data: content} = data;
+        return await Files.write(path, content, {
+            isFullPath: true,
+        })
+    },
+    fileRemove: async (context: PluginContext, data: any) => {
+        if (!ManagerPluginPermission.check(context._plugin, 'basic', 'File')) {
+            return
+        }
+        const {path} = data;
+        return await Files.deletes(path, {
+            isFullPath: true
+        });
+    },
+    fileExt: async (context: PluginContext, data: any) => {
+        const {path} = data;
+        const ext = Files.ext(path);
+        return ext ? ext : '';
     },
 
     // db

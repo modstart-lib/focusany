@@ -183,3 +183,10 @@ export const ObjectUtil = {
     },
 }
 
+
+export const ObjectUtil = {
+    clone(obj: any) {
+        return JSON.parse(JSON.stringify(obj))
+    },
+}
+

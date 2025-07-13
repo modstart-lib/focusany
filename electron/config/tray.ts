@@ -28,16 +28,6 @@ const quitApp = () => {
 }
 
 const ready = () => {
-    tray = new Tray(trayPath)
-
-    tray.setToolTip(AppConfig.name)
-
-    if (isWin) {
-        tray.on('click', () => {
-            showApp()
-        })
-    }
-
     const contextMenu = Menu.buildFromTemplate([
         {
             label: t('显示主界面'),
@@ -79,8 +69,14 @@ const ready = () => {
             },
         },
     ])
-
-    tray.setContextMenu(contextMenu)
+    tray = new Tray(trayPath)
+    tray.setToolTip(AppConfig.name)
+    tray.on('click', () => {
+        showApp()
+    })
+    tray.on('right-click', () => {
+        tray.popUpContextMenu(contextMenu)
+    })
 }
 
 const show = () => {

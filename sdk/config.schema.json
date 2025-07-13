@@ -309,7 +309,8 @@
                 "type": "string",
                 "enum": [
                     "ClipboardManage",
-                    "Api"
+                    "Api",
+                    "File"
                 ]
             }
         },
