@@ -3,7 +3,6 @@
         <div ref="main" id="main">
             <MainSearch
                 ref="mainSearch"
-                @onInputKey="onInputKey"
                 @onClose="onClose"
             />
             <MainResult
@@ -19,9 +18,10 @@ import {onMounted, ref} from "vue";
 import MainSearch from "./pages/Main/MainSearch.vue";
 import MainResult from "./pages/Main/MainResult.vue";
 import {useManagerStore} from "./store/modules/manager";
-import {PluginRecord, PluginState} from "./types/Manager";
+import {PluginRecord} from "./types/Manager";
 import {useLocale} from "./app/locale";
 import {doCheckForUpdate} from "./components/common/util";
+import {useMainOperate} from "./pages/Main/Lib/mainOperate";
 
 const manager = useManagerStore()
 
@@ -31,9 +31,10 @@ const mainResult = ref<InstanceType<typeof MainResult> | null>(null);
 
 const {locale} = useLocale()
 
-const onInputKey = (direction: string) => {
-    mainResult.value?.onInputKey(direction);
-};
+const {
+    onKeyDown
+} = useMainOperate()
+
 const onClose = () => {
     mainResult.value?.onClose();
 };
@@ -63,7 +64,6 @@ window.__page.onPluginAlreadyOpened(() => {
     manager.hideMainWindow()
 })
 window.__page.onPluginExit(() => {
-    // console.log('main.onPluginExit')
     manager.setActivePlugin(null)
     manager.search('')
     mainResult.value?.onPluginExit();
@@ -104,40 +104,11 @@ window.__page.onSetSubInputValue((value: string) => {
     manager.setSubInputValue(value);
 })
 
-let detachHotKey: any = null
-let detachHotkeyExpire = 0
-let detachHotkeyTimes = 0
+
 window.addEventListener('keydown', (e) => {
-    if (!detachHotKey) {
-        detachHotKey = manager.configGet('detachWindowTrigger', null)
-    }
-    // console.log('keydown', detachHotKey.value, detachHotkeyExpire)
-    // {"key":"D","altKey":false,"ctrlKey":false,"metaKey":true,"shiftKey":false,"times":1}
-    if (detachHotKey && detachHotKey.value) {
-        // console.log('detachHotkeyExpire', detachHotKey.value.key, detachHotkeyExpire)
-        if (
-            detachHotKey.value.key === e.key.toUpperCase()
-            && detachHotKey.value.altKey === e.altKey
-            && detachHotKey.value.ctrlKey === e.ctrlKey
-            && detachHotKey.value.metaKey === e.metaKey
-            && detachHotKey.value.shiftKey === e.shiftKey
-        ) {
-            if (!detachHotkeyExpire || Date.now() > detachHotkeyExpire) {
-                detachHotkeyExpire = Date.now() + 500
-                detachHotkeyTimes = 1
-            } else {
-                detachHotkeyTimes++
-            }
-            if (detachHotkeyTimes >= detachHotKey.value.times) {
-                detachHotkeyExpire = 0
-                detachHotkeyTimes = 0
-                manager.detachPlugin()
-                return
-            }
-        }
-    }
-    if (!manager.activePlugin) {
-        mainSearch.value?.onKeyDown(e)
+    const {resultKey} = onKeyDown(e)
+    if (resultKey) {
+        mainResult.value?.onInputKey(resultKey)
     }
 })
 onMounted(() => {

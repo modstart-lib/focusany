@@ -7,13 +7,6 @@ const manager = useManagerStore()
 
 export const useSearchOperate = (emit) => {
 
-    const hasActions = computed(() => {
-        return manager.searchActions.length > 0
-            || manager.matchActions.length > 0
-            || manager.historyActions.length > 0
-            || manager.pinActions.length > 0;
-    });
-
     const doShowMenu = () => {
         const menuTemplate: any[] = []
         if (manager.activePlugin) {
@@ -39,50 +32,6 @@ export const useSearchOperate = (emit) => {
     const doDetachPlugin = async () => {
         await manager.detachPlugin()
     }
-
-    const onSearchKeydown = (e, key: string) => {
-        const {ctrlKey, shiftKey, altKey, metaKey} = e;
-        const modifiers: Array<string> = [];
-        ctrlKey && modifiers.push('control');
-        shiftKey && modifiers.push('shift');
-        altKey && modifiers.push('alt');
-        metaKey && modifiers.push('meta');
-        let fireKey = '';
-        switch (key) {
-            case 'up':
-            case 'down':
-            case 'left':
-            case 'right':
-            case 'enter':
-                if (hasActions.value) {
-                    fireKey = key;
-                }
-                break;
-            case 'esc':
-                manager.hideMainWindow().then()
-                break
-            default:
-                switch (e.keyCode) {
-                    case 8:
-                        if (manager.searchValue === '') {
-                            fireKey = 'delete';
-                        }
-                        break;
-                    case 86:
-                        if (manager.searchValue === '') {
-                            if (ctrlKey || metaKey) {
-                                fireKey = 'paste';
-                            }
-                        }
-                        break;
-                }
-                break;
-        }
-        if (fireKey) {
-            e.preventDefault();
-            emit('onInputKey', fireKey);
-        }
-    };
 
     const clipboardFilesInfo = computed<{
         name: string,
@@ -139,7 +88,6 @@ export const useSearchOperate = (emit) => {
     }
 
     return {
-        onSearchKeydown,
         onSearchDoubleClick,
         doShowMenu,
         clipboardFilesInfo

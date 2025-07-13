@@ -54,15 +54,7 @@
                 size="large"
                 @input="(e) => onSearchValueChange(e)"
                 @focus="onFocus"
-                @keydown.left="(e) => onSearchKeydown(e, 'left')"
-                @keydown.right="(e) => onSearchKeydown(e, 'right')"
-                @keydown.down="(e) => onSearchKeydown(e, 'down')"
-                @keydown.tab="(e) => onSearchKeydown(e, 'down')"
-                @keydown.up="(e) => onSearchKeydown(e, 'up')"
-                @keydown.esc="(e) => onSearchKeydown(e, 'esc')"
-                @keypress.enter="(e) => onSearchKeydown(e, 'enter')"
-                @keypress.space="(e) => onSearchKeydown(e, 'space')"
-                @keydown="(e) => onSearchKeydown(e, 'custom')"
+                @blur="onBlur"
                 @dblclick="onSearchDoubleClick"
                 :model-value="manager.searchValue">
             </a-input>
@@ -104,7 +96,6 @@ import {PluginType} from "../../types/Manager";
 const mainInput = ref<any>(null);
 
 const emit = defineEmits([
-    'onInputKey',
     'onClose',
 ])
 
@@ -118,7 +109,6 @@ const {onDragWindowMouseDown} = useDragWindow({
 });
 
 const {
-    onSearchKeydown,
     onSearchDoubleClick,
     doShowMenu,
     clipboardFilesInfo,
@@ -168,25 +158,6 @@ const focus = () => {
     mainInput.value.focus();
 };
 
-const onKeyDown = (e: KeyboardEvent) => {
-    // ignore input event for fire twice
-    if (!!(e.target && ((e.target as any).tagName === 'INPUT'))) {
-        return
-    }
-    const map = {
-        'Escape': 'esc',
-        'ArrowLeft': 'left',
-        'ArrowRight': 'right',
-        'ArrowDown': 'down',
-        'ArrowUp': 'up',
-        'Enter': 'enter',
-        ' ': 'space',
-    }
-    if (e.key in map) {
-        onSearchKeydown(e, map[e.key])
-    }
-}
-
 const doLogoClick = () => {
     window.focusany.redirect(['system', 'page-setting'])
 }
@@ -197,9 +168,14 @@ const onFocus = () => {
     }
 }
 
+const onBlur = () => {
+    setTimeout(() => {
+        mainInput.value.focus();
+    }, 0)
+}
+
 defineExpose({
     onShow,
-    onKeyDown,
     focus,
 });
 

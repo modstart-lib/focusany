@@ -6,7 +6,11 @@ import ConfigMain from "../../config/main";
 export const ManagerHotkeyHandle = {
     async mainTrigger() {
         if (await ManagerPluginEvent.isMainWindowShown(null, null)) {
-            await ManagerPluginEvent.hideMainWindow(null, null)
+            if (await ManagerPluginEvent.isMainWindowFocused(null, null)) {
+                await ManagerPluginEvent.hideMainWindow(null, null)
+            } else {
+                await ManagerPluginEvent.showMainWindow(null, null)
+            }
         } else {
             await ManagerPluginEvent.showMainWindow(null, null)
         }

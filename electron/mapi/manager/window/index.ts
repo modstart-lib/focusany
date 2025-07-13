@@ -286,6 +286,16 @@ export const ManagerWindow = {
             if (autoDetach) {
                 await this._showInDetachWindow(view, windowOption)
             } else {
+                view.webContents.on('before-input-event', (event, input) => {
+                    if (input.type === 'keyUp') {
+                        if (input.key === 'Escape') {
+                            if (mainWindowView) {
+                                ManagerWindow.close()
+                                AppRuntime.mainWindow.webContents.focus()
+                            }
+                        }
+                    }
+                })
                 await this._showInMainWindow(view, windowOption)
             }
             // Log.info('open.PluginReady', JSON.stringify({readyData, action}))

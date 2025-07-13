@@ -88,6 +88,10 @@ export const ManagerPluginEvent = {
         const win = AppRuntime.mainWindow
         return win.isVisible()
     },
+    isMainWindowFocused: async (context: PluginContext, data: any) => {
+        const win = AppRuntime.mainWindow
+        return win.isFocused();
+    },
     hideMainWindow: async (context: PluginContext, data: any) => {
         AppRuntime.mainWindow.hide();
     },
@@ -594,7 +598,7 @@ export const ManagerPluginEvent = {
             return
         }
         const {path} = data;
-        return await Files.exists(path,{
+        return await Files.exists(path, {
             isFullPath: true
         });
     },
