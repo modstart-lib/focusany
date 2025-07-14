@@ -84,8 +84,10 @@
                             <div class="item" v-for="(a,aIndex) in showHistoryActions"
                                  :class="{active: activeActionGroup === 'history' && actionActionIndex === aIndex}">
                                 <ResultItem :action="a" @open="doOpenAction(a)"
-                                            :show-pin="!a.runtime?.isPined" @pin="doPinToggle(a)"
-                                            show-delete @delete="doHistoryDelete(a)"/>
+                                            :show-pin="!a.runtime?.isPined"
+                                            @pin="doPinToggle(a)"
+                                            show-delete
+                                            @delete="doHistoryDelete(a)"/>
                             </div>
                         </div>
                     </div>

@@ -12,6 +12,7 @@ export const EntryListener = {
         isFastPanel?: boolean,
     }) => {
 
+        // console.log('EntryListener.prepareSearch', option)
         option = Object.assign({
             isPaste: false,
             isFastPanel: false,
@@ -21,7 +22,7 @@ export const EntryListener = {
 
         // 清除搜索框
         if (manager.searchValue) {
-            // 如果10分钟未变化，清空搜索框
+            // 如果10分钟未变化，清空搜索框，避免弹出对话框是上一次的搜索内容
             if (manager.searchValueUpdateTimestamp > 0 && manager.searchValueUpdateTimestamp < TimeUtil.timestamp() - 10 * 60) {
                 manager.searchValue = ''
             }

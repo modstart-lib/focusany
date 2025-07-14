@@ -54,6 +54,7 @@ window.__page.onPluginInit((data: {
     manager.setSubInput({
         placeholder: '',
         isFocus: false,
+        isVisible: false,
     })
     manager.setSubInputValue('')
     mainSearch.value?.focus()

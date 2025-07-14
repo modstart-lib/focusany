@@ -54,7 +54,6 @@
                 ref="mainInput"
                 size="large"
                 @input="(e) => onSearchValueChange(e)"
-                @focus="onFocus"
                 @blur="onBlur"
                 @dblclick="onSearchDoubleClick"
                 :model-value="manager.searchValue">
@@ -156,20 +155,16 @@ const onSearchValueChange = (value: string) => {
 
 const onShow = () => {
     mainInput.value.focus();
+    EntryListener.prepareSearch({}).then();
 };
 
 const focus = () => {
     mainInput.value.focus();
+    EntryListener.prepareSearch({}).then();
 };
 
 const doLogoClick = () => {
     window.focusany.redirect(['system', 'page-setting'])
-}
-
-const onFocus = () => {
-    if (!manager.activePlugin) {
-        EntryListener.prepareSearch({}).then()
-    }
 }
 
 const onBlur = () => {
