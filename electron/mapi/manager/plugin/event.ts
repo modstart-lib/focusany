@@ -427,10 +427,13 @@ export const ManagerPluginEvent = {
             currentImage: '',
             currentText: '',
         }, query)
-        // console.log('redirect', {keywordsOrAction, query})
         const action = await Manager.searchOneAction(keywordsOrAction, query)
+        console.log('redirect', {keywordsOrAction, query, action})
         if (!action) {
-            return false
+            ManagerPluginEvent.showToast(context, {
+                body: '未找到相关操作，请检查关键词或操作名称是否正确',
+            })
+            return
         }
         await Manager.openAction(action)
     },

@@ -160,14 +160,10 @@ export const Manager = {
             currentText: '',
         }, query)
         const actions = await this.listAction(request)
-        const actionFullNameMap = new Map<string, ActionRecord>()
-        for (const a of actions) {
-            actionFullNameMap.set(a.fullName, a)
-        }
         let action: ActionRecord = null
         if (typeof keywordsOrAction === 'string') {
             const uniqueRemover = new Set<string>()
-            const results = await this.searchActions(uniqueRemover, actionFullNameMap, {
+            const results = await this.searchActions(uniqueRemover, actions, {
                 ...query,
                 keywords: keywordsOrAction,
             })
