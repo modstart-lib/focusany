@@ -108,7 +108,7 @@ declare type ActionMatchWindow = ActionMatchBase & {
 
 declare type ActionMatchEditor = ActionMatchBase & {
     extensions: string[],
-    faDataTypes: string[],
+    fadTypes: string[],
 }
 
 interface PluginAction {
@@ -748,7 +748,7 @@ interface FocusAnyApi {
     /**
      * 快捷文件
      */
-    fada: {
+    fad: {
         /**
          * 读取快捷文件内容
          * @param type

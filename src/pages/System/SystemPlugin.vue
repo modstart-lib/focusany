@@ -418,8 +418,8 @@ const doInstallStore = async () => {
                                           size="small">
                                     打开文件
                                     <div class="inline-block max-w-32 overflow-hidden truncate">
-                                        <span v-if="(m as ActionMatchEditor).faDataTypes">
-                                            {{ (m as ActionMatchEditor).faDataTypes?.join(',') }}
+                                        <span v-if="(m as ActionMatchEditor).fadTypes">
+                                            {{ (m as ActionMatchEditor).fadTypes?.join(',') }}
                                         </span>
                                         <span v-if="(m as ActionMatchEditor).extensions">
                                             {{ (m as ActionMatchEditor).extensions.join(',') }}

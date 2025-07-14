@@ -20,7 +20,7 @@ export const ManagerEditor = {
             return this.faDataTypeCache[file]
         }
         const fileExt = nodePath.extname(file).toLowerCase()
-        if (fileExt !== '.fada') {
+        if (fileExt !== '.fad') {
             return null
         }
         try {
@@ -29,17 +29,16 @@ export const ManagerEditor = {
             })
             const json = JSON.parse(result)
             this.faDataTypeCache[file] = json['type']
-            return null
         } catch (e) {
             this.faDataTypeCache[file] = null
         }
-        return null
+        return this.faDataTypeCache[file]
     },
-    async filterFaDataType(files: FileItem[], types: string[]) {
+    async filterFadType(files: FileItem[], types: string[]) {
         const newFiles = []
         for (const file of files) {
             const fileExt = nodePath.extname(file.path).toLowerCase()
-            if (fileExt !== '.fada') {
+            if (fileExt !== '.fad') {
                 continue
             }
             const fileType = await this.getFaDataTypeCached(file.path)

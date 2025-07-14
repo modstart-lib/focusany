@@ -577,7 +577,7 @@ export const FocusAny = {
         }
     },
 
-    fada: {
+    fad: {
         async read(type: string, path: string): Promise<any> {
             const fileData = await ipcSendAsync('fileRead', {path})
             if (!fileData) {

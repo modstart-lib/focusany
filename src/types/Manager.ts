@@ -140,7 +140,7 @@ export type ActionMatchWindow = ActionMatchBase & {
 
 export type ActionMatchEditor = ActionMatchBase & {
     extensions: string[],
-    faDataTypes: string[],
+    fadaTypes: string[],
 }
 
 export type SelectedContent = {

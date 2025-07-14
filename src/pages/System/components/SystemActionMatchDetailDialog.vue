@@ -138,8 +138,8 @@ defineExpose({
                     <div v-if="'extensions' in match">
                         后缀：{{ (match as ActionMatchEditor).extensions.join(',') }}
                     </div>
-                    <div v-if="'faDataTypes' in match">
-                        类型：{{ (match as ActionMatchEditor).faDataTypes.join(',') }}
+                    <div v-if="'fadTypes' in match">
+                        类型：{{ (match as ActionMatchEditor).fadTypes.join(',') }}
                     </div>
                 </div>
             </div>

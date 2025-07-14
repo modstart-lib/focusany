@@ -245,7 +245,7 @@
                                                 "type": "string"
                                             }
                                         },
-                                        "faDataTypes": {
+                                        "fadTypes": {
                                             "type": "array",
                                             "description": "FocusAny 数据类型",
                                             "items": {

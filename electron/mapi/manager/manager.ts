@@ -348,8 +348,8 @@ export const Manager = {
                     if ('extensions' in m) {
                         files = files.filter(f => f.isFile && (m as ActionMatchEditor).extensions.includes(f.fileExt))
                     }
-                    if ('faDataTypes' in m) {
-                        files = await ManagerEditor.filterFaDataType(files, (m as ActionMatchEditor).faDataTypes)
+                    if ('fadTypes' in m) {
+                        files = await ManagerEditor.filterFadType(files, (m as ActionMatchEditor).fadTypes)
                     }
                     if (files.length <= 0) {
                         continue

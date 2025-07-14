@@ -27,7 +27,7 @@ import unknown from './FileExtAssets/unknown.svg'
 import xls from './FileExtAssets/xls.svg'
 import xlsx from './FileExtAssets/xlsx.svg'
 import zip from './FileExtAssets/zip.svg'
-import fada from './FileExtAssets/fada.svg'
+import fad from './FileExtAssets/fad.svg'
 import {computed} from "vue";
 
 const images = {
@@ -59,7 +59,7 @@ const images = {
     xls,
     xlsx,
     zip,
-    fada
+    fad
 }
 
 const props = withDefaults(defineProps<{
