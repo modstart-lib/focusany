@@ -18,3 +18,5 @@ ipcMain.handle('updater:setCheckAtLaunch', async (event, value) => {
 export const UpdaterMain = {
     ...updaterIndex,
 }
+
+export default UpdaterMain

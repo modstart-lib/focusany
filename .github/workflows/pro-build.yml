@@ -137,7 +137,6 @@ jobs:
             code/dist-release/*.dmg
             code/dist-release/*.AppImage
             code/dist-release/*.deb
-            code/dist-release/sha256*.yml
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 

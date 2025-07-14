@@ -55,7 +55,6 @@ export default defineConfig(({command}) => {
                 name: 'process-variables',
                 closeBundle() {
                     const files = [
-                        'splash.html',
                         'index.html',
                         'page/about.html',
                         'page/feedback.html',
