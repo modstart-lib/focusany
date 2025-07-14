@@ -65,6 +65,7 @@
             </div>
         </div>
         <div v-else
+             @dblclick="onSearchDoubleClick"
              class="main-search"></div>
         <div class="content-right"
              @click="doShowMenu">

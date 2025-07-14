@@ -9,10 +9,8 @@ import {AppsMain} from "../mapi/app/main";
 let tray = null
 
 const showApp = () => {
-    // if (isMac) {
-    //     app.dock.show()
-    // }
     AppRuntime.mainWindow.show()
+    AppRuntime.mainWindow.focus()
 }
 
 const hideApp = () => {
