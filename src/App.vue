@@ -82,7 +82,7 @@ window.__page.onPluginDetached(() => {
     mainResult.value?.onPluginDetached()
 })
 window.__page.onDetachWindowClosed(async () => {
-    if (await manager.isMainWindowShown() && !manager.activePlugin) {
+    if (!manager.activePlugin) {
         await manager.detachWindowActionsRefresh()
     }
 })
