@@ -2,8 +2,9 @@ import os from "os";
 import electronRemote from "@electron/remote";
 import path from "path";
 import fs from "fs";
-import {EncodeUtil, FileUtil, StrUtil, TimeUtil} from "../lib/util";
+import {EncodeUtil, FileUtil, HotKeyUtil, StrUtil, TimeUtil} from "../lib/util";
 import {ipcRenderer, shell} from 'electron'
+import {isMac} from "../lib/env";
 
 const ipcSendSync = (type: string, data?: any) => {
     executeHook('Log', `${type}`, data)
@@ -122,6 +123,48 @@ export const FocusAny = {
         }
         delete FocusAny.hooks.onPluginEventCallbacks[event]
         ipcSend('unregisterPluginEvent', {event})
+    },
+    registerHotkey(
+        key: string
+            | string[]
+            | HotkeyQuickType
+            | HotkeyType
+            | HotkeyType[]
+        ,
+        callback: () => void,
+    ) {
+        if ('save' === key) {
+            if (isMac) {
+                key = 'Command+S'
+            } else {
+                key = 'Ctrl+S'
+            }
+        }
+        const hotkeys = HotKeyUtil.unify(key)
+        if (!('hotKeyListeners' in FocusAny.hooks)) {
+            FocusAny.hooks.hotKeyListeners = []
+            FocusAny.hooks.onHotkey = (payload: {
+                id: string, hotkey: HotkeyType
+            }) => {
+                const {id, hotkey} = payload
+                FocusAny.hooks.hotKeyListeners.forEach((listener: {
+                    id: string,
+                    hotkeys: HotkeyType[],
+                    callback: () => void
+                }) => {
+                    if (listener.id === id) {
+                        listener.callback();
+                    }
+                });
+            }
+        }
+        const id = StrUtil.randomString(16)
+        FocusAny.hooks.hotKeyListeners.push({id, hotkeys, callback})
+        ipcSend('registerHotkey', {id, hotkeys})
+    },
+    unregisterHotkeyAll() {
+        FocusAny.hooks.hotKeyListeners = []
+        ipcSend('unregisterHotkeyAll', {})
     },
     onLog(cb: Function) {
         FocusAny.hooks.onLog = cb

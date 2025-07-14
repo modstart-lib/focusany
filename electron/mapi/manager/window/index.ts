@@ -13,6 +13,8 @@ import {Events} from "../../event/main";
 import {ManagerSystem} from "../system";
 import {AppsMain} from "../../app/main";
 import {ManagerPluginEvent} from "../plugin/event";
+import {PluginContext} from "../type";
+import {HotKeyUtil} from "../../../lib/util";
 
 const browserViews = new Map<WebContents, BrowserView>()
 const detachWindows = new Map<WebContents, BrowserWindow>()
@@ -262,10 +264,29 @@ export const ManagerWindow = {
                 // exit when Escape key is pressed
                 if (mainWindowView === view) {
                     if (input.key === 'Escape') {
-                        if (mainWindowView) {
-                            ManagerWindow.close()
-                            AppRuntime.mainWindow.webContents.focus()
+                        if (!(input.meta || input.control || input.shift || input.alt)) {
+                            if (mainWindowView) {
+                                ManagerWindow.close()
+                                AppRuntime.mainWindow.webContents.focus()
+                            }
                         }
+                    }
+                } else {
+                    if (input.key === 'Escape') {
+                        if (!(input.meta || input.control || input.shift || input.alt)) {
+                            view._window.isFullScreen() && view._window.setFullScreen(false);
+                        }
+                    }
+                }
+            } else if (input.type === 'keyDown') {
+                if ((view as PluginContext)._event && (view as PluginContext)._event['Hotkey']) {
+                    const hotkey = HotKeyUtil.getFromEvent(input)
+                    if (hotkey) {
+                        (view as PluginContext)._event['Hotkey'].forEach(({id, hotkeys}) => {
+                            if (HotKeyUtil.match(hotkeys, hotkey)) {
+                                executePluginHooks(view as BrowserView, 'Hotkey', {id, hotkey});
+                            }
+                        })
                     }
                 }
             }
@@ -476,13 +497,18 @@ export const ManagerWindow = {
             // console.log('detach.render-process-gone')
             win.close();
         });
-        view.webContents.on('before-input-event', (event, input) => {
-            if (input.type !== 'keyDown') return;
-            if (!(input.meta || input.control || input.shift || input.alt)) {
-                if (input.key === 'Escape') {
-                    win.isFullScreen() && win.setFullScreen(false);
+        win.webContents.on('before-input-event', (event, input) => {
+            if (input.type === 'keyDown') {
+                if ((view as PluginContext)._event && (view as PluginContext)._event['Hotkey']) {
+                    const hotkey = HotKeyUtil.getFromEvent(input)
+                    if (hotkey) {
+                        (view as PluginContext)._event['Hotkey'].forEach(({id, hotkeys}) => {
+                            if (HotKeyUtil.match(hotkeys, hotkey)) {
+                                executePluginHooks(view as BrowserView, 'Hotkey', {id, hotkey});
+                            }
+                        })
+                    }
                 }
-                return;
             }
         });
         if (isMac) {

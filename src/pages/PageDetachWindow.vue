@@ -105,9 +105,6 @@ window.__page.onLeaveFullScreen(() => {
     isFullscreen.value = false
     console.log('onLeaveFullScreen')
 })
-window.addEventListener('keydown', (e) => {
-    console.log('PageDetachWindow.keydown', e)
-})
 </script>
 
 <template>

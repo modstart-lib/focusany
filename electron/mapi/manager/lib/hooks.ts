@@ -8,6 +8,7 @@ type PluginHookType = never
     | 'PluginEvent'
     | 'SubInputChange'
     | 'ScreenCapture'
+    | 'Hotkey'
 
 type HookType = never
     | 'Show'

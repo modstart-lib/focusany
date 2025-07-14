@@ -72,6 +72,24 @@ export const ManagerPluginEvent = {
         }
         ManagerPluginEvent.pluginEvents[event] = ManagerPluginEvent.pluginEvents[event].filter(c => c !== context)
     },
+    registerHotkey: async (context: PluginContext, data: any) => {
+        if (!context._event) {
+            context._event = {}
+        }
+        if (!context._event['Hotkey']) {
+            context._event['Hotkey'] = []
+        }
+        const {id, hotkeys} = data
+        context._event['Hotkey'].push({
+            id, hotkeys
+        })
+    },
+    unregisterHotkeyAll: async (context: PluginContext, data: any) => {
+        if (!context._event || !context._event['HotKey']) {
+            return
+        }
+        context._event['Hotkey'] = []
+    },
     isMacOs: async (context: PluginContext, data: any) => {
         return isMac
     },

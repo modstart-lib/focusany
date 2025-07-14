@@ -23,7 +23,13 @@ declare type PlatformType = 'win' | 'osx' | 'linux'
 
 declare type EditionType = 'open' | 'pro'
 
-declare type PluginEvent = 'ClipboardChange' | 'UserChange'
+declare type PluginEvent = 'ClipboardChange' | 'UserChange' | '_HotKey'
+
+declare type HotkeyModifierType = 'Control' | 'Option' | 'Command' | 'Ctrl' | 'Alt' | 'Win' | 'Meta' | 'Shift'
+
+declare type HotkeyType = { key: string, modifiers: HotkeyModifierType[] }
+
+declare type HotkeyQuickType = 'save'
 
 declare type ActionMatch = (
     ActionMatchText
@@ -157,6 +163,26 @@ interface FocusAnyApi {
      * @param event
      */
     offPluginEventAll(event: PluginEvent): void;
+
+    /**
+     * register hot
+     * @param key
+     * @param callback
+     */
+    registerHotkey(
+        key: string
+            | string[]
+            | HotkeyQuickType
+            | HotkeyType
+            | HotkeyType[]
+        ,
+        callback: () => void,
+    ): void;
+
+    /**
+     * unregister all hotkey
+     */
+    unregisterHotkeyAll(): void;
 
     /**
      * 插件主窗口是否显示
