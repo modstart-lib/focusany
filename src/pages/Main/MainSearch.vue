@@ -56,6 +56,12 @@
                 @input="(e) => onSearchValueChange(e)"
                 @blur="onBlur"
                 @dblclick="onSearchDoubleClick"
+                @compositionstart="(e) => {
+                    manager.searchIsCompositing = true
+                }"
+                @compositionend="(e) => {
+                    manager.searchIsCompositing = false
+                }"
                 :model-value="manager.searchValue">
             </a-input>
             <div class="placeholder"
@@ -154,12 +160,12 @@ const onSearchValueChange = (value: string) => {
 };
 
 const onShow = () => {
-    mainInput.value.focus();
+    mainInput.value?.focus();
     EntryListener.prepareSearch({}).then();
 };
 
 const focus = () => {
-    mainInput.value.focus();
+    mainInput.value?.focus();
     EntryListener.prepareSearch({}).then();
 };
 
@@ -169,7 +175,7 @@ const doLogoClick = () => {
 
 const onBlur = () => {
     setTimeout(() => {
-        mainInput.value.focus();
+        mainInput.value?.focus();
     }, 0)
 }
 

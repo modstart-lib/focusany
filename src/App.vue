@@ -111,7 +111,6 @@ window.__page.onSetSubInputValue((value: string) => {
     manager.setSubInputValue(value);
 })
 
-
 window.addEventListener('keydown', (e) => {
     const {resultKey} = onKeyDown(e)
     if (resultKey) {

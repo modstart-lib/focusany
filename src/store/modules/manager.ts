@@ -39,6 +39,7 @@ export const managerStore = defineStore("manager", {
         searchPlaceholder: 'FocusAny，让您的工作专注高效',
         searchSubPlaceholder: '',
         searchSubIsVisible: false,
+        searchIsCompositing: false,
 
         detachWindowActions: [] as ActionRecord[],
         searchActions: [] as ActionRecord[],

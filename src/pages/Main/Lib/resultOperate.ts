@@ -195,6 +195,9 @@ export const useResultOperate = () => {
         if (['up', 'down', 'left', 'right'].includes(key)) {
             doActionNavigate(key)
         } else if ('enter' === key) {
+            if (manager.searchIsCompositing) {
+                return;
+            }
             const action = getActiveAction()
             if (action) {
                 if (activeActionGroup.value === 'window') {
