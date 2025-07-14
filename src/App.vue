@@ -67,6 +67,12 @@ window.__page.onPluginExit(() => {
     manager.setActivePlugin(null)
     manager.search('')
     mainResult.value?.onPluginExit();
+    setTimeout(() => {
+        if (manager.activePlugin) {
+            return
+        }
+        mainSearch.value?.focus()
+    }, 100);
 })
 window.__page.onPluginDetached(() => {
     // console.log('main.onPluginDetached')

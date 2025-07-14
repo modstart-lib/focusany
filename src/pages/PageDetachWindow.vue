@@ -70,6 +70,9 @@ window.__page.onSetSubInput((
 ) => {
     searchPlaceholder.value = param.placeholder
     searchVisible.value = param.isVisible
+    if (param.isFocus && searchInput.value) {
+        searchInput.value.focus()
+    }
 })
 window.__page.onRemoveSubInput(() => {
     searchPlaceholder.value = ''

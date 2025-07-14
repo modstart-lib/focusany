@@ -47,7 +47,8 @@
                 </div>
             </div>
         </div>
-        <div class="main-search">
+        <div v-if="!manager.activePlugin||manager.searchSubIsVisible"
+             class="main-search">
             <a-input
                 id="search"
                 ref="mainInput"
@@ -63,6 +64,8 @@
                 {{ manager.activePlugin ? manager.searchSubPlaceholder : manager.searchPlaceholder }}
             </div>
         </div>
+        <div v-else
+             class="main-search"></div>
         <div class="content-right"
              @click="doShowMenu">
             <div class="more" v-if="manager.activePlugin">

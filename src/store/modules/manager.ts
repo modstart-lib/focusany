@@ -38,6 +38,7 @@ export const managerStore = defineStore("manager", {
         searchValue: '',
         searchPlaceholder: 'FocusAny，让您的工作专注高效',
         searchSubPlaceholder: '',
+        searchSubIsVisible: false,
 
         detachWindowActions: [] as ActionRecord[],
         searchActions: [] as ActionRecord[],
@@ -217,17 +218,23 @@ export const managerStore = defineStore("manager", {
         async detachPlugin() {
             await window.$mapi.manager.detachPlugin()
         },
-        setSubInput(payload: { placeholder: string, isFocus?: boolean }) {
+        setSubInput(payload: {
+            placeholder: string,
+            isFocus: boolean,
+            isVisible: boolean,
+        }) {
             if (!this.activePlugin) {
                 return
             }
-            this.searchSubPlaceholder = payload.placeholder
+            this.searchSubPlaceholder = payload.placeholder || ''
+            this.searchSubIsVisible = payload.isVisible || false
         },
         removeSubInput() {
             if (!this.activePlugin) {
                 return
             }
             this.searchSubPlaceholder = ''
+            this.searchSubIsVisible = false
             this.searchValue = ''
         },
         setSubInputValue(value: string) {
