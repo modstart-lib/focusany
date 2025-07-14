@@ -37,6 +37,19 @@ const removeDetachWindows = (win: BrowserWindow) => {
     detachWindows.delete(win.webContents)
 }
 
+const checkForHotkey = async (view: PluginContext, input: Electron.Input) => {
+    if (view._event && view._event['Hotkey']) {
+        const hotkey = HotKeyUtil.getFromEvent(input)
+        if (hotkey) {
+            view._event['Hotkey'].forEach(({id, hotkeys}) => {
+                if (HotKeyUtil.match(hotkeys, hotkey)) {
+                    executePluginHooks(view as BrowserView, 'Hotkey', {id, hotkey});
+                }
+            })
+        }
+    }
+}
+
 export const ManagerWindow = {
     listBrowserViews(): BrowserView[] {
         return Array.from(browserViews.values())
@@ -279,16 +292,7 @@ export const ManagerWindow = {
                     }
                 }
             } else if (input.type === 'keyDown') {
-                if ((view as PluginContext)._event && (view as PluginContext)._event['Hotkey']) {
-                    const hotkey = HotKeyUtil.getFromEvent(input)
-                    if (hotkey) {
-                        (view as PluginContext)._event['Hotkey'].forEach(({id, hotkeys}) => {
-                            if (HotKeyUtil.match(hotkeys, hotkey)) {
-                                executePluginHooks(view as BrowserView, 'Hotkey', {id, hotkey});
-                            }
-                        })
-                    }
-                }
+                checkForHotkey(view as any, input)
             }
         })
         const windowOption = {
@@ -499,16 +503,7 @@ export const ManagerWindow = {
         });
         win.webContents.on('before-input-event', (event, input) => {
             if (input.type === 'keyDown') {
-                if ((view as PluginContext)._event && (view as PluginContext)._event['Hotkey']) {
-                    const hotkey = HotKeyUtil.getFromEvent(input)
-                    if (hotkey) {
-                        (view as PluginContext)._event['Hotkey'].forEach(({id, hotkeys}) => {
-                            if (HotKeyUtil.match(hotkeys, hotkey)) {
-                                executePluginHooks(view as BrowserView, 'Hotkey', {id, hotkey});
-                            }
-                        })
-                    }
-                }
+                checkForHotkey(view as any, input)
             }
         });
         if (isMac) {
