@@ -224,6 +224,7 @@ export const ManagerWindow = {
                 webSecurity: false,
                 nodeIntegration,
                 contextIsolation: false,
+                allowRunningInsecureContent: true,
                 sandbox: false,
                 devTools: true,
                 webviewTag: true,
@@ -445,6 +446,7 @@ export const ManagerWindow = {
             center: true,
             webPreferences: {
                 webSecurity: false,
+                allowRunningInsecureContent: true,
                 backgroundThrottling: false,
                 nodeIntegration: true,
                 contextIsolation: false,

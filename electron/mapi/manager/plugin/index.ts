@@ -548,7 +548,10 @@ export const ManagerPlugin = {
             return actions
         })
     },
-    async getViewSession(plugin: PluginRecord) {
+    async getViewSession(plugin: PluginRecord, name: string = null) {
+        if (name) {
+            return session.fromPartition('<' + plugin.name + `:${name}>`);
+        }
         return session.fromPartition('<' + plugin.name + '>');
     },
     async clearViewSession(plugin: PluginRecord) {

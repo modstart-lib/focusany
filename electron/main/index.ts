@@ -1,4 +1,4 @@
-import {app, BrowserWindow, desktopCapturer, session, shell, protocol} from 'electron'
+import {app, BrowserWindow, desktopCapturer, session, shell} from 'electron'
 import {optimizer} from '@electron-toolkit/utils'
 import fs from 'node:fs'
 
