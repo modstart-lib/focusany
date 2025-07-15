@@ -106,8 +106,8 @@
             }
         ],
         "x64ArchFiles": "Contents/Resources/extra/**/*",
-        "entitlementsInherit": "./release/entitlements.mac.plist",
-        "entitlements": "./release/entitlements.mac.plist",
+        "entitlementsInherit": "./entitlements.mac.plist",
+        "entitlements": "./entitlements.mac.plist",
         "extendInfo": {
             "NSDocumentsFolderUsageDescription": "Application requests access to the user's Documents folder.",
             "NSDownloadsFolderUsageDescription": "Application requests access to the user's Downloads folder.",
