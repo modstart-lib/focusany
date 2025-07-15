@@ -334,23 +334,27 @@ export const ManagerPlugin = {
         if (!await Files.isDirectory(fileOrPath, {
             isFullPath: true
         })) {
-            guessType = PluginType.ZIP
-            const {name, version, target} = await this.parsePackage(fileOrPath)
-            const plugin = await ManagerPlugin.get(name)
-            if (await Files.exists(target, {
-                isFullPath: true
-            })) {
-                if (!plugin) {
-                    await Files.deletes(target, {
-                        isFullPath: true
-                    })
+            if (fileOrPath.endsWith('config.json')) {
+                fileOrPath = fileOrPath.replace(/[\/\\]config.json$/, '')
+            } else {
+                guessType = PluginType.ZIP
+                const {name, version, target} = await this.parsePackage(fileOrPath)
+                const plugin = await ManagerPlugin.get(name)
+                if (await Files.exists(target, {
+                    isFullPath: true
+                })) {
+                    if (!plugin) {
+                        await Files.deletes(target, {
+                            isFullPath: true
+                        })
+                    }
                 }
-            }
-            try {
-                await MiscMain.unzip(fileOrPath, target)
-                fileOrPath = target
-            } catch (e) {
-                throw 'PluginInstallError'
+                try {
+                    await MiscMain.unzip(fileOrPath, target)
+                    fileOrPath = target
+                } catch (e) {
+                    throw 'PluginInstallError'
+                }
             }
         }
         return await this.install(fileOrPath, type || guessType)
