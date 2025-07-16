@@ -12,19 +12,19 @@ type FileMeta = {
 export const RemoteWebManager = {
     MIME_TYPES: {
         'html': 'text/html',
-        // 'htm': 'text/html',
+        'htm': 'text/html',
         'js': 'application/javascript',
         'css': 'text/css',
-        // 'json': 'application/json',
-        // 'png': 'image/png',
-        // 'jpg': 'image/jpeg',
-        // 'jpeg': 'image/jpeg',
-        // 'gif': 'image/gif',
-        // 'svg': 'image/svg+xml',
-        // 'woff': 'font/woff',
-        // 'woff2': 'font/woff2',
-        // 'ttf': 'font/ttf',
-        // 'eot': 'application/vnd.ms-fontobject'
+        'json': 'application/json',
+        'png': 'image/png',
+        'jpg': 'image/jpeg',
+        'jpeg': 'image/jpeg',
+        'gif': 'image/gif',
+        'svg': 'image/svg+xml',
+        'woff': 'font/woff',
+        'woff2': 'font/woff2',
+        'ttf': 'font/ttf',
+        'eot': 'application/vnd.ms-fontobject'
     },
     getMimeType: (p: string, defaultValue: string = null) => {
         const extension = p.split('.').pop().toLowerCase()
