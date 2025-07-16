@@ -40,6 +40,20 @@ export const useDetachWindowOperate = ({plugin}) => {
                 }
             })
         }
+        if (plugin.value.setting) {
+            if (plugin.value.setting.moreMenu && plugin.value.setting.moreMenu.length > 0) {
+                for (const item of plugin.value.setting.moreMenu) {
+                    ((item) => {
+                        menuTemplate.push({
+                            label: item.title,
+                            click: async () => {
+                                await window.$mapi.manager.firePluginMoreMenuClick(item.name)
+                            }
+                        })
+                    })(item)
+                }
+            }
+        }
         Menu.buildFromTemplate(menuTemplate).popup();
     }
 

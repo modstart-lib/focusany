@@ -334,6 +334,7 @@ declare interface Window {
 
             toggleDetachPluginAlwaysOnTop: (alwaysOnTop: boolean, option?: {}) => Promise<boolean>,
             setDetachPluginZoom: (zoom: number, option?: {}) => Promise<void>,
+            firePluginMoreMenuClick: (name: string, option?: {}) => Promise<void>,
             closeDetachPlugin: (option?: {}) => Promise<void>,
             openDetachPluginDevTools: (option?: {}) => Promise<void>,
             setPluginAutoDetach: (autoDetach: boolean, option?: {}) => Promise<void>,

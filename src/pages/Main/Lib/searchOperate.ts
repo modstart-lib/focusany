@@ -22,6 +22,20 @@ export const useSearchOperate = (emit) => {
                     manager.openMainPluginDevTools().then()
                 }
             });
+            if (manager.activePlugin.setting) {
+                if (manager.activePlugin.setting.moreMenu && manager.activePlugin.setting.moreMenu.length > 0) {
+                    for (const item of manager.activePlugin.setting.moreMenu) {
+                        ((item) => {
+                            menuTemplate.push({
+                                label: item.title,
+                                click: async () => {
+                                    await window.$mapi.manager.firePluginMoreMenuClick(item.name)
+                                }
+                            })
+                        })(item)
+                    }
+                }
+            }
         }
         if (!menuTemplate.length) {
             return

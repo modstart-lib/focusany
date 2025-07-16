@@ -15,6 +15,7 @@ import {AppsMain} from "../../app/main";
 import {ManagerPluginEvent} from "../plugin/event";
 import {PluginContext} from "../type";
 import {HotKeyUtil} from "../../../lib/util";
+import {RemoteWebManager} from "./remoteWeb";
 
 const browserViews = new Map<WebContents, BrowserView>()
 const detachWindows = new Map<WebContents, BrowserWindow>()
@@ -217,6 +218,9 @@ export const ManagerWindow = {
         const viewSession = await ManagerPlugin.getViewSession(plugin)
         if (preloadBase) {
             viewSession.setPreloads([preloadBase]);
+        }
+        if (plugin.setting.remoteWebCacheEnable) {
+            await RemoteWebManager.create(plugin)
         }
         // console.log('preload', {preloadPluginDefault, preload})
         const view = new BrowserView({
@@ -578,6 +582,9 @@ export const ManagerWindow = {
     },
     async setDetachPluginZoom(view: BrowserView, zoom: number, option?: {}) {
         view.webContents.setZoomFactor(zoom / 100)
+    },
+    async firePluginMoreMenuClick(view: BrowserView, name: string, option?: {}) {
+        await executePluginHooks(view, 'MoreMenuClick', {name});
     },
     async closeDetachPlugin(view: BrowserView, option?: {}) {
         view._window.close()

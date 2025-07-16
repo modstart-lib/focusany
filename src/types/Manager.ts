@@ -49,9 +49,14 @@ export type PluginRecord = {
         height?: string,
         singleton?: boolean,
         zoom?: number,
+        darkModeSupport?: boolean,
+        remoteWebCacheEnable?: boolean,
+        moreMenu?: {
+            name: string,
+            title: string,
+        }[],
         preloadBase?: string,
         nodeIntegration?: boolean,
-        darkModeSupport?: boolean,
     },
     permissions?: PluginPermissionType[],
     development?: {
@@ -69,6 +74,14 @@ export type PluginRecord = {
         root?: string | null,
         // 配置信息
         config?: PluginConfig,
+        // 远程Web信息
+        remoteWeb?: {
+            userAgent?: string,
+            urlMap?: Record<string, string>,
+            types?: string[],
+            domains?: string[],
+            blocks?: string[],
+        }
     },
 }
 

@@ -469,6 +469,18 @@ export const ManagerPluginEvent = {
         return true
     },
 
+    setRemoteWebRuntime: async (context: PluginContext, data: any) => {
+        const {info} = data;
+        const plugin = context._plugin
+        plugin.runtime.remoteWeb = {
+            userAgent: info.userAgent || '',
+            urlMap: info.urlMap || {},
+            types: info.types || [],
+            blocks: info.blocks || [],
+            domains: info.domains || [],
+        }
+    },
+
     getUserAccessToken: async (context: PluginContext, data: any) => {
         const res = await UserApi.post<{
             token: string,

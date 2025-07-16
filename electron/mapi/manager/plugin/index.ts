@@ -221,6 +221,11 @@ export const ManagerPlugin = {
         plugin.author = plugin.author || null
         plugin.homepage = plugin.homepage || null
 
+        plugin.setting = Object.assign({
+            remoteWebCacheEnable: false,
+            moreMenu: [],
+        }, plugin.setting || {})
+
         plugin.development = Object.assign({
             keepCodeDevTools: false,
         }, plugin.development)

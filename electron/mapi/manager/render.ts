@@ -135,6 +135,10 @@ const setDetachPluginZoom = async (zoom: number, option?: {}) => {
     return ipcRenderer.invoke('manager:setDetachPluginZoom', zoom, option)
 }
 
+const firePluginMoreMenuClick = async (name: string, option?: {}) => {
+    return ipcRenderer.invoke('manager:firePluginMoreMenuClick', name, option)
+}
+
 const closeDetachPlugin = async (option?: {}) => {
     return ipcRenderer.invoke('manager:closeDetachPlugin')
 }
@@ -237,6 +241,7 @@ export default {
 
     toggleDetachPluginAlwaysOnTop,
     setDetachPluginZoom,
+    firePluginMoreMenuClick,
     closeDetachPlugin,
     openDetachPluginDevTools,
     setPluginAutoDetach,

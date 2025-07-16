@@ -23,7 +23,7 @@ declare type PlatformType = 'win' | 'osx' | 'linux'
 
 declare type EditionType = 'open' | 'pro'
 
-declare type PluginEvent = 'ClipboardChange' | 'UserChange' | '_HotKey'
+declare type PluginEvent = 'ClipboardChange' | 'UserChange'
 
 declare type HotkeyModifierType = 'Control' | 'Option' | 'Command' | 'Ctrl' | 'Alt' | 'Win' | 'Meta' | 'Shift'
 
@@ -163,6 +163,12 @@ interface FocusAnyApi {
      * @param event
      */
     offPluginEventAll(event: PluginEvent): void;
+
+    /**
+     * plugin more menu click
+     * @param callback
+     */
+    onMoreMenuClick(callback: (data: { name: string }) => void): void;
 
     /**
      * register hot
@@ -712,6 +718,18 @@ interface FocusAnyApi {
          */
         removeItem(key: string): void;
     };
+
+    /**
+     * set remote web runtime
+     * @param info
+     */
+    setRemoteWebRuntime(info: {
+        userAgent: string,
+        urlMap: Record<string, string>,
+        types: string[],
+        domains: string[],
+        blocks: string[],
+    }): Promise<undefined>;
 
 
     /**

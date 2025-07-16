@@ -333,6 +333,11 @@ ipcMain.handle('manager:setDetachPluginZoom', async (event, zoom: number, option
     await ManagerConfig.setPluginConfigItem(view._plugin.name, 'zoom', zoom)
 })
 
+ipcMain.handle('manager:firePluginMoreMenuClick', async (event, name: string, option?: {}) => {
+    const view = ManagerWindow.getViewByWebContents(event.sender)
+    await ManagerWindow.firePluginMoreMenuClick(view, name, option)
+})
+
 ipcMain.handle('manager:closeDetachPlugin', async (event) => {
     const view = ManagerWindow.getViewByWebContents(event.sender)
     await ManagerWindow.closeDetachPlugin(view)

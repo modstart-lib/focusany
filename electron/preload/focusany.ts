@@ -79,6 +79,7 @@ export const FocusAny = {
     onPluginExit(cb: Function) {
         FocusAny.hooks.onPluginExit = cb
     },
+
     onPluginEvent(event: PluginEvent, callback: (data: any) => void) {
         if (!('onPluginEvent' in FocusAny.hooks)) {
             FocusAny.hooks.onPluginEvent = (payload: {
@@ -124,6 +125,11 @@ export const FocusAny = {
         delete FocusAny.hooks.onPluginEventCallbacks[event]
         ipcSend('unregisterPluginEvent', {event})
     },
+
+    onMoreMenuClick(callback: (data: { name: string }) => void) {
+        FocusAny.hooks.onMoreMenuClick = callback
+    },
+
     registerHotkey(
         key: string
             | string[]
@@ -435,6 +441,16 @@ export const FocusAny = {
                 data,
             });
         })
+    },
+
+    setRemoteWebRuntime(info: {
+        userAgent: string,
+        urlMap: Record<string, string>,
+        types: string[],
+        domains: string[],
+        blocks: string[],
+    }): Promise<undefined> {
+        return ipcSendAsync('setRemoteWebRuntime', {info})
     },
 
     showUserLogin() {

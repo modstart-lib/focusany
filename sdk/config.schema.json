@@ -356,6 +356,35 @@
                     "type": "number",
                     "description": "窗口缩放比例，100表示原始大小，默认为 100"
                 },
+                "darkModeSupport": {
+                    "type": "boolean",
+                    "description": "是否支持暗黑模式，默认为 false"
+                },
+                "remoteWebCacheEnable": {
+                    "type": "boolean",
+                    "description": "是否启用远程Web缓存，默认为 false"
+                },
+                "moreMenu": {
+                    "type": "array",
+                    "description": "分离模式更多菜单，默认为空",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string",
+                                "description": "菜单标识"
+                            },
+                            "title": {
+                                "type": "string",
+                                "description": "菜单标题"
+                            }
+                        },
+                        "required": [
+                            "name",
+                            "title"
+                        ]
+                    }
+                },
                 "preloadBase": {
                     "type": "string",
                     "description": "基础预加载文件，普通插件应用不需要设置"
@@ -363,10 +392,6 @@
                 "nodeIntegration": {
                     "type": "boolean",
                     "description": "是否启用 nodejs，普通应用不需要设置"
-                },
-                "darkModeSupport": {
-                    "type": "boolean",
-                    "description": "是否支持暗黑模式，默认为 false"
                 }
             }
         }
