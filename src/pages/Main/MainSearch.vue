@@ -65,7 +65,7 @@
                 :model-value="manager.searchValue">
             </a-input>
             <div class="placeholder"
-                 v-if="manager.searchValue===''&&searchValueCompositingValue===''">
+                 v-if="manager.searchValue===''&&searchValueCompositingValue===''&&!manager.searchIsCompositing">
                 {{ manager.activePlugin ? manager.searchSubPlaceholder : manager.searchPlaceholder }}
             </div>
         </div>
