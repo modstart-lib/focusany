@@ -14,6 +14,7 @@ const isOsx = ref(false)
 const isFullscreen = ref(false)
 const plugin = ref<PluginRecord | null>(null)
 const alwaysOnTop = ref(false)
+const operates = ref<{ name: string, title: string }[]>([])
 const searchInput = ref<any>(null)
 const searchPlaceholder = ref('')
 const searchValue = ref('')
@@ -30,6 +31,10 @@ onBeforeMount(async () => {
 
 const doToggleAlwaysOnTop = async () => {
     alwaysOnTop.value = await window.$mapi.manager.toggleDetachPluginAlwaysOnTop(!alwaysOnTop.value)
+}
+
+const doOperate = async (name: string) => {
+    await window.$mapi.manager.fireDetachOperateClick(name)
 }
 
 const onSubInputChange = (value: string) => {
@@ -82,13 +87,20 @@ window.__page.onSetSubInputValue((value: string) => {
 })
 window.__page.onDetachSet((param: {
     title?: string,
-    alwaysOnTop?: boolean
+    alwaysOnTop?: boolean,
+    operates?: {
+        name: string,
+        title: string,
+    }[],
 }) => {
     if ('title' in param) {
         windowTitle.value = param.title as string
     }
     if ('alwaysOnTop' in param) {
         alwaysOnTop.value = param.alwaysOnTop as boolean
+    }
+    if ('operates' in param) {
+        operates.value = param.operates as { name: string, title: string }[]
     }
 })
 window.__page.onMaximize(() => {
@@ -121,6 +133,14 @@ window.__page.onLeaveFullScreen(() => {
                 <div class="title">
                     {{ windowTitle }}
                 </div>
+            </div>
+            <div v-if="operates.length"
+                 class="operate">
+                <a-button v-for="o in operates"
+                          @click="doOperate(o.name)"
+                          class="operate-item" shape="round" size="small">
+                    {{ o.title }}
+                </a-button>
             </div>
             <div class="search" v-if="searchVisible">
                 <a-input ref="searchInput"
@@ -216,6 +236,14 @@ window.__page.onLeaveFullScreen(() => {
 
             .title {
 
+            }
+        }
+
+        .operate {
+            padding-right: 10px;
+
+            .operate-item {
+                margin-left: 10px;
             }
         }
 

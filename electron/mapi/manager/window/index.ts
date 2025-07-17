@@ -586,6 +586,9 @@ export const ManagerWindow = {
     async firePluginMoreMenuClick(view: BrowserView, name: string, option?: {}) {
         await executePluginHooks(view, 'MoreMenuClick', {name});
     },
+    async fireDetachOperateClick(view: BrowserView, name: string, option?: {}) {
+        await executePluginHooks(view, 'DetachOperateClick', {name});
+    },
     async closeDetachPlugin(view: BrowserView, option?: {}) {
         view._window.close()
     },

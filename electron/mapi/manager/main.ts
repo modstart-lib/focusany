@@ -338,6 +338,11 @@ ipcMain.handle('manager:firePluginMoreMenuClick', async (event, name: string, op
     await ManagerWindow.firePluginMoreMenuClick(view, name, option)
 })
 
+ipcMain.handle('manager:fireDetachOperateClick', async (event, name: string, option?: {}) => {
+    const view = ManagerWindow.getViewByWebContents(event.sender)
+    await ManagerWindow.fireDetachOperateClick(view, name, option)
+})
+
 ipcMain.handle('manager:closeDetachPlugin', async (event) => {
     const view = ManagerWindow.getViewByWebContents(event.sender)
     await ManagerWindow.closeDetachPlugin(view)

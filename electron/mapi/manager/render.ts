@@ -139,6 +139,10 @@ const firePluginMoreMenuClick = async (name: string, option?: {}) => {
     return ipcRenderer.invoke('manager:firePluginMoreMenuClick', name, option)
 }
 
+const fireDetachOperateClick = async (name: string, option?: {}) => {
+    return ipcRenderer.invoke('manager:fireDetachOperateClick', name, option)
+}
+
 const closeDetachPlugin = async (option?: {}) => {
     return ipcRenderer.invoke('manager:closeDetachPlugin')
 }
@@ -242,6 +246,7 @@ export default {
     toggleDetachPluginAlwaysOnTop,
     setDetachPluginZoom,
     firePluginMoreMenuClick,
+    fireDetachOperateClick,
     closeDetachPlugin,
     openDetachPluginDevTools,
     setPluginAutoDetach,

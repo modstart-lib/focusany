@@ -619,6 +619,38 @@ export const FocusAny = {
         setTitle(title: string) {
             ipcSend('detachSetTitle', {title})
         },
+        setOperates(operates: {
+            name: string,
+            title: string,
+            click: () => void
+        }[]) {
+            const cleanOperates = operates.map(o => {
+                return {
+                    name: o.name,
+                    title: o.title,
+                }
+            })
+            if (!('onDetachOperateClick' in FocusAny.hooks)) {
+                FocusAny.hooks.onDetachOperateClick = (payload: {
+                    name: string
+                }) => {
+                    const {name} = payload
+                    FocusAny.hooks.detachOperates.forEach(o => {
+                        if (o.name === name) {
+                            o.click();
+                        }
+                    });
+                }
+            }
+            FocusAny.hooks.detachOperates = operates.map(o => {
+                return {
+                    name: o.name,
+                    title: o.title,
+                    click: o.click,
+                }
+            })
+            ipcSend('detachSetOperates', {operates: cleanOperates})
+        },
         setPosition(position: 'center' | 'right-bottom' | 'left-top' | 'right-top' | 'left-bottom') {
             ipcSend('detachSetPosition', {position})
         },

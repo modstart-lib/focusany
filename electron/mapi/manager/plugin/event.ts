@@ -737,6 +737,12 @@ export const ManagerPluginEvent = {
             title
         })
     },
+    detachSetOperates: async (context: PluginContext, data: any) => {
+        const {operates} = data;
+        await executeHooks(context._window, 'DetachSet', {
+            operates
+        })
+    },
     detachSetPosition: async (context: PluginContext, data: any) => {
         const {position} = data;
         const win = context._window

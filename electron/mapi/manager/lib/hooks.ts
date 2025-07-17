@@ -7,6 +7,7 @@ type PluginHookType = never
     | 'PluginExit'
     | 'PluginEvent'
     | 'MoreMenuClick'
+    | 'DetachOperateClick'
     | 'SubInputChange'
     | 'ScreenCapture'
     | 'Hotkey'

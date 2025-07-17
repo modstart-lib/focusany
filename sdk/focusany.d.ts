@@ -807,6 +807,15 @@ interface FocusAnyApi {
          */
         setTitle(title: string): void;
         /**
+         * set the detach window actions
+         * @param operates
+         */
+        setOperates(operates: {
+            name: string,
+            title: string,
+            click: () => void
+        }[]): void;
+        /**
          * 设置分离窗口的位置
          * @param position
          */
