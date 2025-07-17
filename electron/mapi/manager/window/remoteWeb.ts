@@ -3,6 +3,7 @@ import {ManagerPlugin} from "../plugin";
 import path from "node:path";
 import {Files} from "../../file/main";
 import {Log} from "../../log/main";
+import {FileUtil} from "../../../lib/util";
 
 type FileMeta = {
     mimeType: string,
@@ -10,26 +11,6 @@ type FileMeta = {
 }
 
 export const RemoteWebManager = {
-    MIME_TYPES: {
-        'html': 'text/html',
-        'htm': 'text/html',
-        'js': 'application/javascript',
-        'css': 'text/css',
-        'json': 'application/json',
-        'png': 'image/png',
-        'jpg': 'image/jpeg',
-        'jpeg': 'image/jpeg',
-        'gif': 'image/gif',
-        'svg': 'image/svg+xml',
-        'woff': 'font/woff',
-        'woff2': 'font/woff2',
-        'ttf': 'font/ttf',
-        'eot': 'application/vnd.ms-fontobject'
-    },
-    getMimeType: (p: string, defaultValue: string = null) => {
-        const extension = p.split('.').pop().toLowerCase()
-        return RemoteWebManager.MIME_TYPES[extension] || defaultValue
-    },
     create: async (plugin: PluginRecord) => {
 
         // console.log('RemoteWebManager.Create')
@@ -166,7 +147,7 @@ export const RemoteWebManager = {
                             }));
                         }
                         const buffer = await response.arrayBuffer();
-                        const mimeType = response.headers.get('content-type') || RemoteWebManager.getMimeType(file, 'application/octet-stream')
+                        const mimeType = response.headers.get('content-type') || FileUtil.getMimeByPath(file, 'application/octet-stream')
                         const headers = {};
                         response.headers.forEach((value, key) => {
                             headers[key] = value;
