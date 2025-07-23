@@ -14,8 +14,6 @@ import statistics from "./statistics/render";
 import lang from "./lang/render";
 import user from "./user/render";
 import misc from "./misc/render";
-
-import server from "./server/render";
 import manager from "./manager/render";
 import kvdb from "./kvdb/render";
 
@@ -37,8 +35,6 @@ export const MAPI = {
                 lang,
                 user,
                 misc,
-
-                server,
                 manager,
                 kvdb,
             })
