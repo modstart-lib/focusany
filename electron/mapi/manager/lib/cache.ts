@@ -3,67 +3,70 @@ import {Log} from "../../log/main";
 
 export const ManagerFileCacheUtil = {
     async get(name: string, defaultValue: any = null) {
-        const content = await Files.read(`cache/${name}.json`)
+        const content = await Files.read(`cache/${name}.json`);
         if (content) {
-            let json = null
+            let json = null;
             try {
-                json = JSON.parse(content)
+                json = JSON.parse(content);
             } catch (e) {
-                Log.error('Plugin.App.Error', e)
+                Log.error("Plugin.App.Error", e);
             }
-            if (!json || !('expire' in json) || !('value' in json)) {
-                await Files.deletes(`cache/${name}.json`)
-                return defaultValue
+            if (!json || !("expire" in json) || !("value" in json)) {
+                await Files.deletes(`cache/${name}.json`);
+                return defaultValue;
             }
             if (json.expire > 0 && json.expire < Date.now()) {
-                await Files.deletes(`cache/${name}.json`)
-                return defaultValue
+                await Files.deletes(`cache/${name}.json`);
+                return defaultValue;
             }
-            return json.value
+            return json.value;
         }
-        return defaultValue
+        return defaultValue;
     },
-    async getIgnoreExpire(name: string, defaultValue: any = null): Promise<{
-        isCache: boolean,
-        value: any,
-        expire: number
+    async getIgnoreExpire(
+        name: string,
+        defaultValue: any = null
+    ): Promise<{
+        isCache: boolean;
+        value: any;
+        expire: number;
     }> {
-        const content = await Files.read(`cache/${name}.json`)
+        const content = await Files.read(`cache/${name}.json`);
         if (content) {
-            let json = null
+            let json = null;
             try {
-                json = JSON.parse(content)
+                json = JSON.parse(content);
             } catch (e) {
-                Log.error('Plugin.App.Error', e)
+                Log.error("Plugin.App.Error", e);
             }
-            if (!json || !('value' in json)) {
-                await Files.deletes(`cache/${name}.json`)
+            if (!json || !("value" in json)) {
+                await Files.deletes(`cache/${name}.json`);
                 return {
                     isCache: false,
                     value: defaultValue,
-                    expire: 0
-                }
+                    expire: 0,
+                };
             }
             return {
                 isCache: true,
                 value: json.value,
-                expire: json.expire
-            }
+                expire: json.expire,
+            };
         }
         return {
             isCache: false,
             value: defaultValue,
-            expire: 0
-        }
+            expire: 0,
+        };
     },
     async set(name: string, value: any, expire: number = 0) {
         const json = {
             expire: expire > 0 ? Date.now() + expire : 0,
-            value: value
-        }
-        await Files.write(`cache/${name}.json`, JSON.stringify(json))
+            value: value,
+        };
+        await Files.write(`cache/${name}.json`, JSON.stringify(json));
     },
     async forget(name: string) {
-        await Files.deletes(`cache/${name}.json`)
-    }
-}
+        await Files.deletes(`cache/${name}.json`);
+    },
+};

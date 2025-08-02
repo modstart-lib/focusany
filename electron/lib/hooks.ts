@@ -1,8 +1,6 @@
 import {BrowserWindow} from "electron";
 
-type HookType = never
-    | 'Show'
-    | 'Hide'
+type HookType = never | "Show" | "Hide";
 
 export const executeHooks = async (win: BrowserWindow, hook: HookType, data?: any) => {
     const evalJs = `
@@ -14,4 +12,4 @@ export const executeHooks = async (win: BrowserWindow, hook: HookType, data?: an
         }
     }`;
     return win.webContents?.executeJavaScript(evalJs);
-}
+};

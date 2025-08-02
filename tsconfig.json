@@ -9,19 +9,13 @@
         "resolveJsonModule": true,
         "isolatedModules": true,
         "esModuleInterop": true,
-        "lib": [
-            "ESNext",
-            "DOM"
-        ],
+        "lib": ["ESNext", "DOM"],
         "skipLibCheck": true,
         "noEmit": true,
         "noImplicitAny": false,
         "allowJs": true
     },
-    "include": [
-      "src",
-      "sdk/focusany.d.ts"
-    ],
+    "include": ["src", "sdk/focusany.d.ts"],
     "references": [
         {
             "path": "./tsconfig.node.json"

@@ -1,4 +1,4 @@
-declare module 'electron' {
+declare module "electron" {
     interface BrowserView {
         _window?: any;
         _plugin?: any;
@@ -9,4 +9,3 @@ declare module 'electron' {
         _plugin?: any;
     }
 }
-

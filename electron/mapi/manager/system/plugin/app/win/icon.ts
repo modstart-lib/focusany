@@ -1,10 +1,10 @@
 import path from "path";
 import fs from "fs";
 
-import extractFileIcon from 'extract-file-icon'
+import extractFileIcon from "extract-file-icon";
 import os from "os";
 
-const iconTempDir = path.join(os.tmpdir(), 'focusany-app-icon');
+const iconTempDir = path.join(os.tmpdir(), "focusany-app-icon");
 
 export const getIcon = async (appPath: string, appName: string) => {
     try {
@@ -13,7 +13,7 @@ export const getIcon = async (appPath: string, appName: string) => {
         const iconPathUrl = `file://${iconPath}`;
         // console.log('iconPath', iconPath, appName, appPath);
         if (fs.existsSync(iconPath)) {
-            return iconPathUrl
+            return iconPathUrl;
         }
         const iconNone = path.join(iconTempDir, `${appName}.none`);
         const iconNoneUrl = `file://${iconNone}`;
@@ -24,13 +24,12 @@ export const getIcon = async (appPath: string, appName: string) => {
             fs.mkdirSync(iconTempDir, {recursive: true});
         }
         const buffer = extractFileIcon(appPath, 32);
-        fs.writeFileSync(iconPath, buffer, 'base64');
+        fs.writeFileSync(iconPath, buffer, "base64");
         if (fs.existsSync(iconPath)) {
-            return iconPathUrl
+            return iconPathUrl;
         } else {
-            fs.writeFileSync(iconNone, '');
+            fs.writeFileSync(iconNone, "");
         }
-    } catch (e) {
-    }
-    return null
+    } catch (e) {}
+    return null;
 };

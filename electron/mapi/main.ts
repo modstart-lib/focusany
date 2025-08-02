@@ -30,23 +30,23 @@ const $mapi = {
     updater,
     manager,
     kvdb,
-}
+};
 
 export const MAPI = {
     init() {
-        $mapi.user.init()
-        $mapi.db.init()
-        $mapi.event.init()
-        $mapi.kvdb.init()
-        $mapi.manager.init()
+        $mapi.user.init();
+        $mapi.db.init();
+        $mapi.event.init();
+        $mapi.kvdb.init();
+        $mapi.manager.init();
     },
     ready() {
-        $mapi.keys.ready()
-        $mapi.manager.ready()
-        $mapi.protocol.ready()
+        $mapi.keys.ready();
+        $mapi.manager.ready();
+        $mapi.protocol.ready();
     },
     destroy() {
-        $mapi.keys.destroy()
-        $mapi.manager.destroy()
-    }
-}
+        $mapi.keys.destroy();
+        $mapi.manager.destroy();
+    },
+};

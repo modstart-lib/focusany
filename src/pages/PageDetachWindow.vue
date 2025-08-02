@@ -5,175 +5,167 @@ import {useDetachWindowOperate} from "./DetachWindow/operate";
 import debounce from "lodash/debounce";
 import {useSettingStore} from "../store/modules/setting";
 
-const setting = useSettingStore()
+const setting = useSettingStore();
 
-const settingDummy = setting
+const settingDummy = setting;
 
 // const id = ref('')
-const isOsx = ref(false)
-const isFullscreen = ref(false)
-const plugin = ref<PluginRecord | null>(null)
-const alwaysOnTop = ref(false)
-const operates = ref<{ name: string, title: string }[]>([])
-const searchInput = ref<any>(null)
-const searchPlaceholder = ref('')
-const searchValue = ref('')
-const searchVisible = ref(false)
-const windowTitle = ref('')
+const isOsx = ref(false);
+const isFullscreen = ref(false);
+const plugin = ref<PluginRecord | null>(null);
+const alwaysOnTop = ref(false);
+const operates = ref<{name: string; title: string}[]>([]);
+const searchInput = ref<any>(null);
+const searchPlaceholder = ref("");
+const searchValue = ref("");
+const searchVisible = ref(false);
+const windowTitle = ref("");
 
-const subInputChangeDebounce = debounce((keywords) => {
-    window.$mapi.manager.subInputChange(keywords)
-}, 300)
+const subInputChangeDebounce = debounce(keywords => {
+    window.$mapi.manager.subInputChange(keywords);
+}, 300);
 
 onBeforeMount(async () => {
-    isOsx.value = window.$mapi.app.isPlatform('osx')
-})
+    isOsx.value = window.$mapi.app.isPlatform("osx");
+});
 
 const doToggleAlwaysOnTop = async () => {
-    alwaysOnTop.value = await window.$mapi.manager.toggleDetachPluginAlwaysOnTop(!alwaysOnTop.value)
-}
+    alwaysOnTop.value = await window.$mapi.manager.toggleDetachPluginAlwaysOnTop(!alwaysOnTop.value);
+};
 
 const doOperate = async (name: string) => {
-    await window.$mapi.manager.fireDetachOperateClick(name)
-}
+    await window.$mapi.manager.fireDetachOperateClick(name);
+};
 
 const onSubInputChange = (value: string) => {
-    searchValue.value = value
-    subInputChangeDebounce(value)
-}
+    searchValue.value = value;
+    subInputChangeDebounce(value);
+};
 
 // const getId = () => id.value
 
-const {
-    doShowZoomMenu,
-    doShowMoreMenu,
-    doClose
-} = useDetachWindowOperate({plugin})
+const {doShowZoomMenu, doShowMoreMenu, doClose} = useDetachWindowOperate({plugin});
 
-window.__page.onPluginInit((data: {
-    plugin: PluginRecord,
-    state: PluginState,
-    param: {
-        alwaysOnTop: boolean
+window.__page.onPluginInit(
+    (data: {
+        plugin: PluginRecord;
+        state: PluginState;
+        param: {
+            alwaysOnTop: boolean;
+        };
+    }) => {
+        // console.log('onPluginInit', data)
+        plugin.value = data.plugin;
+        // id.value = data.param.id
+        alwaysOnTop.value = data.param.alwaysOnTop;
+        searchValue.value = data.state.value;
+        searchPlaceholder.value = data.state.placeholder;
+        searchVisible.value = data.state.isVisible;
+        windowTitle.value = data.plugin.title;
     }
-}) => {
-    // console.log('onPluginInit', data)
-    plugin.value = data.plugin
-    // id.value = data.param.id
-    alwaysOnTop.value = data.param.alwaysOnTop
-    searchValue.value = data.state.value
-    searchPlaceholder.value = data.state.placeholder
-    searchVisible.value = data.state.isVisible
-    windowTitle.value = data.plugin.title
-})
-window.__page.onSetSubInput((
-    param: {
-        placeholder: string,
-        isFocus: boolean,
-        isVisible: boolean,
-    }
-) => {
-    searchPlaceholder.value = param.placeholder
-    searchVisible.value = param.isVisible
+);
+window.__page.onSetSubInput((param: {placeholder: string; isFocus: boolean; isVisible: boolean}) => {
+    searchPlaceholder.value = param.placeholder;
+    searchVisible.value = param.isVisible;
     if (param.isFocus && searchInput.value) {
-        searchInput.value.focus()
+        searchInput.value.focus();
     }
-})
+});
 window.__page.onRemoveSubInput(() => {
-    searchPlaceholder.value = ''
-})
+    searchPlaceholder.value = "";
+});
 window.__page.onSetSubInputValue((value: string) => {
-    searchValue.value = value
-})
-window.__page.onDetachSet((param: {
-    title?: string,
-    alwaysOnTop?: boolean,
-    operates?: {
-        name: string,
-        title: string,
-    }[],
-}) => {
-    if ('title' in param) {
-        windowTitle.value = param.title as string
+    searchValue.value = value;
+});
+window.__page.onDetachSet(
+    (param: {
+        title?: string;
+        alwaysOnTop?: boolean;
+        operates?: {
+            name: string;
+            title: string;
+        }[];
+    }) => {
+        if ("title" in param) {
+            windowTitle.value = param.title as string;
+        }
+        if ("alwaysOnTop" in param) {
+            alwaysOnTop.value = param.alwaysOnTop as boolean;
+        }
+        if ("operates" in param) {
+            operates.value = param.operates as {name: string; title: string}[];
+        }
     }
-    if ('alwaysOnTop' in param) {
-        alwaysOnTop.value = param.alwaysOnTop as boolean
-    }
-    if ('operates' in param) {
-        operates.value = param.operates as { name: string, title: string }[]
-    }
-})
+);
 window.__page.onMaximize(() => {
-    console.log('onMaximize')
-})
+    console.log("onMaximize");
+});
 window.__page.onUnmaximize(() => {
-    console.log('onUnmaximize')
-})
+    console.log("onUnmaximize");
+});
 window.__page.onEnterFullScreen(() => {
-    isFullscreen.value = true
-    console.log('onEnterFullScreen')
-})
+    isFullscreen.value = true;
+    console.log("onEnterFullScreen");
+});
 window.__page.onLeaveFullScreen(() => {
-    isFullscreen.value = false
-    console.log('onLeaveFullScreen')
-})
+    isFullscreen.value = false;
+    console.log("onLeaveFullScreen");
+});
 </script>
 
 <template>
-    <div class="pb-page-detach-window"
-         v-if="!!plugin"
-         :class="{osx:isOsx,fullscreen:isFullscreen}">
+    <div class="pb-page-detach-window" v-if="!!plugin" :class="{osx: isOsx, fullscreen: isFullscreen}">
         <div class="head">
             <div class="left">
                 <div class="icon">
-                    <img :src="plugin.logo"
-                         :class="plugin.type===PluginType.SYSTEM?'dark:invert':'plugin-logo-filter'"
+                    <img
+                        :src="plugin.logo"
+                        :class="plugin.type === PluginType.SYSTEM ? 'dark:invert' : 'plugin-logo-filter'"
                     />
                 </div>
                 <div class="title">
                     {{ windowTitle }}
                 </div>
             </div>
-            <div v-if="operates.length"
-                 class="operate">
-                <a-button v-for="o in operates"
-                          @click="doOperate(o.name)"
-                          class="operate-item" shape="round" size="small">
+            <div v-if="operates.length" class="operate">
+                <a-button
+                    v-for="o in operates"
+                    @click="doOperate(o.name)"
+                    class="operate-item"
+                    shape="round"
+                    size="small"
+                >
                     {{ o.title }}
                 </a-button>
             </div>
             <div class="search" v-if="searchVisible">
-                <a-input ref="searchInput"
-                         size="small"
-                         @input="(e) => onSubInputChange(e)"
-                         :model-value="searchValue"
-                         :placeholder="searchPlaceholder">
+                <a-input
+                    ref="searchInput"
+                    size="small"
+                    @input="e => onSubInputChange(e)"
+                    :model-value="searchValue"
+                    :placeholder="searchPlaceholder"
+                >
                     <template #prefix>
-                        <icon-search/>
+                        <icon-search />
                     </template>
                 </a-input>
             </div>
             <div class="right">
-                <a href="javascript:;"
-                   @click="doToggleAlwaysOnTop"
-                   :class="{active:alwaysOnTop}">
-                    <icon-pushpin/>
+                <a href="javascript:;" @click="doToggleAlwaysOnTop" :class="{active: alwaysOnTop}">
+                    <icon-pushpin />
                 </a>
                 <span class="line"></span>
-                <a href="javascript:;"
-                   @click="doShowZoomMenu">
-                    <icon-zoom-in/>
+                <a href="javascript:;" @click="doShowZoomMenu">
+                    <icon-zoom-in />
                 </a>
                 <span class="line"></span>
-                <a href="javascript:;"
-                   @click="doShowMoreMenu">
-                    <icon-more/>
+                <a href="javascript:;" @click="doShowMoreMenu">
+                    <icon-more />
                 </a>
                 <span class="line" v-if="!isOsx"></span>
-                <a href="javascript:;"
-                   v-if="!isOsx"
-                   @click="doClose">
-                    <icon-close/>
+                <a href="javascript:;" v-if="!isOsx" @click="doClose">
+                    <icon-close />
                 </a>
             </div>
         </div>
@@ -185,7 +177,7 @@ window.__page.onLeaveFullScreen(() => {
     .pb-page-detach-window {
         .head {
             background: #333333;
-            color: #FFFFFF;
+            color: #ffffff;
 
             .right {
                 border-color: #666666;
@@ -210,7 +202,7 @@ window.__page.onLeaveFullScreen(() => {
     .head {
         padding: 0 10px;
         height: 40px;
-        background: #FFFFFF;
+        background: #ffffff;
         display: flex;
         align-items: center;
         -webkit-user-select: none;
@@ -235,7 +227,6 @@ window.__page.onLeaveFullScreen(() => {
             }
 
             .title {
-
             }
         }
 
@@ -273,7 +264,8 @@ window.__page.onLeaveFullScreen(() => {
                 text-align: center;
                 color: var(--color-text);
 
-                &:hover, &.active {
+                &:hover,
+                &.active {
                     color: var(--color-primary);
                 }
             }

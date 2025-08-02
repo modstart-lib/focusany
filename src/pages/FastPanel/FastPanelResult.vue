@@ -4,52 +4,49 @@ import {useResultOperate} from "./Lib/resultOperate";
 import {PluginType} from "../../types/Manager";
 import {useViewOperate} from "../Main/Lib/viewOperate";
 
-const manager = useManagerStore()
-const {doOpenAction} = useResultOperate()
+const manager = useManagerStore();
+const {doOpenAction} = useResultOperate();
 
-const {
-    webUserAgent,
-    viewActions,
-} = useViewOperate('fastPanel')
-
+const {webUserAgent, viewActions} = useViewOperate("fastPanel");
 </script>
 
 <template>
     <div class="pb-fastpanel-result">
-        <div style="height:40px;"></div>
+        <div style="height: 40px"></div>
         <div class="view" v-if="viewActions.length">
-            <div v-for="r in viewActions"
-                 class="view-item">
+            <div v-for="r in viewActions" class="view-item">
                 <div class="view-item-head">
                     <div class="icon">
-                        <img :src="r.icon"
-                             :class="r.pluginType===PluginType.SYSTEM?'dark:invert':'plugin-logo-filter'"/>
+                        <img
+                            :src="r.icon"
+                            :class="r.pluginType === PluginType.SYSTEM ? 'dark:invert' : 'plugin-logo-filter'"
+                        />
                     </div>
                     <div class="text">
                         {{ r.title }}
                     </div>
                     <div v-if="0" class="action">
+                        <a href="javascript:;"> 关闭 </a>
                         <a href="javascript:;">
-                            关闭
-                        </a>
-                        <a href="javascript:;">
-                            <icon-more-vertical/>
+                            <icon-more-vertical />
                         </a>
                     </div>
                 </div>
                 <div class="view-item-body">
-                    <webview class="web"
-                             :ref="el=>(r['_web']=el)"
-                             :style="{height: r['_height'] + 'px'}"
-                             :id="r.fullName"
-                             :preload="r.runtime?.view?.preloadBase"
-                             :src="r.runtime?.view?.mainView"
-                             :nodeintegration="r.runtime?.view?.nodeIntegration"
-                             :useragent="`${webUserAgent} PluginAction/${r.fullName}`"
-                             webpreferences="contextIsolation=false,sandbox=false"
-                             disablewebsecurity></webview>
+                    <webview
+                        class="web"
+                        :ref="el => (r['_web'] = el)"
+                        :style="{height: r['_height'] + 'px'}"
+                        :id="r.fullName"
+                        :preload="r.runtime?.view?.preloadBase"
+                        :src="r.runtime?.view?.mainView"
+                        :nodeintegration="r.runtime?.view?.nodeIntegration"
+                        :useragent="`${webUserAgent} PluginAction/${r.fullName}`"
+                        webpreferences="contextIsolation=false,sandbox=false"
+                        disablewebsecurity
+                    ></webview>
                     <div class="view-item-loading" v-if="!r['_webReady']">
-                        <icon-loading/>
+                        <icon-loading />
                     </div>
                 </div>
             </div>
@@ -58,9 +55,11 @@ const {
             <div v-for="a in manager.fastPanelMatchActions" class="action-item">
                 <div class="action-item-box" @click="doOpenAction(a)">
                     <div class="icon">
-                        <img :src="a.icon"
-                             draggable="false"
-                             :class="a.pluginType===PluginType.SYSTEM?'dark:invert':'plugin-logo-filter'"/>
+                        <img
+                            :src="a.icon"
+                            draggable="false"
+                            :class="a.pluginType === PluginType.SYSTEM ? 'dark:invert' : 'plugin-logo-filter'"
+                        />
                     </div>
                     <div class="text">
                         {{ a.title }}
@@ -161,11 +160,11 @@ const {
         cursor: pointer;
 
         &:hover {
-            background-color: #F8F8F8;
+            background-color: #f8f8f8;
         }
 
         &:active {
-            background-color: #E8E8E8;
+            background-color: #e8e8e8;
         }
 
         .icon {

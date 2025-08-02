@@ -1,32 +1,38 @@
 <template>
     <div class="pb-result">
         <div ref="groupContainer">
-            <div class="group-container"
-                 :class="{'has-actions':hasActions,'has-view-actions':hasViewActions}"
-                 v-if="!manager.activePlugin">
+            <div
+                class="group-container"
+                :class="{'has-actions': hasActions, 'has-view-actions': hasViewActions}"
+                v-if="!manager.activePlugin"
+            >
                 <div class="group-main">
                     <div v-if="showDetachWindowActions.length" class="group">
                         <div class="group-title">
                             <div class="title">
-                                <img draggable="false" class="dark:invert" :src="SystemIcons.searchWindow"/>
+                                <img draggable="false" class="dark:invert" :src="SystemIcons.searchWindow" />
                                 窗口
                             </div>
-                            <div class="more">
-                                &nbsp;
-                            </div>
+                            <div class="more">&nbsp;</div>
                         </div>
                         <div class="group-items">
-                            <div class="item" v-for="(a,aIndex) in showDetachWindowActions"
-                                 :class="{active: activeActionGroup === 'window' && actionActionIndex === aIndex}">
-                                <ResultWindowItem :action="a" @open="openActionForWindow('open',a)"/>
+                            <div
+                                class="item"
+                                v-for="(a, aIndex) in showDetachWindowActions"
+                                :class="{active: activeActionGroup === 'window' && actionActionIndex === aIndex}"
+                            >
+                                <ResultWindowItem :action="a" @open="openActionForWindow('open', a)" />
                             </div>
                         </div>
                     </div>
                     <div v-if="showSearchActions.length" class="group">
-                        <div class="group-title" @click="doSearchActionExtend"
-                             :class="!searchActionIsExtend?'has-more':''">
+                        <div
+                            class="group-title"
+                            @click="doSearchActionExtend"
+                            :class="!searchActionIsExtend ? 'has-more' : ''"
+                        >
                             <div class="title">
-                                <img draggable="false" class="dark:invert" :src="SystemIcons.searchKeyword"/>
+                                <img draggable="false" class="dark:invert" :src="SystemIcons.searchKeyword" />
                                 搜索结果
                             </div>
                             <div class="more" v-if="!searchActionIsExtend">
@@ -34,19 +40,28 @@
                             </div>
                         </div>
                         <div class="group-items">
-                            <div class="item" v-for="(a,aIndex) in showSearchActions"
-                                 :class="{active: activeActionGroup === 'search' && actionActionIndex === aIndex}">
-                                <ResultItem :action="a" @open="doOpenAction(a)"
-                                            :show-pin="!a.runtime?.isPined" @pin="doPinToggle(a)"
+                            <div
+                                class="item"
+                                v-for="(a, aIndex) in showSearchActions"
+                                :class="{active: activeActionGroup === 'search' && actionActionIndex === aIndex}"
+                            >
+                                <ResultItem
+                                    :action="a"
+                                    @open="doOpenAction(a)"
+                                    :show-pin="!a.runtime?.isPined"
+                                    @pin="doPinToggle(a)"
                                 />
                             </div>
                         </div>
                     </div>
                     <div v-if="showMatchActions.length" class="group">
-                        <div class="group-title" @click="doMatchActionExtend"
-                             :class="!matchActionIsExtend?'has-more':''">
+                        <div
+                            class="group-title"
+                            @click="doMatchActionExtend"
+                            :class="!matchActionIsExtend ? 'has-more' : ''"
+                        >
                             <div class="title">
-                                <img class="dark:invert" :src="SystemIcons.searchMatch"/>
+                                <img class="dark:invert" :src="SystemIcons.searchMatch" />
                                 匹配结果
                             </div>
                             <div class="more" v-if="!matchActionIsExtend">
@@ -54,26 +69,29 @@
                             </div>
                         </div>
                         <div class="group-items">
-                            <div class="item" v-for="(a,aIndex) in showMatchActions"
-                                 :class="{active: activeActionGroup === 'match' && actionActionIndex === aIndex}">
-                                <ResultItem :action="a" @open="doOpenAction(a)"
-                                            :show-pin="!a.runtime?.isPined" @pin="doPinToggle(a)"
+                            <div
+                                class="item"
+                                v-for="(a, aIndex) in showMatchActions"
+                                :class="{active: activeActionGroup === 'match' && actionActionIndex === aIndex}"
+                            >
+                                <ResultItem
+                                    :action="a"
+                                    @open="doOpenAction(a)"
+                                    :show-pin="!a.runtime?.isPined"
+                                    @pin="doPinToggle(a)"
                                 />
                             </div>
                         </div>
                     </div>
                     <div v-if="showHistoryActions.length" class="group">
-                        <div class="group-title"
-                             :class="!historyActionIsExtend?'has-more':''">
+                        <div class="group-title" :class="!historyActionIsExtend ? 'has-more' : ''">
                             <div class="title">
-                                <icon-history/>
+                                <icon-history />
                                 最近使用
                             </div>
                             <div class="more">
-                                <a href="javascript:;"
-                                   class="auto-hide"
-                                   @click="doHistoryClear">
-                                    <icon-delete/>
+                                <a href="javascript:;" class="auto-hide" @click="doHistoryClear">
+                                    <icon-delete />
                                 </a>
                                 <a href="javascript:;" v-if="!historyActionIsExtend" @click="doHistoryActionExtend">
                                     展开全部({{ manager.historyActions.length }})
@@ -81,19 +99,24 @@
                             </div>
                         </div>
                         <div class="group-items">
-                            <div class="item" v-for="(a,aIndex) in showHistoryActions"
-                                 :class="{active: activeActionGroup === 'history' && actionActionIndex === aIndex}">
-                                <ResultItem :action="a" @open="doOpenAction(a)"
-                                            :show-pin="!a.runtime?.isPined"
-                                            @pin="doPinToggle(a)"
-                                            show-delete
-                                            @delete="doHistoryDelete(a)"/>
+                            <div
+                                class="item"
+                                v-for="(a, aIndex) in showHistoryActions"
+                                :class="{active: activeActionGroup === 'history' && actionActionIndex === aIndex}"
+                            >
+                                <ResultItem
+                                    :action="a"
+                                    @open="doOpenAction(a)"
+                                    :show-pin="!a.runtime?.isPined"
+                                    @pin="doPinToggle(a)"
+                                    show-delete
+                                    @delete="doHistoryDelete(a)"
+                                />
                             </div>
                         </div>
                     </div>
                     <div v-if="showPinActions.length" class="group">
-                        <div class="group-title"
-                             :class="!pinActionIsExtend?'has-more':''">
+                        <div class="group-title" :class="!pinActionIsExtend ? 'has-more' : ''">
                             <div class="title">
                                 <i class="iconfont icon-pin"></i>
                                 已固定
@@ -105,63 +128,70 @@
                             </div>
                         </div>
                         <div class="group-items">
-                            <div class="item" v-for="(a,aIndex) in showPinActions"
-                                 :class="{active: activeActionGroup === 'pin' && actionActionIndex === aIndex}">
-                                <ResultItem :action="a" @open="doOpenAction(a)" show-pin @pin="doPinToggle(a)"/>
+                            <div
+                                class="item"
+                                v-for="(a, aIndex) in showPinActions"
+                                :class="{active: activeActionGroup === 'pin' && actionActionIndex === aIndex}"
+                            >
+                                <ResultItem :action="a" @open="doOpenAction(a)" show-pin @pin="doPinToggle(a)" />
                             </div>
                         </div>
                     </div>
                     <div
                         v-if="!manager.activePlugin && !manager.searchLoading && !hasActions && manager.searchValue"
-                        class="group">
+                        class="group"
+                    >
                         <div class="group-title">
                             <div class="title">
-                                <icon-search/>
+                                <icon-search />
                                 搜索结果
                             </div>
                         </div>
-                        <div class="text-center" style="height:250px;">
+                        <div class="text-center" style="height: 250px">
                             <div class="py-4">
-                                <m-empty/>
+                                <m-empty />
                             </div>
                         </div>
                     </div>
-                    <div v-if="!manager.activePlugin && hasActions" style="height:10px;"></div>
+                    <div v-if="!manager.activePlugin && hasActions" style="height: 10px"></div>
                 </div>
-                <div class="group-right" v-if="viewActions.length>0">
+                <div class="group-right" v-if="viewActions.length > 0">
                     <div class="view" v-if="viewActions.length">
-                        <div v-for="r in viewActions"
-                             class="view-item">
+                        <div v-for="r in viewActions" class="view-item">
                             <div class="view-item-head">
                                 <div class="icon">
-                                    <img :src="r.icon"
-                                         :class="r.pluginType===PluginType.SYSTEM?'dark:invert':'plugin-logo-filter'"/>
+                                    <img
+                                        :src="r.icon"
+                                        :class="
+                                            r.pluginType === PluginType.SYSTEM ? 'dark:invert' : 'plugin-logo-filter'
+                                        "
+                                    />
                                 </div>
                                 <div class="text">
                                     {{ r.title }}
                                 </div>
                                 <div v-if="0" class="action">
+                                    <a href="javascript:;"> 关闭 </a>
                                     <a href="javascript:;">
-                                        关闭
-                                    </a>
-                                    <a href="javascript:;">
-                                        <icon-more-vertical/>
+                                        <icon-more-vertical />
                                     </a>
                                 </div>
                             </div>
                             <div class="view-item-body">
-                                <webview class="web"
-                                         :ref="el=>(r['_web']=el)"
-                                         :style="{height: r['_height'] + 'px'}"
-                                         :id="r.fullName"
-                                         :preload="r.runtime?.view?.preloadBase"
-                                         :src="r.runtime?.view?.mainView"
-                                         :nodeintegration="r.runtime?.view?.nodeIntegration"
-                                         :useragent="`${webUserAgent} PluginAction/${r.fullName}`"
-                                         webpreferences="contextIsolation=false,sandbox=false"
-                                         disablewebsecurity></webview>
+                                <webview
+                                    class="web"
+                                    :ref="el => (r['_web'] = el)"
+                                    :style="{height: r['_height'] + 'px'}"
+                                    :id="r.fullName"
+                                    :preload="r.runtime?.view?.preloadBase"
+                                    :src="r.runtime?.view?.mainView"
+                                    :nodeintegration="r.runtime?.view?.nodeIntegration"
+                                    :useragent="`${webUserAgent} PluginAction/${r.fullName}`"
+                                    webpreferences="contextIsolation=false,sandbox=false"
+                                    disablewebsecurity
+                                ></webview>
                                 <div class="view-item-loading" v-if="!r['_webReady']">
-                                    <icon-loading/>
+                                    <icon-loading />
                                 </div>
                             </div>
                         </div>
@@ -183,7 +213,7 @@ import {useViewOperate} from "./Lib/viewOperate";
 import {PluginType} from "../../types/Manager";
 import ResultWindowItem from "./Components/ResultWindowItem.vue";
 
-const manager = useManagerStore()
+const manager = useManagerStore();
 
 const {
     hasActions,
@@ -212,33 +242,29 @@ const {
     doHistoryClear,
     doHistoryDelete,
     doPinToggle,
-} = useResultOperate()
+} = useResultOperate();
 
-const {
-    webUserAgent,
-    viewActions,
-} = useViewOperate('main')
+const {webUserAgent, viewActions} = useViewOperate("main");
 
-const emit = defineEmits([])
+const emit = defineEmits([]);
 
 const groupContainer = ref<HTMLElement | null>(null);
-useResultResize(groupContainer)
+useResultResize(groupContainer);
 
 const onPluginExit = () => {
-    fireResultResize(groupContainer)
-}
+    fireResultResize(groupContainer);
+};
 
 const onPluginDetached = () => {
-    fireResultResize(groupContainer)
-}
+    fireResultResize(groupContainer);
+};
 
 defineExpose({
     onInputKey,
     onClose,
     onPluginExit,
     onPluginDetached,
-})
-
+});
 </script>
 
 <style lang="less" scoped>
@@ -254,17 +280,17 @@ defineExpose({
     }
 
     &::-webkit-scrollbar-track {
-        background: #F1F1F1;
+        background: #f1f1f1;
         border-radius: 3px;
     }
 
     &::-webkit-scrollbar-thumb {
-        background: #AAAAAA;
+        background: #aaaaaa;
         border-radius: 3px;
     }
 
     &::-webkit-scrollbar-thumb:hover {
-        background: #BBBBBB;
+        background: #bbbbbb;
     }
 
     .group-container {
@@ -378,7 +404,9 @@ defineExpose({
                 display: flex;
                 align-items: center;
 
-                img, .iconfont, svg {
+                img,
+                .iconfont,
+                svg {
                     width: 20px;
                     height: 20px;
                     object-fit: contain;
@@ -423,7 +451,7 @@ defineExpose({
 
                 &.active {
                     :deep(.item-box) {
-                        background-color: #EEEEEE;
+                        background-color: #eeeeee;
                     }
 
                     :deep(.item-window-box) {
@@ -431,7 +459,6 @@ defineExpose({
                         background-color: #f8dfab;
                     }
                 }
-
             }
         }
     }
@@ -439,7 +466,6 @@ defineExpose({
 
 [data-theme="dark"] {
     .pb-result {
-
         &::-webkit-scrollbar-track {
             background: #333;
         }

@@ -1,5 +1,3 @@
 export const ManagerStorage = {
-    listPlugins() {
-
-    }
-}
+    listPlugins() {},
+};

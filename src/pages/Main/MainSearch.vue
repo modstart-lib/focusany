@@ -1,25 +1,25 @@
 <template>
     <div class="pb-search" @mousedown="onDragWindowMouseDown">
         <div class="content-left">
-            <div v-if="!manager.activePlugin"
-                 @click="doLogoClick"
-                 class="logo">
-                <img src="./../../assets/image/search-icon.svg"/>
+            <div v-if="!manager.activePlugin" @click="doLogoClick" class="logo">
+                <img src="./../../assets/image/search-icon.svg" />
             </div>
             <div
-                v-if="!manager.activePlugin && (manager.currentFiles.length||manager.currentImage||manager.currentText)"
-                class="attachment">
-                <div v-if="manager.currentFiles.length>0" class="file">
+                v-if="
+                    !manager.activePlugin &&
+                    (manager.currentFiles.length || manager.currentImage || manager.currentText)
+                "
+                class="attachment"
+            >
+                <div v-if="manager.currentFiles.length > 0" class="file">
                     <div class="type">
-                        <FileExt :name="clipboardFilesInfo.extName"/>
+                        <FileExt :name="clipboardFilesInfo.extName" />
                     </div>
                     <div class="title">{{ clipboardFilesInfo.name }}</div>
-                    <div class="count" v-if="manager.currentFiles.length>1">
-                        x{{ manager.currentFiles.length }}
-                    </div>
+                    <div class="count" v-if="manager.currentFiles.length > 1">x{{ manager.currentFiles.length }}</div>
                 </div>
                 <div v-else-if="manager.currentImage" class="image">
-                    <img :src="manager.currentImage"/>
+                    <img :src="manager.currentImage" />
                 </div>
                 <div v-else-if="manager.currentText" class="text">
                     <i class="iconfont icon-text"></i>
@@ -27,64 +27,70 @@
                         {{ manager.currentText }}
                     </div>
                 </div>
-                <div class="close text-gray-500 bg-gray-200 hover:bg-gray-500 hover:text-white"
-                     @click="emit('onClose')">
-                    <icon-close/>
+                <div
+                    class="close text-gray-500 bg-gray-200 hover:bg-gray-500 hover:text-white"
+                    @click="emit('onClose')"
+                >
+                    <icon-close />
                 </div>
             </div>
-            <div v-if="manager.activePlugin"
-                 class="plugin bg-gray-200 dark:bg-gray-600">
+            <div v-if="manager.activePlugin" class="plugin bg-gray-200 dark:bg-gray-600">
                 <div class="icon">
-                    <img :src="manager.activePlugin.logo"
-                         :class="manager.activePlugin.type===PluginType.SYSTEM?'dark:invert':'plugin-logo-filter'"/>
+                    <img
+                        :src="manager.activePlugin.logo"
+                        :class="manager.activePlugin.type === PluginType.SYSTEM ? 'dark:invert' : 'plugin-logo-filter'"
+                    />
                 </div>
                 <div class="title">
                     {{ manager.activePlugin.title }}
                 </div>
-                <div class="close text-gray-500 hover:bg-gray-500 hover:text-white"
-                     @click="emit('onClose')">
-                    <icon-close/>
+                <div class="close text-gray-500 hover:bg-gray-500 hover:text-white" @click="emit('onClose')">
+                    <icon-close />
                 </div>
             </div>
         </div>
-        <div v-if="!manager.activePlugin||manager.searchSubIsVisible"
-             class="main-search">
+        <div v-if="!manager.activePlugin || manager.searchSubIsVisible" class="main-search">
             <a-input
                 id="search"
                 ref="mainInput"
                 size="large"
-                @input="(e) => onSearchValueChange(e)"
+                @input="e => onSearchValueChange(e)"
                 @blur="onBlur"
                 @dblclick="onSearchDoubleClick"
-                @compositionstart="(e) => {
-                    manager.searchIsCompositing = true
-                }"
-                @compositionend="(e) => {
-                    manager.searchIsCompositing = false
-                }"
-                :model-value="manager.searchValue">
+                @compositionstart="
+                    e => {
+                        manager.searchIsCompositing = true;
+                    }
+                "
+                @compositionend="
+                    e => {
+                        manager.searchIsCompositing = false;
+                    }
+                "
+                :model-value="manager.searchValue"
+            >
             </a-input>
-            <div class="placeholder"
-                 v-if="manager.searchValue===''&&searchValueCompositingValue===''&&!manager.searchIsCompositing">
+            <div
+                class="placeholder"
+                v-if="manager.searchValue === '' && searchValueCompositingValue === '' && !manager.searchIsCompositing"
+            >
                 {{ manager.activePlugin ? manager.searchSubPlaceholder : manager.searchPlaceholder }}
             </div>
         </div>
-        <div v-else
-             @dblclick="onSearchDoubleClick"
-             class="main-search"></div>
-        <div class="content-right"
-             @click="doShowMenu">
+        <div v-else @dblclick="onSearchDoubleClick" class="main-search"></div>
+        <div class="content-right" @click="doShowMenu">
             <div class="more" v-if="manager.activePlugin">
-                <icon-more-vertical style="font-size:20px;"/>
+                <icon-more-vertical style="font-size: 20px" />
             </div>
         </div>
         <div
             v-if="!!manager.notice && manager.notice.text"
-            class="flex items-center bg-yellow-100 shadow leading-8 px-2 rounded-lg">
+            class="flex items-center bg-yellow-100 shadow leading-8 px-2 rounded-lg"
+        >
             <div class="mr-1">
-                <icon-info-circle v-if="manager.notice.type==='info'"/>
-                <icon-check-circle v-else-if="manager.notice.type==='success'"/>
-                <icon-close-circle v-else-if="manager.notice.type==='error'"/>
+                <icon-info-circle v-if="manager.notice.type === 'info'" />
+                <icon-check-circle v-else-if="manager.notice.type === 'success'" />
+                <icon-close-circle v-else-if="manager.notice.type === 'error'" />
             </div>
             <div>
                 {{ manager.notice.text }}
@@ -94,7 +100,7 @@
 </template>
 
 <script setup lang="ts">
-import {onMounted, ref, watch} from 'vue';
+import {onMounted, ref, watch} from "vue";
 import FileExt from "../../components/common/FileExt.vue";
 import {useManagerStore} from "../../store/modules/manager";
 import {useSearchOperate} from "./Lib/searchOperate";
@@ -104,56 +110,53 @@ import {PluginType} from "../../types/Manager";
 
 const mainInput = ref<any>(null);
 
-const emit = defineEmits([
-    'onClose',
-])
+const emit = defineEmits(["onClose"]);
 
-const manager = useManagerStore()
+const manager = useManagerStore();
 
 const {onDragWindowMouseDown} = useDragWindow({
-    name: 'main',
-    ignore: (e) => {
-        return !!(e.target && ((e.target as any).tagName === 'INPUT'))
+    name: "main",
+    ignore: e => {
+        return !!(e.target && (e.target as any).tagName === "INPUT");
     },
 });
 
-const {
-    onSearchDoubleClick,
-    doShowMenu,
-    clipboardFilesInfo,
-} = useSearchOperate(emit)
+const {onSearchDoubleClick, doShowMenu, clipboardFilesInfo} = useSearchOperate(emit);
 
 let input = {
     ele: null as any,
     context: null as any,
-}
-let searchValueCompositingValue = ref('')
+};
+let searchValueCompositingValue = ref("");
 
 const updateWidth = () => {
     if (!input.ele) {
-        input.ele = document.querySelector('.pb-search input[type="text"]')
+        input.ele = document.querySelector('.pb-search input[type="text"]');
         const canvas = document.createElement("canvas");
-        input.context = canvas.getContext("2d") as any
+        input.context = canvas.getContext("2d") as any;
         input.context.font = window.getComputedStyle(input.ele).font;
         if (input.ele) {
-            input.ele.addEventListener('input', (event) => {
-                updateWidth()
-            })
+            input.ele.addEventListener("input", event => {
+                updateWidth();
+            });
         }
     }
-    searchValueCompositingValue.value = input.ele.value || manager.searchValue
+    searchValueCompositingValue.value = input.ele.value || manager.searchValue;
     const width = input.context.measureText(searchValueCompositingValue.value).width;
     // console.log('width', {value: searchValueCompositingValue.value, value2: manager.searchValue, width})
-    input.ele.style.width = (width + 10) + 'px';
-}
+    input.ele.style.width = width + 10 + "px";
+};
 
-watch(() => manager.searchValue, (value) => {
-    updateWidth()
-})
+watch(
+    () => manager.searchValue,
+    value => {
+        updateWidth();
+    }
+);
 
 onMounted(() => {
-    updateWidth()
-})
+    updateWidth();
+});
 
 const onSearchValueChange = (value: string) => {
     manager.search(value);
@@ -170,20 +173,19 @@ const focus = () => {
 };
 
 const doLogoClick = () => {
-    window.focusany.redirect(['system', 'page-setting'])
-}
+    window.focusany.redirect(["system", "page-setting"]);
+};
 
 const onBlur = () => {
     setTimeout(() => {
         mainInput.value?.focus();
-    }, 0)
-}
+    }, 0);
+};
 
 defineExpose({
     onShow,
     focus,
 });
-
 </script>
 
 <style scoped lang="less">
@@ -261,7 +263,7 @@ defineExpose({
 
                 .count {
                     line-height: 20px;
-                    color: #FFF;
+                    color: #fff;
                     background: #cf0707;
                     border-radius: 10px;
                     padding: 0 5px;
@@ -413,8 +415,6 @@ defineExpose({
     }
 
     .content-right {
-
     }
-
 }
 </style>

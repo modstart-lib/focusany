@@ -7,21 +7,25 @@ export const getAppTitle = async (locale: string, pathname: string, name: string
     // (Get-ItemProperty -Path 'C:\\Windows\\SysWOW64\\msiexec.exe').VersionInfo.FileDescription
     const command = `powershell -Command "[Console]::OutputEncoding=[System.Text.Encoding]::UTF8; (Get-ItemProperty -Path '${pathname}').VersionInfo.FileDescription"`;
     return new Promise<string>((resolve, reject) => {
-        exec(command, {
-            encoding: 'utf-8'
-        }, (error, stdout, stderr) => {
-            if (error) {
-                resolve(name)
-            } else {
-                // console.log('win.getAppTitle', {
-                //     locale,
-                //     pathname,
-                //     name,
-                //     stdout: stdout,
-                //     title: stdout.toString()?.trim(),
-                // })
-                resolve(stdout.toString()?.trim());
+        exec(
+            command,
+            {
+                encoding: "utf-8",
+            },
+            (error, stdout, stderr) => {
+                if (error) {
+                    resolve(name);
+                } else {
+                    // console.log('win.getAppTitle', {
+                    //     locale,
+                    //     pathname,
+                    //     name,
+                    //     stdout: stdout,
+                    //     title: stdout.toString()?.trim(),
+                    // })
+                    resolve(stdout.toString()?.trim());
+                }
             }
-        });
+        );
     });
-}
+};

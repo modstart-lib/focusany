@@ -1,8 +1,8 @@
 <template>
     <a-config-provider :locale="locale" :global="true">
         <div ref="main" id="main">
-            <FastPanelSearch ref="mainSearch"/>
-            <FastPanelResult ref="mainResult"/>
+            <FastPanelSearch ref="mainSearch" />
+            <FastPanelResult ref="mainResult" />
         </div>
     </a-config-provider>
 </template>
@@ -16,10 +16,10 @@ import MainSearch from "./Main/MainSearch.vue";
 import MainResult from "./Main/MainResult.vue";
 import {useSettingStore} from "../store/modules/setting";
 
-const setting = useSettingStore()
-const settingDummy = setting
+const setting = useSettingStore();
+const settingDummy = setting;
 
-const {locale} = useLocale()
+const {locale} = useLocale();
 
 const main = ref<HTMLElement | null>(null);
 const mainSearch = ref<InstanceType<typeof MainSearch> | null>(null);
@@ -27,8 +27,7 @@ const mainResult = ref<InstanceType<typeof MainResult> | null>(null);
 
 window.__page.onShow(() => {
     mainSearch.value?.onShow();
-})
-
+});
 </script>
 
 <style lang="less" scoped>

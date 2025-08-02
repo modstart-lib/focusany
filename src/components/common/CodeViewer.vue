@@ -11,20 +11,20 @@ import debounce from "lodash/debounce";
 
 const props = defineProps({
     lang: {
-        type: String as PropType<'text' | 'python' | 'json'>,
-        default: 'python',
+        type: String as PropType<"text" | "python" | "json">,
+        default: "python",
     },
     code: {
         type: String,
-        default: '',
+        default: "",
     },
     dark: {
         type: Boolean,
         default: false,
-    }
-})
-const codeEditorDom = ref<HTMLElement>()
-let editor = null as EditorView | null
+    },
+});
+const codeEditorDom = ref<HTMLElement>();
+let editor = null as EditorView | null;
 
 const showDebounce = debounce(async () => {
     const extentions = [
@@ -32,21 +32,21 @@ const showDebounce = debounce(async () => {
         keymap.of(defaultKeymap),
         lineNumbers(),
         EditorState.readOnly.of(true),
-    ]
+    ];
     switch (props.lang) {
-        case 'text':
-            break
-        case 'python':
-            extentions.push(python())
-            break
-        case 'json':
-            extentions.push(json())
-            break
+        case "text":
+            break;
+        case "python":
+            extentions.push(python());
+            break;
+        case "json":
+            extentions.push(json());
+            break;
     }
     if (editor) {
         editor.dispatch({
-            changes: {from: 0, to: editor.state.doc.length, insert: props.code}
-        })
+            changes: {from: 0, to: editor.state.doc.length, insert: props.code},
+        });
     } else {
         editor = new EditorView({
             state: EditorState.create({
@@ -54,20 +54,17 @@ const showDebounce = debounce(async () => {
                 extensions: extentions,
             }),
             parent: codeEditorDom.value,
-        })
+        });
     }
-}, 100)
+}, 100);
 
-watch(() => props.code, showDebounce)
-watch(() => props.lang, showDebounce)
-
-
+watch(() => props.code, showDebounce);
+watch(() => props.lang, showDebounce);
 </script>
 
 <template>
     <div class="w-full h-96">
-        <div ref="codeEditorDom"
-             class=""></div>
+        <div ref="codeEditorDom" class=""></div>
     </div>
 </template>
 
@@ -77,4 +74,3 @@ watch(() => props.lang, showDebounce)
     font-size: 0.8rem;
 }
 </style>
-

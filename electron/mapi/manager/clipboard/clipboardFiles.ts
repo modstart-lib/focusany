@@ -1,28 +1,27 @@
-import {clipboard} from 'electron';
-import plist from 'plist';
-import fs from 'fs';
-import path from 'path';
-import ofs from 'original-fs';
+import {clipboard} from "electron";
+import plist from "plist";
+import fs from "fs";
+import path from "path";
+import ofs from "original-fs";
 import {isLinux, isMac, isWin} from "../../../lib/env";
 
-let electronClipboardEx = null
+let electronClipboardEx = null;
 if (isMac || isWin) {
     (async () => {
         try {
-            electronClipboardEx = await import('electron-clipboard-ex');
+            electronClipboardEx = await import("electron-clipboard-ex");
             electronClipboardEx = electronClipboardEx.default;
-        } catch (e) {
-        }
-    })()
+        } catch (e) {}
+    })();
 }
 
 export const getClipboardFiles = (): FileItem[] => {
     let fileInfo: any;
     if (isMac) {
-        if (!clipboard.has('NSFilenamesPboardType')) {
+        if (!clipboard.has("NSFilenamesPboardType")) {
             return [];
         }
-        const result = clipboard.read('NSFilenamesPboardType');
+        const result = clipboard.read("NSFilenamesPboardType");
         if (!result) {
             return [];
         }
@@ -39,22 +38,20 @@ export const getClipboardFiles = (): FileItem[] => {
             // todo
         }
     } else if (isLinux) {
-        if (!clipboard.has('text/uri-list')) {
+        if (!clipboard.has("text/uri-list")) {
             return [];
         }
-        const result = clipboard.read('text/uri-list').match(/^file:\/\/\/.*/gm);
+        const result = clipboard.read("text/uri-list").match(/^file:\/\/\/.*/gm);
         if (!result || !result.length) {
             return [];
         }
-        fileInfo = result.map((e) =>
-            decodeURIComponent(e).replace(/^file:\/\//, '')
-        );
+        fileInfo = result.map(e => decodeURIComponent(e).replace(/^file:\/\//, ""));
     }
     if (!Array.isArray(fileInfo)) {
         return [];
     }
     const target: any = fileInfo
-        .map((p) => {
+        .map(p => {
             if (!fs.existsSync(p)) return false;
             let info;
             try {
@@ -62,9 +59,9 @@ export const getClipboardFiles = (): FileItem[] => {
             } catch (e) {
                 return false;
             }
-            let fileExt = null
+            let fileExt = null;
             if (info.isFile()) {
-                fileExt = path.extname(p).toLowerCase().replace(/^./, '');
+                fileExt = path.extname(p).toLowerCase().replace(/^./, "");
             }
             return {
                 isFile: info.isFile(),
@@ -76,21 +73,18 @@ export const getClipboardFiles = (): FileItem[] => {
         })
         .filter(Boolean);
     return target.length ? target : [];
-}
+};
 
 export const setClipboardFiles = (files: string[]) => {
     if (!files || !files.length) {
         return;
     }
     if (isMac) {
-        clipboard.writeBuffer(
-            'NSFilenamesPboardType',
-            Buffer.from(plist.build(files))
-        );
+        clipboard.writeBuffer("NSFilenamesPboardType", Buffer.from(plist.build(files)));
     } else if (isWin) {
         electronClipboardEx.writeFilePaths(files);
     } else if (isLinux) {
         // @ts-ignore
-        clipboard.write('text/uri-list', files.map((e) => `file://${e}`).join('\n'));
+        clipboard.write("text/uri-list", files.map(e => `file://${e}`).join("\n"));
     }
-}
+};

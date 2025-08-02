@@ -5,44 +5,38 @@ import FileExt from "../../components/common/FileExt.vue";
 import {EntryListener} from "../Main/Lib/entryListener";
 import {useDragWindow} from "../../app/dragWindow";
 
-const emit = defineEmits([])
-const manager = useManagerStore()
+const emit = defineEmits([]);
+const manager = useManagerStore();
 
-const {
-    clipboardFilesInfo,
-} = useSearchOperate(emit)
+const {clipboardFilesInfo} = useSearchOperate(emit);
 
 const {onDragWindowMouseDown} = useDragWindow({
-    name: 'fastPanel',
+    name: "fastPanel",
 });
 
 const onShow = () => {
     EntryListener.prepareSearch({
         isFastPanel: true,
-    }).then()
+    }).then();
 };
 
 defineExpose({
     onShow,
 });
-
 </script>
 
 <template>
-    <div class="pb-search" @click="onShow"
-         @mousedown="onDragWindowMouseDown">
+    <div class="pb-search" @click="onShow" @mousedown="onDragWindowMouseDown">
         <div class="left">
-            <div v-if="manager.currentFiles.length>0" class="file">
+            <div v-if="manager.currentFiles.length > 0" class="file">
                 <div class="type">
-                    <FileExt :name="clipboardFilesInfo.extName"/>
+                    <FileExt :name="clipboardFilesInfo.extName" />
                 </div>
                 <div class="title">{{ clipboardFilesInfo.name }}</div>
-                <div class="count" v-if="manager.currentFiles.length>1">
-                    x{{ manager.currentFiles.length }}
-                </div>
+                <div class="count" v-if="manager.currentFiles.length > 1">x{{ manager.currentFiles.length }}</div>
             </div>
             <div v-else-if="manager.currentImage" class="image">
-                <img :src="manager.currentImage"/>
+                <img :src="manager.currentImage" />
             </div>
             <div v-else-if="manager.currentText" class="text">
                 <i class="iconfont icon-text"></i>
@@ -50,13 +44,11 @@ defineExpose({
                     {{ manager.currentText }}
                 </div>
             </div>
-            <div v-else>
-                快捷动作
-            </div>
+            <div v-else>快捷动作</div>
         </div>
         <div class="right">
             <div class="icon" @click="manager.showMainWindow()">
-                <img src="./../../assets/image/logo.svg"/>
+                <img src="./../../assets/image/logo.svg" />
             </div>
         </div>
     </div>
@@ -154,7 +146,7 @@ defineExpose({
 
             .count {
                 line-height: 20px;
-                color: #FFF;
+                color: #fff;
                 background: #cf0707;
                 border-radius: 10px;
                 padding: 0 5px;

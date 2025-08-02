@@ -1,11 +1,10 @@
 type RevisionId = string;
 
-
 export type Doc<T extends {} = Record<string, any>> = {
-    _id: string,
-    _rev?: string,
+    _id: string;
+    _rev?: string;
     _attachments?: any;
-} & T
+} & T;
 
 export interface DocRes {
     id: string;

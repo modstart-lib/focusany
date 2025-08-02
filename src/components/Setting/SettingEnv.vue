@@ -4,10 +4,8 @@ import SettingEnvHubRoot from "./components/SettingEnvHubRoot.vue";
 
 <template>
     <a-form :model="null as any" layout="vertical">
-        <SettingEnvHubRoot/>
+        <SettingEnvHubRoot />
     </a-form>
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>

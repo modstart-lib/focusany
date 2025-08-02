@@ -14,12 +14,12 @@ import ConfigMain from "../mapi/config/main";
 
 export const FastPanelMain = {
     init() {
-        const fastPanelHtml = path.join(RENDERER_DIST, 'page/fastPanel.html')
-        let icon = logoPath
-        if (process.platform === 'win32') {
-            icon = icoLogoPath
-        } else if (process.platform === 'darwin') {
-            icon = icnsLogoPath
+        const fastPanelHtml = path.join(RENDERER_DIST, "page/fastPanel.html");
+        let icon = logoPath;
+        if (process.platform === "win32") {
+            icon = icoLogoPath;
+        } else if (process.platform === "darwin") {
+            icon = icnsLogoPath;
         }
         AppRuntime.fastPanelWindow = new BrowserWindow({
             show: false,
@@ -37,7 +37,7 @@ export const FastPanelMain = {
             skipTaskbar: true,
             resizable: false,
             maximizable: false,
-            backgroundColor: '#f1f5f9',
+            backgroundColor: "#f1f5f9",
             alwaysOnTop: true,
             webPreferences: {
                 preload: preloadDefault,
@@ -48,36 +48,36 @@ export const FastPanelMain = {
                 webSecurity: false,
                 webviewTag: true,
             },
-        })
+        });
 
-        AppRuntime.fastPanelWindow.on('closed', () => {
-            AppRuntime.fastPanelWindow = null
-        })
-        AppRuntime.fastPanelWindow.on('show', async () => {
-            await executeHooks(AppRuntime.fastPanelWindow, 'Show')
+        AppRuntime.fastPanelWindow.on("closed", () => {
+            AppRuntime.fastPanelWindow = null;
         });
-        AppRuntime.fastPanelWindow.on('hide', async () => {
-            await executeHooks(AppRuntime.fastPanelWindow, 'Hide')
+        AppRuntime.fastPanelWindow.on("show", async () => {
+            await executeHooks(AppRuntime.fastPanelWindow, "Show");
         });
-        AppRuntime.fastPanelWindow.on('blur', async () => {
-            const fastPanelAutoHide = await ConfigMain.getEnv('fastPanelAutoHide', true)
+        AppRuntime.fastPanelWindow.on("hide", async () => {
+            await executeHooks(AppRuntime.fastPanelWindow, "Hide");
+        });
+        AppRuntime.fastPanelWindow.on("blur", async () => {
+            const fastPanelAutoHide = await ConfigMain.getEnv("fastPanelAutoHide", true);
             if (fastPanelAutoHide) {
-                AppRuntime.fastPanelWindow.hide()
+                AppRuntime.fastPanelWindow.hide();
             }
-        })
+        });
 
-        rendererLoadPath(AppRuntime.fastPanelWindow, 'page/fastPanel.html')
+        rendererLoadPath(AppRuntime.fastPanelWindow, "page/fastPanel.html");
 
-        remoteMain.enable(AppRuntime.fastPanelWindow.webContents)
+        remoteMain.enable(AppRuntime.fastPanelWindow.webContents);
 
-        AppRuntime.fastPanelWindow.webContents.on('did-finish-load', () => {
-            Page.ready('fastPanel')
-            DevToolsManager.autoShow(AppRuntime.fastPanelWindow)
-        })
-        DevToolsManager.register('FastPanel', AppRuntime.fastPanelWindow)
+        AppRuntime.fastPanelWindow.webContents.on("did-finish-load", () => {
+            Page.ready("fastPanel");
+            DevToolsManager.autoShow(AppRuntime.fastPanelWindow);
+        });
+        DevToolsManager.register("FastPanel", AppRuntime.fastPanelWindow);
         // AppRuntime.fastPanelWindow.webContents.setWindowOpenHandler(({url}) => {
         //     if (url.startsWith('https:')) shell.openExternal(url)
         //     return {action: 'deny'}
         // })
     },
-}
+};

@@ -11,66 +11,55 @@ import {getFilePlugin} from "./plugin/file";
 const pluginActionCode = {
     system: SystemActionCode,
     store: StoreActionCode,
-}
+};
 
-const systemPlugin = new Set([
-    'system',
-    'store',
-    'workflow',
-    'app',
-    'file',
-])
+const systemPlugin = new Set(["system", "store", "workflow", "app", "file"]);
 
-const pluginActionBackend = {}
+const pluginActionBackend = {};
 
 export const ManagerSystem = {
     async clearCache() {
         for (const p of await this.list()) {
-            delete p.runtime
+            delete p.runtime;
         }
-        MemoryCacheUtil.forget('SystemActions')
+        MemoryCacheUtil.forget("SystemActions");
     },
     match(name: string) {
-        return systemPlugin.has(name)
+        return systemPlugin.has(name);
     },
     async list() {
-        const plugins: (PluginRecord | any)[] = [
-            SystemPlugin,
-            StorePlugin,
-            getAppPlugin,
-            getFilePlugin,
-        ]
+        const plugins: (PluginRecord | any)[] = [SystemPlugin, StorePlugin, getAppPlugin, getFilePlugin];
         for (let i = 0; i < plugins.length; i++) {
-            if (typeof plugins[i] === 'function') {
-                plugins[i] = await plugins[i]()
+            if (typeof plugins[i] === "function") {
+                plugins[i] = await plugins[i]();
             }
             plugins[i] = await ManagerPlugin.initIfNeed(plugins[i], {
                 type: PluginType.SYSTEM,
-                root: null
-            })
+                root: null,
+            });
         }
-        return (plugins as PluginRecord[])
+        return plugins as PluginRecord[];
     },
     getActionCodeFunc(pluginName: string, name: string) {
         if (!pluginActionCode[pluginName]) {
-            return null
+            return null;
         }
-        return pluginActionCode[pluginName][name] || null
+        return pluginActionCode[pluginName][name] || null;
     },
     getActionBackendFunc(pluginName: string, name: string) {
         if (!pluginActionBackend[pluginName]) {
-            return null
+            return null;
         }
-        return pluginActionBackend[pluginName][name] || null
+        return pluginActionBackend[pluginName][name] || null;
     },
     async listAction() {
-        return await MemoryCacheUtil.remember('SystemActions', async () => {
-            let actions: ActionRecord[] = []
-            const plugins = await this.list()
+        return await MemoryCacheUtil.remember("SystemActions", async () => {
+            let actions: ActionRecord[] = [];
+            const plugins = await this.list();
             for (const p of plugins) {
-                actions = actions.concat(p.actions)
+                actions = actions.concat(p.actions);
             }
-            return actions
-        })
-    }
-}
+            return actions;
+        });
+    },
+};

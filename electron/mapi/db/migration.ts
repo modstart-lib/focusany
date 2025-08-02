@@ -6,7 +6,7 @@ const versions = [
             // console.log('db.insert', await db.insert(`INSERT INTO users (name, email) VALUES (?, ?)`,['Alice', 'alice@example.com']));
             // console.log('db.select', await db.select(`SELECT * FROM users`));
             // console.log('db.first', await db.first(`SELECT * FROM users`));
-        }
+        },
     },
     {
         version: 1,
@@ -22,12 +22,10 @@ const versions = [
             await db.execute(`CREATE INDEX IF NOT EXISTS idx_kvdb_data_name
                 ON kvdb_data (name)
             `);
-        }
+        },
     },
-]
+];
 
 export default {
     versions,
-}
-
-
+};

@@ -3,63 +3,66 @@ import {ref, watch} from "vue";
 import {cloneDeep} from "lodash-es";
 
 type FieldBasicType = {
-    name: string,
-    title: string,
-    icon: string,
-    type: 'select' | 'input' | 'inputNumber' | 'switch' | 'slider',
-    defaultValue: any,
-    placeholder: string,
-    tips: string,
-    min?: number,
-    max?: number,
-    step?: number,
-    sliderMarks?: any,
+    name: string;
+    title: string;
+    icon: string;
+    type: "select" | "input" | "inputNumber" | "switch" | "slider";
+    defaultValue: any;
+    placeholder: string;
+    tips: string;
+    min?: number;
+    max?: number;
+    step?: number;
+    sliderMarks?: any;
     options?: Array<{
-        value: string,
-        label: string,
-    }>,
-}
+        value: string;
+        label: string;
+    }>;
+};
 
 type FieldBasicModelType = FieldBasicType & {
-    value: any,
-}
+    value: any;
+};
 
 const props = defineProps({
-    param: Array<FieldBasicType>
-})
-const formData = ref<Array<FieldBasicModelType>>([])
-watch(() => props.param, (value) => {
-    formData.value = value?.map((item) => {
-        const itemClone = cloneDeep(item)
-        return {
-            ...itemClone,
-            value: itemClone.defaultValue,
-        }
-    }) as any
-}, {
-    immediate: true,
-    deep: true,
-})
+    param: Array<FieldBasicType>,
+});
+const formData = ref<Array<FieldBasicModelType>>([]);
+watch(
+    () => props.param,
+    value => {
+        formData.value = value?.map(item => {
+            const itemClone = cloneDeep(item);
+            return {
+                ...itemClone,
+                value: itemClone.defaultValue,
+            };
+        }) as any;
+    },
+    {
+        immediate: true,
+        deep: true,
+    }
+);
 
 const getValue = () => {
-    const result = {}
-    formData.value.forEach((item) => {
-        result[item.name] = item.value
-    })
-    return result
-}
+    const result = {};
+    formData.value.forEach(item => {
+        result[item.name] = item.value;
+    });
+    return result;
+};
 
-const setValue = (value) => {
-    formData.value.forEach((item) => {
-        item.value = value[item.name] || item.defaultValue
-    })
-}
+const setValue = value => {
+    formData.value.forEach(item => {
+        item.value = value[item.name] || item.defaultValue;
+    });
+};
 
 defineExpose({
     getValue,
     setValue,
-})
-
+});
 </script>
 
 <template>
@@ -79,41 +82,38 @@ defineExpose({
                 </template>
             </a-popover>
         </div>
-        <div v-if="item.type==='input'" class="w-48 mr-3">
-            <a-input :placeholder="item.placeholder"
-                     size="small"
-                     v-model="item.value">
-            </a-input>
+        <div v-if="item.type === 'input'" class="w-48 mr-3">
+            <a-input :placeholder="item.placeholder" size="small" v-model="item.value"> </a-input>
         </div>
-        <div v-else-if="item.type==='inputNumber'" class="w-24 mr-3">
-            <a-input-number :placeholder="item.placeholder"
-                            size="small"
-                            v-model="item.value"
-                            :min="item.min"
-                            :max="item.max">
+        <div v-else-if="item.type === 'inputNumber'" class="w-24 mr-3">
+            <a-input-number
+                :placeholder="item.placeholder"
+                size="small"
+                v-model="item.value"
+                :min="item.min"
+                :max="item.max"
+            >
             </a-input-number>
         </div>
-        <div v-else-if="item.type==='select'" class="mr-3">
-            <a-select :placeholder="item.placeholder"
-                      size="small"
-                      v-model="item.value">
-                <a-option v-for="option in item.options"
-                          :key="option.value"
-                          :value="option.value">
+        <div v-else-if="item.type === 'select'" class="mr-3">
+            <a-select :placeholder="item.placeholder" size="small" v-model="item.value">
+                <a-option v-for="option in item.options" :key="option.value" :value="option.value">
                     {{ option.label }}
                 </a-option>
             </a-select>
         </div>
-        <div v-else-if="item.type==='switch'" class="w-48 mr-3">
-            <a-switch v-model="item.value" size="small"/>
+        <div v-else-if="item.type === 'switch'" class="w-48 mr-3">
+            <a-switch v-model="item.value" size="small" />
         </div>
-        <div v-else-if="item.type==='slider'" class="w-48 mr-3">
-            <a-slider v-model="item.value"
-                      :marks="item.sliderMarks"
-                      show-tooltip
-                      :min="item.min"
-                      :max="item.max"
-                      :step="item.step"/>
+        <div v-else-if="item.type === 'slider'" class="w-48 mr-3">
+            <a-slider
+                v-model="item.value"
+                :marks="item.sliderMarks"
+                show-tooltip
+                :min="item.min"
+                :max="item.max"
+                :step="item.step"
+            />
         </div>
     </div>
 </template>

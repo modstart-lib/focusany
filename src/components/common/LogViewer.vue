@@ -1,65 +1,70 @@
 <script setup lang="ts">
-
 import {nextTick, ref, watch} from "vue";
 
-const logContainer = ref<HTMLElement | null>(null)
+const logContainer = ref<HTMLElement | null>(null);
 
 interface LogItem {
-    num: number,
-    text: string
+    num: number;
+    text: string;
 }
 
-const props = withDefaults(defineProps<{
-    logs: LogItem[],
-    autoScroll?: boolean,
-    height?: string
-}>(), {
-    logs: [] as any,
-    autoScroll: true,
-    height: '100%'
-})
+const props = withDefaults(
+    defineProps<{
+        logs: LogItem[];
+        autoScroll?: boolean;
+        height?: string;
+    }>(),
+    {
+        logs: [] as any,
+        autoScroll: true,
+        height: "100%",
+    }
+);
 
 const scrollToBottom = () => {
     nextTick(() => {
         logContainer.value?.scrollTo({
             top: logContainer.value?.scrollHeight,
-            behavior: 'smooth'
-        })
-    })
-}
+            behavior: "smooth",
+        });
+    });
+};
 
-watch(() => {
-    return props.logs
-}, () => {
-    if (props.autoScroll) {
-        scrollToBottom()
+watch(
+    () => {
+        return props.logs;
+    },
+    () => {
+        if (props.autoScroll) {
+            scrollToBottom();
+        }
+    },
+    {
+        immediate: true,
+        deep: true,
     }
-}, {
-    immediate: true,
-    deep: true
-})
+);
 
-watch(() => {
-    return props.autoScroll
-}, () => {
-    if (props.autoScroll) {
-        scrollToBottom()
+watch(
+    () => {
+        return props.autoScroll;
+    },
+    () => {
+        if (props.autoScroll) {
+            scrollToBottom();
+        }
     }
-})
-
+);
 </script>
 
 <template>
-    <div :style="{height:props.height}"
-         ref="logContainer"
-         class="bg-black rounded p-3 overflow-auto">
-        <div v-if="!logs.length"
-             class="text-center text-white py-10">
+    <div :style="{height: props.height}" ref="logContainer" class="bg-black rounded p-3 overflow-auto">
+        <div v-if="!logs.length" class="text-center text-white py-10">
             <div>
                 <i class="iconfont icon-empty-box text-4xl"></i>
             </div>
             <div class="text-xs mt-3">
-                {{ $t('暂无日志') }}
+                {{ $t("暂无日志") }}
             </div>
         </div>
         <div v-for="log in logs" class="text-white text-sm font-mono leading-6 whitespace-nowrap">
@@ -69,6 +74,4 @@ watch(() => {
     </div>
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>

@@ -4,10 +4,10 @@ import {
     LaunchRecord,
     PluginActionRecord,
     PluginConfig,
-    PluginRecord
+    PluginRecord,
 } from "../../../../src/types/Manager";
 
-import {KVDBMain} from "../../kvdb/main"
+import {KVDBMain} from "../../kvdb/main";
 import {CommonConfig} from "../../../config/common";
 import {ManagerHotkey} from "../hotkey";
 import {MemoryCacheUtil} from "../../../lib/util";
@@ -17,7 +17,7 @@ import {isLinux, isMac, isWin} from "../../../lib/env";
 
 const defaultConfig: ConfigRecord = {
     mainTrigger: {
-        key: 'Space',
+        key: "Space",
         altKey: true,
         ctrlKey: false,
         metaKey: false,
@@ -25,7 +25,7 @@ const defaultConfig: ConfigRecord = {
         times: 1,
     },
     detachWindowTrigger: {
-        key: 'D',
+        key: "D",
         altKey: false,
         ctrlKey: !isMac,
         metaKey: isMac,
@@ -33,289 +33,295 @@ const defaultConfig: ConfigRecord = {
         times: 1,
     },
     fastPanelTrigger: {
-        type: 'Ctrl',
+        type: "Ctrl",
         times: 1,
     },
     // fastPanelTriggerButton: {
     //     button: HotkeyMouseButtonEnum.RIGHT,
     //     type: 'longPress',
     // },
-}
+};
 
 export const ManagerConfig = {
     configOld: null as ConfigRecord | null,
     async clearCache() {
-        MemoryCacheUtil.forget('Config')
-        MemoryCacheUtil.forget('DisabledActionMatches')
-        MemoryCacheUtil.forget('PinActions')
-        MemoryCacheUtil.forget('Launches')
-        MemoryCacheUtil.forget('CustomActions')
-        MemoryCacheUtil.forget('HistoryActions')
-        MemoryCacheUtil.forget('PluginConfig')
+        MemoryCacheUtil.forget("Config");
+        MemoryCacheUtil.forget("DisabledActionMatches");
+        MemoryCacheUtil.forget("PinActions");
+        MemoryCacheUtil.forget("Launches");
+        MemoryCacheUtil.forget("CustomActions");
+        MemoryCacheUtil.forget("HistoryActions");
+        MemoryCacheUtil.forget("PluginConfig");
     },
     async get(): Promise<ConfigRecord> {
-        return MemoryCacheUtil.remember('Config', async () => {
+        return MemoryCacheUtil.remember("Config", async () => {
             // reset config
             // await this.save(defaultConfig)
-            const config = await KVDBMain.getData(CommonConfig.dbSystem, CommonConfig.dbConfigId)
+            const config = await KVDBMain.getData(CommonConfig.dbSystem, CommonConfig.dbConfigId);
             if (!config) {
-                await this.save(defaultConfig)
-                this.configOld = defaultConfig
-                return defaultConfig
+                await this.save(defaultConfig);
+                this.configOld = defaultConfig;
+                return defaultConfig;
             }
-            let changed = false
+            let changed = false;
             for (const key in defaultConfig) {
                 if (key in config) {
-                    if (typeof config[key] === 'object') {
+                    if (typeof config[key] === "object") {
                         for (const subKey in defaultConfig[key]) {
                             if (subKey in config[key]) {
                             } else {
-                                config[key][subKey] = defaultConfig[key][subKey]
-                                changed = true
+                                config[key][subKey] = defaultConfig[key][subKey];
+                                changed = true;
                             }
                         }
                     }
                 } else {
-                    config[key] = defaultConfig[key]
-                    changed = true
+                    config[key] = defaultConfig[key];
+                    changed = true;
                 }
             }
             if (changed) {
-                await this.save(config)
+                await this.save(config);
             }
-            this.configOld = config
-            return config
-        })
+            this.configOld = config;
+            return config;
+        });
     },
     async save(config: ConfigRecord): Promise<void> {
-        delete config['data']
+        delete config["data"];
         const doc = {
             _id: CommonConfig.dbConfigId,
-            ...config
-        }
-        await KVDBMain.putForce(CommonConfig.dbSystem, doc)
-        let hotkeyChanged = false
+            ...config,
+        };
+        await KVDBMain.putForce(CommonConfig.dbSystem, doc);
+        let hotkeyChanged = false;
         if (this.configOld) {
-            for (const k of ['mainTrigger', 'fastPanelTrigger']) {
+            for (const k of ["mainTrigger", "fastPanelTrigger"]) {
                 if (JSON.stringify(this.configOld[k]) !== JSON.stringify(config[k])) {
-                    hotkeyChanged = true
-                    break
+                    hotkeyChanged = true;
+                    break;
                 }
             }
         }
-        MemoryCacheUtil.forget('Config')
+        MemoryCacheUtil.forget("Config");
         if (hotkeyChanged) {
-            ManagerHotkey.configInit().then()
+            ManagerHotkey.configInit().then();
         }
     },
     async listDisabledActionMatch() {
-        return MemoryCacheUtil.remember('DisabledActionMatches', async () => {
-            return await KVDBMain.getData(CommonConfig.dbSystem, CommonConfig.dbDisabledActionMatchId) || {}
-        })
+        return MemoryCacheUtil.remember("DisabledActionMatches", async () => {
+            return (await KVDBMain.getData(CommonConfig.dbSystem, CommonConfig.dbDisabledActionMatchId)) || {};
+        });
     },
     async toggleDisabledActionMatch(pluginName: string, actionName: string, matchName: string) {
-        let matches = await this.listDisabledActionMatch()
+        let matches = await this.listDisabledActionMatch();
         if (!matches) {
-            matches = {}
+            matches = {};
         }
         if (!matches[pluginName]) {
-            matches[pluginName] = {}
+            matches[pluginName] = {};
         }
         if (!matches[pluginName][actionName]) {
-            matches[pluginName][actionName] = []
+            matches[pluginName][actionName] = [];
         }
-        let disabled = false
+        let disabled = false;
         if (matches[pluginName][actionName].includes(matchName)) {
-            matches[pluginName][actionName] = matches[pluginName][actionName].filter(v => v !== matchName)
+            matches[pluginName][actionName] = matches[pluginName][actionName].filter(v => v !== matchName);
             if (!matches[pluginName][actionName].length) {
-                delete matches[pluginName][actionName]
+                delete matches[pluginName][actionName];
             }
             if (!Object.keys(matches[pluginName]).length) {
-                delete matches[pluginName]
+                delete matches[pluginName];
             }
         } else {
-            matches[pluginName][actionName].push(matchName)
-            disabled = true
+            matches[pluginName][actionName].push(matchName);
+            disabled = true;
         }
         await KVDBMain.putForce(CommonConfig.dbSystem, {
             _id: CommonConfig.dbDisabledActionMatchId,
-            ...matches
-        })
-        MemoryCacheUtil.forget('DisabledActionMatches')
-        return disabled
+            ...matches,
+        });
+        MemoryCacheUtil.forget("DisabledActionMatches");
+        return disabled;
     },
     async listPinAction(): Promise<PluginActionRecord[]> {
-        return MemoryCacheUtil.remember('PinActions', async () => {
-            const res = await KVDBMain.getData(CommonConfig.dbSystem, CommonConfig.dbPinActionId)
+        return MemoryCacheUtil.remember("PinActions", async () => {
+            const res = await KVDBMain.getData(CommonConfig.dbSystem, CommonConfig.dbPinActionId);
             if (!res) {
-                return []
+                return [];
             }
-            return res['records'] || []
-        })
+            return res["records"] || [];
+        });
     },
     async getPinedActionSet(): Promise<Set<string>> {
-        const pinActions = await this.listPinAction()
-        const set = new Set<string>()
+        const pinActions = await this.listPinAction();
+        const set = new Set<string>();
         for (const pinAction of pinActions) {
-            set.add(`${pinAction.pluginName}/${pinAction.actionName}`)
+            set.add(`${pinAction.pluginName}/${pinAction.actionName}`);
         }
-        return set
+        return set;
     },
     async togglePinAction(pluginName: string, actionName: string) {
-        let pinActions = await this.listPinAction()
+        let pinActions = await this.listPinAction();
         const saveAction = {
             pluginName: pluginName,
             actionName: actionName,
-        } as PluginActionRecord
-        const exists = pinActions.find(v => v.pluginName === saveAction.pluginName && v.actionName === saveAction.actionName)
+        } as PluginActionRecord;
+        const exists = pinActions.find(
+            v => v.pluginName === saveAction.pluginName && v.actionName === saveAction.actionName
+        );
         if (exists) {
-            pinActions = pinActions.filter(v => v.pluginName !== saveAction.pluginName || v.actionName !== saveAction.actionName)
+            pinActions = pinActions.filter(
+                v => v.pluginName !== saveAction.pluginName || v.actionName !== saveAction.actionName
+            );
         } else {
-            pinActions.unshift(saveAction)
+            pinActions.unshift(saveAction);
         }
         await KVDBMain.putForce(CommonConfig.dbSystem, {
             _id: CommonConfig.dbPinActionId,
-            records: pinActions
-        })
-        MemoryCacheUtil.forget('PinActions')
+            records: pinActions,
+        });
+        MemoryCacheUtil.forget("PinActions");
     },
     async listLaunch(): Promise<LaunchRecord[]> {
-        return MemoryCacheUtil.remember('Launches', async () => {
-            const res = await KVDBMain.getData(CommonConfig.dbSystem, CommonConfig.dbLaunchId)
+        return MemoryCacheUtil.remember("Launches", async () => {
+            const res = await KVDBMain.getData(CommonConfig.dbSystem, CommonConfig.dbLaunchId);
             if (!res) {
-                return []
+                return [];
             }
-            return res['records'] || []
-        })
+            return res["records"] || [];
+        });
     },
     async updateLaunch(records: LaunchRecord[]) {
         await KVDBMain.putForce(CommonConfig.dbSystem, {
             _id: CommonConfig.dbLaunchId,
-            records: records
-        })
-        MemoryCacheUtil.forget('Launches')
-        ManagerHotkey.configInit()
+            records: records,
+        });
+        MemoryCacheUtil.forget("Launches");
+        ManagerHotkey.configInit();
     },
     async getCustomAction(): Promise<Record<string, ActionRecord[]>> {
-        return MemoryCacheUtil.remember('CustomActions', async () => {
-            return await KVDBMain.getData(CommonConfig.dbSystem, CommonConfig.dbCustomActionId) || {}
-        })
+        return MemoryCacheUtil.remember("CustomActions", async () => {
+            return (await KVDBMain.getData(CommonConfig.dbSystem, CommonConfig.dbCustomActionId)) || {};
+        });
     },
     async addCustomAction(plugin: PluginRecord, action: ActionRecord | ActionRecord[]) {
-        const customAction = await this.getCustomAction()
+        const customAction = await this.getCustomAction();
         if (!(plugin.name in customAction)) {
-            customAction[plugin.name] = []
+            customAction[plugin.name] = [];
         }
         if (!Array.isArray(action)) {
-            action = [action]
+            action = [action];
         }
         for (let a of action) {
-            a = ManagerPlugin.normalAction(a, plugin)
-            let replace = false
+            a = ManagerPlugin.normalAction(a, plugin);
+            let replace = false;
             for (let i = 0; i < customAction[plugin.name].length; i++) {
                 if (customAction[plugin.name][i].name === a.name) {
-                    customAction[plugin.name][i] = a
-                    replace = true
-                    break
+                    customAction[plugin.name][i] = a;
+                    replace = true;
+                    break;
                 }
             }
             if (!replace) {
-                customAction[plugin.name].push(a)
+                customAction[plugin.name].push(a);
             }
         }
-        delete customAction['data']
+        delete customAction["data"];
         await KVDBMain.putForce(CommonConfig.dbSystem, {
             _id: CommonConfig.dbCustomActionId,
-            ...customAction
-        })
-        MemoryCacheUtil.forget('CustomActions')
+            ...customAction,
+        });
+        MemoryCacheUtil.forget("CustomActions");
     },
     async removeCustomAction(plugin: PluginRecord, name: string) {
-        const customAction = await this.getCustomAction()
+        const customAction = await this.getCustomAction();
         if (!(plugin.name in customAction)) {
-            return
+            return;
         }
-        customAction[plugin.name] = customAction[plugin.name].filter(v => v.name !== name)
+        customAction[plugin.name] = customAction[plugin.name].filter(v => v.name !== name);
         await KVDBMain.putForce(CommonConfig.dbSystem, {
             _id: CommonConfig.dbCustomActionId,
-            ...customAction
-        })
-        MemoryCacheUtil.forget('CustomActions')
+            ...customAction,
+        });
+        MemoryCacheUtil.forget("CustomActions");
     },
     async getHistoryAction(): Promise<PluginActionRecord[]> {
-        return MemoryCacheUtil.remember('HistoryActions', async () => {
-            const res = await KVDBMain.getData(CommonConfig.dbSystem, CommonConfig.dbHistoryActionId)
+        return MemoryCacheUtil.remember("HistoryActions", async () => {
+            const res = await KVDBMain.getData(CommonConfig.dbSystem, CommonConfig.dbHistoryActionId);
             if (!res) {
-                return []
+                return [];
             }
-            return res['records'] || []
-        })
+            return res["records"] || [];
+        });
     },
     async clearHistoryAction() {
         await KVDBMain.putForce(CommonConfig.dbSystem, {
             _id: CommonConfig.dbHistoryActionId,
-            records: []
-        })
-        MemoryCacheUtil.forget('HistoryActions')
+            records: [],
+        });
+        MemoryCacheUtil.forget("HistoryActions");
     },
     async deleteHistoryAction(pluginName: string, actionName: string) {
         // console.log('deleteHistoryAction', fullName)
-        let historyActions = await this.getHistoryAction()
-        historyActions = historyActions.filter(v => v.pluginName !== pluginName || v.actionName !== actionName)
+        let historyActions = await this.getHistoryAction();
+        historyActions = historyActions.filter(v => v.pluginName !== pluginName || v.actionName !== actionName);
         await KVDBMain.putForce(CommonConfig.dbSystem, {
             _id: CommonConfig.dbHistoryActionId,
-            records: historyActions
-        })
-        MemoryCacheUtil.forget('HistoryActions')
+            records: historyActions,
+        });
+        MemoryCacheUtil.forget("HistoryActions");
     },
     async addHistoryAction(plugin: PluginRecord, action: ActionRecord) {
-        let historyActions = await this.getHistoryAction()
+        let historyActions = await this.getHistoryAction();
         const saveAction = {
             pluginName: plugin.name,
             actionName: action.name,
-        } as PluginActionRecord
+        } as PluginActionRecord;
         // remove duplicate
-        historyActions = historyActions.filter(v => v.pluginName !== saveAction.pluginName || v.actionName !== saveAction.actionName)
-        historyActions.unshift(saveAction)
+        historyActions = historyActions.filter(
+            v => v.pluginName !== saveAction.pluginName || v.actionName !== saveAction.actionName
+        );
+        historyActions.unshift(saveAction);
         if (historyActions.length > 100) {
-            historyActions.pop()
+            historyActions.pop();
         }
         await KVDBMain.putForce(CommonConfig.dbSystem, {
             _id: CommonConfig.dbHistoryActionId,
-            records: historyActions
-        })
-        MemoryCacheUtil.forget('HistoryActions')
+            records: historyActions,
+        });
+        MemoryCacheUtil.forget("HistoryActions");
     },
     async getPluginConfigAll(): Promise<Record<string, PluginConfig>> {
-        return MemoryCacheUtil.remember('PluginConfig', async () => {
-            const res = await KVDBMain.getData(CommonConfig.dbSystem, CommonConfig.dbPluginConfigId)
+        return MemoryCacheUtil.remember("PluginConfig", async () => {
+            const res = await KVDBMain.getData(CommonConfig.dbSystem, CommonConfig.dbPluginConfigId);
             if (!res) {
-                return {}
+                return {};
             }
-            return res['records'] || {}
-        })
+            return res["records"] || {};
+        });
     },
     async getPluginConfig(pluginName: string): Promise<PluginConfig> {
-        const res = await this.getPluginConfigAll()
-        return res[pluginName] || {}
+        const res = await this.getPluginConfigAll();
+        return res[pluginName] || {};
     },
     async setPluginConfigItem(pluginName: string, key: string, value: any) {
-        const config = await this.getPluginConfig(pluginName)
-        config[key] = value
-        await ManagerConfig.setPluginConfig(pluginName, config)
+        const config = await this.getPluginConfig(pluginName);
+        config[key] = value;
+        await ManagerConfig.setPluginConfig(pluginName, config);
         if (ManagerSystem.match(pluginName)) {
-            await ManagerSystem.clearCache()
+            await ManagerSystem.clearCache();
         } else {
-            await ManagerPlugin.clearCache()
+            await ManagerPlugin.clearCache();
         }
     },
     async setPluginConfig(pluginName: string, config: PluginConfig) {
-        const pluginConfig = await this.getPluginConfigAll()
-        pluginConfig[pluginName] = config
+        const pluginConfig = await this.getPluginConfigAll();
+        pluginConfig[pluginName] = config;
         await KVDBMain.putForce(CommonConfig.dbSystem, {
             _id: CommonConfig.dbPluginConfigId,
-            records: pluginConfig
-        })
-        MemoryCacheUtil.forget('PluginConfig')
-    }
-}
+            records: pluginConfig,
+        });
+        MemoryCacheUtil.forget("PluginConfig");
+    },
+};

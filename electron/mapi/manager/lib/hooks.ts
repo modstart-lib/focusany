@@ -2,36 +2,38 @@ import {BrowserView, BrowserWindow} from "electron";
 import {AppsMain} from "../../app/main";
 import {PluginRecord} from "../../../../src/types/Manager";
 
-type PluginHookType = never
-    | 'PluginReady'
-    | 'PluginExit'
-    | 'PluginEvent'
-    | 'MoreMenuClick'
-    | 'DetachOperateClick'
-    | 'SubInputChange'
-    | 'ScreenCapture'
-    | 'Hotkey'
+type PluginHookType =
+    | never
+    | "PluginReady"
+    | "PluginExit"
+    | "PluginEvent"
+    | "MoreMenuClick"
+    | "DetachOperateClick"
+    | "SubInputChange"
+    | "ScreenCapture"
+    | "Hotkey";
 
-type HookType = never
-    | 'Show'
-    | 'Hide'
-    | 'SetSubInput'
-    | 'RemoveSubInput'
-    | 'SetSubInputValue'
-    | 'PluginInit'
-    | 'PluginExit'
-    | 'PluginAlreadyOpened'
-    | 'PluginDetached'
-    | 'PluginState'
-    | 'PluginCodeRunning'
-    | 'PluginCodeSuccess'
-    | 'PluginCodeError'
-    | 'DetachSet'
-    | 'Maximize'
-    | 'Unmaximize'
-    | 'EnterFullScreen'
-    | 'LeaveFullScreen'
-    | 'DetachWindowClosed'
+type HookType =
+    | never
+    | "Show"
+    | "Hide"
+    | "SetSubInput"
+    | "RemoveSubInput"
+    | "SetSubInputValue"
+    | "PluginInit"
+    | "PluginExit"
+    | "PluginAlreadyOpened"
+    | "PluginDetached"
+    | "PluginState"
+    | "PluginCodeRunning"
+    | "PluginCodeSuccess"
+    | "PluginCodeError"
+    | "DetachSet"
+    | "Maximize"
+    | "Unmaximize"
+    | "EnterFullScreen"
+    | "LeaveFullScreen"
+    | "DetachWindowClosed";
 
 export const executePluginHooks = async (view: BrowserView, hook: PluginHookType, data?: any) => {
     const evalJs = `
@@ -55,14 +57,17 @@ export const executeHooks = async (win: BrowserWindow, hook: HookType, data?: an
         }
     }`;
     return win.webContents?.executeJavaScript(evalJs);
-}
+};
 
-export const executeDarkMode = async (view: BrowserWindow | BrowserView, data: {
-    plugin: PluginRecord,
-    isSystem: boolean,
-}) => {
+export const executeDarkMode = async (
+    view: BrowserWindow | BrowserView,
+    data: {
+        plugin: PluginRecord;
+        isSystem: boolean;
+    }
+) => {
     // console.log('executeDarkMode', data.plugin.setting);
-    if (await AppsMain.shouldDarkMode() && (data.plugin.setting?.darkModeSupport || data.isSystem)) {
+    if ((await AppsMain.shouldDarkMode()) && (data.plugin.setting?.darkModeSupport || data.isSystem)) {
         // body and html
         view.webContents.executeJavaScript(`
         document.body.setAttribute('data-theme', 'dark');
@@ -72,4 +77,4 @@ export const executeDarkMode = async (view: BrowserWindow | BrowserView, data: {
             view.webContents.executeJavaScript(`document.body.setAttribute('arco-theme', 'dark');`);
         }
     }
-}
+};
