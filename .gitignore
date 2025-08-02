@@ -34,3 +34,5 @@ src/lang/source-use.json
 /focusany-plugin-*
 /data
 /data-*
+.vscode
+.github/copilot-instructions.md
