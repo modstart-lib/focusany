@@ -1,7 +1,7 @@
 import {dialog, ipcMain, shell} from "electron";
 import fileIndex from "./index";
 
-ipcMain.handle("file:openFile", async (_, options) => {
+ipcMain.handle("file:openFile", async (_, options): Promise<string | null> => {
     const res = await dialog
         .showOpenDialog({
             properties: ["openFile"],
@@ -14,7 +14,7 @@ ipcMain.handle("file:openFile", async (_, options) => {
     return res.filePaths?.[0] || null;
 });
 
-ipcMain.handle("file:openDirectory", async (_, options) => {
+ipcMain.handle("file:openDirectory", async (_, options): Promise<string | null> => {
     const res = await dialog
         .showOpenDialog({
             properties: ["openDirectory"],
@@ -27,7 +27,7 @@ ipcMain.handle("file:openDirectory", async (_, options) => {
     return res.filePaths?.[0] || null;
 });
 
-ipcMain.handle("file:openSave", async (_, options) => {
+ipcMain.handle("file:openSave", async (_, options): Promise<string | null> => {
     const res = await dialog
         .showSaveDialog({
             ...options,
