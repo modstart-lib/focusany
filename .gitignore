@@ -36,3 +36,5 @@ src/lang/source-use.json
 /data-*
 .vscode
 .github/copilot-instructions.md
+.vscode
+.github/copilot-instructions.md
