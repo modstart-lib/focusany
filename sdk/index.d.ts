@@ -1,7 +1,5 @@
 /// <reference path="focusany.d.ts" />
 
-export interface FocusAnyShimType {
-    init(): void;
-}
-
-export declare const FocusAnyShim: FocusAnyShimType;
+// 默认导出 focusany API
+declare const focusany: FocusAnyApi;
+export = focusany;

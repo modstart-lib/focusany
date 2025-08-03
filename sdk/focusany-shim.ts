@@ -43,7 +43,12 @@ export const FocusAnyShim = {
 
         // 创建 focusany 对象
         const focusany = createErrorProxy("focusany", focusanySupport);
-
+        // @ts-ignore
         window["focusany"] = focusany;
     },
 };
+
+// 自动初始化：在浏览器环境中自动调用 init()
+if (typeof window !== "undefined") {
+    FocusAnyShim.init();
+}
