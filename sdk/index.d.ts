@@ -1,2 +1,7 @@
 /// <reference path="focusany.d.ts" />
-export = focusany;
+
+export interface FocusAnyShimType {
+    init(): void;
+}
+
+export declare const FocusAnyShim: FocusAnyShimType;
