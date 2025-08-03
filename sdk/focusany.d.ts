@@ -2,139 +2,137 @@
 /// <reference path="electron.d.ts"/>
 
 declare interface Window {
-    focusany: FocusAnyApi
+    focusany: FocusAnyApi;
 }
 
 type DbDoc<T extends {} = Record<string, any>> = {
-    _id: string,
-    _rev?: string,
-} & T
+    _id: string;
+    _rev?: string;
+} & T;
 
 interface DbReturn {
-    id: string,
-    rev?: string,
-    ok?: boolean,
-    error?: boolean,
-    name?: string,
-    message?: string
+    id: string;
+    rev?: string;
+    ok?: boolean;
+    error?: boolean;
+    name?: string;
+    message?: string;
 }
 
-declare type PlatformType = 'win' | 'osx' | 'linux'
+declare type PlatformType = "win" | "osx" | "linux";
 
-declare type EditionType = 'open' | 'pro'
+declare type EditionType = "open" | "pro";
 
-declare type PluginEvent = 'ClipboardChange' | 'UserChange'
+declare type PluginEvent = "ClipboardChange" | "UserChange";
 
-declare type HotkeyModifierType = 'Control' | 'Option' | 'Command' | 'Ctrl' | 'Alt' | 'Win' | 'Meta' | 'Shift'
+declare type HotkeyModifierType = "Control" | "Option" | "Command" | "Ctrl" | "Alt" | "Win" | "Meta" | "Shift";
 
-declare type HotkeyType = { key: string, modifiers: HotkeyModifierType[] }
+declare type HotkeyType = {key: string; modifiers: HotkeyModifierType[]};
 
-declare type HotkeyQuickType = 'save'
+declare type HotkeyQuickType = "save";
 
-declare type ActionMatch = (
-    ActionMatchText
+declare type ActionMatch =
+    | ActionMatchText
     | ActionMatchKey
     | ActionMatchRegex
     | ActionMatchFile
     | ActionMatchImage
     | ActionMatchWindow
-    | ActionMatchEditor
-    )
+    | ActionMatchEditor;
 
 declare enum ActionMatchTypeEnum {
-    TEXT = 'text',
-    KEY = 'key',
-    REGEX = 'regex',
-    IMAGE = 'image',
-    FILE = 'file',
-    WINDOW = 'window',
-    EDITOR = 'editor',
+    TEXT = "text",
+    KEY = "key",
+    REGEX = "regex",
+    IMAGE = "image",
+    FILE = "file",
+    WINDOW = "window",
+    EDITOR = "editor",
 }
 
 type SearchQuery = {
-    keywords: string,
-    currentFiles?: FileItem[],
-    currentImage?: string,
-    currentText?: string,
-}
+    keywords: string;
+    currentFiles?: FileItem[];
+    currentImage?: string;
+    currentText?: string;
+};
 
 type FileItem = {
-    name: string,
-    isDirectory: boolean,
-    isFile: boolean,
-    path: string,
-    fileExt: string,
-}
+    name: string;
+    isDirectory: boolean;
+    isFile: boolean;
+    path: string;
+    fileExt: string;
+};
 
 declare type ActionMatchBase = {
-    type: ActionMatchTypeEnum,
-    name?: string,
-}
+    type: ActionMatchTypeEnum;
+    name?: string;
+};
 
 declare type ActionMatchText = ActionMatchBase & {
-    text: string,
-    minLength: number,
-    maxLength: number,
-}
+    text: string;
+    minLength: number;
+    maxLength: number;
+};
 
 declare type ActionMatchKey = ActionMatchBase & {
-    key: string,
-}
+    key: string;
+};
 
 declare type ActionMatchRegex = ActionMatchBase & {
-    regex: string,
-    title: string,
-    minLength: number,
-    maxLength: number,
-}
+    regex: string;
+    title: string;
+    minLength: number;
+    maxLength: number;
+};
 
 declare type ActionMatchFile = ActionMatchBase & {
-    title: string,
-    minCount: number,
-    maxCount: number,
-    filterFileType: 'file' | 'directory',
-    filterExtensions: string[],
-}
+    title: string;
+    minCount: number;
+    maxCount: number;
+    filterFileType: "file" | "directory";
+    filterExtensions: string[];
+};
 
 declare type ActionMatchImage = ActionMatchBase & {
-    title: string,
-}
+    title: string;
+};
 
 declare type ActionMatchWindow = ActionMatchBase & {
-    nameRegex: string,
-    titleRegex: string,
-    attrRegex: Record<string, string>,
-}
+    nameRegex: string;
+    titleRegex: string;
+    attrRegex: Record<string, string>;
+};
 
 declare type ActionMatchEditor = ActionMatchBase & {
-    extensions: string[],
-    fadTypes: string[],
-}
+    extensions: string[];
+    fadTypes: string[];
+};
 
 interface PluginAction {
-    fullName?: string,
-    name: string,
-    title: string,
-    matches: ActionMatch[],
-    platform?: PlatformType[],
-    icon?: string,
-    type?: 'command' | 'web' | 'code' | 'backend',
+    fullName?: string;
+    name: string;
+    title: string;
+    matches: ActionMatch[];
+    platform?: PlatformType[];
+    icon?: string;
+    type?: "command" | "web" | "code" | "backend";
 }
 
 interface FocusAnyApi {
-
     /**
      * 插件应用初始化完成时触发
      * @param callback
      */
     onPluginReady(
         callback: (data: {
-            actionName: string,
-            actionMatch: ActionMatch | null,
-            actionMatchFiles: FileItem[],
-            requestId: string,
-            reenter: boolean,
-            isView: boolean,
+            actionName: string;
+            actionMatch: ActionMatch | null;
+            actionMatchFiles: FileItem[];
+            requestId: string;
+            reenter: boolean;
+            isView: boolean;
         }) => void
     ): void;
 
@@ -168,22 +166,14 @@ interface FocusAnyApi {
      * plugin more menu click
      * @param callback
      */
-    onMoreMenuClick(callback: (data: { name: string }) => void): void;
+    onMoreMenuClick(callback: (data: {name: string}) => void): void;
 
     /**
      * register hot
      * @param key
      * @param callback
      */
-    registerHotkey(
-        key: string
-            | string[]
-            | HotkeyQuickType
-            | HotkeyType
-            | HotkeyType[]
-        ,
-        callback: () => void,
-    ): void;
+    registerHotkey(key: string | string[] | HotkeyQuickType | HotkeyType | HotkeyType[], callback: () => void): void;
 
     /**
      * unregister all hotkey
@@ -233,7 +223,12 @@ interface FocusAnyApi {
      * @param isFocus
      * @param isVisible
      */
-    setSubInput(onChange: (keywords: string) => void, placeholder?: string, isFocus?: boolean, isVisible?: boolean): boolean;
+    setSubInput(
+        onChange: (keywords: string) => void,
+        placeholder?: string,
+        isFocus?: boolean,
+        isVisible?: boolean
+    ): boolean;
 
     /**
      * 移除输入框监听
@@ -265,22 +260,22 @@ interface FocusAnyApi {
      * 获取插件信息
      */
     getPluginInfo(): {
-        nodeIntegration: boolean,
-        preloadBase: string,
-        preload: string,
-        main: string,
-        mainView: string,
-        width: number,
-        height: number,
-        autoDetach: boolean,
-        singleton: boolean,
-        zoom: number,
+        nodeIntegration: boolean;
+        preloadBase: string;
+        preload: string;
+        main: string;
+        mainView: string;
+        width: number;
+        height: number;
+        autoDetach: boolean;
+        singleton: boolean;
+        zoom: number;
     };
 
     /**
      * 获取插件环境
      */
-    getPluginEnv(): 'dev' | 'prod';
+    getPluginEnv(): "dev" | "prod";
 
     /**
      * 获取插件查询信息
@@ -294,7 +289,11 @@ interface FocusAnyApi {
      * @param options
      * @param callback
      */
-    createBrowserWindow(url: string, options: BrowserWindow.InitOptions, callback?: () => void): BrowserWindow.WindowInstance;
+    createBrowserWindow(
+        url: string,
+        options: BrowserWindow.InitOptions,
+        callback?: () => void
+    ): BrowserWindow.WindowInstance;
 
     /**
      * 关闭插件
@@ -315,65 +314,63 @@ interface FocusAnyApi {
      * 获取用户
      */
     getUser(): {
-        isLogin: boolean,
-        avatar: string,
-        nickname: string,
-        vipFlag: string,
-        deviceCode: string,
-        openId: string,
+        isLogin: boolean;
+        avatar: string;
+        nickname: string;
+        vipFlag: string;
+        deviceCode: string;
+        openId: string;
     };
 
     /**
      * 获取用户服务端临时令牌
      */
     getUserAccessToken(): Promise<{
-        token: string,
-        expireAt: number,
+        token: string;
+        expireAt: number;
     }>;
 
     /**
      * 列出插件商品
      * @param query
      */
-    listGoods(query?: {
-        ids?: string[]
-    }): Promise<{
-        id: string,
-        title: string,
-        cover: string,
-        priceType: 'fixed' | 'dynamic',
-        fixedPrice: string,
-        description: string,
-    }[]>;
+    listGoods(query?: {ids?: string[]}): Promise<
+        {
+            id: string;
+            title: string;
+            cover: string;
+            priceType: "fixed" | "dynamic";
+            fixedPrice: string;
+            description: string;
+        }[]
+    >;
 
     /**
      * 创建订单并显示
      * @param options 订单参数
      */
-    openGoodsPayment(
-        options: {
-            /**
-             * 插件商品ID
-             */
-            goodsId: string,
-            /**
-             * 插件商品价格，固定价格商品无需传入，动态价格商品需传入价格，如 0.01
-             */
-            price?: string,
-            /**
-             * 第三方订单号，字符串，最大长度 64 字符
-             */
-            outOrderId?: string,
-            /**
-             * 参数数据，长度不超过 200 字符
-             */
-            outParam?: string,
-        }
-    ): Promise<{
+    openGoodsPayment(options: {
+        /**
+         * 插件商品ID
+         */
+        goodsId: string;
+        /**
+         * 插件商品价格，固定价格商品无需传入，动态价格商品需传入价格，如 0.01
+         */
+        price?: string;
+        /**
+         * 第三方订单号，字符串，最大长度 64 字符
+         */
+        outOrderId?: string;
+        /**
+         * 参数数据，长度不超过 200 字符
+         */
+        outParam?: string;
+    }): Promise<{
         /**
          * 是否支付成功
          */
-        paySuccess: boolean,
+        paySuccess: boolean;
     }>;
 
     /**
@@ -384,24 +381,24 @@ interface FocusAnyApi {
         /**
          * 插件商品ID，可选
          */
-        goodsId?: string,
+        goodsId?: string;
         /**
          * 分页页码，从 1 开始，可选
          */
-        page?: number,
+        page?: number;
         /**
          * 分页大小，可选，默认是 10
          */
-        pageSize?: number,
+        pageSize?: number;
     }): Promise<{
         /**
          * 当前页数
          */
-        page: number,
+        page: number;
         /**
          * 总订单数
          */
-        total: number,
+        total: number;
         /**
          * 订单列表
          */
@@ -409,16 +406,16 @@ interface FocusAnyApi {
             /**
              * 订单号
              */
-            id: string,
+            id: string;
             /**
              * 商品ID
              */
-            goodsId: string,
+            goodsId: string;
             /**
              * 状态 Paid: 已支付, Unpaid: 未支付
              */
-            status: 'Paid' | 'Unpaid',
-        }[]
+            status: "Paid" | "Unpaid";
+        }[];
     }>;
 
     /**
@@ -429,9 +426,9 @@ interface FocusAnyApi {
         body: any,
         option: {}
     ): Promise<{
-        code: number,
-        msg: string,
-        data: any,
+        code: number;
+        msg: string;
+        data: any;
     }>;
 
     /**
@@ -464,10 +461,13 @@ interface FocusAnyApi {
      * @param body
      * @param options
      */
-    showToast(body: string, options?: {
-        duration?: number,
-        status?: 'info' | 'success' | 'error'
-    }): void;
+    showToast(
+        body: string,
+        options?: {
+            duration?: number;
+            status?: "info" | "success" | "error";
+        }
+    ): void;
 
     /**
      * 显示通知
@@ -481,41 +481,60 @@ interface FocusAnyApi {
      * @param message
      * @param options
      */
-    showMessageBox(message: string, options: {
-        title?: string,
-        yes?: string,
-        no?: string,
-    }): void;
+    showMessageBox(
+        message: string,
+        options: {
+            title?: string;
+            yes?: string;
+            no?: string;
+        }
+    ): void;
 
     /**
      * 打开文件选择框
      * @param options
      */
     showOpenDialog(options: {
-        title?: string,
-        defaultPath?: string,
-        buttonLabel?: string,
-        filters?: { name: string, extensions: string[] }[],
-        properties?: Array<'openFile' | 'openDirectory' | 'multiSelections' | 'showHiddenFiles' | 'createDirectory' | 'promptToCreate' | 'noResolveAliases' | 'treatPackageAsDirectory' | 'dontAddToRecent'>,
-        message?: string,
-        securityScopedBookmarks?: boolean
-    }): (string[]) | (undefined)
+        title?: string;
+        defaultPath?: string;
+        buttonLabel?: string;
+        filters?: {name: string; extensions: string[]}[];
+        properties?: Array<
+            | "openFile"
+            | "openDirectory"
+            | "multiSelections"
+            | "showHiddenFiles"
+            | "createDirectory"
+            | "promptToCreate"
+            | "noResolveAliases"
+            | "treatPackageAsDirectory"
+            | "dontAddToRecent"
+        >;
+        message?: string;
+        securityScopedBookmarks?: boolean;
+    }): string[] | undefined;
 
     /**
      * 打开文件保存框
      * @param options
      */
     showSaveDialog(options: {
-        title?: string,
-        defaultPath?: string,
-        buttonLabel?: string,
-        filters?: { name: string, extensions: string[] }[],
-        message?: string,
-        nameFieldLabel?: string,
-        showsTagField?: string,
-        properties?: Array<'showHiddenFiles' | 'createDirectory' | 'treatPackageAsDirectory' | 'showOverwriteConfirmation' | 'dontAddToRecent'>,
-        securityScopedBookmarks?: boolean
-    }): (string) | (undefined);
+        title?: string;
+        defaultPath?: string;
+        buttonLabel?: string;
+        filters?: {name: string; extensions: string[]}[];
+        message?: string;
+        nameFieldLabel?: string;
+        showsTagField?: string;
+        properties?: Array<
+            | "showHiddenFiles"
+            | "createDirectory"
+            | "treatPackageAsDirectory"
+            | "showOverwriteConfirmation"
+            | "dontAddToRecent"
+        >;
+        securityScopedBookmarks?: boolean;
+    }): string | undefined;
 
     /**
      * 截图
@@ -537,7 +556,21 @@ interface FocusAnyApi {
      * 获取路径
      * @param name
      */
-    getPath(name: 'home' | 'appData' | 'userData' | 'temp' | 'exe' | 'desktop' | 'documents' | 'downloads' | 'music' | 'pictures' | 'videos' | 'logs'): string;
+    getPath(
+        name:
+            | "home"
+            | "appData"
+            | "userData"
+            | "temp"
+            | "exe"
+            | "desktop"
+            | "documents"
+            | "downloads"
+            | "music"
+            | "pictures"
+            | "videos"
+            | "logs"
+    ): string;
 
     /**
      * 获取文件图标的Base64
@@ -606,18 +639,18 @@ interface FocusAnyApi {
      * @param key
      * @param modifiers
      */
-    simulateKeyboardTap(key: string, modifiers: ('ctrl' | 'shift' | 'command' | 'option' | 'alt')[]): void;
+    simulateKeyboardTap(key: string, modifiers: ("ctrl" | "shift" | "command" | "option" | "alt")[]): void;
 
     /**
      * 模拟鼠标按下
      */
-    getCursorScreenPoint(): { x: number, y: number };
+    getCursorScreenPoint(): {x: number; y: number};
 
     /**
      * 获取显示器
      * @param point
      */
-    getDisplayNearestPoint(point: { x: number, y: number }): any;
+    getDisplayNearestPoint(point: {x: number; y: number}): any;
 
     /**
      * 是否是MacOS
@@ -637,7 +670,7 @@ interface FocusAnyApi {
     /**
      * 获取平台架构
      */
-    getPlatformArch(): 'x86' | 'arm64' | null;
+    getPlatformArch(): "x86" | "arm64" | null;
 
     /**
      * 发送后端事件
@@ -645,9 +678,13 @@ interface FocusAnyApi {
      * @param data
      * @param option
      */
-    sendBackendEvent(event: string, data?: any, option?: {
-        timeout: number
-    }): Promise<any>;
+    sendBackendEvent(
+        event: string,
+        data?: any,
+        option?: {
+            timeout: number;
+        }
+    ): Promise<any>;
 
     /**
      * 数据库操作
@@ -724,13 +761,12 @@ interface FocusAnyApi {
      * @param info
      */
     setRemoteWebRuntime(info: {
-        userAgent: string,
-        urlMap: Record<string, string>,
-        types: string[],
-        domains: string[],
-        blocks: string[],
+        userAgent: string;
+        urlMap: Record<string, string>;
+        types: string[];
+        domains: string[];
+        blocks: string[];
     }): Promise<undefined>;
-
 
     /**
      * 文件
@@ -761,7 +797,7 @@ interface FocusAnyApi {
          * 获取文件后缀
          */
         ext(path: string): Promise<string>;
-    },
+    };
 
     /**
      * 快捷文件
@@ -780,7 +816,7 @@ interface FocusAnyApi {
          * @param data
          */
         write(type: string, path: string, data: any): Promise<void>;
-    },
+    };
 
     /**
      * 智能区域
@@ -795,7 +831,7 @@ interface FocusAnyApi {
          * 获取快捷面板当前插件渲染区域的高度
          */
         getHeight(): Promise<number>;
-    },
+    };
 
     /**
      * 分离窗口
@@ -810,16 +846,18 @@ interface FocusAnyApi {
          * set the detach window actions
          * @param operates
          */
-        setOperates(operates: {
-            name: string,
-            title: string,
-            click: () => void
-        }[]): void;
+        setOperates(
+            operates: {
+                name: string;
+                title: string;
+                click: () => void;
+            }[]
+        ): void;
         /**
          * 设置分离窗口的位置
          * @param position
          */
-        setPosition(position: 'center' | 'right-bottom' | 'left-top' | 'right-top' | 'left-bottom'): void;
+        setPosition(position: "center" | "right-bottom" | "left-top" | "right-top" | "left-bottom"): void;
         /**
          * 设置分离窗口是否置顶
          * @param alwaysOnTop
@@ -829,7 +867,7 @@ interface FocusAnyApi {
          * 设置分离窗口的大小
          */
         setSize(width: number, height: number): void;
-    },
+    };
 
     /**
      * 工具
@@ -874,9 +912,13 @@ interface FocusAnyApi {
          * @param data
          * @param option
          */
-        save(filename: string, data: string | Uint8Array, option?: {
-            isBase64?: boolean,
-        }): boolean;
+        save(
+            filename: string,
+            data: string | Uint8Array,
+            option?: {
+                isBase64?: boolean;
+            }
+        ): boolean;
     };
 }
 
