@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FocusAny Shim 测试</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #007AFF, #0056CC);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            min-width: 120px;
+        }
+
+        button:hover {
+            background: linear-gradient(135deg, #0056CC, #003D99);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .success {
+            background: linear-gradient(135deg, #52c41a, #389e0d);
+        }
+
+        .error {
+            background: linear-gradient(135deg, #ff4d4f, #cf1322);
+        }
+
+        .info {
+            background: linear-gradient(135deg, #1890ff, #096dd9);
+        }
+
+        #log {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2196f3;
+            background: #e3f2fd;
+        }
+
+        .log-entry {
+            margin-bottom: 5px;
+            padding: 2px 0;
+        }
+
+        .log-time {
+            color: #666;
+            font-weight: bold;
+        }
+
+        .log-success {
+            color: #52c41a;
+        }
+
+        .log-error {
+            color: #ff4d4f;
+        }
+
+        .log-info {
+            color: #1890ff;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🚀 FocusAny Shim 版本测试</h1>
+        <div class="status">
+            <strong>状态:</strong> <span id="status">初始化中...</span>
+        </div>
+
+        <div class="button-group">
+            <button onclick="testBasicNotification()">📢 基础通知</button>
+            <button onclick="testSuccessToast()" class="success">✅ 成功提示</button>
+            <button onclick="testErrorToast()" class="error">❌ 错误提示</button>
+            <button onclick="testInfoToast()" class="info">ℹ️ 信息提示</button>
+            <button onclick="testLongDuration()">⏰ 长时间通知</button>
+            <button onclick="testZeroDuration()">🔄 永久通知</button>
+            <button onclick="testCopyText()">📋 复制文本</button>
+            <button onclick="testPlatformDetection()">💻 平台检测</button>
+            <button onclick="testDbOperations()">💾 数据库操作</button>
+            <button onclick="clearLog()">🗑️ 清空日志</button>
+        </div>
+
+        <h3>📋 执行日志:</h3>
+        <div id="log">等待测试...</div>
+    </div>
+
+    <!-- 加载 Babel 转换后的 FocusAny Shim -->
+    <script src="focusany-shim-browser.min.js"></script>
+
+    <script>
+        // 日志记录函数
+        function addLog(message, type = 'info') {
+            const log = document.getElementById('log');
+            const time = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry log-${type}`;
+            logEntry.innerHTML = `<span class="log-time">[${time}]</span> ${message}`;
+            log.appendChild(logEntry);
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function clearLog() {
+            document.getElementById('log').innerHTML = '';
+            addLog('日志已清空');
+        }
+
+        function updateStatus(message, type = 'info') {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = `log-${type}`;
+        }
+
+        // 测试函数
+        function testBasicNotification() {
+            addLog('=== 测试基础通知 ===');
+            try {
+                window.focusany.showNotification("这是一个基础通知测试");
+                addLog('✅ 基础通知调用成功', 'success');
+            } catch (e) {
+                addLog('❌ 基础通知调用失败: ' + e.message, 'error');
+            }
+        }
+
+        function testSuccessToast() {
+            addLog('=== 测试成功提示 ===');
+            try {
+                window.focusany.showToast("操作执行成功！", { status: "success", duration: 3000 });
+                addLog('✅ 成功提示调用成功', 'success');
+            } catch (e) {
+                addLog('❌ 成功提示调用失败: ' + e.message, 'error');
+            }
+        }
+
+        function testErrorToast() {
+            addLog('=== 测试错误提示 ===');
+            try {
+                window.focusany.showToast("发生了一个错误！", { status: "error", duration: 4000 });
+                addLog('✅ 错误提示调用成功', 'success');
+            } catch (e) {
+                addLog('❌ 错误提示调用失败: ' + e.message, 'error');
+            }
+        }
+
+        function testInfoToast() {
+            addLog('=== 测试信息提示 ===');
+            try {
+                window.focusany.showToast("这是一条信息提示", { status: "info", duration: 2000 });
+                addLog('✅ 信息提示调用成功', 'success');
+            } catch (e) {
+                addLog('❌ 信息提示调用失败: ' + e.message, 'error');
+            }
+        }
+
+        function testLongDuration() {
+            addLog('=== 测试长时间通知 ===');
+            try {
+                window.focusany.showToast("这个通知会显示10秒", { duration: 10000 });
+                addLog('✅ 长时间通知调用成功', 'success');
+            } catch (e) {
+                addLog('❌ 长时间通知调用失败: ' + e.message, 'error');
+            }
+        }
+
+        function testZeroDuration() {
+            addLog('=== 测试永久通知 ===');
+            try {
+                window.focusany.showToast("这个通知不会自动消失，点击X关闭", { duration: 0 });
+                addLog('✅ 永久通知调用成功', 'success');
+            } catch (e) {
+                addLog('❌ 永久通知调用失败: ' + e.message, 'error');
+            }
+        }
+
+        function testCopyText() {
+            addLog('=== 测试复制文本 ===');
+            try {
+                const result = window.focusany.copyText("Hello from FocusAny Shim!");
+                if (result) {
+                    addLog('✅ 文本复制成功', 'success');
+                    window.focusany.showToast("文本已复制到剪贴板", { status: "success" });
+                } else {
+                    addLog('❌ 文本复制失败', 'error');
+                }
+            } catch (e) {
+                addLog('❌ 复制文本调用失败: ' + e.message, 'error');
+            }
+        }
+
+        function testPlatformDetection() {
+            addLog('=== 测试平台检测 ===');
+            try {
+                const isMac = window.focusany.isMacOs();
+                const isWindows = window.focusany.isWindows();
+                const isLinux = window.focusany.isLinux();
+
+                addLog(`macOS: ${isMac}, Windows: ${isWindows}, Linux: ${isLinux}`);
+                addLog('✅ 平台检测完成', 'success');
+
+                let platform = 'Unknown';
+                if (isMac) platform = 'macOS';
+                else if (isWindows) platform = 'Windows';
+                else if (isLinux) platform = 'Linux';
+
+                window.focusany.showToast(`检测到平台: ${platform}`, { status: "info" });
+            } catch (e) {
+                addLog('❌ 平台检测失败: ' + e.message, 'error');
+            }
+        }
+
+        function testDbOperations() {
+            addLog('=== 测试数据库操作 ===');
+            try {
+                // 测试写入
+                const doc = {
+                    _id: 'test-' + Date.now(),
+                    name: 'Test Document',
+                    content: 'This is a test document',
+                    timestamp: new Date().toISOString()
+                };
+
+                const putResult = window.focusany.db.put(doc);
+                addLog(`写入文档: ${JSON.stringify(putResult)}`);
+
+                // 测试读取
+                const getResult = window.focusany.db.get(doc._id);
+                addLog(`读取文档: ${JSON.stringify(getResult)}`);
+
+                // 测试查询所有
+                const allDocs = window.focusany.db.allDocs();
+                addLog(`所有文档数量: ${allDocs.length}`);
+
+                addLog('✅ 数据库操作测试完成', 'success');
+                window.focusany.showToast("数据库操作测试完成", { status: "success" });
+            } catch (e) {
+                addLog('❌ 数据库操作失败: ' + e.message, 'error');
+            }
+        }
+
+        // 页面加载完成后的检查
+        document.addEventListener('DOMContentLoaded', function () {
+            addLog('页面加载完成');
+
+            setTimeout(() => {
+                if (window.focusany) {
+                    addLog('✅ FocusAny Shim 已成功加载', 'success');
+                    updateStatus('✅ FocusAny Shim 就绪', 'success');
+
+                    // 测试可用方法
+                    const methods = ['showNotification', 'showToast', 'copyText', 'isMacOs', 'isWindows', 'isLinux'];
+                    const availableMethods = methods.filter(method => {
+                        try {
+                            return typeof window.focusany[method] === 'function';
+                        } catch (e) {
+                            return false;
+                        }
+                    });
+
+                    addLog(`可用方法: ${availableMethods.join(', ')}`);
+
+                    // 自动显示欢迎消息
+                    window.focusany.showToast("FocusAny Shim Babel 版本加载成功！", {
+                        status: "success",
+                        duration: 3000
+                    });
+                } else {
+                    addLog('❌ FocusAny Shim 加载失败', 'error');
+                    updateStatus('❌ FocusAny Shim 加载失败', 'error');
+                }
+            }, 100);
+        });
+
+        // 监听控制台输出
+        const originalLog = console.log;
+        const originalError = console.error;
+
+        console.log = function (...args) {
+            addLog('Console.log: ' + args.join(' '));
+            originalLog.apply(console, args);
+        };
+
+        console.error = function (...args) {
+            addLog('Console.error: ' + args.join(' '), 'error');
+            originalError.apply(console, args);
+        };
+    </script>
+</body>
+
+</html>

@@ -1,6 +1,6 @@
 /// <reference path="focusany.d.ts" />
 
-export const FocusAnyShim = {
+const FocusAnyShim = {
     init() {
         if (window["focusany"]) {
             return;
@@ -61,10 +61,28 @@ export const FocusAnyShim = {
                 const duration =
                     typeof options?.duration === "number" && options.duration >= 0 ? options.duration : 3000;
                 const status = ["info", "success", "error"].includes(options?.status) ? options.status : "info";
+
+                // 创建SVG图标函数
+                const createSvgIcon = (type: string): string => {
+                    const svgBase =
+                        'xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="currentColor"';
+
+                    switch (type) {
+                        case "info":
+                            return `<svg ${svgBase}><circle cx="8" cy="8" r="7" fill="rgba(255,255,255,0.15)" stroke="currentColor" stroke-width="1"/><path d="M8 4a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-1 0v-3A.5.5 0 0 1 8 4zM8 11a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5z"/></svg>`;
+                        case "success":
+                            return `<svg ${svgBase}><circle cx="8" cy="8" r="7" fill="rgba(255,255,255,0.15)" stroke="currentColor" stroke-width="1"/><path d="M10.854 5.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 7.793l2.646-2.647a.5.5 0 0 1 .708 0z"/></svg>`;
+                        case "error":
+                            return `<svg ${svgBase}><circle cx="8" cy="8" r="7" fill="rgba(255,255,255,0.15)" stroke="currentColor" stroke-width="1"/><path d="M5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"/></svg>`;
+                        default:
+                            return `<svg ${svgBase}><circle cx="8" cy="8" r="6" fill="rgba(255,255,255,0.15)"/></svg>`;
+                    }
+                };
+
                 const statusStyles = {
-                    info: {background: "#333333", color: "#ffffff", icon: "ℹ️"},
-                    success: {background: "#52c41a", color: "#ffffff", icon: "✅"},
-                    error: {background: "#ff4d4f", color: "#ffffff", icon: "❌"},
+                    info: {background: "#1890ff", color: "#ffffff", icon: createSvgIcon("info")},
+                    success: {background: "#52c41a", color: "#ffffff", icon: createSvgIcon("success")},
+                    error: {background: "#ff4d4f", color: "#ffffff", icon: createSvgIcon("error")},
                 };
                 const currentStyle = statusStyles[status];
 
@@ -123,11 +141,16 @@ export const FocusAnyShim = {
 
                 // 添加状态图标
                 const iconSpan = document.createElement("span");
-                iconSpan.textContent = currentStyle.icon;
+                iconSpan.innerHTML = currentStyle.icon;
                 iconSpan.style.cssText = `
                     font-size: 16px !important;
                     line-height: 1 !important;
                     flex-shrink: 0 !important;
+                    padding: 4px 6px !important;
+                    border-radius: 4px !important;
+                    display: inline-flex !important;
+                    align-items: center !important;
+                    justify-content: center !important;
                 `;
 
                 // 添加文本内容
@@ -144,12 +167,13 @@ export const FocusAnyShim = {
                 closeButton.textContent = "×";
                 closeButton.style.cssText = `
                     position: absolute !important;
-                    top: 10px !important;
+                    top: 50% !important;
                     right: 8px !important;
-                    font-size: 18px !important;
+                    transform: translateY(-50%) !important;
+                    font-size: 16px !important;
                     font-weight: bold !important;
                     cursor: pointer !important;
-                    color: #FFFFFF !important;
+                    color: rgba(255, 255, 255, 0.8) !important;
                     line-height: 1 !important;
                     width: 20px !important;
                     height: 20px !important;
@@ -158,15 +182,19 @@ export const FocusAnyShim = {
                     align-items: center !important;
                     justify-content: center !important;
                     border-radius: 50% !important;
+                    background: rgba(255, 255, 255, 0.1) !important;
                     transition: all 0.2s ease !important;
+                    backdrop-filter: blur(4px) !important;
                 `;
                 closeButton.addEventListener("mouseenter", () => {
                     closeButton.style.color = "#ffffff !important";
-                    closeButton.style.backgroundColor = "rgba(255, 255, 255, 0.1) !important";
+                    closeButton.style.backgroundColor = "rgba(255, 255, 255, 0.2) !important";
+                    closeButton.style.transform = "translateY(-50%) scale(1.1) !important";
                 });
                 closeButton.addEventListener("mouseleave", () => {
-                    closeButton.style.color = "#999999 !important";
-                    closeButton.style.backgroundColor = "transparent !important";
+                    closeButton.style.color = "rgba(255, 255, 255, 0.8) !important";
+                    closeButton.style.backgroundColor = "rgba(255, 255, 255, 0.1) !important";
+                    closeButton.style.transform = "translateY(-50%) scale(1) !important";
                 });
                 closeButton.addEventListener("click", e => {
                     e.stopPropagation();

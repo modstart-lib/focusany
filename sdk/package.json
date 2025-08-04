@@ -1,22 +1,29 @@
 {
     "name": "focusany-sdk",
-    "version": "0.3.3",
+    "version": "0.3.4",
     "description": "TypeScript definitions for FocusAny",
     "main": "./index.js",
     "types": "./index.d.ts",
     "repository": {
         "type": "git",
-        "url": "https://github.com/modstart-lib/focusany-sdk"
+        "url": "https://github.com/modstart-lib/focusany"
     },
     "keywords": [
         "FocusAny"
     ],
-    "author": "ModStartLib",
+    "author": "ModStart",
     "license": "Apache-2.0",
     "bugs": {
-        "url": "https://github.com/modstart-lib/focusany-sdk/issues"
+        "url": "https://github.com/modstart-lib/focusany/issues"
     },
-    "homepage": "https://github.com/modstart-lib/focusany-sdk#readme",
+    "homepage": "https://github.com/modstart-lib/focusany#readme",
+    "scripts": {
+        "build": "babel focusany-shim.ts --out-file focusany-shim-browser.js --extensions \".ts\" && terser focusany-shim-browser.js --output focusany-shim-browser.min.js --compress --mangle",
+        "build:dev": "babel focusany-shim.ts --out-file focusany-shim-browser.js --extensions \".ts\"",
+        "update": "npm run build",
+        "build:watch": "babel focusany-shim.ts --out-file focusany-shim-browser.js --extensions \".ts\" --watch",
+        "compress": "terser focusany-shim-browser.js --output focusany-shim-browser.min.js --compress --mangle"
+    },
     "exports": {
         ".": {
             "types": "./index.d.ts",
@@ -26,5 +33,12 @@
             "types": "./focusany-shim.d.ts",
             "default": "./focusany-shim.js"
         }
+    },
+    "devDependencies": {
+        "@babel/cli": "^7.28.0",
+        "@babel/core": "^7.28.0",
+        "@babel/preset-env": "^7.28.0",
+        "@babel/preset-typescript": "^7.27.1",
+        "terser": "^5.43.1"
     }
 }

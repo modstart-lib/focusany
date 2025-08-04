@@ -1,0 +1,25 @@
+{
+  "presets": [
+    [
+      "@babel/preset-env",
+      {
+        "targets": {
+          "browsers": [
+            "> 1%",
+            "last 2 versions",
+            "not dead"
+          ]
+        },
+        "modules": false,
+        "useBuiltIns": false
+      }
+    ],
+    [
+      "@babel/preset-typescript",
+      {
+        "allowDeclareFields": true
+      }
+    ]
+  ],
+  "plugins": []
+}
