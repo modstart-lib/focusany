@@ -51,6 +51,154 @@ export const FocusAnyShim = {
             isLinux(): boolean {
                 return navigator.platform.toLowerCase().includes("linux");
             },
+            showNotification(body: string, clickActionName?: string): void {
+                focusanySupport.showToast(body, {
+                    duration: 5000,
+                    status: "info",
+                });
+            },
+            showToast(body: string, options?: {duration?: number; status?: "info" | "success" | "error"}): void {
+                const duration =
+                    typeof options?.duration === "number" && options.duration >= 0 ? options.duration : 3000;
+                const status = ["info", "success", "error"].includes(options?.status) ? options.status : "info";
+                const statusStyles = {
+                    info: {background: "#333333", color: "#ffffff", icon: "ℹ️"},
+                    success: {background: "#52c41a", color: "#ffffff", icon: "✅"},
+                    error: {background: "#ff4d4f", color: "#ffffff", icon: "❌"},
+                };
+                const currentStyle = statusStyles[status];
+
+                let container = document.getElementById("focusany-shim-toast-container");
+                if (!container) {
+                    container = document.createElement("div");
+                    container.id = "focusany-shim-toast-container";
+                    container.style.cssText = `
+                        position: fixed !important;
+                        top: 20px !important;
+                        right: 20px !important;
+                        z-index: 999999 !important;
+                        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+                        pointer-events: none !important;
+                        max-width: 350px !important;
+                        width: auto !important;
+                    `;
+                    document.body.appendChild(container);
+                }
+
+                // 创建通知元素
+                const notification = document.createElement("div");
+                notification.style.cssText = `
+                    background: ${currentStyle.background} !important;
+                    color: ${currentStyle.color} !important;
+                    padding: 12px 30px 12px 16px !important;
+                    margin-bottom: 10px !important;
+                    border-radius: 6px !important;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+                    font-size: 14px !important;
+                    line-height: 1.4 !important;
+                    width: 100% !important;
+                    max-width: 320px !important;
+                    word-wrap: break-word !important;
+                    opacity: 0 !important;
+                    transform: translateX(350px) !important;
+                    transition: all 0.3s ease !important;
+                    pointer-events: auto !important;
+                    cursor:default !important;
+                    border: none !important;
+                    outline: none !important;
+                    text-decoration: none !important;
+                    box-sizing: border-box !important;
+                    display: block !important;
+                    position: relative !important;
+                    min-height: 20px !important;
+                `;
+
+                // 创建内容容器
+                const content = document.createElement("div");
+                content.style.cssText = `
+                    display: flex !important;
+                    align-items: center !important;
+                    gap: 8px !important;
+                `;
+
+                // 添加状态图标
+                const iconSpan = document.createElement("span");
+                iconSpan.textContent = currentStyle.icon;
+                iconSpan.style.cssText = `
+                    font-size: 16px !important;
+                    line-height: 1 !important;
+                    flex-shrink: 0 !important;
+                `;
+
+                // 添加文本内容
+                const textSpan = document.createElement("span");
+                textSpan.textContent = body;
+                textSpan.style.cssText = `
+                    flex: 1 !important;
+                `;
+
+                content.appendChild(iconSpan);
+                content.appendChild(textSpan);
+                notification.appendChild(content);
+                const closeButton = document.createElement("span");
+                closeButton.textContent = "×";
+                closeButton.style.cssText = `
+                    position: absolute !important;
+                    top: 10px !important;
+                    right: 8px !important;
+                    font-size: 18px !important;
+                    font-weight: bold !important;
+                    cursor: pointer !important;
+                    color: #FFFFFF !important;
+                    line-height: 1 !important;
+                    width: 20px !important;
+                    height: 20px !important;
+                    text-align: center !important;
+                    display: flex !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                    border-radius: 50% !important;
+                    transition: all 0.2s ease !important;
+                `;
+                closeButton.addEventListener("mouseenter", () => {
+                    closeButton.style.color = "#ffffff !important";
+                    closeButton.style.backgroundColor = "rgba(255, 255, 255, 0.1) !important";
+                });
+                closeButton.addEventListener("mouseleave", () => {
+                    closeButton.style.color = "#999999 !important";
+                    closeButton.style.backgroundColor = "transparent !important";
+                });
+                closeButton.addEventListener("click", e => {
+                    e.stopPropagation();
+                    removeNotification();
+                });
+                notification.appendChild(closeButton);
+                container.appendChild(notification);
+                setTimeout(() => {
+                    notification.style.setProperty("opacity", "1", "important");
+                    notification.style.setProperty("transform", "translateX(0)", "important");
+                }, 10);
+                const removeNotification = () => {
+                    notification.style.setProperty("opacity", "0", "important");
+                    notification.style.setProperty("transform", "translateX(350px)", "important");
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            notification.parentNode.removeChild(notification);
+                        }
+                        // 如果容器为空，移除容器
+                        if (container && container.children.length === 0) {
+                            if (container.parentNode) {
+                                container.parentNode.removeChild(container);
+                            }
+                        }
+                    }, 300);
+                };
+
+                // 使用配置的 duration 时间自动移除
+                if (duration > 0) {
+                    setTimeout(removeNotification, duration);
+                }
+            },
             // use localStorage with prefix db:xxx to store data
             db: {
                 put(doc: DbDoc): DbReturn {
