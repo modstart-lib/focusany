@@ -71,6 +71,7 @@ declare interface Window {
                 option?: {
                     cwd?: string;
                     outputEncoding?: string;
+                    shell?: boolean;
                 }
             ) => Promise<void>;
             spawnShell: (
@@ -83,6 +84,7 @@ declare interface Window {
                     cwd?: string;
                     outputEncoding?: string;
                     env?: Record<string, any>;
+                    shell?: boolean;
                 } | null
             ) => Promise<{
                 stop: () => void;
