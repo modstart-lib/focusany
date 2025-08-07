@@ -247,6 +247,8 @@ declare interface Window {
                     isFullPath?: boolean;
                     returnFullPath?: boolean;
                     ignoreWhenInHub?: boolean;
+                    cleanOld?: boolean;
+                    saveGroup?: string;
                     savePath?: string;
                     savePathParam?: {
                         [key: string]: any;
