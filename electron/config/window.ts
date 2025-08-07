@@ -11,7 +11,7 @@ export const WindowConfig = {
     pluginHeight: 500,
     aboutWidth: 500,
     aboutHeight: 400,
-    feedbackWidth: 600,
+    feedbackWidth: 700,
     feedbackHeight: 600,
     guideWidth: 800,
     guideHeight: 540,
