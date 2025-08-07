@@ -3,7 +3,7 @@ import {ipcMain} from "electron";
 import {StrUtil} from "../../lib/util";
 import {ManagerWindow} from "../manager/window";
 
-const init = () => {};
+const init = async () => {};
 
 type NameType = "main" | "fastPanel" | string;
 type EventType = "APP_READY" | "CALL_PAGE" | "CHANNEL" | "BROADCAST";

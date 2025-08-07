@@ -9,7 +9,7 @@ import StorageMain from "../storage/main";
 import {Log} from "../log/main";
 import {ManagerPluginEvent} from "../manager/plugin/event";
 
-const init = () => {
+const init = async () => {
     setTimeout(() => {
         refresh().then();
     }, 1000);
