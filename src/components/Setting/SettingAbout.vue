@@ -8,7 +8,7 @@ const setting = useSettingStore();
 const licenseYear = new Date().getFullYear();
 
 const doOpenLog = async () => {
-    await window.$mapi.file.openPath(window.$mapi.log.root());
+    await window.$mapi.app.openPath(window.$mapi.log.root());
 };
 </script>
 

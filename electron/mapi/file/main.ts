@@ -39,10 +39,6 @@ ipcMain.handle("file:openSave", async (_, options): Promise<string | null> => {
     return res.filePath || null;
 });
 
-ipcMain.handle("file:openPath", async (_, path, options) => {
-    return shell.openPath(path);
-});
-
 export default {
     ...fileIndex,
 };
