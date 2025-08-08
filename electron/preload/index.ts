@@ -124,6 +124,7 @@ ipcRenderer.on("MAIN_PROCESS_MESSAGE", (_event: any, payload: any) => {
             ipcRenderer.send(resultEventName, {code, msg, data});
         };
         if (!window["__page"].callPage) {
+            console.warn("CALL_PAGE.Failed", JSON.stringify(payload));
             send(-1, "error");
             return;
         }
@@ -141,6 +142,7 @@ ipcRenderer.on("MAIN_PROCESS_MESSAGE", (_event: any, payload: any) => {
                     setTimeout(() => {
                         if (!window["__page"].callPage[type]) {
                             if (Date.now() - start > option.waitReadyTimeout) {
+                                console.warn("CALL_PAGE.Timeout", type, {type, data, option});
                                 send(-1, "timeout");
                                 return;
                             } else {
@@ -155,6 +157,7 @@ ipcRenderer.on("MAIN_PROCESS_MESSAGE", (_event: any, payload: any) => {
                 monitor();
                 return;
             }
+            console.warn("CALL_PAGE.NotFound", type, {type, data, option});
             send(-1, "event not found");
             return;
         }
