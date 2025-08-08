@@ -17,6 +17,7 @@ path_source_png="${path_build}/logo_1024x1024.png"
 
 cp -a "${path_svg}" "${PROJECT_ROOT}/src/assets/image/logo.svg"
 cp -a "${path_white_svg}" "${PROJECT_ROOT}/src/assets/image/logo-white.svg"
+cp -a "${path_white_svg}" "${PROJECT_ROOT}/src/assets/image/search-icon.svg"
 
 inkscape "${path_svg}" --export-type=png --export-filename="${path_source_png}" -w 1024 -h 1024
 
