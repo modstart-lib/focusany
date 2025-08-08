@@ -244,7 +244,6 @@ declare interface Window {
                 file: string,
                 option?: {
                     ext?: string;
-                    isFullPath?: boolean;
                     returnFullPath?: boolean;
                     ignoreWhenInHub?: boolean;
                     cleanOld?: boolean;
@@ -255,6 +254,15 @@ declare interface Window {
                     };
                 }
             ) => Promise<string>;
+            hubDelete: (
+                file: string,
+                option?: {
+                    isFullPath?: boolean;
+                    ignoreWhenNotInHub?: boolean;
+                    tryLaterWhenFailed?: boolean;
+                }
+            ) => Promise<void>;
+            hubFullPath: (file: string) => Promise<string>;
             hubFile: (
                 ext: string,
                 option?: {
@@ -266,7 +274,7 @@ declare interface Window {
                     };
                 }
             ) => Promise<string>;
-            isHubFile: (file: string, option?: {isFullPath?: boolean}) => Promise<boolean>;
+            isHubFile: (file: string) => Promise<boolean>;
         };
         updater: {
             checkForUpdate: () => Promise<ApiResult<any>>;
