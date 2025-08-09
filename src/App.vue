@@ -1,8 +1,8 @@
 <template>
     <a-config-provider :locale="locale" :global="true">
         <div ref="main" id="main">
-            <MainSearch ref="mainSearch" @onClose="onClose" />
-            <MainResult ref="mainResult" />
+            <MainSearch ref="mainSearch" @onClose="onClose"/>
+            <MainResult ref="mainResult"/>
         </div>
     </a-config-provider>
 </template>
@@ -34,6 +34,7 @@ const onClose = () => {
 
 window.__page.onShow(() => {
     // console.log('main.onShow')
+    manager.showFirstRun = true;
     mainSearch.value?.onShow();
 });
 window.__page.onPluginInit(
@@ -92,7 +93,7 @@ window.__page.onPluginState(() => {
         placeholder: manager.searchSubPlaceholder,
     };
 });
-window.__page.onSetSubInput((param: {placeholder: string; isFocus: boolean; isVisible: boolean}) => {
+window.__page.onSetSubInput((param: { placeholder: string; isFocus: boolean; isVisible: boolean }) => {
     // console.log('main.onSetSubInput', param)
     manager.setSubInput(param);
 });

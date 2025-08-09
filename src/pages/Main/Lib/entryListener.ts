@@ -19,66 +19,55 @@ export const EntryListener = {
             },
             option
         );
-
         // console.log('EntryListener.prepareSearch', option)
-
-        // 清除搜索框
-        if (manager.searchValue) {
-            // 如果10分钟未变化，清空搜索框，避免弹出对话框是上一次的搜索内容
-            if (
-                manager.searchValueUpdateTimestamp > 0 &&
-                manager.searchValueUpdateTimestamp < TimeUtil.timestamp() - 10 * 60
-            ) {
-                manager.searchValue = "";
-            }
-        }
 
         let searchValue = manager.searchValue;
 
-        // 选中，只有快捷面板才获取
         let selectedContent: SelectedContent | null = null;
+
+        // the fast panel should check the selected content
         if (option.isFastPanel) {
             selectedContent = await window.$mapi.manager.getSelectedContent();
         }
 
         const clipboardContent: ClipboardDataType | null = await window.$mapi.manager.getClipboardContent();
-        const clipboardChangeTime = await window.$mapi.manager.getClipboardChangeTime();
-        // 最近6秒内的剪切板变更才会被视为有效
+
         let useClipboard = false;
-        if (manager.searchValueUpdateTimestamp > 0 && !manager.searchValue) {
-            if (clipboardChangeTime > TimeUtil.timestamp() - 6) {
+        // first use clipboard
+        if (manager.showFirstRun) {
+            manager.showFirstRun = false;
+            const clipboardChangeTime = await window.$mapi.manager.getClipboardChangeTime();
+            // only use clipboard if it has changed in the last 10 seconds
+            if (clipboardChangeTime > 0 && clipboardChangeTime > TimeUtil.timestamp() - 10) {
                 useClipboard = true;
             }
         }
+        if (!useClipboard && option.isPaste) {
+            useClipboard = true;
+        }
 
-        // 文件
+        // files
         manager.setCurrentFiles([]);
         if (selectedContent && selectedContent.type === "file" && selectedContent.files?.length) {
             manager.setCurrentFiles(selectedContent.files as FileItem[]);
-        } else if (clipboardContent && clipboardContent.type === "file" && clipboardContent.files?.length) {
-            if (useClipboard || option.isPaste) {
-                manager.setCurrentFiles(clipboardContent.files as FileItem[]);
-            }
+        } else if (useClipboard && clipboardContent && clipboardContent.type === "file" && clipboardContent.files?.length) {
+            manager.setCurrentFiles(clipboardContent.files as FileItem[]);
         }
 
-        // 图片
+        // image
         manager.setCurrentImage("");
-        if (clipboardContent && clipboardContent.type === "image" && clipboardContent.image) {
-            if (useClipboard || option.isPaste) {
-                manager.setCurrentImage(clipboardContent.image);
-            }
+        if (useClipboard && clipboardContent && clipboardContent.type === "image" && clipboardContent.image) {
+            manager.setCurrentImage(clipboardContent.image);
         }
-        // 文本
+
+        // text
         manager.setCurrentText("");
         if (selectedContent && selectedContent.type === "text" && selectedContent.text) {
             manager.setCurrentText(selectedContent.text);
-        } else if (clipboardContent && clipboardContent.type === "text" && clipboardContent.text) {
-            if (useClipboard || option.isPaste) {
-                manager.setCurrentText(clipboardContent.text);
-            }
+        } else if (useClipboard && clipboardContent && clipboardContent.type === "text" && clipboardContent.text) {
+            manager.setCurrentText(clipboardContent.text);
         }
         if (!option.isFastPanel && manager.currentText) {
-            // 单行复制的文本，直接粘贴到搜索框
             if (manager.currentText.split("\n").length === 1 && manager.currentText.length < 100) {
                 searchValue = manager.currentText;
                 manager.setCurrentText("");
