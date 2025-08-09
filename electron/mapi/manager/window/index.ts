@@ -388,34 +388,32 @@ export const ManagerWindow = {
             mainWindowView = null;
         }
         view._window = AppRuntime.mainWindow;
-        AppRuntime.mainWindow.setSize(WindowConfig.mainWidth, WindowConfig.mainHeight);
         mainWindowView = view;
         AppRuntime.mainWindow.addBrowserView(view);
-        return new Promise((resolve, reject) => {
-            view.webContents.once("dom-ready", async () => {
-                AppRuntime.mainWindow.setSize(option.width, WindowConfig.mainHeight + option.height);
-                view.setBounds({
-                    x: 0,
-                    y: WindowConfig.mainHeight,
-                    width: option.width,
-                    height: option.height,
-                });
-                const pluginParam = {};
-                const pluginState: PluginState = {
-                    value: "",
-                    placeholder: "",
-                    isVisible: false,
-                };
-                await executeHooks(view._window, "PluginInit", {
-                    plugin: view._plugin,
-                    state: pluginState,
-                    param: pluginParam,
-                });
-                AppRuntime.mainWindow.focus();
-                resolve(undefined);
+        AppRuntime.mainWindow.setSize(option.width, WindowConfig.mainHeight + option.height);
+        const pluginParam = {};
+        const pluginState: PluginState = {
+            value: "",
+            placeholder: "",
+            isVisible: false,
+        };
+        const pluginInitReadyParam = {
+            plugin: view._plugin,
+            state: pluginState,
+            param: pluginParam,
+        }
+        await executeHooks(view._window, "PluginInit", pluginInitReadyParam);
+        view.webContents.once("dom-ready", async () => {
+            await executeHooks(view._window, "PluginInitReady", pluginInitReadyParam);
+            view.setBounds({
+                x: 0,
+                y: WindowConfig.mainHeight,
+                width: option.width,
+                height: option.height,
             });
-            option.loadUrl();
+            AppRuntime.mainWindow.focus();
         });
+        option.loadUrl();
     },
     async _showInDetachWindow(
         view: BrowserView,
@@ -558,8 +556,8 @@ export const ManagerWindow = {
                     state: option.pluginState,
                     param: pluginParam,
                 });
-                resolve(undefined);
                 win.show();
+                resolve(undefined);
             });
             rendererLoadPath(win, "page/detachWindow.html");
             addDetachWindows(win);

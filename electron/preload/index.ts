@@ -65,6 +65,9 @@ window["__page"] = {
     onPluginInit: (cb: Function) => {
         window["__page"].hooks.onPluginInit = cb;
     },
+    onPluginInitReady: (cb: Function) => {
+        window["__page"].hooks.onPluginInitReady = cb;
+    },
     onPluginAlreadyOpened: (cb: Function) => {
         window["__page"].hooks.onPluginAlreadyOpened = cb;
     },

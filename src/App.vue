@@ -44,6 +44,7 @@ window.__page.onPluginInit(
         };
     }) => {
         // console.log('main.onPluginInit', data)
+        manager.setActivePluginLoading(true);
         manager.setActivePlugin(data.plugin);
         manager.setSubInput({
             placeholder: "",
@@ -54,6 +55,10 @@ window.__page.onPluginInit(
         mainSearch.value?.focus();
     }
 );
+window.__page.onPluginInitReady(() => {
+    // console.log('main.onPluginInitReady')
+    manager.setActivePluginLoading(false);
+});
 window.__page.onPluginAlreadyOpened(() => {
     // console.log('main.onPluginAlreadyOpened')
     manager.search("");

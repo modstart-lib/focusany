@@ -21,6 +21,7 @@ type HookType =
     | "RemoveSubInput"
     | "SetSubInputValue"
     | "PluginInit"
+    | "PluginInitReady"
     | "PluginExit"
     | "PluginAlreadyOpened"
     | "PluginDetached"

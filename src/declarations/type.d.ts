@@ -18,6 +18,7 @@ declare interface Window {
         ipcSend: (channel: string, type: string, data?: any) => void;
 
         onPluginInit: (cb: Function) => void;
+        onPluginInitReady: (cb: Function) => void;
         onPluginAlreadyOpened: (cb: Function) => void;
         onPluginExit: (cb: Function) => void;
         onPluginDetached: (cb: Function) => void;

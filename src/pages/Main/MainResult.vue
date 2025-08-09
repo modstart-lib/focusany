@@ -1,16 +1,24 @@
 <template>
     <div class="pb-result">
         <div ref="groupContainer">
+            <div v-if="manager.activePlugin && manager.activePluginLoading">
+                <div class="text-center py-32">
+                    <div class="mb-6 relative">
+                        <div class="w-12 h-12 bg-gradient-to-b from-gray-100 to-gray-300 absolute top-0 left-0 right-0 bottom-0 m-auto rounded-full animate-spin"></div>
+                        <img class="w-10 h-10 opacity-50 mx-auto" src="./../../assets/image/search-icon.svg" />
+                    </div>
+                    <div class="text-gray-400">正在启动</div>
+                </div>
+            </div>
             <div
                 class="group-container"
                 :class="{'has-actions': hasActions, 'has-view-actions': hasViewActions}"
-                v-if="!manager.activePlugin"
-            >
+                v-else-if="!manager.activePlugin">
                 <div class="group-main">
                     <div v-if="showDetachWindowActions.length" class="group">
                         <div class="group-title">
                             <div class="title">
-                                <img draggable="false" class="dark:invert" :src="SystemIcons.searchWindow" />
+                                <img draggable="false" class="dark:invert" :src="SystemIcons.searchWindow"/>
                                 窗口
                             </div>
                             <div class="more">&nbsp;</div>
@@ -21,7 +29,7 @@
                                 v-for="(a, aIndex) in showDetachWindowActions"
                                 :class="{active: activeActionGroup === 'window' && actionActionIndex === aIndex}"
                             >
-                                <ResultWindowItem :action="a" @open="openActionForWindow('open', a)" />
+                                <ResultWindowItem :action="a" @open="openActionForWindow('open', a)"/>
                             </div>
                         </div>
                     </div>
@@ -32,7 +40,7 @@
                             :class="!searchActionIsExtend ? 'has-more' : ''"
                         >
                             <div class="title">
-                                <img draggable="false" class="dark:invert" :src="SystemIcons.searchKeyword" />
+                                <img draggable="false" class="dark:invert" :src="SystemIcons.searchKeyword"/>
                                 搜索结果
                             </div>
                             <div class="more" v-if="!searchActionIsExtend">
@@ -61,7 +69,7 @@
                             :class="!matchActionIsExtend ? 'has-more' : ''"
                         >
                             <div class="title">
-                                <img class="dark:invert" :src="SystemIcons.searchMatch" />
+                                <img class="dark:invert" :src="SystemIcons.searchMatch"/>
                                 匹配结果
                             </div>
                             <div class="more" v-if="!matchActionIsExtend">
@@ -86,12 +94,12 @@
                     <div v-if="showHistoryActions.length" class="group">
                         <div class="group-title" :class="!historyActionIsExtend ? 'has-more' : ''">
                             <div class="title">
-                                <icon-history />
+                                <icon-history/>
                                 最近使用
                             </div>
                             <div class="more">
                                 <a href="javascript:;" class="auto-hide" @click="doHistoryClear">
-                                    <icon-delete />
+                                    <icon-delete/>
                                 </a>
                                 <a href="javascript:;" v-if="!historyActionIsExtend" @click="doHistoryActionExtend">
                                     展开全部({{ manager.historyActions.length }})
@@ -133,7 +141,7 @@
                                 v-for="(a, aIndex) in showPinActions"
                                 :class="{active: activeActionGroup === 'pin' && actionActionIndex === aIndex}"
                             >
-                                <ResultItem :action="a" @open="doOpenAction(a)" show-pin @pin="doPinToggle(a)" />
+                                <ResultItem :action="a" @open="doOpenAction(a)" show-pin @pin="doPinToggle(a)"/>
                             </div>
                         </div>
                     </div>
@@ -143,13 +151,13 @@
                     >
                         <div class="group-title">
                             <div class="title">
-                                <icon-search />
+                                <icon-search/>
                                 搜索结果
                             </div>
                         </div>
                         <div class="text-center" style="height: 250px">
                             <div class="py-4">
-                                <m-empty />
+                                <m-empty/>
                             </div>
                         </div>
                     </div>
@@ -173,7 +181,7 @@
                                 <div v-if="0" class="action">
                                     <a href="javascript:;"> 关闭 </a>
                                     <a href="javascript:;">
-                                        <icon-more-vertical />
+                                        <icon-more-vertical/>
                                     </a>
                                 </div>
                             </div>
@@ -191,7 +199,7 @@
                                     disablewebsecurity
                                 ></webview>
                                 <div class="view-item-loading" v-if="!r['_webReady']">
-                                    <icon-loading />
+                                    <icon-loading/>
                                 </div>
                             </div>
                         </div>

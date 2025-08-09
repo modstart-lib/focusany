@@ -43,6 +43,7 @@ export const managerStore = defineStore("manager", {
 
         selectedAction: null as ActionRecord | null,
         activePlugin: null as PluginRecord | null,
+        activePluginLoading: false,
 
         currentFiles: [] as FileItem[],
         currentImage: "",
@@ -80,7 +81,9 @@ export const managerStore = defineStore("manager", {
                 return defaultValue;
             });
         },
-
+        setActivePluginLoading(loading: boolean) {
+            this.activePluginLoading = loading;
+        },
         setActivePlugin(plugin: PluginRecord | null) {
             this.activePlugin = plugin;
         },
