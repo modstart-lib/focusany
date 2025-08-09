@@ -119,7 +119,7 @@ export const managerStore = defineStore("manager", {
                     currentImage: this.currentImage,
                     currentText: this.currentText,
                 },
-                (result: {matchActions: ActionRecord[]; viewActions: ActionRecord[]}) => {
+                (result: { matchActions: ActionRecord[]; viewActions: ActionRecord[] }) => {
                     this.fastPanelMatchActions = result.matchActions;
                     this.fastPanelViewActions = result.viewActions;
                     this.fastPanelActionLoading = false;
@@ -192,15 +192,15 @@ export const managerStore = defineStore("manager", {
                 action.type === ActionTypeEnum.CODE ||
                 action.type === ActionTypeEnum.BACKEND
             ) {
-                this.searchValue = "";
                 await window.$mapi.manager.hide();
             }
-            this.detachWindowActions = [];
-            this.searchActions = [];
-            this.matchActions = [];
-            this.viewActions = [];
-            this.historyActions = [];
-            this.pinActions = [];
+            this.searchValue = "";
+            // this.detachWindowActions = [];
+            // this.searchActions = [];
+            // this.matchActions = [];
+            // this.viewActions = [];
+            // this.historyActions = [];
+            // this.pinActions = [];
         },
         async openActionForWindow(type: "open", action: ActionRecord) {
             await window.$mapi.manager.openActionForWindow(type, toRaw(action));
@@ -214,7 +214,7 @@ export const managerStore = defineStore("manager", {
         async detachPlugin() {
             await window.$mapi.manager.detachPlugin();
         },
-        setSubInput(payload: {placeholder: string; isFocus: boolean; isVisible: boolean}) {
+        setSubInput(payload: { placeholder: string; isFocus: boolean; isVisible: boolean }) {
             if (!this.activePlugin) {
                 return;
             }

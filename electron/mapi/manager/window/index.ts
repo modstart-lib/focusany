@@ -311,12 +311,6 @@ export const ManagerWindow = {
                 }
             },
         };
-        // 这里分步处理，避免设置没有来得及响应，下次启动时闪烁的问题
-        if (autoDetach) {
-            if (!mainWindowView) {
-                AppRuntime.mainWindow.setSize(WindowConfig.mainWidth, WindowConfig.mainHeight);
-            }
-        }
         setTimeout(async () => {
             if (autoDetach) {
                 if (!mainWindowView) {
@@ -330,7 +324,7 @@ export const ManagerWindow = {
             }
             // Log.info('open.PluginReady', JSON.stringify({readyData, action}))
             await executePluginHooks(view, "PluginReady", readyData);
-        }, 100);
+        }, 0);
     },
     async subInputChange(win: BrowserWindow, keywords: string) {
         const view = win.getBrowserView();
@@ -350,6 +344,12 @@ export const ManagerWindow = {
             AppRuntime.mainWindow.removeBrowserView(mainWindowView);
             // @ts-ignore
             mainWindowView.webContents?.destroy();
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    mainWindowView = null;
+                    resolve(undefined);
+                }, 0)
+            })
         } else {
             // detach的插件窗口
             if (option.window) {
