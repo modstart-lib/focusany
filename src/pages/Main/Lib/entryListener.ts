@@ -37,8 +37,8 @@ export const EntryListener = {
         if (manager.showFirstRun) {
             manager.showFirstRun = false;
             const clipboardChangeTime = await window.$mapi.manager.getClipboardChangeTime();
-            // only use clipboard if it has changed in the last 10 seconds
-            if (clipboardChangeTime > 0 && clipboardChangeTime > TimeUtil.timestamp() - 10) {
+            // only use clipboard if it has changed in the last 3 seconds
+            if (clipboardChangeTime > 0 && clipboardChangeTime > TimeUtil.timestamp() - 3) {
                 useClipboard = true;
             }
         }

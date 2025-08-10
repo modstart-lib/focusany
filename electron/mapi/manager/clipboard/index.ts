@@ -84,8 +84,10 @@ export const ManagerClipboard = {
         this.watchNextTime = Date.now() + this.interval;
         const contentJson = JSON.stringify(content);
         if (null == this.lastContentJson || contentJson !== this.lastContentJson) {
+            if (this.lastContentJson) {
+                this.lastChangeTimestamp = TimeUtil.timestamp();
+            }
             this.lastContentJson = contentJson;
-            this.lastChangeTimestamp = TimeUtil.timestamp();
             this.onChange(content).then();
         }
         return content;
