@@ -53,9 +53,9 @@ export const SystemPlugin: PluginRecord = {
             matches: ["快捷启动", "launch"] as any,
         },
         {
-            name: "page-about",
+            name: "about",
             title: "关于我们",
-            type: ActionTypeEnum.WEB,
+            type: ActionTypeEnum.CODE,
             icon: SystemIcons.about,
             matches: ["关于我们", "about"] as any,
         },

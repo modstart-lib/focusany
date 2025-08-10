@@ -15,6 +15,9 @@ export const SystemActionCode = {
     guide: async (data: ActionTypeCodeData) => {
         Page.open("guide", {}).then();
     },
+    about: async (data: ActionTypeCodeData) => {
+        Page.open("about", {}).then();
+    },
     lock: async (data: ActionTypeCodeData) => {
         if (isMac) {
             ManagerHotkeySimulate.keyTap(KeyboardKey.Q, [KeyboardKey.Meta, KeyboardKey.Ctrl]);
