@@ -17,6 +17,7 @@ import {PluginRecord} from "./types/Manager";
 import {useLocale} from "./app/locale";
 import {doCheckForUpdate} from "./components/common/util";
 import {useMainOperate} from "./pages/Main/Lib/mainOperate";
+import {ignoreNextResultResize} from "./pages/Main/Lib/resultResize";
 
 const manager = useManagerStore();
 
@@ -65,7 +66,11 @@ window.__page.onPluginAlreadyOpened(() => {
     manager.search("");
     manager.hideMainWindow();
 });
-window.__page.onPluginExit(() => {
+window.__page.onPluginExit((data: { openForNext: boolean }) => {
+    // console.log('main.onPluginExit', data);
+    if (data.openForNext) {
+        ignoreNextResultResize();
+    }
     manager.setActivePlugin(null);
     manager.search("");
     mainResult.value?.onPluginExit();

@@ -334,22 +334,22 @@ export const ManagerWindow = {
         plugin?: PluginRecord,
         option?: {
             window?: BrowserWindow;
+            openForNext?: boolean;
         }
     ) {
+        option = Object.assign({
+            openForNext: false,
+        }, option);
         if (mainWindowView && (!plugin || mainWindowView._plugin.name === plugin.name)) {
-            // 主窗口插件
             await executePluginHooks(mainWindowView, "PluginExit", null).then();
-            await executeHooks(AppRuntime.mainWindow, "PluginExit", null).then();
+            await executeHooks(AppRuntime.mainWindow, "PluginExit", {
+                openForNext: option.openForNext,
+            }).then();
             removeBrowserViews(mainWindowView);
             AppRuntime.mainWindow.removeBrowserView(mainWindowView);
             // @ts-ignore
             mainWindowView.webContents?.destroy();
-            return new Promise((resolve, reject) => {
-                setTimeout(() => {
-                    mainWindowView = null;
-                    resolve(undefined);
-                }, 0)
-            })
+            mainWindowView = null;
         } else {
             // detach的插件窗口
             if (option.window) {
@@ -384,7 +384,9 @@ export const ManagerWindow = {
         }
         // console.log('showInMainWindow', view._plugin.name, option)
         if (mainWindowView) {
-            await this.close(mainWindowView._plugin);
+            await this.close(mainWindowView._plugin, {
+                openForNext: true,
+            });
             mainWindowView = null;
         }
         view._window = AppRuntime.mainWindow;

@@ -69,8 +69,10 @@ export const EntryListener = {
         }
         if (!option.isFastPanel && manager.currentText) {
             if (manager.currentText.split("\n").length === 1 && manager.currentText.length < 100) {
-                searchValue = manager.currentText;
-                manager.setCurrentText("");
+                if (manager.searchLastKeywords && manager.searchLastKeywords !== manager.currentText) {
+                    searchValue = manager.currentText;
+                    manager.setCurrentText("");
+                }
             }
         }
 
