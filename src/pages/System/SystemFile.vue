@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import {onMounted, ref, toRaw} from "vue";
-import {FilePluginRecord} from "../../types/Manager";
 import {SystemIcons} from "../../../electron/mapi/manager/system/asset/icon";
 import DragPasteContainer from "../../components/common/DragPasteContainer.vue";
 import {FileUtil} from "../../lib/file";
+import {FilePluginRecord} from "../../types/Manager";
 
 const records = ref<FilePluginRecord[]>([]);
 
@@ -65,14 +65,14 @@ const onDragDropInput = async (files: any[]) => {
     <DragPasteContainer @input="onDragDropInput">
         <div class="p-4">
             <div class="flex items-center">
-                <div class="flex-grow text-2xl">文件启动</div>
+                <div class="flex-grow text-2xl">{{ $t("文件启动") }}</div>
                 <div></div>
                 <div>
                     <a-button v-if="!!records.length" size="small" @click="doAdd">
                         <template #icon>
                             <icon-plus />
                         </template>
-                        添加
+                        {{ $t("添加") }}
                     </a-button>
                 </div>
             </div>
@@ -101,7 +101,7 @@ const onDragDropInput = async (files: any[]) => {
                         <template #icon>
                             <icon-plus />
                         </template>
-                        增加一个文件启动
+                        {{ $t("增加一个文件启动") }}
                     </a-button>
                 </div>
             </div>

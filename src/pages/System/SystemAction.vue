@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import {computed, nextTick, onMounted, ref} from "vue";
+import {SystemIcons} from "../../../electron/mapi/manager/system/asset/icon";
+import {t} from "../../lang";
+import {Dialog} from "../../lib/dialog";
 import {
     ActionMatchBase,
     ActionMatchEditor,
@@ -12,10 +15,8 @@ import {
     PluginRecord,
     PluginType,
 } from "../../types/Manager";
-import {Dialog} from "../../lib/dialog";
-import SystemActionMatchDetailDialog from "./components/SystemActionMatchDetailDialog.vue";
-import {SystemIcons} from "../../../electron/mapi/manager/system/asset/icon";
 import ActionTypeIcon from "./components/ActionTypeIcon.vue";
+import SystemActionMatchDetailDialog from "./components/SystemActionMatchDetailDialog.vue";
 
 const actionMatchDetailDialog = ref<InstanceType<typeof SystemActionMatchDetailDialog> | null>(null);
 const records = ref<PluginRecord[]>([]);
@@ -99,9 +100,9 @@ const doDisable = async (action: ActionRecord, matchName: string) => {
     // console.log('doDisable', action, matchName)
     // console.log('disabledPluginActionMatches', JSON.stringify(disabledPluginActionMatches.value, null, 2))
     if (disabled) {
-        Dialog.tipSuccess("已禁用");
+        Dialog.tipSuccess(t("已禁用"));
     } else {
-        Dialog.tipSuccess("已启用");
+        Dialog.tipSuccess(t("已启用"));
     }
 };
 const doOpen = async (action: ActionRecord) => {
@@ -118,7 +119,7 @@ const doPin = async (action: ActionRecord) => {
 <template>
     <div class="flex h-full">
         <div class="w-56 flex-shrink-0 border-r border-default p-1 h-full overflow-y-auto">
-            <div class="p-2 text-gray-400 font-bold">内置</div>
+            <div class="p-2 text-gray-400 font-bold">{{ $t("内置") }}</div>
             <template v-for="(p, pIndex) in records">
                 <div
                     v-if="['system', 'store', 'workflow', 'app'].includes(p.name)"
@@ -137,7 +138,7 @@ const doPin = async (action: ActionRecord) => {
                     </div>
                 </div>
             </template>
-            <div class="p-2 text-gray-400 font-bold">插件</div>
+            <div class="p-2 text-gray-400 font-bold">{{ $t("插件") }}</div>
             <template v-for="(p, pIndex) in records">
                 <div
                     v-if="!['system', 'store', 'workflow', 'app', 'file'].includes(p.name)"
@@ -161,13 +162,13 @@ const doPin = async (action: ActionRecord) => {
                         <a-radio value="keyword">
                             <div class="flex items-center">
                                 <img class="w-6 h-6 mr-1 object-contain dark:invert" :src="SystemIcons.searchKeyword" />
-                                搜索动作
+                                {{ $t("搜索动作") }}
                             </div>
                         </a-radio>
                         <a-radio value="match">
                             <div class="flex items-center">
                                 <img class="w-6 h-6 mr-1 object-contain dark:invert" :src="SystemIcons.searchMatch" />
-                                匹配动作
+                                {{ $t("匹配动作") }}
                             </div>
                         </a-radio>
                     </a-radio-group>
@@ -225,13 +226,15 @@ const doPin = async (action: ActionRecord) => {
                                     </a-button>
                                 </a-button-group>
                                 <template #content>
-                                    <a-doption @click="doOpen(a as any)"> 打开 </a-doption>
+                                    <a-doption @click="doOpen(a as any)"> {{ $t("打开") }} </a-doption>
                                     <a-doption v-if="m['_disable']" @click="doDisable(a as any, m.name as string)">
-                                        启用
+                                        {{ $t("启用") }}
                                     </a-doption>
-                                    <a-doption v-else @click="doDisable(a as any, m.name as string)"> 禁用 </a-doption>
+                                    <a-doption v-else @click="doDisable(a as any, m.name as string)">
+                                        {{ $t("禁用") }}
+                                    </a-doption>
                                     <a-doption @click="actionMatchDetailDialog?.show(a as any, m as any)">
-                                        详情
+                                        {{ $t("详情") }}
                                     </a-doption>
                                 </template>
                             </a-dropdown>
@@ -258,7 +261,7 @@ const doPin = async (action: ActionRecord) => {
                                         @click.stop="actionMatchDetailDialog?.show(a as any, m as any)"
                                         size="small"
                                     >
-                                        正则
+                                        {{ $t("正则") }}
                                         <div class="inline-block max-w-32 overflow-hidden truncate">
                                             {{ (m as ActionMatchRegex).regex }}
                                         </div>
@@ -269,7 +272,7 @@ const doPin = async (action: ActionRecord) => {
                                         @click.stop="actionMatchDetailDialog?.show(a as any, m as any)"
                                         size="small"
                                     >
-                                        图片
+                                        {{ $t("图片") }}
                                     </a-button>
                                     <a-button
                                         v-else-if="(m as ActionMatchBase).type==='file'"
@@ -277,7 +280,7 @@ const doPin = async (action: ActionRecord) => {
                                         @click.stop="actionMatchDetailDialog?.show(a as any, m as any)"
                                         size="small"
                                     >
-                                        文件
+                                        {{ $t("文件") }}
                                     </a-button>
                                     <a-button
                                         v-else-if="(m as ActionMatchBase).type==='window'"
@@ -285,7 +288,7 @@ const doPin = async (action: ActionRecord) => {
                                         @click.stop="actionMatchDetailDialog?.show(a as any, m as any)"
                                         size="small"
                                     >
-                                        窗口
+                                        {{ $t("窗口") }}
                                         <div class="inline-block max-w-32 overflow-hidden truncate">
                                             {{ (m as ActionMatchWindow).nameRegex }}
                                             {{ (m as ActionMatchWindow).titleRegex }}
@@ -298,7 +301,7 @@ const doPin = async (action: ActionRecord) => {
                                         @click.stop="actionMatchDetailDialog?.show(a as any, m as any)"
                                         size="small"
                                     >
-                                        打开文件
+                                        {{ $t("打开文件") }}
                                         <div class="inline-block max-w-32 overflow-hidden truncate">
                                             <span v-if="(m as ActionMatchEditor).fadTypes">
                                                 {{ (m as ActionMatchEditor).fadTypes?.join(",") }}
@@ -316,11 +319,13 @@ const doPin = async (action: ActionRecord) => {
                                 </a-button-group>
                                 <template #content>
                                     <a-doption v-if="m['_disable']" @click="doDisable(a as any, m.name as string)">
-                                        启用
+                                        {{ $t("启用") }}
                                     </a-doption>
-                                    <a-doption v-else @click="doDisable(a as any, m.name as string)"> 禁用 </a-doption>
+                                    <a-doption v-else @click="doDisable(a as any, m.name as string)">
+                                        {{ $t("禁用") }}
+                                    </a-doption>
                                     <a-doption @click="actionMatchDetailDialog?.show(a as any, m as any)">
-                                        详情
+                                        {{ $t("详情") }}
                                     </a-doption>
                                 </template>
                             </a-dropdown>

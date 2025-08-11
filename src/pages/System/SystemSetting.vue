@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import HotkeyInput from "./components/HotkeyInput.vue";
-import {useManagerStore} from "../../store/modules/manager";
 import {onMounted, ref} from "vue";
+import {useManagerStore} from "../../store/modules/manager";
 import {useSettingStore} from "../../store/modules/setting";
+import HotkeyInput from "./components/HotkeyInput.vue";
 
 const setting = useSettingStore();
 const manager = useManagerStore();
@@ -43,10 +43,10 @@ const onManagerConfigChange = async (key: string, value: any) => {
 <template>
     <div class="p-4">
         <div class="mb-8">
-            <div class="text-base font-bold mb-4">功能设置</div>
+            <div class="text-base font-bold mb-4">{{ $t("功能设置") }}</div>
             <div class="pl-4">
                 <div class="flex items-center mb-6">
-                    <div class="flex-grow">呼出快捷键</div>
+                    <div class="flex-grow">{{ $t("呼出快捷键") }}</div>
                     <div>
                         <HotkeyInput
                             :value="manager.configGet('mainTrigger', null)"
@@ -55,7 +55,7 @@ const onManagerConfigChange = async (key: string, value: any) => {
                     </div>
                 </div>
                 <div class="flex items-center mb-6">
-                    <div class="flex-grow">主题样式</div>
+                    <div class="flex-grow">{{ $t("主题样式") }}</div>
                     <div>
                         <a-radio-group
                             :model-value="setting.configGet('darkMode', 'auto').value"
@@ -68,7 +68,7 @@ const onManagerConfigChange = async (key: string, value: any) => {
                     </div>
                 </div>
                 <div class="flex items-center mb-6">
-                    <div class="flex-grow">快捷面板</div>
+                    <div class="flex-grow">{{ $t("快捷面板") }}</div>
                     <div>
                         <a-switch
                             :model-value="setting.configGet('fastPanelEnable', true).value"
@@ -77,7 +77,7 @@ const onManagerConfigChange = async (key: string, value: any) => {
                     </div>
                 </div>
                 <div class="flex items-center mb-6" v-if="setting.configGet('fastPanelEnable', true).value">
-                    <div class="flex-grow">快捷面板呼出快捷键</div>
+                    <div class="flex-grow">{{ $t("快捷面板呼出快捷键") }}</div>
                     <div>
                         <a-select
                             :model-value="fastPanelTriggerType"

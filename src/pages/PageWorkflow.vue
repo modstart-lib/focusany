@@ -16,19 +16,19 @@ const doModelClose = () => {
 <template>
     <div class="h-dvh flex flex-col border-t border-gray-200">
         <div class="flex items-center p-4 border-b border-solid border-gray-200">
-            <div class="flex-grow text-2xl">工作流</div>
+            <div class="flex-grow text-2xl">{{ $t("工作流") }}</div>
             <div>
                 <a-button @click="tab = 'edit'" class="ml-1">
                     <template #icon>
                         <icon-plus />
                     </template>
-                    创建工作流
+                    {{ $t("创建工作流") }}
                 </a-button>
                 <a-button @click="tab = 'list'" class="ml-1">
                     <template #icon>
                         <icon-save />
                     </template>
-                    保存
+                    {{ $t("保存") }}
                 </a-button>
             </div>
         </div>

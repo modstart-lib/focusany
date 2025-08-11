@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import SystemSetting from "./System/SystemSetting.vue";
 import {ref} from "vue";
-import SystemUser from "./System/SystemUser.vue";
-import SystemData from "./System/SystemData.vue";
-import SystemPlugin from "./System/SystemPlugin.vue";
+import {SystemIcons} from "../../electron/mapi/manager/system/asset/icon";
 import SystemAction from "./System/SystemAction.vue";
+import SystemData from "./System/SystemData.vue";
 import SystemFile from "./System/SystemFile.vue";
 import SystemLaunch from "./System/SystemLaunch.vue";
-import {SystemIcons} from "../../electron/mapi/manager/system/asset/icon";
+import SystemPlugin from "./System/SystemPlugin.vue";
+import SystemSetting from "./System/SystemSetting.vue";
+import SystemUser from "./System/SystemUser.vue";
 import SystemAbout from "./System/SystemAbout.vue";
 const tab = ref("");
 window.focusany.onPluginReady(data => {
@@ -29,7 +29,7 @@ window.focusany.onPluginReady(data => {
 <template>
     <div class="flex h-dvh border-t border-default">
         <div class="w-48 flex-shrink-0 border-r border-solid border-default h-full p-3 overflow-y-auto select-none">
-            <div class="text-gray-600 dark:text-gray-300 pb-4 px-4 py-4">偏好设置</div>
+            <div class="text-gray-600 dark:text-gray-300 pb-4 px-4 py-4">{{ $t("偏好设置") }}</div>
             <div>
                 <div
                     class="flex items-center leading-10 py-1 px-1 rounded-lg cursor-pointer"
@@ -81,7 +81,7 @@ window.focusany.onPluginReady(data => {
                     <img class="w-6 h-6 object-contain mr-2 ml-2 dark:invert" :src="SystemIcons.thunder" />
                     快捷启动
                 </div>
-                <div class="text-gray-600 dark:text-gray-300 pb-4 px-4 py-4">个人中心</div>
+                <div class="text-gray-600 dark:text-gray-300 pb-4 px-4 py-4">{{ $t("个人中心") }}</div>
                 <div>
                     <div
                         class="flex items-center leading-10 py-1 px-1 rounded-lg cursor-pointer"

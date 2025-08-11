@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import {ref} from "vue";
+import FeedbackTicketButton from "../components/common/FeedbackTicketButton.vue";
+import UpdaterButton from "../components/common/UpdaterButton.vue";
 import {AppConfig} from "../config";
 import {t} from "../lang";
-import UpdaterButton from "../components/common/UpdaterButton.vue";
 import {useSettingStore} from "../store/modules/setting";
-import FeedbackTicketButton from "../components/common/FeedbackTicketButton.vue";
 
 const setting = useSettingStore();
 const licenseYear = new Date().getFullYear();
@@ -49,10 +49,10 @@ const doDevSettingTriggerClick = () => {
             <div v-if="devSettingVisible" class="bg-gray-100 p-3 mb-3 rounded-lg">
                 <div class="flex mb-4 items-center">
                     <icon-code class="mr-2" />
-                    开发模式设置
+                    {{ $t("开发模式设置") }}
                 </div>
                 <div class="flex mb-4">
-                    <div class="flex-grow">快速面板失焦隐藏</div>
+                    <div class="flex-grow">{{ $t("快速面板失焦隐藏") }}</div>
                     <div>
                         <a-radio-group
                             :model-value="setting.configEnvGet('fastPanelAutoHide', true).value"

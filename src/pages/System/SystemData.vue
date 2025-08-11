@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import {onBeforeUnmount, onMounted, ref} from "vue";
+import {t} from "../../lang";
+import SystemDataBackupDialog from "./components/SystemDataBackupDialog.vue";
 import SystemDataViewDialog from "./components/SystemDataViewDialog.vue";
 import {SystemDataRecord} from "./components/type";
-import SystemDataBackupDialog from "./components/SystemDataBackupDialog.vue";
 
 const dataViewDialog = ref<InstanceType<typeof SystemDataViewDialog> | null>(null);
 const dataBackupDialog = ref<InstanceType<typeof SystemDataBackupDialog> | null>(null);
@@ -31,7 +32,7 @@ onMounted(async () => {
         keyword => {
             console.log("keyword", keyword);
         },
-        "输入关键词过滤",
+        t("输入关键词过滤"),
         true
     );
 });
@@ -43,9 +44,9 @@ onBeforeUnmount(() => {
 <template>
     <div class="p-4">
         <div class="flex items-center">
-            <div class="flex-grow text-2xl">数据中心</div>
+            <div class="flex-grow text-2xl">{{ $t("数据中心") }}</div>
             <div>
-                <a-button size="small" @click="dataBackupDialog?.open()"> 备份/恢复 </a-button>
+                <a-button size="small" @click="dataBackupDialog?.open()"> {{ $t("备份/恢复") }} </a-button>
             </div>
         </div>
         <div class="mt-3">
@@ -56,7 +57,7 @@ onBeforeUnmount(() => {
                     </div>
                     <div class="flex-grow">
                         <div class="font-bold">{{ r.plugin.title }}</div>
-                        <div class="text-gray-400">{{ r.count }} 份文档</div>
+                        <div class="text-gray-400">{{ r.count }} {{ $t("份文档") }}</div>
                     </div>
                     <div>
                         <div

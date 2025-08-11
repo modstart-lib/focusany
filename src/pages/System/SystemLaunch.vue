@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import {onMounted, ref, toRaw} from "vue";
+import {t} from "../../lang";
+import {Dialog} from "../../lib/dialog";
 import {LaunchRecord} from "../../types/Manager";
 import HotkeyInput from "./components/HotkeyInput.vue";
-import {Dialog} from "../../lib/dialog";
 
 const records = ref<LaunchRecord[]>([]);
 
@@ -34,7 +35,7 @@ const doDelete = async (index: number) => {
 const doTest = async (index: number) => {
     const record = records.value[index];
     if (!record.keyword) {
-        Dialog.tipError("请输入动作名称");
+        Dialog.tipError(t("请输入动作名称"));
         return;
     }
     focusany.redirect(record.keyword);
@@ -49,7 +50,7 @@ const doHotkeyChange = async (index: number, hotkey: any) => {
 <template>
     <div class="p-4">
         <div class="flex items-center">
-            <div class="flex-grow text-2xl">快捷启动</div>
+            <div class="flex-grow text-2xl">{{ $t("快捷启动") }}</div>
         </div>
         <div class="pt-4">
             <m-empty v-if="!records.length" />
@@ -59,14 +60,14 @@ const doHotkeyChange = async (index: number, hotkey: any) => {
                         <HotkeyInput :value="r.hotkey" @change="doHotkeyChange(rIndex, $event)" />
                     </div>
                     <div class="ml-3 flex-grow">
-                        <a-input v-model="r.keyword" @change="doSave()" placeholder="动作名称，如 截图" />
+                        <a-input v-model="r.keyword" @change="doSave()" :placeholder="$t('动作名称，如 截图')" />
                     </div>
                     <div class="ml-2">
                         <a-button @click="doTest(rIndex)">
                             <template #icon>
                                 <icon-play-arrow />
                             </template>
-                            测试
+                            {{ $t("测试") }}
                         </a-button>
                     </div>
                     <div class="ml-2">
@@ -83,7 +84,7 @@ const doHotkeyChange = async (index: number, hotkey: any) => {
                     <template #icon>
                         <icon-plus />
                     </template>
-                    增加一个启动动作
+                    {{ $t("增加一个启动动作") }}
                 </a-button>
             </div>
         </div>
