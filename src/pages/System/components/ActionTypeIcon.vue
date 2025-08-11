@@ -5,19 +5,20 @@ const props = defineProps<{
     type: ActionTypeEnum | undefined;
 }>();
 import {ActionTypeEnum} from "../../../types/Manager";
+import {t} from "../../../lang";
 
 const typeTitle = computed(() => {
     switch (props.type) {
         case ActionTypeEnum.WEB:
-            return "网页";
+            return t("网页");
         case ActionTypeEnum.COMMAND:
-            return "命令";
+            return t("命令");
         case ActionTypeEnum.VIEW:
-            return "智能区域";
+            return t("智能区域");
         case ActionTypeEnum.CODE:
-            return "代码";
+            return t("代码");
         case ActionTypeEnum.BACKEND:
-            return "后端代码";
+            return t("后端代码");
         default:
             return "";
     }

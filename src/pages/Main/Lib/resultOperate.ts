@@ -5,6 +5,7 @@ import {useManagerStore} from "../../../store/modules/manager";
 import {ComputedRef} from "@vue/reactivity";
 import {EntryListener} from "./entryListener";
 import {Dialog} from "../../../lib/dialog";
+import {t} from "../../../lang";
 
 type ActionGroupType = "window" | "search" | "match" | "history" | "pin" | never;
 
@@ -262,7 +263,7 @@ export const useResultOperate = () => {
     };
 
     const doHistoryClear = async () => {
-        Dialog.confirm("确认清除全部？").then(() => {
+        Dialog.confirm(t("确认清除全部？")).then(() => {
             window.$mapi.manager.historyClear();
             manager.searchRefresh().then();
         });

@@ -22,7 +22,7 @@ const onClose = () => {
 };
 
 const doTruncate = async () => {
-    Dialog.confirm("确定要清空吗？").then(async () => {
+    Dialog.confirm(t("确定要清空吗？")).then(async () => {
         Dialog.loadingOn();
         for (const k of keys.value) {
             await window.$mapi.kvdb.remove(record.value?.plugin.name as string, k);
@@ -30,7 +30,7 @@ const doTruncate = async () => {
         keys.value = [];
         await doLoad();
         Dialog.loadingOff();
-        Dialog.tipSuccess("清空成功");
+        Dialog.tipSuccess(t("清空成功"));
         visible.value = false;
         emit("update");
     });
@@ -71,7 +71,7 @@ defineExpose({
                 </div>
                 <div class="flex-grow">
                     <div class="font-bold text-sm">{{ record?.plugin.title }}</div>
-                    <div class="text-gray-400 text-sm">{{ record?.count }} 份文档</div>
+                    <div class="text-gray-400 text-sm">{{ record?.count }} {{$t('份文档')}}</div>
                 </div>
             </div>
         </template>
@@ -80,9 +80,9 @@ defineExpose({
                 <template #icon>
                     <icon-delete />
                 </template>
-                清空
+                {{$t('清空')}}
             </a-button>
-            <a-button size="small" @click="onClose()"> 关闭 </a-button>
+            <a-button size="small" @click="onClose()"> {{$t('关闭')}} </a-button>
         </template>
         <div style="margin: -12px -16px; height: calc(100% + 24px)">
             <div class="h-full">

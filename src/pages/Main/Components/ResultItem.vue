@@ -102,7 +102,6 @@ const props = defineProps({
         overflow: hidden;
         text-overflow: ellipsis;
         padding: 0 5px;
-        // 2行自动换行
         display: -webkit-box;
         -webkit-box-orient: vertical;
         -webkit-line-clamp: 2;

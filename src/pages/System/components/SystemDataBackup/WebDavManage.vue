@@ -3,6 +3,7 @@ import {onMounted, ref, watch} from "vue";
 import WebDavManageSettingDialog from "./WebDavManageSettingDialog.vue";
 import {Dialog} from "../../../../lib/dialog";
 import {TimeUtil} from "../../../../lib/util";
+import {t} from "../../../../lang";
 
 const type = ref("backup");
 const settingDialog = ref<InstanceType<typeof WebDavManageSettingDialog> | null>(null);
@@ -48,13 +49,13 @@ const doBackup = async () => {
     file = TimeUtil.replacePattern(file);
     root = root.replace(/\/$/, "");
     file = `${root}/${file}.backup`;
-    Dialog.loadingOn("正在备份...");
+    Dialog.loadingOn(t("正在备份..."));
     loading.value = true;
     try {
         await window.$mapi.kvdb.dumpToWebDav(file, backupWebdav);
-        Dialog.tipSuccess("备份成功");
+        Dialog.tipSuccess(t("备份成功"));
     } catch (e) {
-        Dialog.tipError("备份失败");
+        Dialog.tipError(t("备份失败"));
     } finally {
         loading.value = false;
         Dialog.loadingOff();
@@ -66,7 +67,7 @@ const doRestore = async () => {
         return;
     }
     if (!restoreRecordSelect.value) {
-        Dialog.tipError("请选择需要恢复的文件");
+        Dialog.tipError(t("请选择需要恢复的文件"));
         return;
     }
     const backupWebdav = await window.$mapi.config.get("backupWebdav", {});
@@ -74,13 +75,13 @@ const doRestore = async () => {
     root = root.replace(/\/$/, "") + "/";
     let file = restoreRecordSelect.value;
     file = root + file;
-    Dialog.loadingOn("正在恢复...");
+    Dialog.loadingOn(t("正在恢复..."));
     loading.value = true;
     try {
         await window.$mapi.kvdb.importFromWebDav(file, backupWebdav);
-        Dialog.tipSuccess("恢复成功");
+        Dialog.tipSuccess(t("恢复成功"));
     } catch (e) {
-        Dialog.tipError("恢复失败");
+        Dialog.tipError(t("恢复失败"));
     } finally {
         loading.value = false;
         Dialog.loadingOff();
@@ -94,8 +95,8 @@ const emit = defineEmits(["update"]);
     <div class="flex">
         <div class="flex-grow">
             <a-radio-group v-model:model-value="type">
-                <a-radio value="backup">上传到云端</a-radio>
-                <a-radio value="restore">从云端恢复</a-radio>
+                <a-radio value="backup">{{$t('上传到云端')}}</a-radio>
+                <a-radio value="restore">{{$t('从云端恢复')}}</a-radio>
             </a-radio-group>
         </div>
         <div>
@@ -103,7 +104,7 @@ const emit = defineEmits(["update"]);
                 <template #icon>
                     <icon-settings />
                 </template>
-                配置
+                {{$t('配置')}}
             </a-button>
         </div>
     </div>
@@ -115,7 +116,7 @@ const emit = defineEmits(["update"]);
             <div>
                 <icon-cloud class="text-2xl" />
             </div>
-            <div>未配置WebDav服务，点击配置</div>
+            <div>{{$t('未配置WebDav服务，点击配置')}}</div>
         </div>
     </div>
     <div class="py-3" v-if="backupWebDavHasConfig && type === 'backup'">
@@ -126,7 +127,7 @@ const emit = defineEmits(["update"]);
             <div>
                 <icon-cloud class="text-2xl" />
             </div>
-            <div>开始备份</div>
+            <div>{{$t('开始备份')}}</div>
         </div>
     </div>
     <div class="py-3" v-if="backupWebDavHasConfig && type === 'restore'">
@@ -139,7 +140,7 @@ const emit = defineEmits(["update"]);
                 </a-select>
                 <template #label>
                     <div class="flex items-center">
-                        <div class="mr-2">选择需要恢复的文件</div>
+                        <div class="mr-2">{{$t('选择需要恢复的文件')}}</div>
                         <a-button size="small" @click="doLoadRestoreRecords">
                             <template #icon>
                                 <icon-refresh />
@@ -149,7 +150,7 @@ const emit = defineEmits(["update"]);
                 </template>
             </a-form-item>
             <a-form-item>
-                <a-button type="primary" @click="doRestore"> 开始恢复 </a-button>
+                <a-button type="primary" @click="doRestore"> {{$t('开始恢复')}} </a-button>
             </a-form-item>
         </a-form>
     </div>

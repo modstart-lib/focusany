@@ -1,4 +1,5 @@
 import {Menu} from "@electron/remote";
+import {t} from "../../lang";
 
 export const useDetachWindowOperate = ({plugin}) => {
     const doShowZoomMenu = () => {
@@ -20,7 +21,7 @@ export const useDetachWindowOperate = ({plugin}) => {
         const autoDetach = !!plugin.value.runtime.config.autoDetach;
         const menuTemplate: any[] = [
             {
-                label: "打开调试窗口",
+                label: t("打开调试窗口"),
                 click: async () => {
                     await window.$mapi.manager.openDetachPluginDevTools();
                 },
@@ -28,7 +29,7 @@ export const useDetachWindowOperate = ({plugin}) => {
         ];
         if (!(plugin.value.setting && plugin.value.setting.autoDetach)) {
             menuTemplate.push({
-                label: "自动分离为独立窗口显示",
+                label: t("自动分离为独立窗口显示"),
                 type: "checkbox",
                 checked: autoDetach,
                 click: async () => {

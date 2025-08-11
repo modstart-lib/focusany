@@ -1,5 +1,6 @@
 import {useManagerStore} from "../../../store/modules/manager";
 import {computed} from "vue";
+import {t} from "../../../lang";
 
 const {Menu} = require("@electron/remote");
 
@@ -10,13 +11,13 @@ export const useSearchOperate = emit => {
         const menuTemplate: any[] = [];
         if (manager.activePlugin) {
             menuTemplate.push({
-                label: "独立窗口显示",
+                label: t("独立窗口显示"),
                 click: () => {
                     doDetachPlugin().then();
                 },
             });
             menuTemplate.push({
-                label: "插件调试",
+                label: t("插件调试"),
                 click: () => {
                     manager.openMainPluginDevTools().then();
                 },
@@ -51,7 +52,7 @@ export const useSearchOperate = emit => {
         extName: string;
     }>(() => {
         const result = {
-            name: "多个文件",
+            name: t("多个文件"),
             extName: "ext.unknown",
         };
         if (manager.currentFiles.length <= 0) {
@@ -73,7 +74,7 @@ export const useSearchOperate = emit => {
         // 如果全部是目录
         const directoryCount = manager.currentFiles.filter(f => f.isDirectory).length;
         if (directoryCount === manager.currentFiles.length) {
-            result.name = "多个文件夹";
+            result.name = t("多个文件夹");
             result.extName = "ext.folder";
             return result;
         }
@@ -86,7 +87,7 @@ export const useSearchOperate = emit => {
                 return ["jpg", "jpeg", "png", "gif", "bmp", "webp"].includes(ext || "");
             }).length;
             if (imageCount === manager.currentFiles.length) {
-                result.name = "多个图片";
+                result.name = t("多个图片");
                 result.extName = "ext.png";
                 return result;
             }

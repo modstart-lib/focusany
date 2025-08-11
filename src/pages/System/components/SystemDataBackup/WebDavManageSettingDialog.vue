@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {ref, toRaw} from "vue";
 import {Dialog} from "../../../../lib/dialog";
+import {t} from "../../../../lang";
 
 const visible = ref(false);
 const formData = ref({
@@ -25,7 +26,7 @@ const doSubmit = async () => {
         await window.$mapi.kvdb.testWebdav(toRaw(formData.value));
     } catch (e) {
         // console.error('testWebdav', e)
-        Dialog.tipError("连接失败");
+        Dialog.tipError(t("连接失败"));
         return;
     }
     await window.$mapi.config.set("backupWebdav", {
@@ -48,29 +49,29 @@ defineExpose({
 
 <template>
     <a-modal v-model:visible="visible" title-align="start">
-        <template #title> WebDav配置 </template>
+        <template #title> {{$t('WebDav配置')}} </template>
         <template #footer>
-            <a-button type="primary" size="small" @click="doSubmit"> 保存 </a-button>
-            <a-button size="small" @click="visible = false"> 关闭 </a-button>
+            <a-button type="primary" size="small" @click="doSubmit"> {{$t('保存')}} </a-button>
+            <a-button size="small" @click="visible = false"> {{$t('关闭')}} </a-button>
         </template>
         <div class="h-64">
             <a-form :model="{}">
                 <a-form-item label="URL">
                     <a-input v-model:model-value="formData.url" placeholder="https://" />
                 </a-form-item>
-                <a-form-item label="用户名">
+                <a-form-item :label="$t('用户名')">
                     <a-input v-model:model-value="formData.username" />
                 </a-form-item>
-                <a-form-item label="密码">
+                <a-form-item :label="$t('密码')">
                     <a-input v-model:model-value="formData.password" type="password" />
                 </a-form-item>
-                <a-form-item label="根目录">
+                <a-form-item :label="$t('根目录')">
                     <a-input v-model:model-value="formData.root" />
                 </a-form-item>
-                <a-form-item label="文件格式">
+                <a-form-item :label="$t('文件格式')">
                     <a-input v-model:model-value="formData.filePattern" />
                     <template #help>
-                        <div class="text-gray-400">占位符支持 {year} {month} {day} {hour} {minute} {second}</div>
+                        <div class="text-gray-400">{{$t('占位符支持')}} {year} {month} {day} {hour} {minute} {second}</div>
                     </template>
                 </a-form-item>
             </a-form>

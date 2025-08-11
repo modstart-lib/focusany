@@ -44,7 +44,7 @@ defineExpose({
                     {{ manager.currentText }}
                 </div>
             </div>
-            <div v-else>快捷动作</div>
+            <div v-else>{{$t('快捷动作')}}</div>
         </div>
         <div class="right">
             <div class="icon" @click="manager.showMainWindow()">

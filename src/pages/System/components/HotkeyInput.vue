@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {computed, onBeforeMount, ref, watch} from "vue";
 import {HotkeyKeyItem} from "../../../../electron/mapi/keys/type";
+import {t} from "../../../lang";
 
 const focus = ref(false);
 const platformName = ref<"win" | "osx" | "linux" | null>(null);
@@ -138,7 +139,7 @@ const showHotkey = computed(() => {
         shiftKey: shiftKey,
         times: times,
     } as HotkeyKeyItem;
-    return texts.join("+") + (times > 1 ? `双击` : "");
+    return texts.join("+") + (times > 1 ? t('双击') : "");
 });
 
 const onHotkey = (data: any) => {
@@ -168,11 +169,11 @@ const onBlur = () => {
 };
 const content = computed(() => {
     return [
-        "使用方式：",
-        "① 点击激活",
+        t("使用方式："),
+        t("① 点击激活"),
         platformName.value === "osx"
-            ? "② 先按功能键（Control、Command、Option）再按其他普通键，也可快速按快功能键2次"
-            : "② 先按功能键（Ctrl、Shift、Alt）再按其他普通键，也可快速按快功能键2次",
+            ? t("② 先按功能键（Control、Command、Option）再按其他普通键，也可快速按快功能键2次")
+            : t("② 先按功能键（Ctrl、Shift、Alt）再按其他普通键，也可快速按快功能键2次"),
     ].join("");
 });
 </script>
@@ -183,7 +184,7 @@ const content = computed(() => {
             class="border-2 border-solid border-gray-300 dark:border-gray-600 dark:bg-gray-700 h-9 w-48 text-center rounded-lg cursor-pointer flex outline-none select-none"
             @focus="onFocus"
             @blur="onBlur"
-            :value="showHotkey ? showHotkey : '未设置'"
+            :value="showHotkey ? showHotkey : $t('未设置')"
             readonly
             :class="{active: focus}"
         />

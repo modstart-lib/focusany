@@ -7,7 +7,7 @@
                         <div class="w-12 h-12 bg-gradient-to-b from-gray-100 to-gray-300 absolute top-0 left-0 right-0 bottom-0 m-auto rounded-full animate-spin"></div>
                         <img class="w-10 h-10 opacity-50 mx-auto" src="./../../assets/image/search-icon.svg" />
                     </div>
-                    <div class="text-gray-400">正在启动</div>
+                    <div class="text-gray-400">{{$t('正在启动')}}</div>
                 </div>
             </div>
             <div
@@ -19,7 +19,7 @@
                         <div class="group-title">
                             <div class="title">
                                 <img draggable="false" class="dark:invert" :src="SystemIcons.searchWindow"/>
-                                窗口
+                                {{$t('窗口')}}
                             </div>
                             <div class="more">&nbsp;</div>
                         </div>
@@ -41,10 +41,10 @@
                         >
                             <div class="title">
                                 <img draggable="false" class="dark:invert" :src="SystemIcons.searchKeyword"/>
-                                搜索结果
+                                {{$t('搜索结果')}}
                             </div>
                             <div class="more" v-if="!searchActionIsExtend">
-                                展开全部({{ manager.searchActions.length }})
+                                {{$t('展开全部')}}({{ manager.searchActions.length }})
                             </div>
                         </div>
                         <div class="group-items">
@@ -70,10 +70,10 @@
                         >
                             <div class="title">
                                 <img class="dark:invert" :src="SystemIcons.searchMatch"/>
-                                匹配结果
+                                {{$t('匹配结果')}}
                             </div>
                             <div class="more" v-if="!matchActionIsExtend">
-                                展开全部({{ manager.matchActions.length }})
+                                {{$t('展开全部')}}({{ manager.matchActions.length }})
                             </div>
                         </div>
                         <div class="group-items">
@@ -95,14 +95,14 @@
                         <div class="group-title" :class="!historyActionIsExtend ? 'has-more' : ''">
                             <div class="title">
                                 <icon-history/>
-                                最近使用
+                                {{$t('最近使用')}}
                             </div>
                             <div class="more">
                                 <a href="javascript:;" class="auto-hide" @click="doHistoryClear">
                                     <icon-delete/>
                                 </a>
                                 <a href="javascript:;" v-if="!historyActionIsExtend" @click="doHistoryActionExtend">
-                                    展开全部({{ manager.historyActions.length }})
+                                    {{$t('展开全部')}}({{ manager.historyActions.length }})
                                 </a>
                             </div>
                         </div>
@@ -127,11 +127,11 @@
                         <div class="group-title" :class="!pinActionIsExtend ? 'has-more' : ''">
                             <div class="title">
                                 <i class="iconfont icon-pin"></i>
-                                已固定
+                                {{$t('已固定')}}
                             </div>
                             <div class="more">
                                 <a href="javascript:;" v-if="!pinActionIsExtend" @click="doPinActionExtend">
-                                    展开全部({{ manager.pinActions.length }})
+                                    {{ $t('展开全部')}}({{ manager.pinActions.length }})
                                 </a>
                             </div>
                         </div>
@@ -152,7 +152,7 @@
                         <div class="group-title">
                             <div class="title">
                                 <icon-search/>
-                                搜索结果
+                                {{$t('搜索结果')}}
                             </div>
                         </div>
                         <div class="text-center" style="height: 250px">
@@ -179,7 +179,7 @@
                                     {{ r.title }}
                                 </div>
                                 <div v-if="0" class="action">
-                                    <a href="javascript:;"> 关闭 </a>
+                                    <a href="javascript:;"> {{$t('关闭')}} </a>
                                     <a href="javascript:;">
                                         <icon-more-vertical/>
                                     </a>

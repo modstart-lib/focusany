@@ -26,7 +26,7 @@ const {webUserAgent, viewActions} = useViewOperate("fastPanel");
                         {{ r.title }}
                     </div>
                     <div v-if="0" class="action">
-                        <a href="javascript:;"> 关闭 </a>
+                        <a href="javascript:;"> {{$t('关闭')}} </a>
                         <a href="javascript:;">
                             <icon-more-vertical />
                         </a>

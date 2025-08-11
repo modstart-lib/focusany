@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import {getCurrentInstance, onMounted} from "vue";
-import {Dialog} from "./../lib/dialog";
+import {Dialog} from "../lib/dialog";
+import {t} from "../lang";
 
 const app = getCurrentInstance();
 const doQuit = () => {
-    Dialog.confirm("确定退出吗？").then(() => {
+    Dialog.confirm(t("确定退出吗？")).then(() => {
         window.$mapi.app.quit();
     });
 };

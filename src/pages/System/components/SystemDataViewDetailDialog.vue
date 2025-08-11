@@ -3,6 +3,7 @@ import {ref} from "vue";
 import {SystemDataRecord} from "./type";
 import CodeViewer from "../../../components/common/CodeViewer.vue";
 import {Dialog} from "../../../lib/dialog";
+import {t} from "../../../lang";
 
 const visible = ref(false);
 const record = ref<SystemDataRecord | null>(null);
@@ -21,11 +22,11 @@ const doLoad = async () => {
 };
 
 const doDelete = async () => {
-    Dialog.confirm("确定要删除吗？").then(async () => {
+    Dialog.confirm(t("确定要删除吗？")).then(async () => {
         Dialog.loadingOn();
         await window.$mapi.kvdb.remove(record.value?.plugin.name as string, key.value);
         Dialog.loadingOff();
-        Dialog.tipSuccess("删除成功");
+        Dialog.tipSuccess(t("删除成功"));
         visible.value = false;
         emit("update");
     });
@@ -46,8 +47,8 @@ defineExpose({
             </div>
         </template>
         <template #footer>
-            <a-button type="primary" size="small" status="danger" @click="doDelete"> 删除 </a-button>
-            <a-button size="small" @click="visible = false"> 关闭 </a-button>
+            <a-button type="primary" size="small" status="danger" @click="doDelete"> {{$t('删除')}} </a-button>
+            <a-button size="small" @click="visible = false"> {{$t('关闭')}} </a-button>
         </template>
         <div class="h-64" style="margin: -24px -20px">
             <CodeViewer lang="json" :code="JSON.stringify(recordDetail, null, 2)" />
