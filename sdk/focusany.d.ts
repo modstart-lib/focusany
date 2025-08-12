@@ -713,6 +713,31 @@ interface FocusAnyApi {
         };
     }>;
 
+
+    /**
+     * write info log
+     * @param label
+     * @param data
+     */
+    logInfo(label: string, data?: any): void;
+
+    /**
+     * write error log
+     * @param label
+     * @param data
+     */
+    logError(label: string, data?: any): void;
+
+    /**
+     * get log file path
+     */
+    logPath(): Promise<string>;
+
+    /**
+     * show log file
+     */
+    logShow(): void;
+
     /**
      * 数据库操作
      */

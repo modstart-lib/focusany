@@ -27,6 +27,7 @@ import {PagePayment} from "../../../page/payment";
 import {PageUser} from "../../../page/user";
 import {Files} from "../../file/main";
 import {listModels, modelChat} from "./llm";
+import {Page} from "../../../page";
 
 const getHeadHeight = (win: BrowserWindow) => {
     if (win === AppRuntime.mainWindow) {
@@ -509,6 +510,24 @@ export const ManagerPluginEvent = {
                 msg: `Request failed: ${e instanceof Error ? e.message : String(e)}`,
             };
         }
+    },
+
+    logInfo: async (context: PluginContext, data: any) => {
+        const {label, logData} = data;
+        Log.appInfo(`Plugin_${context._plugin.name}`, label, logData);
+    },
+    logError: async (context: PluginContext, data: any) => {
+        const {label, logData} = data;
+        Log.appError(`Plugin_${context._plugin.name}`, label, logData);
+    },
+    logPath: async (context: PluginContext, data: any) => {
+        return Log.appPath(`Plugin_${context._plugin.name}`);
+    },
+    logShow: async (context: PluginContext, data: any) => {
+        const p = Log.appPath(`Plugin_${context._plugin.name}`);
+        Page.open("log", {
+            log: p,
+        })
     },
 
     getUserAccessToken: async (context: PluginContext, data: any) => {

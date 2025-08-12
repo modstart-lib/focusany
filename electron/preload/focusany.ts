@@ -501,6 +501,22 @@ export const FocusAny = {
         return ipcSendAsync("llmChat", {callInfo});
     },
 
+    logInfo(label: string, data?: any): void {
+        ipcSend("logInfo", {label, logData: data});
+    },
+
+    logError(label: string, data?: any): void {
+        ipcSend("logError", {label, logData: data});
+    },
+
+    logPath(): Promise<string> {
+        return ipcSendSync("logPath");
+    },
+
+    logShow(): void {
+        ipcSend("logShow");
+    },
+
     showUserLogin() {
         ipcSend("showUserLogin");
     },

@@ -66,6 +66,7 @@ export default defineConfig(({command}) => {
                         "page/payment.html",
                         "page/setup.html",
                         "page/user.html",
+                        "page/log.html",
                     ];
                     files.forEach(f => {
                         const p = path.resolve(__dirname, "dist", f);

@@ -58,7 +58,7 @@ watch(
 </script>
 
 <template>
-    <div :style="{height: props.height}" ref="logContainer" class="bg-black rounded p-3 overflow-auto">
+    <div :style="{height: props.height}" ref="logContainer" class="bg-black p-3 overflow-auto">
         <div v-if="!logs.length" class="text-center text-white py-10">
             <div>
                 <i class="iconfont icon-empty-box text-4xl"></i>
