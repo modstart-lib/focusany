@@ -193,6 +193,10 @@ const storePublishInfo = async (pluginName: string, option?: {}) => {
     return ipcRenderer.invoke("manager:storePublishInfo", pluginName, option);
 };
 
+const storeInstallingInfo = async (pluginName: string, option?: {}) => {
+    return ipcRenderer.invoke("manager:storeInstallingInfo", pluginName, option);
+}
+
 const clipboardList = async (option?: {}) => {
     return ipcRenderer.invoke("manager:clipboardList", option);
 };
@@ -265,6 +269,7 @@ export default {
     storeInstall,
     storePublish,
     storePublishInfo,
+    storeInstallingInfo,
 
     clipboardList,
     clipboardClear,

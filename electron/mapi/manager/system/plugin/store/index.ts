@@ -13,12 +13,24 @@ import {map} from "lodash-es";
 import {AppsMain} from "../../../../app/main";
 
 export const ManagerPluginStore = {
+    installingMap: {} as {
+        [pluginName: string]: {
+            name: string;
+            percent: number;
+            startTime: number;
+        }
+    },
     async install(
         pluginName: string,
         option?: {
             version?: string;
         }
     ) {
+        this.installingMap[pluginName] = {
+            name: pluginName,
+            percent: 0,
+            startTime: Date.now(),
+        }
         option = Object.assign(
             {
                 version: null,
@@ -59,7 +71,11 @@ export const ManagerPluginStore = {
                         Manager.sendBroadcast("store", "PluginInstallProgress", {
                             pluginName: pluginName,
                             percent: p,
+                            end: false,
                         });
+                        if (ManagerPluginStore.installingMap[pluginName]) {
+                            ManagerPluginStore.installingMap[pluginName].percent = p;
+                        }
                     }
                 },
             });
@@ -72,8 +88,15 @@ export const ManagerPluginStore = {
             AppsMain.toast(`插件 ${infoRes.data["config"]["title"]} 安装完成`, {
                 status: "success",
             });
+            Manager.sendBroadcast("store", "PluginInstallProgress", {
+                pluginName: pluginName,
+                percent: 100,
+                end: true,
+            });
         } catch (e) {
             throw mapError(e);
+        } finally {
+            delete this.installingMap[pluginName];
         }
     },
     async publish(
@@ -111,7 +134,8 @@ export const ManagerPluginStore = {
         let configJson = null;
         try {
             configJson = JSON.parse(config);
-        } catch (e) {}
+        } catch (e) {
+        }
         if (!configJson) {
             throw "PluginFormatError:-10";
         }
@@ -229,7 +253,8 @@ export const ManagerPluginStore = {
         let configJson = null;
         try {
             configJson = JSON.parse(config);
-        } catch (e) {}
+        } catch (e) {
+        }
         if (!configJson) {
             throw "PluginFormatError:-13";
         }
@@ -242,6 +267,17 @@ export const ManagerPluginStore = {
             ...payload,
             ...pluginInfo,
         });
+    },
+    async storeInstallingInfo(pluginName: string) {
+        const result = {
+            isInstalling: false,
+            percent: 0,
+        }
+        if (this.installingMap[pluginName]) {
+            result.isInstalling = true;
+            result.percent = this.installingMap[pluginName].percent;
+        }
+        return result;
     },
     async _getPluginInfo(root: string, configJson: any) {
         const result = {

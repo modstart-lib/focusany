@@ -2,7 +2,7 @@
     <div class="pb-search" @mousedown="onDragWindowMouseDown">
         <div class="content-left">
             <div v-if="!manager.activePlugin" @click="doLogoClick" class="logo">
-                <img src="./../../assets/image/search-icon.svg" />
+                <img src="./../../assets/image/search-icon.svg"/>
             </div>
             <div
                 v-if="
@@ -13,13 +13,13 @@
             >
                 <div v-if="manager.currentFiles.length > 0" class="file">
                     <div class="type">
-                        <FileExt :name="clipboardFilesInfo.extName" />
+                        <FileExt :name="clipboardFilesInfo.extName"/>
                     </div>
                     <div class="title">{{ clipboardFilesInfo.name }}</div>
                     <div class="count" v-if="manager.currentFiles.length > 1">x{{ manager.currentFiles.length }}</div>
                 </div>
                 <div v-else-if="manager.currentImage" class="image">
-                    <img :src="manager.currentImage" />
+                    <img :src="manager.currentImage"/>
                 </div>
                 <div v-else-if="manager.currentText" class="text">
                     <i class="iconfont icon-text"></i>
@@ -31,7 +31,7 @@
                     class="close text-gray-500 bg-gray-200 hover:bg-gray-500 hover:text-white"
                     @click="emit('onClose')"
                 >
-                    <icon-close />
+                    <icon-close/>
                 </div>
             </div>
             <div v-if="manager.activePlugin" class="plugin bg-gray-200 dark:bg-gray-600">
@@ -45,7 +45,7 @@
                     {{ manager.activePlugin.title }}
                 </div>
                 <div class="close text-gray-500 hover:bg-gray-500 hover:text-white" @click="emit('onClose')">
-                    <icon-close />
+                    <icon-close/>
                 </div>
             </div>
         </div>
@@ -80,7 +80,7 @@
         <div v-else @dblclick="onSearchDoubleClick" class="main-search"></div>
         <div class="content-right" @click="doShowMenu">
             <div class="more" v-if="manager.activePlugin">
-                <icon-more-vertical style="font-size: 20px" />
+                <icon-more-vertical style="font-size: 20px"/>
             </div>
         </div>
         <div
@@ -88,9 +88,9 @@
             class="flex items-center bg-yellow-100 shadow leading-8 px-2 rounded-lg"
         >
             <div class="mr-1">
-                <icon-info-circle v-if="manager.notice.type === 'info'" />
-                <icon-check-circle v-else-if="manager.notice.type === 'success'" />
-                <icon-close-circle v-else-if="manager.notice.type === 'error'" />
+                <icon-info-circle v-if="manager.notice.type === 'info'"/>
+                <icon-check-circle v-else-if="manager.notice.type === 'success'"/>
+                <icon-close-circle v-else-if="manager.notice.type === 'error'"/>
             </div>
             <div>
                 {{ manager.notice.text }}
@@ -167,9 +167,11 @@ const onShow = () => {
     EntryListener.prepareSearch({}).then();
 };
 
-const focus = () => {
+const focus = (search: boolean) => {
     mainInput.value?.focus();
-    EntryListener.prepareSearch({}).then();
+    if (search) {
+        EntryListener.prepareSearch({}).then();
+    }
 };
 
 const doLogoClick = () => {

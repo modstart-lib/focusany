@@ -3,6 +3,7 @@ import {onBeforeUnmount, onMounted, ref} from "vue";
 import PageWebviewStatus from "../components/common/PageWebviewStatus.vue";
 import {useSettingStore} from "../store/modules/setting";
 import {useUserStore} from "../store/modules/user";
+import {t} from "../lang";
 
 const setting = useSettingStore();
 const user = useUserStore();
@@ -49,6 +50,11 @@ document.addEventListener('click', (event) => {
 onBeforeUnmount(() => {
     window.__page.offBroadcast("PluginInstallProgress", installProgressCallback);
 });
+
+focusany.setSubInput((keywords) => {
+    web.value.executeJavaScript(`window.__storePluginSearch && window.__storePluginSearch(${JSON.stringify(keywords)});`);
+}, t('输入关键词搜索'), true, true);
+
 </script>
 
 <template>
@@ -61,7 +67,7 @@ onBeforeUnmount(() => {
             nodeintegration
             :preload="webPreload"
         ></webview>
-        <PageWebviewStatus ref="status" />
+        <PageWebviewStatus ref="status"/>
     </div>
 </template>
 

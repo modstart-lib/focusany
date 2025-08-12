@@ -432,6 +432,10 @@ ipcMain.handle("manager:storePublishInfo", async (event, pluginName: string, opt
     return await ManagerPluginStore.publishInfo(pluginName, option);
 });
 
+ipcMain.handle("manager:storeInstallingInfo", async (event, pluginName: string, option?: {}) => {
+    return await ManagerPluginStore.storeInstallingInfo(pluginName);
+});
+
 ipcMain.handle("manager:clipboardList", async (event, option?: {}) => {
     return await ManagerClipboard.list();
 });
@@ -465,7 +469,8 @@ const getViewByEvent = event => {
                     _plugin: Manager.getPluginSync(pluginName),
                 } as PluginContext;
             }
-        } catch (e) {}
+        } catch (e) {
+        }
     }
     return view;
 };

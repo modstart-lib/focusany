@@ -34,6 +34,12 @@ type PluginInfo = {
 };
 
 export const ManagerPlugin = {
+    installingMap: {} as {
+        [name: string]: {
+            version: string;
+            startTime: number;
+        };
+    },
     async clearCache() {
         MemoryCacheUtil.forget("Plugins");
         MemoryCacheUtil.forget("PluginActions");
@@ -488,6 +494,9 @@ export const ManagerPlugin = {
         }
         return plugin.version;
     },
+    async isPluginInstalling(name: string) {
+
+    },
     async list() {
         const plugins = await MemoryCacheUtil.remember("Plugins", async () => {
             // await this.install(`${process.cwd()}/plugin-examples/plugin-example`, 'system')
@@ -557,7 +566,8 @@ export const ManagerPlugin = {
                 return null;
             }
             return configJson;
-        } catch (e) {}
+        } catch (e) {
+        }
         return null;
     },
     async listAction() {

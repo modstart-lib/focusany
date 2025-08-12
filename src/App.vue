@@ -54,7 +54,7 @@ window.__page.onPluginInit(
             isVisible: false,
         });
         manager.setSubInputValue("");
-        mainSearch.value?.focus();
+        mainSearch.value?.focus(true);
     }
 );
 window.__page.onPluginInitReady(() => {
@@ -78,7 +78,7 @@ window.__page.onPluginExit((data: { openForNext: boolean }) => {
         if (manager.activePlugin) {
             return;
         }
-        mainSearch.value?.focus();
+        mainSearch.value?.focus(true);
     }, 100);
 });
 window.__page.onPluginDetached(() => {
@@ -101,6 +101,11 @@ window.__page.onPluginState(() => {
 window.__page.onSetSubInput((param: { placeholder: string; isFocus: boolean; isVisible: boolean }) => {
     // console.log('main.onSetSubInput', param)
     manager.setSubInput(param);
+    if (param.isFocus) {
+        setTimeout(() => {
+            mainSearch.value?.focus(false);
+        }, 1000);
+    }
 });
 window.__page.onRemoveSubInput(() => {
     // console.log('main.onRemoveSubInput')
