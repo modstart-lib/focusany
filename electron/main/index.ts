@@ -28,6 +28,7 @@ import {AppsMain} from "../mapi/app/main";
 import {ManagerEditor} from "../mapi/manager/editor";
 import {ProtocolMain} from "../mapi/protocol/main";
 import path from "node:path";
+import fs from "node:fs";
 
 const isDummyNew = isDummy;
 
@@ -73,6 +74,16 @@ AppEnv.appRoot = process.env.APP_ROOT;
 AppEnv.appData = app.getPath("appData");
 AppEnv.userData = app.getPath("userData");
 AppEnv.dataRoot = path.join(AppEnv.userData, "data");
+
+if (!fs.existsSync(AppEnv.dataRoot)) {
+    fs.mkdirSync(AppEnv.dataRoot, {recursive: true});
+}
+for (const dir of ["logs", "storage"]) {
+    if (!fs.existsSync(path.join(AppEnv.dataRoot, dir))) {
+        fs.mkdirSync(path.join(AppEnv.dataRoot, dir), {recursive: true});
+    }
+}
+
 AppEnv.isInit = true;
 
 MAPI.init();
