@@ -9,6 +9,7 @@ import SystemPlugin from "./System/SystemPlugin.vue";
 import SystemSetting from "./System/SystemSetting.vue";
 import SystemUser from "./System/SystemUser.vue";
 import SystemAbout from "./System/SystemAbout.vue";
+import SystemModel from "./System/SystemModel.vue";
 const tab = ref("");
 window.focusany.onPluginReady(data => {
     const actionNameMap = {
@@ -18,7 +19,7 @@ window.focusany.onPluginReady(data => {
         "page-action": "action",
         "page-file": "file",
         "page-launch": "launch",
-        "page-about": "about",
+        "page-model": "model",
     };
     if (actionNameMap[data.actionName]) {
         tab.value = actionNameMap[data.actionName];
@@ -81,6 +82,16 @@ window.focusany.onPluginReady(data => {
                     <img class="w-6 h-6 object-contain mr-2 ml-2 dark:invert" :src="SystemIcons.thunder" />
                     快捷启动
                 </div>
+                <div
+                    class="flex items-center leading-10 py-1 px-1 rounded-lg cursor-pointer"
+                    @click="tab = 'model'"
+                    :class="
+                        tab === 'model' ? 'bg-gray-200 dark:bg-gray-500' : 'hover:bg-gray-100 dark:hover:bg-gray-600'
+                    "
+                >
+                    <img class="w-6 h-6 object-contain mr-2 ml-2 dark:invert" :src="SystemIcons.model" />
+                    AI模型
+                </div>
                 <div class="text-gray-600 dark:text-gray-300 pb-4 px-4 py-4">{{ $t("个人中心") }}</div>
                 <div>
                     <div
@@ -116,7 +127,7 @@ window.focusany.onPluginReady(data => {
             <SystemAction v-else-if="tab === 'action'" />
             <SystemFile v-else-if="tab === 'file'" />
             <SystemLaunch v-else-if="tab === 'launch'" />
-            <SystemAbout v-else-if="tab === 'about'" />
+            <SystemModel v-else-if="tab === 'model'" />
         </div>
     </div>
 </template>

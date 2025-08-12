@@ -10,6 +10,7 @@ import searchWindow from "./search-window.svg";
 import command from "./command.svg";
 import database from "./database.svg";
 import folder from "./folder.svg";
+import model from "./model.svg";
 import screenshot from "./screenshot.svg";
 import plugin from "./plugin.svg";
 import thunder from "./thunder.svg";
@@ -35,6 +36,7 @@ export const SystemIcons = {
     command,
     database,
     folder,
+    model,
     screenshot,
     plugin,
     thunder,
