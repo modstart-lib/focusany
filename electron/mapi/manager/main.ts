@@ -1,12 +1,5 @@
 import {BrowserWindow, ipcMain} from "electron";
-import {
-    ActionRecord,
-    ActionTypeEnum,
-    FilePluginRecord,
-    LaunchRecord,
-    PluginEnv,
-    PluginRecord,
-} from "../../../src/types/Manager";
+import {ActionRecord, ActionTypeEnum, FilePluginRecord, LaunchRecord, PluginEnv,} from "../../../src/types/Manager";
 import {ManagerPlugin} from "./plugin";
 import {ManagerWindow} from "./window";
 import {ManagerPluginEvent} from "./plugin/event";
@@ -26,6 +19,7 @@ import {ManagerBackend} from "./backend";
 import {ManagerEditor} from "./editor";
 import ProtocolMain from "../protocol/main";
 import {AppsMain} from "../app/main";
+import {PluginLog} from "./plugin/log";
 
 const init = () => {
     ManagerClipboard.init().then();
@@ -479,7 +473,8 @@ const getViewByEvent = event => {
                     _plugin: Manager.getPluginSync(pluginName),
                 } as PluginContext;
             }
-        } catch (e) {}
+        } catch (e) {
+        }
     }
     return view;
 };
@@ -513,6 +508,10 @@ ipcMain.on(
             })
             .catch(e => {
                 event.returnValue = e;
+                PluginLog.error(view._plugin.name, `ApiError.${type}`, {
+                    error: '' + e,
+                    data,
+                })
             });
     }
 );
@@ -528,7 +527,15 @@ ipcMain.handle(
     ) => {
         const view = getViewByEvent(event);
         const {type, data} = payload;
-        return await ManagerPluginEvent[type](view, data);
+        try {
+            return await ManagerPluginEvent[type](view, data);
+        } catch (e) {
+            PluginLog.error(view._plugin.name, `ApiError.${type}`, {
+                error: '' + e,
+                data,
+            });
+            throw e;
+        }
     }
 );
 

@@ -2,8 +2,8 @@ import {PluginRecord} from "../../../../src/types/Manager";
 import {ManagerPlugin} from "../plugin";
 import path from "node:path";
 import {Files} from "../../file/main";
-import {Log} from "../../log/main";
 import {FileUtil} from "../../../lib/util";
+import {PluginLog} from "../plugin/log";
 
 type FileMeta = {
     mimeType: string;
@@ -12,8 +12,6 @@ type FileMeta = {
 
 export const RemoteWebManager = {
     create: async (plugin: PluginRecord) => {
-        // console.log('RemoteWebManager.Create')
-
         const shouldBlock = (url: string) => {
             if (plugin.runtime.remoteWeb && plugin.runtime.remoteWeb.blocks) {
                 for (const block of plugin.runtime.remoteWeb.blocks) {
@@ -53,7 +51,8 @@ export const RemoteWebManager = {
                         headers: json.headers || defaultMeta.headers,
                     };
                 }
-            } catch (e) {}
+            } catch (e) {
+            }
             return defaultMeta;
         };
 
@@ -103,11 +102,12 @@ export const RemoteWebManager = {
             const requestHandler = async (request): Promise<any> => {
                 const url = request.url;
                 const file = getCacheFile(url);
-                // console.log('RemoteWebManager.Cache.Handle', {url, file, remoteWeb: plugin.runtime.remoteWeb});
                 if (file && (await Files.exists(file, {isFullPath: true}))) {
                     const buffer = await Files.readBuffer(file, {isFullPath: true});
                     const fileMeta = await getFileMeta(file);
-                    // console.log('RemoteWebManager.Cache.Hit', {url});
+                    PluginLog.info(plugin.name, "RemoteWeb.Cache.Hit", {
+                        url,
+                    });
                     return new Response(buffer, {
                         status: 200,
                         headers: {
@@ -118,7 +118,7 @@ export const RemoteWebManager = {
                     });
                 }
                 if (!file && shouldBlock(url)) {
-                    // console.warn('RemoteWebManager.Cache.Blocked', {url});
+                    PluginLog.info(plugin.name, "RemoteWeb.Cache.Blocked", {url});
                     return new Response(`RemoteWebBlock - ${url}`, {
                         status: 403,
                         headers: {"content-type": "text/plain"},
@@ -134,7 +134,7 @@ export const RemoteWebManager = {
                     })
                         .then(async response => {
                             if (!response.ok) {
-                                Log.info("RemoteWebManager.Cache.FetchFailed", {
+                                PluginLog.error(plugin.name, "RemoteWeb.Cache.FetchFailed", {
                                     url,
                                     status: response.status,
                                     statusText: response.statusText,
@@ -166,7 +166,7 @@ export const RemoteWebManager = {
                                 await writeFileMeta(file, {mimeType, headers});
                                 cacheStatus = "cached";
                             }
-                            Log.info("RemoteWebManager.Cache", {
+                            PluginLog.info(plugin.name, "RemoteWeb.Cache", {
                                 url,
                                 mimeType,
                                 headers,
@@ -185,7 +185,7 @@ export const RemoteWebManager = {
                             );
                         })
                         .catch(err => {
-                            Log.info("RemoteWebManager.Cache.FetchError", {url, error: err});
+                            PluginLog.info(plugin.name, "RemoteWeb.Cache.FetchError", {url, error: err});
                             resolve(
                                 new Response("Fetch error: " + url + ", " + err.message, {
                                     status: 500,

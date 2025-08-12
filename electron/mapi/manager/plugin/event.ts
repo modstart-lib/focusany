@@ -28,6 +28,7 @@ import {PageUser} from "../../../page/user";
 import {Files} from "../../file/main";
 import {listModels, modelChat} from "./llm";
 import {Page} from "../../../page";
+import {PluginLog} from "./log";
 
 const getHeadHeight = (win: BrowserWindow) => {
     if (win === AppRuntime.mainWindow) {
@@ -514,17 +515,17 @@ export const ManagerPluginEvent = {
 
     logInfo: async (context: PluginContext, data: any) => {
         const {label, logData} = data;
-        Log.appInfo(`Plugin_${context._plugin.name}`, label, logData);
+        PluginLog.info(context._plugin.name, label, logData);
     },
     logError: async (context: PluginContext, data: any) => {
         const {label, logData} = data;
-        Log.appError(`Plugin_${context._plugin.name}`, label, logData);
+        PluginLog.error(context._plugin.name, label, logData);
     },
     logPath: async (context: PluginContext, data: any) => {
-        return Log.appPath(`Plugin_${context._plugin.name}`);
+        return Log.appPath(PluginLog.name(context._plugin.name));
     },
     logShow: async (context: PluginContext, data: any) => {
-        const p = Log.appPath(`Plugin_${context._plugin.name}`);
+        const p = Log.appPath(PluginLog.name(context._plugin.name));
         Page.open("log", {
             log: p,
         })
