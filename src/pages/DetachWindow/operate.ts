@@ -19,14 +19,19 @@ export const useDetachWindowOperate = ({plugin}) => {
 
     const doShowMoreMenu = () => {
         const autoDetach = !!plugin.value.runtime.config.autoDetach;
-        const menuTemplate: any[] = [
-            {
-                label: t("打开调试窗口"),
-                click: async () => {
-                    await window.$mapi.manager.openDetachPluginDevTools();
-                },
+        const menuTemplate: any[] = [];
+        menuTemplate.push({
+            label: t("打开插件调试窗口"),
+            click: async () => {
+                await window.$mapi.manager.openDetachPluginDevTools();
             },
-        ];
+        })
+        menuTemplate.push({
+            label: t("打开插件后端日志"),
+            click: async () => {
+                await window.$mapi.manager.openDetachPluginLog();
+            },
+        });
         if (!(plugin.value.setting && plugin.value.setting.autoDetach)) {
             menuTemplate.push({
                 label: t("自动分离为独立窗口显示"),

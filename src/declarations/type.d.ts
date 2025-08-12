@@ -141,7 +141,7 @@ declare interface Window {
             root: () => string;
             info: (msg: string, data: any = null) => Promise<void>;
             error: (msg: string, data: any = null) => Promise<void>;
-            collect: (option?: { startTime?: string; endTime?: string; limit?: number }) => Promise<string>;
+            collect: (option?: {startTime?: string; endTime?: string; limit?: number}) => Promise<string>;
         };
         storage: {
             all: () => Promise<any>;
@@ -172,7 +172,7 @@ declare interface Window {
             getAttachmentType: (name: string, docId: string) => Promise<any>;
             dumpToFile: (file: string) => Promise<void>;
             importFromFile: (file: string) => Promise<void>;
-            testWebdav: (option: { url: string; username: string; password: string }) => Promise<void>;
+            testWebdav: (option: {url: string; username: string; password: string}) => Promise<void>;
             dumpToWebDav: (
                 file: string,
                 option: {
@@ -201,17 +201,17 @@ declare interface Window {
         file: {
             fullPath: (path: string) => Promise<string>;
             absolutePath: (path: string) => string;
-            exists: (path: string, option?: { isFullPath?: boolean }) => Promise<boolean>;
-            isDirectory: (path: string, option?: { isFullPath?: boolean }) => Promise<boolean>;
-            mkdir: (path: string, option?: { isFullPath?: boolean }) => Promise<void>;
-            list: (path: string, option?: { isFullPath?: boolean }) => Promise<any[]>;
-            listAll: (path: string, option?: { isFullPath?: boolean }) => Promise<any[]>;
-            write: (path: string, data: any, option?: { isFullPath?: boolean }) => Promise<void>;
-            writeBuffer: (path: string, data: any, option?: { isFullPath?: boolean }) => Promise<void>;
-            read: (path: string, option?: { isFullPath?: boolean }) => Promise<any>;
-            readBuffer: (path: string, option?: { isFullPath?: boolean }) => Promise<any>;
-            deletes: (path: string, option?: { isFullPath?: boolean }) => Promise<void>;
-            clean: (paths: string[], option?: { isFullPath?: boolean }) => Promise<void>;
+            exists: (path: string, option?: {isFullPath?: boolean}) => Promise<boolean>;
+            isDirectory: (path: string, option?: {isFullPath?: boolean}) => Promise<boolean>;
+            mkdir: (path: string, option?: {isFullPath?: boolean}) => Promise<void>;
+            list: (path: string, option?: {isFullPath?: boolean}) => Promise<any[]>;
+            listAll: (path: string, option?: {isFullPath?: boolean}) => Promise<any[]>;
+            write: (path: string, data: any, option?: {isFullPath?: boolean}) => Promise<void>;
+            writeBuffer: (path: string, data: any, option?: {isFullPath?: boolean}) => Promise<void>;
+            read: (path: string, option?: {isFullPath?: boolean}) => Promise<any>;
+            readBuffer: (path: string, option?: {isFullPath?: boolean}) => Promise<any>;
+            deletes: (path: string, option?: {isFullPath?: boolean}) => Promise<void>;
+            clean: (paths: string[], option?: {isFullPath?: boolean}) => Promise<void>;
             rename: (
                 pathOld: string,
                 pathNew: string,
@@ -220,7 +220,7 @@ declare interface Window {
                     overwrite?: boolean;
                 }
             ) => Promise<void>;
-            copy: (pathOld: string, pathNew: string, option?: { isFullPath?: boolean }) => Promise<void>;
+            copy: (pathOld: string, pathNew: string, option?: {isFullPath?: boolean}) => Promise<void>;
             temp: (ext: string = "tmp", prefix: string = "file", suffix: string = "") => Promise<string>;
             tempDir: (prefix: string = "dir") => Promise<string>;
             watchText: (
@@ -233,7 +233,7 @@ declare interface Window {
             ) => Promise<{
                 stop: Function;
             }>;
-            appendText: (path: string, data: any, option?: { isFullPath?: boolean }) => Promise<void>;
+            appendText: (path: string, data: any, option?: {isFullPath?: boolean}) => Promise<void>;
             openFile: (options: {} = {}) => Promise<string | null>;
             openDirectory: (options: {} = {}) => Promise<string | null>;
             openSave: (options: {} = {}) => Promise<string | null>;
@@ -333,7 +333,7 @@ declare interface Window {
         };
         misc: {
             getZipFileContent: (path: string, pathInZip: string) => Promise<string>;
-            unzip: (zipPath: string, dest: string, option?: { process: Function }) => Promise<void>;
+            unzip: (zipPath: string, dest: string, option?: {process: Function}) => Promise<void>;
         };
 
         ffmpeg: {
@@ -402,8 +402,10 @@ declare interface Window {
             openAction: (action: ActionRecord) => Promise<void>;
             openActionForWindow: (type: "open", action: ActionRecord) => Promise<void>;
 
-            closeMainPlugin: (plugin?: PluginRecord, option?: {}) => Promise<void>;
-            openMainPluginDevTools: (plugin?: PluginRecord, option?: {}) => Promise<void>;
+            closeMainPlugin: (option?: {}) => Promise<void>;
+            openMainPluginDevTools: (option?: {}) => Promise<void>;
+            openMainPluginLog: (option?: {}) => Promise<void>;
+
             detachPlugin: (option?: {}) => Promise<void>;
             listPlugin: (option?: {}) => Promise<PluginRecord[]>;
             installPlugin: (fileOrPath: string, option?: {}) => Promise<void>;
@@ -429,6 +431,7 @@ declare interface Window {
             fireDetachOperateClick: (name: string, option?: {}) => Promise<void>;
             closeDetachPlugin: (option?: {}) => Promise<void>;
             openDetachPluginDevTools: (option?: {}) => Promise<void>;
+            openDetachPluginLog: (option?: {}) => Promise<void>;
             setPluginAutoDetach: (autoDetach: boolean, option?: {}) => Promise<void>;
             getPluginConfig: (pluginName: string, option?: {}) => Promise<PluginConfig>;
 
@@ -455,9 +458,7 @@ declare interface Window {
                     version?: string;
                 }
             ) => Promise<void>;
-            storeInstallingInfo: (
-                pluginName: string
-            ) => Promise<{
+            storeInstallingInfo: (pluginName: string) => Promise<{
                 isInstalling: boolean;
                 percent: number;
             }>;

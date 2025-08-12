@@ -122,13 +122,18 @@ const openActionForWindow = async (type: "open" | "close", action: ActionRecord)
     return ipcRenderer.invoke("manager:openActionForWindow", type, action);
 };
 
-const closeMainPlugin = async (plugin?: PluginRecord, option?: {}) => {
-    return ipcRenderer.invoke("manager:closeMainPlugin", plugin, option);
+const closeMainPlugin = async (option?: {}) => {
+    return ipcRenderer.invoke("manager:closeMainPlugin", option);
 };
 
-const openMainPluginDevTools = async (plugin?: PluginRecord, option?: {}) => {
-    return ipcRenderer.invoke("manager:openMainPluginDevTools", plugin, option);
+const openMainPluginDevTools = async (option?: {}) => {
+    return ipcRenderer.invoke("manager:openMainPluginDevTools", option);
 };
+
+const openMainPluginLog = async (option?: {}) => {
+    return ipcRenderer.invoke("manager:openMainPluginLog", option);
+};
+
 const detachPlugin = async (option?: {}) => {
     return ipcRenderer.invoke("manager:detachPlugin", option);
 };
@@ -155,6 +160,10 @@ const closeDetachPlugin = async (option?: {}) => {
 
 const openDetachPluginDevTools = async (option?: {}) => {
     return ipcRenderer.invoke("manager:openDetachPluginDevTools", option);
+};
+
+const openDetachPluginLog = async (option?: {}) => {
+    return ipcRenderer.invoke("manager:openDetachPluginLog", option);
 };
 
 const setPluginAutoDetach = async (autoDetach: boolean, option?: {}) => {
@@ -195,7 +204,7 @@ const storePublishInfo = async (pluginName: string, option?: {}) => {
 
 const storeInstallingInfo = async (pluginName: string, option?: {}) => {
     return ipcRenderer.invoke("manager:storeInstallingInfo", pluginName, option);
-}
+};
 
 const clipboardList = async (option?: {}) => {
     return ipcRenderer.invoke("manager:clipboardList", option);
@@ -250,6 +259,7 @@ export default {
     openActionForWindow,
     closeMainPlugin,
     openMainPluginDevTools,
+    openMainPluginLog,
     detachPlugin,
 
     toggleDetachPluginAlwaysOnTop,
@@ -258,6 +268,7 @@ export default {
     fireDetachOperateClick,
     closeDetachPlugin,
     openDetachPluginDevTools,
+    openDetachPluginLog,
     setPluginAutoDetach,
     getPluginConfig,
 

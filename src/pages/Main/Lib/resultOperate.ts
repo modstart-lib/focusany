@@ -250,8 +250,8 @@ export const useResultOperate = () => {
         }
     };
 
-    const doClosePlugin = async (plugin?: PluginRecord) => {
-        await manager.closeMainPlugin(plugin);
+    const doClosePlugin = async () => {
+        await manager.closeMainPlugin();
     };
 
     const doOpenAction = async (action: ActionRecord) => {

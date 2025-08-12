@@ -313,12 +313,17 @@ ipcMain.handle("manager:openActionForWindow", async (event, type: "open" | "clos
     await Manager.openActionForWindow(type, action);
 });
 
-ipcMain.handle("manager:closeMainPlugin", async (event, plugin?: PluginRecord, option?: {}) => {
-    await ManagerWindow.close(plugin);
+ipcMain.handle("manager:closeMainPlugin", async (event, option?: {}) => {
+    await ManagerWindow.close(null);
 });
 
-ipcMain.handle("manager:openMainPluginDevTools", async (event, plugin?: PluginRecord, option?: {}) => {
-    await ManagerWindow.openMainPluginDevTools(plugin);
+ipcMain.handle("manager:openMainPluginDevTools", async (event, option?: {}) => {
+    await ManagerWindow.openMainPluginDevTools();
+});
+
+ipcMain.handle("manager:openMainPluginLog", async (event, option?: {}) => {
+    const view = ManagerWindow.getViewByWebContents(event.sender);
+    await ManagerPluginEvent.logShow(view, {});
 });
 
 ipcMain.handle("manager:detachPlugin", async (event, option) => {
@@ -354,6 +359,11 @@ ipcMain.handle("manager:closeDetachPlugin", async event => {
 ipcMain.handle("manager:openDetachPluginDevTools", async (event, option?: {}) => {
     const view = ManagerWindow.getViewByWebContents(event.sender);
     await ManagerWindow.openDetachPluginDevTools(view);
+});
+
+ipcMain.handle("manager:openDetachPluginLog", async (event, option?: {}) => {
+    const view = ManagerWindow.getViewByWebContents(event.sender);
+    await ManagerPluginEvent.logShow(view, {});
 });
 
 ipcMain.handle("manager:setPluginAutoDetach", async (event, autoDetach: boolean, option?: {}) => {
@@ -469,8 +479,7 @@ const getViewByEvent = event => {
                     _plugin: Manager.getPluginSync(pluginName),
                 } as PluginContext;
             }
-        } catch (e) {
-        }
+        } catch (e) {}
     }
     return view;
 };

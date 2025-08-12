@@ -1,9 +1,9 @@
-import {defineStore} from "pinia";
-import store from "../index";
-import {ActionRecord, ActionTypeEnum, ConfigRecord, PluginRecord} from "../../types/Manager";
 import debounce from "lodash/debounce";
-import {WindowConfig} from "../../../electron/config/window";
+import {defineStore} from "pinia";
 import {computed, toRaw} from "vue";
+import {WindowConfig} from "../../../electron/config/window";
+import {ActionRecord, ActionTypeEnum, ConfigRecord, PluginRecord} from "../../types/Manager";
+import store from "../index";
 
 const searchFastPanelActionDebounce = debounce((query, cb) => {
     window.$mapi.manager.searchFastPanelAction(query).then(result => {
@@ -121,7 +121,7 @@ export const managerStore = defineStore("manager", {
                     currentImage: this.currentImage,
                     currentText: this.currentText,
                 },
-                (result: { matchActions: ActionRecord[]; viewActions: ActionRecord[] }) => {
+                (result: {matchActions: ActionRecord[]; viewActions: ActionRecord[]}) => {
                     this.fastPanelMatchActions = result.matchActions;
                     this.fastPanelViewActions = result.viewActions;
                     this.fastPanelActionLoading = false;
@@ -206,16 +206,19 @@ export const managerStore = defineStore("manager", {
         async openActionForWindow(type: "open", action: ActionRecord) {
             await window.$mapi.manager.openActionForWindow(type, toRaw(action));
         },
-        async closeMainPlugin(plugin?: PluginRecord) {
-            await window.$mapi.manager.closeMainPlugin(plugin ? toRaw(plugin) : null);
+        async closeMainPlugin() {
+            await window.$mapi.manager.closeMainPlugin();
         },
-        async openMainPluginDevTools(plugin?: PluginRecord) {
-            await window.$mapi.manager.openMainPluginDevTools(plugin ? toRaw(plugin) : null);
+        async openMainPluginDevTools() {
+            await window.$mapi.manager.openMainPluginDevTools();
+        },
+        async openMainPluginLog() {
+            await window.$mapi.manager.openMainPluginLog();
         },
         async detachPlugin() {
             await window.$mapi.manager.detachPlugin();
         },
-        setSubInput(payload: { placeholder: string; isFocus: boolean; isVisible: boolean }) {
+        setSubInput(payload: {placeholder: string; isFocus: boolean; isVisible: boolean}) {
             if (!this.activePlugin) {
                 return;
             }

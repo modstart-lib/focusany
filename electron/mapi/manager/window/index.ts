@@ -1,20 +1,20 @@
-import {ActionRecord, PluginEnv, PluginRecord, PluginState} from "../../../../src/types/Manager";
-import {AppEnv, AppRuntime} from "../../env";
-import {preloadDefault, rendererIsUrl, rendererLoadPath} from "../../../lib/env-main";
-import {WindowConfig} from "../../../config/window";
-import {BrowserView, BrowserWindow, screen, shell, WebContents} from "electron";
-import {isMac} from "../../../lib/env";
 import * as remoteMain from "@electron/remote/main";
-import {executeDarkMode, executeHooks, executePluginHooks} from "../lib/hooks";
+import {BrowserView, BrowserWindow, screen, shell, WebContents} from "electron";
+import {ActionRecord, PluginEnv, PluginRecord, PluginState} from "../../../../src/types/Manager";
+import {WindowConfig} from "../../../config/window";
 import {DevToolsManager} from "../../../lib/devtools";
-import {ManagerPlugin} from "../plugin";
-import {Log} from "../../log/main";
-import {Events} from "../../event/main";
-import {ManagerSystem} from "../system";
-import {AppsMain} from "../../app/main";
-import {ManagerPluginEvent} from "../plugin/event";
-import {PluginContext} from "../type";
+import {isMac} from "../../../lib/env";
+import {preloadDefault, rendererIsUrl, rendererLoadPath} from "../../../lib/env-main";
 import {HotKeyUtil} from "../../../lib/util";
+import {AppsMain} from "../../app/main";
+import {AppEnv, AppRuntime} from "../../env";
+import {Events} from "../../event/main";
+import {Log} from "../../log/main";
+import {executeDarkMode, executeHooks, executePluginHooks} from "../lib/hooks";
+import {ManagerPlugin} from "../plugin";
+import {ManagerPluginEvent} from "../plugin/event";
+import {ManagerSystem} from "../system";
+import {PluginContext} from "../type";
 import {RemoteWebManager} from "./remoteWeb";
 
 const browserViews = new Map<WebContents, BrowserView>();
@@ -337,9 +337,12 @@ export const ManagerWindow = {
             openForNext?: boolean;
         }
     ) {
-        option = Object.assign({
-            openForNext: false,
-        }, option);
+        option = Object.assign(
+            {
+                openForNext: false,
+            },
+            option
+        );
         if (mainWindowView && (!plugin || mainWindowView._plugin.name === plugin.name)) {
             await executePluginHooks(mainWindowView, "PluginExit", null).then();
             await executeHooks(AppRuntime.mainWindow, "PluginExit", {
@@ -359,16 +362,12 @@ export const ManagerWindow = {
             }
         }
     },
-    async openMainPluginDevTools(plugin: PluginRecord, option?: {}) {
-        if (plugin) {
-            //TODO
-        } else {
-            mainWindowView.webContents.openDevTools({
-                mode: "detach",
-                activate: true,
-                title: `MainPluginView`,
-            });
-        }
+    async openMainPluginDevTools(option?: {}) {
+        mainWindowView.webContents.openDevTools({
+            mode: "detach",
+            activate: true,
+            title: `MainPluginView`,
+        });
     },
     async _showInMainWindow(
         view: BrowserView,
@@ -403,7 +402,7 @@ export const ManagerWindow = {
             plugin: view._plugin,
             state: pluginState,
             param: pluginParam,
-        }
+        };
         await executeHooks(view._window, "PluginInit", pluginInitReadyParam);
         view.webContents.once("dom-ready", async () => {
             await executeHooks(view._window, "PluginInitReady", pluginInitReadyParam);
