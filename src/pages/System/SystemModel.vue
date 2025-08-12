@@ -4,6 +4,7 @@ import {SystemIcons} from "../../../electron/mapi/manager/system/asset/icon";
 import DragPasteContainer from "../../components/common/DragPasteContainer.vue";
 import {FileUtil} from "../../lib/file";
 import {FilePluginRecord} from "../../types/Manager";
+import ModelSetting from "../../module/Model/ModelSetting.vue";
 
 const records = ref<FilePluginRecord[]>([]);
 
@@ -62,42 +63,8 @@ const onDragDropInput = async (files: any[]) => {
 </script>
 
 <template>
-    <div class="p-4">
-        <div class="flex items-center">
-            <div class="flex-grow text-2xl">{{ $t("AI模型") }}</div>
-            <div></div>
-            <div>
-                &nbsp;
-            </div>
-        </div>
-        <div class="pt-4">
-            <m-empty v-if="!records.length"/>
-            <div v-for="(r, rIndex) in records" class="border-t border-solid border-gray-200">
-                <div class="flex py-3">
-                    <div class="w-12 bg-gray-100 rounded-lg mr-2 flex-shrink-0 flex">
-                        <img :src="r.icon" class="w-10 h-10 object-contain m-auto"/>
-                    </div>
-                    <div class="flex-grow w-0 pr-10">
-                        <div class="font-bold">{{ r.title }}</div>
-                        <div class="text-gray-400 truncate">{{ r.path }}</div>
-                    </div>
-                    <div>
-                        <a-button type="primary" status="danger" @click="doDelete(rIndex)">
-                            <template #icon>
-                                <icon-delete/>
-                            </template>
-                        </a-button>
-                    </div>
-                </div>
-            </div>
-            <div :class="records.length > 0 ? '' : 'text-center'">
-                <a-button @click="doAdd">
-                    <template #icon>
-                        <icon-plus/>
-                    </template>
-                    {{ $t("增加一个文件启动") }}
-                </a-button>
-            </div>
-        </div>
+    <div class="overflow-hidden"
+         style="height:calc(100vh);">
+        <ModelSetting/>
     </div>
 </template>
