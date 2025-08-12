@@ -26,6 +26,7 @@ import User, {UserApi} from "../../user/main";
 import {PagePayment} from "../../../page/payment";
 import {PageUser} from "../../../page/user";
 import {Files} from "../../file/main";
+import {listModels, modelChat} from "./llm";
 
 const getHeadHeight = (win: BrowserWindow) => {
     if (win === AppRuntime.mainWindow) {
@@ -492,6 +493,22 @@ export const ManagerPluginEvent = {
             blocks: info.blocks || [],
             domains: info.domains || [],
         };
+    },
+
+    llmListModels: async (context: PluginContext, data: any) => {
+        return listModels()
+    },
+
+    llmChat: async (context: PluginContext, data: any) => {
+        const {callInfo} = data
+        try {
+            return modelChat(callInfo.providerId, callInfo.modelId, callInfo.message)
+        } catch (e) {
+            return {
+                code: -1,
+                msg: `Request failed: ${e instanceof Error ? e.message : String(e)}`,
+            };
+        }
     },
 
     getUserAccessToken: async (context: PluginContext, data: any) => {

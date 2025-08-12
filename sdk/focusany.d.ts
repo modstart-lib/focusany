@@ -27,7 +27,7 @@ declare type PluginEvent = "ClipboardChange" | "UserChange";
 
 declare type HotkeyModifierType = "Control" | "Option" | "Command" | "Ctrl" | "Alt" | "Win" | "Meta" | "Shift";
 
-declare type HotkeyType = {key: string; modifiers: HotkeyModifierType[]};
+declare type HotkeyType = { key: string; modifiers: HotkeyModifierType[] };
 
 declare type HotkeyQuickType = "save";
 
@@ -166,7 +166,7 @@ interface FocusAnyApi {
      * plugin more menu click
      * @param callback
      */
-    onMoreMenuClick(callback: (data: {name: string}) => void): void;
+    onMoreMenuClick(callback: (data: { name: string }) => void): void;
 
     /**
      * register hot
@@ -334,7 +334,7 @@ interface FocusAnyApi {
      * 列出插件商品
      * @param query
      */
-    listGoods(query?: {ids?: string[]}): Promise<
+    listGoods(query?: { ids?: string[] }): Promise<
         {
             id: string;
             title: string;
@@ -498,7 +498,7 @@ interface FocusAnyApi {
         title?: string;
         defaultPath?: string;
         buttonLabel?: string;
-        filters?: {name: string; extensions: string[]}[];
+        filters?: { name: string; extensions: string[] }[];
         properties?: Array<
             | "openFile"
             | "openDirectory"
@@ -522,7 +522,7 @@ interface FocusAnyApi {
         title?: string;
         defaultPath?: string;
         buttonLabel?: string;
-        filters?: {name: string; extensions: string[]}[];
+        filters?: { name: string; extensions: string[] }[];
         message?: string;
         nameFieldLabel?: string;
         showsTagField?: string;
@@ -644,13 +644,13 @@ interface FocusAnyApi {
     /**
      * 模拟鼠标按下
      */
-    getCursorScreenPoint(): {x: number; y: number};
+    getCursorScreenPoint(): { x: number; y: number };
 
     /**
      * 获取显示器
      * @param point
      */
-    getDisplayNearestPoint(point: {x: number; y: number}): any;
+    getDisplayNearestPoint(point: { x: number; y: number }): any;
 
     /**
      * 是否是MacOS
@@ -685,6 +685,33 @@ interface FocusAnyApi {
             timeout: number;
         }
     ): Promise<any>;
+
+    /**
+     * list large language model
+     */
+    llmListModels(): Promise<{
+        providerId: string;
+        providerLogo: string;
+        providerTitle: string;
+        modelId: string;
+        modelName: string;
+    }[]>;
+
+    /**
+     * call large language model chat
+     * @param callInfo
+     */
+    llmChat(callInfo: {
+        providerId: string;
+        modelId: string;
+        message: string;
+    }): Promise<{
+        code: number;
+        msg: string;
+        data?: {
+            message: string;
+        };
+    }>;
 
     /**
      * 数据库操作

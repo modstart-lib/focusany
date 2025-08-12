@@ -82,7 +82,7 @@ export const FocusAny = {
 
     onPluginEvent(event: PluginEvent, callback: (data: any) => void) {
         if (!("onPluginEvent" in FocusAny.hooks)) {
-            FocusAny.hooks.onPluginEvent = (payload: {event: string; data: any}) => {
+            FocusAny.hooks.onPluginEvent = (payload: { event: string; data: any }) => {
                 const {event, data} = payload;
                 if (event in FocusAny.hooks.onPluginEventCallbacks) {
                     FocusAny.hooks.onPluginEventCallbacks[event].forEach((cb: (data: any) => void) => {
@@ -126,7 +126,7 @@ export const FocusAny = {
         ipcSend("unregisterPluginEvent", {event});
     },
 
-    onMoreMenuClick(callback: (data: {name: string}) => void) {
+    onMoreMenuClick(callback: (data: { name: string }) => void) {
         FocusAny.hooks.onMoreMenuClick = callback;
     },
 
@@ -141,10 +141,10 @@ export const FocusAny = {
         const hotkeys = HotKeyUtil.unify(key);
         if (!("hotKeyListeners" in FocusAny.hooks)) {
             FocusAny.hooks.hotKeyListeners = [];
-            FocusAny.hooks.onHotkey = (payload: {id: string; hotkey: HotkeyType}) => {
+            FocusAny.hooks.onHotkey = (payload: { id: string; hotkey: HotkeyType }) => {
                 const {id, hotkey} = payload;
                 FocusAny.hooks.hotKeyListeners.forEach(
-                    (listener: {id: string; hotkeys: HotkeyType[]; callback: () => void}) => {
+                    (listener: { id: string; hotkeys: HotkeyType[]; callback: () => void }) => {
                         if (listener.id === id) {
                             listener.callback();
                         }
@@ -197,7 +197,7 @@ export const FocusAny = {
         title?: string;
         defaultPath?: string;
         buttonLabel?: string;
-        filters?: {name: string; extensions: string[]}[];
+        filters?: { name: string; extensions: string[] }[];
         properties?: Array<
             | "openFile"
             | "openDirectory"
@@ -218,7 +218,7 @@ export const FocusAny = {
         title?: string;
         defaultPath?: string;
         buttonLabel?: string;
-        filters?: {name: string; extensions: string[]}[];
+        filters?: { name: string; extensions: string[] }[];
         message?: string;
         nameFieldLabel?: string;
         showsTagField?: string;
@@ -360,7 +360,7 @@ export const FocusAny = {
     getCursorScreenPoint() {
         return electronRemote.screen.getCursorScreenPoint();
     },
-    getDisplayNearestPoint(point: {x: number; y: number}) {
+    getDisplayNearestPoint(point: { x: number; y: number }) {
         return electronRemote.screen.getDisplayNearestPoint(point);
     },
     createBrowserWindow(url: string, options: BrowserWindow.InitOptions, callback?: () => void) {
@@ -408,7 +408,7 @@ export const FocusAny = {
         return win;
     },
     screenCapture(cb: (imgBase64: string) => void): void {
-        FocusAny.hooks.onScreenCapture = (data: {image: string}) => {
+        FocusAny.hooks.onScreenCapture = (data: { image: string }) => {
             // console.log('onScreenCapture', data)
             cb && cb(data.image);
         };
@@ -477,6 +477,30 @@ export const FocusAny = {
         return ipcSendAsync("setRemoteWebRuntime", {info});
     },
 
+    llmListModels(): Promise<{
+        providerId: string;
+        providerLogo: string;
+        providerTitle: string;
+        modelId: string;
+        modelName: string;
+    }[]> {
+        return ipcSendAsync("llmListModels");
+    },
+
+    llmChat(callInfo: {
+        providerId: string;
+        modelId: string;
+        message: string;
+    }): Promise<{
+        code: number;
+        msg: string;
+        data?: {
+            message: string;
+        };
+    }> {
+        return ipcSendAsync("llmChat", {callInfo});
+    },
+
     showUserLogin() {
         ipcSend("showUserLogin");
     },
@@ -490,11 +514,11 @@ export const FocusAny = {
         return ipcSendSync("getUser");
     },
 
-    getUserAccessToken(): Promise<{token: string; expireAt: number}> {
+    getUserAccessToken(): Promise<{ token: string; expireAt: number }> {
         return ipcSendAsync("getUserAccessToken");
     },
 
-    listGoods(query?: {ids?: string[]}): Promise<
+    listGoods(query?: { ids?: string[] }): Promise<
         {
             id: string;
             title: string;
@@ -507,13 +531,13 @@ export const FocusAny = {
         return ipcSendAsync("listGoods", {query});
     },
 
-    openGoodsPayment(options: {goodsId: string; price?: string; outOrderId?: string; outParam?: string}): Promise<{
+    openGoodsPayment(options: { goodsId: string; price?: string; outOrderId?: string; outParam?: string }): Promise<{
         paySuccess: boolean;
     }> {
         return ipcSendAsync("openGoodsPayment", {options});
     },
 
-    queryGoodsOrders(options: {goodsId?: string; page?: number; pageSize?: number}): Promise<{
+    queryGoodsOrders(options: { goodsId?: string; page?: number; pageSize?: number }): Promise<{
         page: number;
         total: number;
         records: {
@@ -646,7 +670,7 @@ export const FocusAny = {
                 };
             });
             if (!("onDetachOperateClick" in FocusAny.hooks)) {
-                FocusAny.hooks.onDetachOperateClick = (payload: {name: string}) => {
+                FocusAny.hooks.onDetachOperateClick = (payload: { name: string }) => {
                     const {name} = payload;
                     FocusAny.hooks.detachOperates.forEach(o => {
                         if (o.name === name) {
