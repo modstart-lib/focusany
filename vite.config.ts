@@ -186,6 +186,7 @@ export default defineConfig(({command}) => {
                     setup: path.resolve(__dirname, "page/setup.html"),
                     payment: path.resolve(__dirname, "page/payment.html"),
                     monitor: path.resolve(__dirname, "page/monitor.html"),
+                    log: path.resolve(__dirname, "page/log.html"),
                 },
             },
         },
