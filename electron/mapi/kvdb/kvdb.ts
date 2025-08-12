@@ -11,6 +11,7 @@ import {Log} from "../log/main";
 import ndj from "ndjson";
 import through from "through2";
 import {WebDav} from "./webdav";
+import {AppEnv} from "../env";
 
 PouchDB.plugin(replicationStream.plugin);
 // @ts-ignore
@@ -25,11 +26,15 @@ export default class KVDB {
     public pouchDB: any;
     public versionControl: boolean;
 
-    constructor(dbPath: string) {
+    constructor() {
         // 2M
         this.docMaxByteLength = 2 * 1024 * 1024;
         // 20M
         this.docAttachmentMaxByteLength = 20 * 1024 * 1024;
+        let dbPath = AppEnv.dataRoot;
+        if (fs.existsSync(path.join(AppEnv.userData, "kvdb"))) {
+            dbPath = AppEnv.userData;
+        }
         this.dbpath = dbPath;
         this.defaultDbName = path.join(dbPath, "kvdb");
         this.versionControl = true;
@@ -37,9 +42,9 @@ export default class KVDB {
 
     init(): void {
         fs.existsSync(this.dbpath) ||
-            fs.mkdirSync(this.dbpath, {
-                recursive: true,
-            });
+        fs.mkdirSync(this.dbpath, {
+            recursive: true,
+        });
         this.pouchDB = new PouchDB(this.defaultDbName, {auto_compaction: true, adapter: "leveldb"});
     }
 
@@ -89,7 +94,8 @@ export default class KVDB {
         let result: Doc | null = null;
         try {
             result = await this.pouchDB.get(doc._id);
-        } catch (e) {}
+        } catch (e) {
+        }
         if (result) {
             doc._rev = result._rev;
         }
@@ -172,11 +178,11 @@ export default class KVDB {
                 res.id = this.replaceDocId(name, res.id);
                 return res.error
                     ? {
-                          id: res.id,
-                          name: res.name,
-                          error: true,
-                          message: res.message,
-                      }
+                        id: res.id,
+                        name: res.name,
+                        error: true,
+                        message: res.message,
+                    }
                     : res;
             });
             docs.forEach(doc => {
@@ -328,7 +334,7 @@ export default class KVDB {
 
     public async importFromFile(file: string, option?: {}): Promise<void> {
         await this.pouchDB.destroy();
-        const syncDb = new KVDB(this.dbpath);
+        const syncDb = new KVDB();
         syncDb.init();
         this.pouchDB = syncDb.pouchDB;
         const rs = fs.createReadStream(file);
@@ -366,7 +372,7 @@ export default class KVDB {
         }
     ): Promise<void> {
         await this.pouchDB.destroy();
-        const syncDb = new KVDB(this.dbpath);
+        const syncDb = new KVDB();
         syncDb.init();
         this.pouchDB = syncDb.pouchDB;
         try {

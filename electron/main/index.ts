@@ -27,6 +27,7 @@ import {DevToolsManager} from "../lib/devtools";
 import {AppsMain} from "../mapi/app/main";
 import {ManagerEditor} from "../mapi/manager/editor";
 import {ProtocolMain} from "../mapi/protocol/main";
+import path from "node:path";
 
 const isDummyNew = isDummy;
 
@@ -71,6 +72,7 @@ app.disableHardwareAcceleration();
 AppEnv.appRoot = process.env.APP_ROOT;
 AppEnv.appData = app.getPath("appData");
 AppEnv.userData = app.getPath("userData");
+AppEnv.dataRoot = path.join(AppEnv.userData, "data");
 AppEnv.isInit = true;
 
 MAPI.init();
@@ -82,6 +84,7 @@ Log.info("LaunchInfo", {
     appRoot: AppEnv.appRoot,
     appData: AppEnv.appData,
     userData: AppEnv.userData,
+    dataRoot: AppEnv.dataRoot,
 });
 
 async function createWindow() {

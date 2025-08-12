@@ -7,7 +7,7 @@ import {WebDav} from "./webdav";
 let kvdb: KVDB = null;
 
 const init = () => {
-    kvdb = new KVDB(AppEnv.userData);
+    kvdb = new KVDB();
     kvdb.init();
     // for (let i = 0; i < 1000; i++) {
     //     kvdb.putRaw({
