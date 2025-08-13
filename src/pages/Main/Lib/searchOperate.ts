@@ -17,13 +17,13 @@ export const useSearchOperate = emit => {
                 },
             });
             menuTemplate.push({
-                label: t("打开插件调试窗口"),
+                label: t("插件调试窗口"),
                 click: async () => {
                     manager.openMainPluginDevTools().then()
                 },
             });
             menuTemplate.push({
-                label: t("打开插件后端日志"),
+                label: t("插件后端日志"),
                 click: async () => {
                     manager.openMainPluginLog().then();
                 },

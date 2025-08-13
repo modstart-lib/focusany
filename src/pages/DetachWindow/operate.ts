@@ -21,13 +21,13 @@ export const useDetachWindowOperate = ({plugin}) => {
         const autoDetach = !!plugin.value.runtime.config.autoDetach;
         const menuTemplate: any[] = [];
         menuTemplate.push({
-            label: t("打开插件调试窗口"),
+            label: t("插件调试窗口"),
             click: async () => {
                 await window.$mapi.manager.openDetachPluginDevTools();
             },
         })
         menuTemplate.push({
-            label: t("打开插件后端日志"),
+            label: t("插件后端日志"),
             click: async () => {
                 await window.$mapi.manager.openDetachPluginLog();
             },

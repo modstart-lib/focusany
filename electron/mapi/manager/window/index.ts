@@ -363,11 +363,18 @@ export const ManagerWindow = {
         }
     },
     async openMainPluginDevTools(option?: {}) {
-        mainWindowView.webContents.openDevTools({
-            mode: "detach",
-            activate: true,
-            title: `MainPluginView`,
-        });
+        const devToolsWin = DevToolsManager.getWindow(mainWindowView)
+        if (devToolsWin) {
+            devToolsWin.close()
+        } else if (mainWindowView.webContents.isDevToolsOpened()) {
+            mainWindowView.webContents.closeDevTools();
+        } else {
+            mainWindowView.webContents.openDevTools({
+                mode: "detach",
+                activate: true,
+                title: `MainPluginView`,
+            });
+        }
     },
     async _showInMainWindow(
         view: BrowserView,
@@ -597,10 +604,17 @@ export const ManagerWindow = {
         view._window.close();
     },
     async openDetachPluginDevTools(view: BrowserView, option?: {}) {
-        view.webContents.openDevTools({
-            mode: "detach",
-            activate: true,
-            title: `DetachView.${view._plugin.name}`,
-        });
+        const devToolsWin = DevToolsManager.getWindow(view);
+        if (devToolsWin) {
+            devToolsWin.close();
+        } else if (view.webContents.isDevToolsOpened()) {
+            view.webContents.closeDevTools();
+        } else {
+            view.webContents.openDevTools({
+                mode: "detach",
+                activate: true,
+                title: `DetachView.${view._plugin.name}`,
+            });
+        }
     },
 };
