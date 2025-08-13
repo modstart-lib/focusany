@@ -1,5 +1,6 @@
 import {app, BrowserWindow, desktopCapturer, session, shell} from "electron";
 import {optimizer} from "@electron-toolkit/utils";
+import path from "node:path";
 import fs from "node:fs";
 
 /** process.js 必须位于非依赖项的顶部 */
@@ -27,8 +28,6 @@ import {DevToolsManager} from "../lib/devtools";
 import {AppsMain} from "../mapi/app/main";
 import {ManagerEditor} from "../mapi/manager/editor";
 import {ProtocolMain} from "../mapi/protocol/main";
-import path from "node:path";
-import fs from "node:fs";
 
 const isDummyNew = isDummy;
 
