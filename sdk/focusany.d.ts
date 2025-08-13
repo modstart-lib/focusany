@@ -23,7 +23,7 @@ declare type BaseResult<T = any> = {
     code: number;
     msg: string;
     data?: T;
-}
+};
 
 declare type PlatformType = "win" | "osx" | "linux";
 
@@ -33,7 +33,7 @@ declare type PluginEvent = "ClipboardChange" | "UserChange";
 
 declare type HotkeyModifierType = "Control" | "Option" | "Command" | "Ctrl" | "Alt" | "Win" | "Meta" | "Shift";
 
-declare type HotkeyType = { key: string; modifiers: HotkeyModifierType[] };
+declare type HotkeyType = {key: string; modifiers: HotkeyModifierType[]};
 
 declare type HotkeyQuickType = "save";
 
@@ -128,7 +128,7 @@ interface PluginAction {
 
 interface FocusAnyApi {
     /**
-     * 插件应用初始化完成时触发
+     * Plugin application initialization complete callback
      * @param callback
      */
     onPluginReady(
@@ -143,27 +143,27 @@ interface FocusAnyApi {
     ): void;
 
     /**
-     * 插件应用退出时触发
+     * Plugin application exit callback
      * @param callback
      */
     onPluginExit(callback: Function): void;
 
     /**
-     * 插件事件监听
+     * Plugin event listener
      * @param event
      * @param callback
      */
     onPluginEvent(event: PluginEvent, callback: (data: any) => void): void;
 
     /**
-     * 插件事件解绑
+     * Plugin event unbind
      * @param event
      * @param callback
      */
     offPluginEvent(event: PluginEvent, callback: (data: any) => void): void;
 
     /**
-     * 插件事件解绑全部
+     * Plugin event unbind all
      * @param event
      */
     offPluginEventAll(event: PluginEvent): void;
@@ -172,10 +172,10 @@ interface FocusAnyApi {
      * plugin more menu click
      * @param callback
      */
-    onMoreMenuClick(callback: (data: { name: string }) => void): void;
+    onMoreMenuClick(callback: (data: {name: string}) => void): void;
 
     /**
-     * register hot
+     * register hotkey
      * @param key
      * @param callback
      */
@@ -187,43 +187,43 @@ interface FocusAnyApi {
     unregisterHotkeyAll(): void;
 
     /**
-     * 插件主窗口是否显示
+     * Check if plugin main window is shown
      */
     isMainWindowShown(): boolean;
 
     /**
-     * 隐藏插件主窗口
+     * Hide plugin main window
      */
     hideMainWindow(): boolean;
 
     /**
-     * 显示插件主窗口
+     * Show plugin main window
      */
     showMainWindow(): boolean;
 
     /**
-     * 快捷面板窗口是否显示
+     * Check if fast panel window is shown
      */
     isFastPanelWindowShown(): boolean;
 
     /**
-     * 显示快捷面板窗口
+     * Show fast panel window
      */
     showFastPanelWindow(): boolean;
 
     /**
-     * 隐藏快捷面板窗口
+     * Hide fast panel window
      */
     hideFastPanelWindow(): boolean;
 
     /**
-     * 设置插件的高度
+     * Set plugin height
      * @param height
      */
     setExpendHeight(height: number): void;
 
     /**
-     * 设置输入框监听
+     * Set input box listener
      * @param onChange
      * @param placeholder
      * @param isFocus
@@ -237,33 +237,33 @@ interface FocusAnyApi {
     ): boolean;
 
     /**
-     * 移除输入框监听
+     * Remove input box listener
      */
     removeSubInput(): boolean;
 
     /**
-     * 获取子输入框的值
+     * Set sub input box value
      * @param value
      */
     setSubInputValue(value: string): boolean;
 
     /**
-     * 子输入框失去焦点
+     * Sub input box lose focus
      */
     subInputBlur(): boolean;
 
     /**
-     * 获取插件根目录
+     * Get plugin root directory
      */
     getPluginRoot(): string;
 
     /**
-     * 获取插件配置
+     * Get plugin configuration
      */
     getPluginConfig(): any;
 
     /**
-     * 获取插件信息
+     * Get plugin information
      */
     getPluginInfo(): {
         nodeIntegration: boolean;
@@ -279,18 +279,18 @@ interface FocusAnyApi {
     };
 
     /**
-     * 获取插件环境
+     * Get plugin environment
      */
     getPluginEnv(): "dev" | "prod";
 
     /**
-     * 获取插件查询信息
+     * Get plugin query information
      * @param requestId
      */
     getQuery(requestId: string): SearchQuery;
 
     /**
-     * 创建窗口
+     * Create browser window
      * @param url
      * @param options
      * @param callback
@@ -302,22 +302,22 @@ interface FocusAnyApi {
     ): BrowserWindow.WindowInstance;
 
     /**
-     * 关闭插件
+     * Close plugin
      */
     outPlugin(): boolean;
 
     /**
-     * 是否是暗色主题
+     * Check if dark theme
      */
     isDarkColors(): boolean;
 
     /**
-     * 显示用户登录对话框
+     * Show user login dialog
      */
     showUserLogin(): void;
 
     /**
-     * 获取用户
+     * Get user information
      */
     getUser(): {
         isLogin: boolean;
@@ -329,7 +329,7 @@ interface FocusAnyApi {
     };
 
     /**
-     * 获取用户服务端临时令牌
+     * Get user server-side temporary token
      */
     getUserAccessToken(): Promise<{
         token: string;
@@ -337,10 +337,10 @@ interface FocusAnyApi {
     }>;
 
     /**
-     * 列出插件商品
+     * List plugin goods
      * @param query
      */
-    listGoods(query?: { ids?: string[] }): Promise<
+    listGoods(query?: {ids?: string[]}): Promise<
         {
             id: string;
             title: string;
@@ -352,114 +352,110 @@ interface FocusAnyApi {
     >;
 
     /**
-     * 创建订单并显示
-     * @param options 订单参数
+     * Create order and display payment
+     * @param options Order parameters
      */
     openGoodsPayment(options: {
         /**
-         * 插件商品ID
+         * Plugin goods ID
          */
         goodsId: string;
         /**
-         * 插件商品价格，固定价格商品无需传入，动态价格商品需传入价格，如 0.01
+         * Plugin goods price, no need to pass for fixed price goods, dynamic price goods need to pass price, e.g. 0.01
          */
         price?: string;
         /**
-         * 第三方订单号，字符串，最大长度 64 字符
+         * Third-party order ID, string, max length 64 characters
          */
         outOrderId?: string;
         /**
-         * 参数数据，长度不超过 200 字符
+         * Parameter data, length not exceeding 200 characters
          */
         outParam?: string;
     }): Promise<{
         /**
-         * 是否支付成功
+         * Whether payment is successful
          */
         paySuccess: boolean;
     }>;
 
     /**
-     * 查询插件商品订单
+     * Query plugin goods orders
      * @param options
      */
     queryGoodsOrders(options: {
         /**
-         * 插件商品ID，可选
+         * Plugin goods ID, optional
          */
         goodsId?: string;
         /**
-         * 分页页码，从 1 开始，可选
+         * Page number, starting from 1, optional
          */
         page?: number;
         /**
-         * 分页大小，可选，默认是 10
+         * Page size, optional, default is 10
          */
         pageSize?: number;
     }): Promise<{
         /**
-         * 当前页数
+         * Current page number
          */
         page: number;
         /**
-         * 总订单数
+         * Total number of orders
          */
         total: number;
         /**
-         * 订单列表
+         * Order list
          */
         records: {
             /**
-             * 订单号
+             * Order ID
              */
             id: string;
             /**
-             * 商品ID
+             * Goods ID
              */
             goodsId: string;
             /**
-             * 状态 Paid: 已支付, Unpaid: 未支付
+             * Status: Paid: Paid, Unpaid: Unpaid
              */
             status: "Paid" | "Unpaid";
         }[];
     }>;
 
     /**
-     * 请求官方接口
+     * Request official API
      */
-    apiPost(
-        url: string,
-        body: any,
-        option: {}
-    ): Promise<BaseResult>;
+    apiPost(url: string, body: any, option: {}): Promise<BaseResult>;
 
     /**
-     * 动态设置插件动作
+     * Dynamically set plugin action
      * @param action
      */
     setAction(action: PluginAction | PluginAction[]): boolean;
 
     /**
-     * 移除插件动作
+     * Remove plugin action
      * @param name
      */
     removeAction(name: string): boolean;
 
     /**
-     * 获取插件动作
+     * Get plugin actions
      * @param names
      */
     getActions(names?: string[]): PluginAction[];
 
     /**
-     * 打开插件动作
+     * Open plugin action
      * @param keywordsOrAction
      * @param query
      */
     redirect(keywordsOrAction: string | string[], query?: SearchQuery): void;
 
     /**
-     * 显示提示
+     * Show toast notification
      * @param body
      * @param options
      */
@@ -472,14 +468,14 @@ interface FocusAnyApi {
     ): void;
 
     /**
-     * 显示通知
+     * Show notification
      * @param body
      * @param clickActionName
      */
     showNotification(body: string, clickActionName?: string): void;
 
     /**
-     * 显示消息框
+     * Show message box
      * @param message
      * @param options
      */
@@ -493,14 +489,14 @@ interface FocusAnyApi {
     ): void;
 
     /**
-     * 打开文件选择框
+     * Show open file dialog
      * @param options
      */
     showOpenDialog(options: {
         title?: string;
         defaultPath?: string;
         buttonLabel?: string;
-        filters?: { name: string; extensions: string[] }[];
+        filters?: {name: string; extensions: string[]}[];
         properties?: Array<
             | "openFile"
             | "openDirectory"
@@ -517,14 +513,14 @@ interface FocusAnyApi {
     }): string[] | undefined;
 
     /**
-     * 打开文件保存框
+     * Show save file dialog
      * @param options
      */
     showSaveDialog(options: {
         title?: string;
         defaultPath?: string;
         buttonLabel?: string;
-        filters?: { name: string; extensions: string[] }[];
+        filters?: {name: string; extensions: string[]}[];
         message?: string;
         nameFieldLabel?: string;
         showsTagField?: string;
@@ -539,23 +535,23 @@ interface FocusAnyApi {
     }): string | undefined;
 
     /**
-     * 截图
+     * Take screenshot
      * @param callback
      */
     screenCapture(callback: (imgBase64: string) => void): void;
 
     /**
-     * 获取设备ID
+     * Get device ID
      */
     getNativeId(): string;
 
     /**
-     * 获取软件版本
+     * Get software version
      */
     getAppVersion(): string;
 
     /**
-     * 获取路径
+     * Get system path
      * @param name
      */
     getPath(
@@ -575,64 +571,64 @@ interface FocusAnyApi {
     ): string;
 
     /**
-     * 获取文件图标的Base64
+     * Get file icon as Base64
      * @param path
      */
     getFileIcon(path: string): string;
 
     /**
-     * 复制文件到剪贴板
+     * Copy file to clipboard
      * @param file
      */
     copyFile(file: string | string[]): boolean;
 
     /**
-     * 复制图片到剪贴板
+     * Copy image to clipboard
      * @param image
      */
     copyImage(image: string): boolean;
 
     /**
-     * 复制文本到剪贴板
+     * Copy text to clipboard
      * @param text
      */
     copyText(text: string): boolean;
 
     /**
-     * 获取剪贴板文本
+     * Get clipboard text
      */
     getClipboardText(): string;
 
     /**
-     * 获取剪贴板图片
+     * Get clipboard image
      */
     getClipboardImage(): string;
 
     /**
-     * 获取剪贴板文件
+     * Get clipboard files
      */
     getClipboardFiles(): FileItem[];
 
     /**
-     * 使用默认的应用打开文件
+     * Open file with default application
      * @param fullPath
      */
     shellOpenPath(fullPath: string): void;
 
     /**
-     * 在文件管理器中显示文件
+     * Show file in file manager
      * @param fullPath
      */
     shellShowItemInFolder(fullPath: string): void;
 
     /**
-     * 打开链接
+     * Open URL with external browser
      * @param url
      */
     shellOpenExternal(url: string): void;
 
     /**
-     * 播放提示音
+     * Play system beep sound
      */
     shellBeep(): void;
 
@@ -654,7 +650,7 @@ interface FocusAnyApi {
          * @param type
          * @param button
          */
-        mouseToggle(type: 'down' | 'up', button: 'left' | 'right' | 'middle'): Promise<void>;
+        mouseToggle(type: "down" | "up", button: "left" | "right" | "middle"): Promise<void>;
         /**
          * simulate mouse move
          * @param x
@@ -666,42 +662,42 @@ interface FocusAnyApi {
          * @param button
          * @param double
          */
-        mouseClick(button: 'left' | 'right' | 'middle', double?: boolean): Promise<void>;
-    },
+        mouseClick(button: "left" | "right" | "middle", double?: boolean): Promise<void>;
+    };
 
     /**
-     * 模拟鼠标按下
+     * Get cursor screen position
      */
-    getCursorScreenPoint(): { x: number; y: number };
+    getCursorScreenPoint(): {x: number; y: number};
 
     /**
-     * 获取显示器
+     * Get display nearest to point
      * @param point
      */
-    getDisplayNearestPoint(point: { x: number; y: number }): any;
+    getDisplayNearestPoint(point: {x: number; y: number}): any;
 
     /**
-     * 是否是MacOS
+     * Check if running on macOS
      */
     isMacOs(): boolean;
 
     /**
-     * 是否是Windows
+     * Check if running on Windows
      */
     isWindows(): boolean;
 
     /**
-     * 是否是Linux
+     * Check if running on Linux
      */
     isLinux(): boolean;
 
     /**
-     * 获取平台架构
+     * Get platform architecture
      */
     getPlatformArch(): "x86" | "arm64" | null;
 
     /**
-     * 发送后端事件
+     * Send backend event
      * @param event
      * @param data
      * @param option
@@ -717,13 +713,15 @@ interface FocusAnyApi {
     /**
      * list large language model
      */
-    llmListModels(): Promise<{
-        providerId: string;
-        providerLogo: string;
-        providerTitle: string;
-        modelId: string;
-        modelName: string;
-    }[]>;
+    llmListModels(): Promise<
+        {
+            providerId: string;
+            providerLogo: string;
+            providerTitle: string;
+            modelId: string;
+            modelName: string;
+        }[]
+    >;
 
     /**
      * call large language model chat
