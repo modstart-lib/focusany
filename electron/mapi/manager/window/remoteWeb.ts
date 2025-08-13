@@ -129,7 +129,7 @@ export const RemoteWebManager = {
                         method: request.method || "GET",
                         headers: {
                             ...request.headers,
-                            "User-Agent": plugin.runtime.remoteWeb.userAgent || "FocusAny RemoteWeb Manager",
+                            "User-Agent": plugin.runtime.remoteWeb?.userAgent || "FocusAny RemoteWeb Manager",
                         },
                     })
                         .then(async response => {
@@ -166,7 +166,7 @@ export const RemoteWebManager = {
                                 await writeFileMeta(file, {mimeType, headers});
                                 cacheStatus = "cached";
                             }
-                            PluginLog.info(plugin.name, "RemoteWeb.Cache", {
+                            PluginLog.info(plugin.name, "RemoteWeb.Cache.Write", {
                                 url,
                                 mimeType,
                                 headers,
