@@ -10,6 +10,7 @@ import {MemoryCacheUtil, ShellUtil} from "../../../../lib/util";
 import {SystemIcons} from "../asset/icon";
 import {KVDBMain} from "../../../kvdb/main";
 import {CommonConfig} from "../../../../config/common";
+import {ManagerSystem} from "../index";
 
 export const FilePlugin: PluginRecord = {
     name: "file",
@@ -71,5 +72,6 @@ export const ManagerSystemPluginFile = {
         });
         MemoryCacheUtil.forget("Files");
         MemoryCacheUtil.forget("FileActions");
+        await ManagerSystem.clearCache();
     },
 };
