@@ -192,6 +192,7 @@ export type ActionRecord = {
     pluginType?: PluginType;
     platform?: PlatformType[];
     icon?: string;
+    trackHistory?: boolean;
     data?: {
         // type = command
         command?: string;

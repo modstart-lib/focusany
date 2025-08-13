@@ -100,7 +100,9 @@ export const Manager = {
                 ManagerBackend.runAction(plugin, action).then();
                 break;
         }
-        await ManagerConfig.addHistoryAction(plugin, action);
+        if (action.trackHistory) {
+            await this.addHistoryAction(plugin, action);
+        }
     },
     async getPlugin(name: string) {
         for (let p of await this.listPlugin()) {
@@ -476,10 +478,10 @@ export const Manager = {
     async setNotice(
         notice:
             | {
-                  text: string;
-                  type?: "info" | "error" | "success";
-                  duration?: number;
-              }
+            text: string;
+            type?: "info" | "error" | "success";
+            duration?: number;
+        }
             | string
     ) {
         if (typeof notice === "string") {

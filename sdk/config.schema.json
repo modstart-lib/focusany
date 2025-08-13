@@ -90,6 +90,10 @@
                         "type": "string",
                         "description": "此功能的图标，支持png,jpg,svg格式。"
                     },
+                    "trackHistory": {
+                        "type": "boolean",
+                        "description": "是否启用历史记录，默认为 true。启用后，FocusAny 会记录用户对该功能的使用历史，并在搜索结果中显示。"
+                    },
                     "type": {
                         "type": "string",
                         "description": "此功能的类型",

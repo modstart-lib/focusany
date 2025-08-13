@@ -178,12 +178,16 @@ export const ManagerPlugin = {
             }
             matches.push(m);
         }
+        if (!('trackHistory' in action)) {
+            action.trackHistory = true;
+        }
         const normalAction = {
             fullName: `${plugin.name}/${action.name}`,
             pluginName: plugin.name,
             name: action.name,
             title: action.title || plugin.title,
             icon: action.icon || plugin.logo,
+            trackHistory: action.trackHistory,
             type: action.type || ActionTypeEnum.WEB,
             pluginType: plugin.type,
             matches: matches,
