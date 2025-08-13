@@ -437,6 +437,7 @@ declare interface Window {
 
             listFilePluginRecords: (option?: {}) => Promise<FilePluginRecord[]>;
             updateFilePluginRecords: (records: FilePluginRecord[], option?: {}) => Promise<void>;
+
             listLaunchRecords: (option?: {}) => Promise<LaunchRecord[]>;
             updateLaunchRecords: (records: LaunchRecord[], option?: {}) => Promise<void>;
 
@@ -451,7 +452,7 @@ declare interface Window {
                 option?: {
                     version?: string;
                 }
-            ) => Promise<void>;
+            ) => Promise<BaseResult>;
             storePublishInfo: (
                 pluginName: string,
                 option?: {

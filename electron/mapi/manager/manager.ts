@@ -101,7 +101,7 @@ export const Manager = {
                 break;
         }
         if (action.trackHistory) {
-            await this.addHistoryAction(plugin, action);
+            await ManagerConfig.addHistoryAction(plugin, action);
         }
     },
     async getPlugin(name: string) {

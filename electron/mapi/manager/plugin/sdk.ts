@@ -140,13 +140,27 @@ export const PluginSdkCreate = (plugin: PluginRecord) => {
         async getFileIcon(path: string) {
             return ManagerPluginEvent.getFileIcon(context, {path});
         },
-        async simulateKeyboardTap(key: string, ...modifier: any[]) {
-            return ManagerPluginEvent.simulateKeyboardTap(context, {key, modifier});
+        simulate: {
+            async keyboardTap(key: string, modifiers: ("ctrl" | "shift" | "command" | "option" | "alt")[]) {
+                await ManagerPluginEvent.simulateKeyboardTap(context, {key, modifiers});
+            },
+            async typeString(text: string) {
+                await ManagerPluginEvent.simulateTypeString(context, {text});
+            },
+            async mouseToggle(type: 'down' | 'up', button: 'left' | 'right' | 'middle') {
+                await ManagerPluginEvent.simulateMouseToggle(context, {type, button});
+            },
+            async mouseMove(x: number, y: number) {
+                await ManagerPluginEvent.simulateMouseMove(context, {x, y});
+            },
+            async mouseClick(button: 'left' | 'right' | 'middle', double?: boolean) {
+                await ManagerPluginEvent.simulateMouseClick(context, {button, double});
+            }
         },
         async getCursorScreenPoint() {
             return screen.getCursorScreenPoint();
         },
-        async getDisplayNearestPoint(point: {x: number; y: number}) {
+        async getDisplayNearestPoint(point: { x: number; y: number }) {
             return screen.getDisplayNearestPoint(point);
         },
         // sendTo
@@ -195,7 +209,7 @@ export const PluginSdkCreate = (plugin: PluginRecord) => {
             return win;
         },
         async screenCapture(cb: Function) {
-            context["_screenCaptureCallback"] = (data: {image: string}) => {
+            context["_screenCaptureCallback"] = (data: { image: string }) => {
                 cb && cb(data.image);
             };
             return ManagerPluginEvent.screenCapture(context, {cb});
@@ -221,6 +235,65 @@ export const PluginSdkCreate = (plugin: PluginRecord) => {
         async removeAction(name: string) {
             return ManagerPluginEvent.removeAction(context, {name});
         },
+        async llmListModels(): Promise<{
+            providerId: string;
+            providerLogo: string;
+            providerTitle: string;
+            modelId: string;
+            modelName: string;
+        }[]> {
+            return ManagerPluginEvent.llmListModels(context, {});
+        },
+
+        async llmChat(callInfo: {
+            providerId: string;
+            modelId: string;
+            message: string;
+        }): Promise<{
+            code: number;
+            msg: string;
+            data?: {
+                message: string;
+            };
+        }> {
+            return ManagerPluginEvent.llmChat(context, {callInfo});
+        },
+
+        logInfo(label: string, data?: any): void {
+            ManagerPluginEvent.logInfo(context, {label, logData: data});
+        },
+
+        logError(label: string, data?: any): void {
+            ManagerPluginEvent.logError(context, {label, logData: data});
+        },
+
+        async logPath(): Promise<string> {
+            return ManagerPluginEvent.logPath(context, {});
+        },
+
+        logShow(): void {
+            ManagerPluginEvent.logShow(context, {});
+        },
+
+        async addLaunch(keyword: string, name: string, hotkey: {
+            key: string;
+            // Alt / Option
+            altKey: boolean;
+            // Ctrl / Control
+            ctrlKey: boolean;
+            // Command / Win
+            metaKey: boolean;
+            // Shift
+            shiftKey: boolean;
+            times: number;
+        }): Promise<void> {
+            return ManagerPluginEvent.addLaunch(context, {keyword, name, hotkey});
+        },
+
+        async removeLaunch(keyword: string): Promise<void> {
+            return ManagerPluginEvent.removeLaunch(context, {keyword});
+        },
+
         async getUser(): Promise<{
             avatar: string;
             nickname: string;
@@ -229,11 +302,11 @@ export const PluginSdkCreate = (plugin: PluginRecord) => {
         } | null> {
             return ManagerPluginEvent.getUser(context, {});
         },
-        async getUserAccessToken(): Promise<{token: string; expireAt: number}> {
+        async getUserAccessToken(): Promise<{ token: string; expireAt: number }> {
             return ManagerPluginEvent.getUserAccessToken(context, {});
         },
         db: {
-            async put(doc: {_id: string; data: any; _rev?: string}) {
+            async put(doc: { _id: string; data: any; _rev?: string }) {
                 return ManagerPluginEvent.dbPut(context, {doc});
             },
             async get(id: string) {
@@ -242,8 +315,8 @@ export const PluginSdkCreate = (plugin: PluginRecord) => {
             async remove(
                 doc:
                     | {
-                          _id: string;
-                      }
+                    _id: string;
+                }
                     | string
             ) {
                 return ManagerPluginEvent.dbRemove(context, {doc});

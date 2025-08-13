@@ -19,6 +19,12 @@ interface DbReturn {
     message?: string;
 }
 
+declare type BaseResult<T = any> = {
+    code: number;
+    msg: string;
+    data?: T;
+}
+
 declare type PlatformType = "win" | "osx" | "linux";
 
 declare type EditionType = "open" | "pro";
@@ -425,11 +431,7 @@ interface FocusAnyApi {
         url: string,
         body: any,
         option: {}
-    ): Promise<{
-        code: number;
-        msg: string;
-        data: any;
-    }>;
+    ): Promise<BaseResult>;
 
     /**
      * 动态设置插件动作
@@ -763,6 +765,31 @@ interface FocusAnyApi {
      * show log file
      */
     logShow(): void;
+
+    /**
+     * add launch
+     * @param keyword
+     * @param name
+     * @param hotkey
+     */
+    addLaunch(keyword: string, name: string, hotkey: {
+        key: string;
+        // Alt / Option
+        altKey: boolean;
+        // Ctrl / Control
+        ctrlKey: boolean;
+        // Command / Win
+        metaKey: boolean;
+        // Shift
+        shiftKey: boolean;
+        times: number;
+    }): Promise<void>;
+
+    /**
+     * remove launch
+     * @param keywords
+     */
+    removeLaunch(keywords: string): void;
 
     /**
      * 数据库操作

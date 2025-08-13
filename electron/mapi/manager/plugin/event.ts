@@ -460,7 +460,7 @@ export const ManagerPluginEvent = {
             query
         );
         const action = await Manager.searchOneAction(keywordsOrAction, query);
-        console.log("redirect", {keywordsOrAction, query, action});
+        // console.log("redirect", {keywordsOrAction, query, action});
         if (!action) {
             ManagerPluginEvent.showToast(context, {
                 body: "未找到相关操作，请检查关键词或操作名称是否正确",
@@ -545,6 +545,39 @@ export const ManagerPluginEvent = {
         Page.open("log", {
             log: p,
         })
+    },
+
+    addLaunch: async (context: PluginContext, data: any) => {
+        const {keyword, name, hotkey} = data;
+        const records = await ManagerConfig.listLaunch();
+        const exists = records.find(m => {
+            return m.type === 'plugin' && m.pluginName === context._plugin.name && m.keyword === keyword;
+        });
+        if (exists) {
+            throw new Error(`Launch with keyword "${keyword}" already exists.`);
+        } else {
+            records.push({
+                type: 'plugin',
+                pluginName: context._plugin.name,
+                keyword,
+                name,
+                hotkey,
+            });
+        }
+        await ManagerConfig.updateLaunch(records);
+    },
+    removeLaunch: async (context: PluginContext, data: any) => {
+        const {keyword} = data;
+        const records = await ManagerConfig.listLaunch();
+        const index = records.findIndex(m => {
+            return m.type === 'plugin' && m.pluginName === context._plugin.name && m.keyword === keyword;
+        });
+        if (index >= 0) {
+            records.splice(index, 1);
+            await ManagerConfig.updateLaunch(records);
+        } else {
+            throw new Error(`Launch with keyword "${keyword}" not found.`);
+        }
     },
 
     getUserAccessToken: async (context: PluginContext, data: any) => {

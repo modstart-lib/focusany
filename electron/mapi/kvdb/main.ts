@@ -35,16 +35,31 @@ const put = async (name: string, data: Doc<any>) => {
     return result as Doc<any>;
 };
 
+
+const putForceLock = new Map<string, Promise<any>>();
 const putForce = async (name: string, data: Doc<any>) => {
-    const res = await get(name, data._id);
-    if (res) {
-        data._rev = res._rev;
+    while (putForceLock.has(name)) {
+        await putForceLock.get(name);
     }
-    const result = await put(name, data);
-    if (result && (result as DBError).error) {
-        throw (result as DBError).message;
+    let release!: () => void;
+    const currentTask = new Promise<void>(resolve => {
+        release = resolve;
+    });
+    putForceLock.set(name, currentTask);
+    try {
+        const res = await get(name, data._id);
+        if (res) {
+            data._rev = res._rev;
+        }
+        const result = await put(name, data);
+        if (result && (result as DBError).error) {
+            throw (result as DBError).message;
+        }
+        return result as Doc<any>;
+    } finally {
+        putForceLock.delete(name);
+        release();
     }
-    return result as Doc<any>;
 };
 
 const get = async (name: string, id: string) => {
@@ -120,7 +135,7 @@ const importFromFile = async (file: string) => {
     return await kvdb.importFromFile(file);
 };
 
-const testWebdav = async (option: {url: string; username: string; password: string}) => {
+const testWebdav = async (option: { url: string; username: string; password: string }) => {
     const webdav = new WebDav(option);
     await webdav.checkConnection();
 };

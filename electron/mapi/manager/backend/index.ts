@@ -3,6 +3,7 @@ import {ManagerSystem} from "../system";
 import fs from "node:fs";
 import {ImportUtil} from "../../../lib/util";
 import {PluginSdkCreate} from "../plugin/sdk";
+import {PluginLog} from "../plugin/log";
 
 export const ManagerBackend = {
     async run(
@@ -51,12 +52,16 @@ export const ManagerBackend = {
         const codeData = {};
         codeData["actionName"] = action.name;
         codeData["actionMatch"] = action.runtime?.match;
-        const callback = ManagerSystem.getActionBackendFunc(plugin.name, action.name);
-        if (callback) {
-            return await callback(codeData);
+        try {
+            const callback = ManagerSystem.getActionBackendFunc(plugin.name, action.name);
+            if (callback) {
+                return await callback(codeData);
+            }
+            return await this.run(plugin, "action", action.name, codeData, {
+                rejectIfError: true,
+            });
+        } catch (e) {
+            PluginLog.error(plugin.name, `BackendActionError:${action.name}`, e + '');
         }
-        return await this.run(plugin, "action", action.name, codeData, {
-            rejectIfError: true,
-        });
     },
 };

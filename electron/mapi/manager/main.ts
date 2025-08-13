@@ -489,11 +489,17 @@ ipcMain.on("FocusAny.Event", async (_event, payload: any) => {
     const {id, event, data} = payload;
     // console.log('FocusAny.Event', {id, event, data, view})
     const plugin = view._plugin;
-    const result = await ManagerBackend.run(plugin, "event", event, data, {
-        rejectIfError: true,
-    });
-    const resultEvent = `FocusAny.Event.${id}`;
-    view.webContents.send(resultEvent, result);
+    try {
+        const result = await ManagerBackend.run(plugin, "event", event, data, {
+            rejectIfError: true,
+        });
+        const resultEvent = `FocusAny.Event.${id}`;
+        view.webContents.send(resultEvent, result);
+    } catch (e) {
+        PluginLog.error(plugin.name, `EventError.${event}`, {
+            error: '' + e,
+        });
+    }
 });
 
 ipcMain.on(

@@ -80,7 +80,7 @@ window.focusany.onPluginReady(data => {
                     "
                 >
                     <img class="w-6 h-6 object-contain mr-2 ml-2 dark:invert" :src="SystemIcons.thunder" />
-                    快捷启动
+                    快捷键
                 </div>
                 <div
                     class="flex items-center leading-10 py-1 px-1 rounded-lg cursor-pointer"

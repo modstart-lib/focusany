@@ -62,7 +62,7 @@ const pinPluginAction = ref<PluginActionRecord[]>([]);
 const developerPlugins = ref<string[]>([]);
 
 const loadDeveloperInfo = async () => {
-    const res = await window.$mapi.user.apiPost("store/member");
+    const res = await window.$mapi.user.apiPost("store/member", {});
     developerPlugins.value = res.data.developerPlugins;
 };
 
@@ -240,7 +240,7 @@ const doInstallStore = async () => {
             </div>
             <div class="border-t border-solid border-default py-2 text-center">
                 <a-dropdown-button type="primary" @click="doInstallStore" class="block">
-                    <icon-apps class="mr-1" />
+                    <icon-apps class="mr-1"/>
                     插件市场
                     <template #content>
                         <a-doption @click="doInstallPlugin('zip')">选择本地ZIP插件</a-doption>
@@ -260,20 +260,23 @@ const doInstallStore = async () => {
                 <div class="flex-grow w-0 truncate">
                     <div class="text-lg leading-6 flex items-center">
                         <div class="font-bold mr-2">{{ recordCurrent.title }}</div>
-                        <div class="text-gray-400" v-if="recordCurrent.type !== PluginType.SYSTEM">
+                        <div class="text-gray-400 text-sm mr-2" v-if="recordCurrent.type !== PluginType.SYSTEM">
+                            {{ recordCurrent.name }}
+                        </div>
+                        <div class="text-gray-400 text-sm mr-2" v-if="recordCurrent.type !== PluginType.SYSTEM">
                             v{{ recordCurrent.version }}
                         </div>
                         <a-tooltip :content="'本地插件:' + recordCurrent.runtime?.root">
                             <div
                                 v-if="recordCurrent.type === 'dir'"
-                                class="text-xs ml-1 bg-red-100 text-red-600 rounded px-1 cursor-pointer"
+                                class="text-xs bg-red-100 text-red-600 rounded px-1 cursor-pointer"
                             >
                                 DEV
                             </div>
                         </a-tooltip>
                         <div class="flex-grow"></div>
                     </div>
-                    <div class="text-gray-400 w-0">
+                    <div class="text-gray-400 text-sm w-0">
                         {{ recordCurrent.description }}
                     </div>
                 </div>
@@ -291,7 +294,7 @@ const doInstallStore = async () => {
                     <a-dropdown v-if="recordCurrent.runtime && recordCurrent.type === PluginType.DIR">
                         <a-button size="small" class="ml-1">
                             <template #icon>
-                                <icon-down />
+                                <icon-down/>
                             </template>
                         </a-button>
                         <template #content>
@@ -312,20 +315,20 @@ const doInstallStore = async () => {
                 <a-radio-group type="button" size="large" v-model="actionTab">
                     <a-radio value="keyword">
                         <div class="flex items-center">
-                            <img class="w-6 h-6 mr-1 object-contain dark:invert" :src="SystemIcons.searchKeyword" />
+                            <img class="w-6 h-6 mr-1 object-contain dark:invert" :src="SystemIcons.searchKeyword"/>
                             搜索动作
                         </div>
                     </a-radio>
                     <a-radio value="match">
                         <div class="flex items-center">
-                            <img class="w-6 h-6 mr-1 object-contain dark:invert" :src="SystemIcons.searchMatch" />
+                            <img class="w-6 h-6 mr-1 object-contain dark:invert" :src="SystemIcons.searchMatch"/>
                             匹配动作
                         </div>
                     </a-radio>
                 </a-radio-group>
             </div>
             <div v-if="actionTab === 'keyword'">
-                <m-empty v-if="!currentPluginActionsKeywordList.length" />
+                <m-empty v-if="!currentPluginActionsKeywordList.length"/>
                 <div v-for="a in currentPluginActionsKeywordList" class="py-2">
                     <div class="mb-4 flex items-center">
                         <img
@@ -334,7 +337,7 @@ const doInstallStore = async () => {
                             :src="a.icon"
                         />
                         <div class="mr-2">{{ a.title }}</div>
-                        <ActionTypeIcon class="mr-2" :type="a.type" />
+                        <ActionTypeIcon class="mr-2" :type="a.type"/>
                         <a-tooltip :content="a['_pin'] ? '固定到搜索框' : '从搜索框取消固定'" position="left">
                             <a
                                 href="javascript:;"
@@ -370,24 +373,24 @@ const doInstallStore = async () => {
                                 </a-button>
                                 <a-button :type="m['_disable'] ? undefined : 'primary'" size="small">
                                     <template #icon>
-                                        <icon-down />
+                                        <icon-down/>
                                     </template>
                                 </a-button>
                             </a-button-group>
                             <template #content>
-                                <a-doption @click="doOpen(a as any)"> 打开 </a-doption>
+                                <a-doption @click="doOpen(a as any)"> 打开</a-doption>
                                 <a-doption v-if="m['_disable']" @click="doDisable(a as any, m.name as string)">
                                     启用
                                 </a-doption>
-                                <a-doption v-else @click="doDisable(a as any, m.name as string)"> 禁用 </a-doption>
-                                <a-doption @click="actionMatchDetailDialog?.show(a as any, m as any)"> 详情 </a-doption>
+                                <a-doption v-else @click="doDisable(a as any, m.name as string)"> 禁用</a-doption>
+                                <a-doption @click="actionMatchDetailDialog?.show(a as any, m as any)"> 详情</a-doption>
                             </template>
                         </a-dropdown>
                     </div>
                 </div>
             </div>
             <div v-if="actionTab === 'match'">
-                <m-empty v-if="!currentPluginActionsMatchList.length" />
+                <m-empty v-if="!currentPluginActionsMatchList.length"/>
                 <div v-for="a in currentPluginActionsMatchList" class="py-2">
                     <div class="mb-4 flex items-center">
                         <img
@@ -396,7 +399,7 @@ const doInstallStore = async () => {
                             :src="a.icon"
                         />
                         <div class="mr-2">{{ a.title }}</div>
-                        <ActionTypeIcon class="mr-2" :type="a.type" />
+                        <ActionTypeIcon class="mr-2" :type="a.type"/>
                     </div>
                     <div
                         v-for="m in a.matches.filter(m=>['regex','image','file','window','editor'].includes((m as ActionMatchBase).type))"
@@ -462,7 +465,7 @@ const doInstallStore = async () => {
                                 </a-button>
                                 <a-button :type="m['_disable'] ? undefined : 'primary'" size="small">
                                     <template #icon>
-                                        <icon-down />
+                                        <icon-down/>
                                     </template>
                                 </a-button>
                             </a-button-group>
@@ -470,8 +473,8 @@ const doInstallStore = async () => {
                                 <a-doption v-if="m['_disable']" @click="doDisable(a as any, m.name as string)">
                                     启用
                                 </a-doption>
-                                <a-doption v-else @click="doDisable(a as any, m.name as string)"> 禁用 </a-doption>
-                                <a-doption @click="actionMatchDetailDialog?.show(a as any, m as any)"> 详情 </a-doption>
+                                <a-doption v-else @click="doDisable(a as any, m.name as string)"> 禁用</a-doption>
+                                <a-doption @click="actionMatchDetailDialog?.show(a as any, m as any)"> 详情</a-doption>
                             </template>
                         </a-dropdown>
                     </div>
@@ -479,5 +482,5 @@ const doInstallStore = async () => {
             </div>
         </div>
     </div>
-    <SystemActionMatchDetailDialog ref="actionMatchDetailDialog" @disable="doDisable" />
+    <SystemActionMatchDetailDialog ref="actionMatchDetailDialog" @disable="doDisable"/>
 </template>

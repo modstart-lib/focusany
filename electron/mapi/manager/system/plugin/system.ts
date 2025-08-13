@@ -47,10 +47,10 @@ export const SystemPlugin: PluginRecord = {
         },
         {
             name: "page-launch",
-            title: "快捷启动",
+            title: "快捷键",
             type: ActionTypeEnum.WEB,
             icon: SystemIcons.thunder,
-            matches: ["快捷启动", "launch"] as any,
+            matches: ["快捷键", "launch"] as any,
         },
         {
             name: "about",

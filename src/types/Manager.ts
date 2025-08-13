@@ -152,7 +152,7 @@ export type ActionMatchWindow = ActionMatchBase & {
 
 export type ActionMatchEditor = ActionMatchBase & {
     extensions: string[];
-    fadaTypes: string[];
+    fadTypes: string[];
 };
 
 export type SelectedContent = {
@@ -246,6 +246,9 @@ export type FilePluginRecord = {
 };
 
 export type LaunchRecord = {
+    type: 'plugin' | 'custom';
+    pluginName: string;
+    name: string;
     hotkey: HotkeyKeyItem;
     keyword: string;
 };

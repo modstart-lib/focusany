@@ -193,12 +193,30 @@ export const ManagerConfig = {
         });
     },
     async updateLaunch(records: LaunchRecord[]) {
+        // normalize records
+        records.forEach(record => {
+            if (!("type" in record)) {
+                // @ts-ignore
+                record.type = "custom"
+            }
+            if (!("name" in record)) {
+                // @ts-ignore
+                record.name = "";
+            }
+        })
+        // sort records by type(custom,plugin) and name(a-z)
+        records.sort((a, b) => {
+            if (a.type === b.type) {
+                return a.name.localeCompare(b.name);
+            }
+            return a.type.localeCompare(b.type);
+        });
         await KVDBMain.putForce(CommonConfig.dbSystem, {
             _id: CommonConfig.dbLaunchId,
             records: records,
         });
         MemoryCacheUtil.forget("Launches");
-        ManagerHotkey.configInit();
+        ManagerHotkey.configInit().then()
     },
     async getCustomAction(): Promise<Record<string, ActionRecord[]>> {
         return MemoryCacheUtil.remember("CustomActions", async () => {
