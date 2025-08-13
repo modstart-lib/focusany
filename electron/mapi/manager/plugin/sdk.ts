@@ -5,6 +5,7 @@ import os from "os";
 import path from "path";
 import {EncodeUtil, FileUtil, StrUtil, TimeUtil} from "../../../lib/util";
 import {PluginContext} from "../type";
+import {PluginLog} from "./log";
 
 export const PluginSdkCreate = (plugin: PluginRecord) => {
     const context = {
@@ -364,5 +365,37 @@ export const PluginSdkCreate = (plugin: PluginRecord) => {
             },
         },
     };
-    return sdk;
+
+    const createDeepProxy = (target: any, cache = new WeakMap()) => {
+        if (typeof target !== 'object' || target === null) {
+            return target;
+        }
+        if (cache.has(target)) {
+            return cache.get(target);
+        }
+        const proxy = new Proxy(target, {
+            get(obj, prop) {
+                const value = Reflect.get(obj, prop);
+                if (typeof value === 'function') {
+                    return async function (...args: any[]) {
+                        try {
+                            return await Promise.resolve(value.apply(obj, args));
+                        } catch (error) {
+                            PluginLog.error(plugin.name, `Api.Error-${prop.toString()}`, {
+                                error: error + '',
+                            });
+                        }
+                    };
+                }
+                if (typeof value === 'object' && value !== null) {
+                    return createDeepProxy(value, cache);
+                }
+                return value;
+            }
+        });
+        cache.set(target, proxy);
+        return proxy;
+    };
+
+    return createDeepProxy(sdk);
 };

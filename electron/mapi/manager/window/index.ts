@@ -16,6 +16,7 @@ import {ManagerPluginEvent} from "../plugin/event";
 import {ManagerSystem} from "../system";
 import {PluginContext} from "../type";
 import {RemoteWebManager} from "./remoteWeb";
+import {PluginLog} from "../plugin/log";
 
 const browserViews = new Map<WebContents, BrowserView>();
 const detachWindows = new Map<WebContents, BrowserWindow>();
@@ -259,7 +260,15 @@ export const ManagerWindow = {
             }, 0);
         });
         view.webContents.on("preload-error", (event, preloadPath, error) => {
-            Log.error("ManagerWindow.open.preload-error", error);
+            PluginLog.error(plugin.name, 'ManagerWindow.open.preload-error', {
+                error: error + "",
+                preloadPath,
+            })
+        });
+        view.webContents.on('render-process-gone', () => {
+            PluginLog.error(plugin.name, 'ManagerWindow.open.render-process-gone', {
+                error: 'render-process-gone',
+            });
         });
         view.webContents.setWindowOpenHandler(({url}) => {
             if (url.startsWith("https://") || url.startsWith("http://")) {

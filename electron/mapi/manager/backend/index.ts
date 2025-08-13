@@ -21,32 +21,42 @@ export const ManagerBackend = {
             },
             option
         );
-        if (!plugin.runtime?.root) {
-            throw `PluginRootNotFound:${plugin.name}:${type}:${key}`;
-        }
-        const backendPath = `${plugin.runtime?.root}/backend.cjs`;
-        if (!fs.existsSync(backendPath)) {
-            if (option.rejectIfError) {
-                throw `BackendFileNotFound:${backendPath}`;
+        try {
+            if (!plugin.runtime?.root) {
+                throw `PluginRootNotFound:${plugin.name}:${type}:${key}`;
             }
-            return;
-        }
-        const backend = await ImportUtil.loadCommonJs(backendPath);
-        if (!(type in backend)) {
-            if (option.rejectIfError) {
-                throw `BackendTypeNotFound:${type}`;
+            const backendPath = `${plugin.runtime?.root}/backend.cjs`;
+            if (!fs.existsSync(backendPath)) {
+                if (option.rejectIfError) {
+                    throw `BackendFileNotFound:${backendPath}`;
+                }
+                return;
             }
-            return;
-        }
-        if (!(key in backend[type])) {
-            if (option.rejectIfError) {
-                throw `BackendKeyNotFound:${type}.${key}`;
+            const backend = await ImportUtil.loadCommonJs(backendPath);
+            if (!(type in backend)) {
+                if (option.rejectIfError) {
+                    throw `BackendTypeNotFound:${type}`;
+                }
+                return;
             }
-            return;
+            if (!(key in backend[type])) {
+                if (option.rejectIfError) {
+                    throw `BackendKeyNotFound:${type}.${key}`;
+                }
+                return;
+            }
+            const func = backend[type][key];
+            const sdk = PluginSdkCreate(plugin);
+            return await new Promise((resolve, reject) => {
+                Promise.resolve(func(sdk, data)).then(resolve).catch(reject);
+            });
+        } catch (e) {
+            PluginLog.error(plugin.name, `Backend.Run.Error-${type}-${key}`, {
+                error: e + '',
+                data,
+                option,
+            });
         }
-        const func = backend[type][key];
-        const sdk = PluginSdkCreate(plugin);
-        return await func(sdk, data);
     },
     async runAction(plugin: PluginRecord, action: ActionRecord, option?: {}) {
         const codeData = {};
@@ -61,7 +71,7 @@ export const ManagerBackend = {
                 rejectIfError: true,
             });
         } catch (e) {
-            PluginLog.error(plugin.name, `BackendActionError:${action.name}`, e + '');
+            PluginLog.error(plugin.name, `Backend.RunAction.Error:${action.name}`, e + '');
         }
     },
 };
