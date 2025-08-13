@@ -549,6 +549,35 @@ export const ManagerPluginEvent = {
 
     addLaunch: async (context: PluginContext, data: any) => {
         const {keyword, name, hotkey} = data;
+        if (!keyword || !name || !hotkey) {
+            throw new Error("Keyword, name and hotkey are required.");
+        }
+        const hotkeyConvert = {
+            key: hotkey.key,
+            // Alt Option
+            altKey: false,
+            // Ctrl Control
+            ctrlKey: false,
+            // Command Win
+            metaKey: false,
+            // Shift
+            shiftKey: false,
+            times: 1,
+        };
+        const modifiers = hotkey.modifiers || [];
+        // "Control" | "Option" | "Command" | "Ctrl" | "Alt" | "Win" | "Meta" | "Shift"
+        if (modifiers.includes("Control") || modifiers.includes("Ctrl")) {
+            hotkeyConvert.ctrlKey = true;
+        }
+        if (modifiers.includes("Option") || modifiers.includes("Alt")) {
+            hotkeyConvert.altKey = true;
+        }
+        if (modifiers.includes("Command") || modifiers.includes("Win") || modifiers.includes("Meta")) {
+            hotkeyConvert.metaKey = true;
+        }
+        if (modifiers.includes("Shift")) {
+            hotkeyConvert.shiftKey = true;
+        }
         const records = await ManagerConfig.listLaunch();
         const exists = records.find(m => {
             return m.type === 'plugin' && m.pluginName === context._plugin.name && m.keyword === keyword;
@@ -561,7 +590,7 @@ export const ManagerPluginEvent = {
                 pluginName: context._plugin.name,
                 keyword,
                 name,
-                hotkey,
+                hotkey: hotkeyConvert,
             });
         }
         await ManagerConfig.updateLaunch(records);

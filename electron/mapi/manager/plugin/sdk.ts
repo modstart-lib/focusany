@@ -275,18 +275,7 @@ export const PluginSdkCreate = (plugin: PluginRecord) => {
             ManagerPluginEvent.logShow(context, {});
         },
 
-        async addLaunch(keyword: string, name: string, hotkey: {
-            key: string;
-            // Alt / Option
-            altKey: boolean;
-            // Ctrl / Control
-            ctrlKey: boolean;
-            // Command / Win
-            metaKey: boolean;
-            // Shift
-            shiftKey: boolean;
-            times: number;
-        }): Promise<void> {
+        async addLaunch(keyword: string, name: string, hotkey: HotkeyType): Promise<void> {
             return ManagerPluginEvent.addLaunch(context, {keyword, name, hotkey});
         },
 

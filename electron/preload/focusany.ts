@@ -533,18 +533,7 @@ export const FocusAny = {
         ipcSend("logShow");
     },
 
-    async addLaunch(keyword: string, name: string, hotkey: {
-        key: string;
-        // Alt / Option
-        altKey: boolean;
-        // Ctrl / Control
-        ctrlKey: boolean;
-        // Command / Win
-        metaKey: boolean;
-        // Shift
-        shiftKey: boolean;
-        times: number;
-    }): Promise<void> {
+    async addLaunch(keyword: string, name: string, hotkey: HotkeyType): Promise<void> {
         return ipcSendAsync("addLaunch", {keyword, name, hotkey});
     },
 

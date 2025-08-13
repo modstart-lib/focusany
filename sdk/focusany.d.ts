@@ -33,7 +33,7 @@ declare type PluginEvent = "ClipboardChange" | "UserChange";
 
 declare type HotkeyModifierType = "Control" | "Option" | "Command" | "Ctrl" | "Alt" | "Win" | "Meta" | "Shift";
 
-declare type HotkeyType = {key: string; modifiers: HotkeyModifierType[]};
+declare type HotkeyType = { key: string; modifiers: HotkeyModifierType[] };
 
 declare type HotkeyQuickType = "save";
 
@@ -172,7 +172,7 @@ interface FocusAnyApi {
      * plugin more menu click
      * @param callback
      */
-    onMoreMenuClick(callback: (data: {name: string}) => void): void;
+    onMoreMenuClick(callback: (data: { name: string }) => void): void;
 
     /**
      * register hotkey
@@ -340,7 +340,7 @@ interface FocusAnyApi {
      * List plugin goods
      * @param query
      */
-    listGoods(query?: {ids?: string[]}): Promise<
+    listGoods(query?: { ids?: string[] }): Promise<
         {
             id: string;
             title: string;
@@ -496,7 +496,7 @@ interface FocusAnyApi {
         title?: string;
         defaultPath?: string;
         buttonLabel?: string;
-        filters?: {name: string; extensions: string[]}[];
+        filters?: { name: string; extensions: string[] }[];
         properties?: Array<
             | "openFile"
             | "openDirectory"
@@ -520,7 +520,7 @@ interface FocusAnyApi {
         title?: string;
         defaultPath?: string;
         buttonLabel?: string;
-        filters?: {name: string; extensions: string[]}[];
+        filters?: { name: string; extensions: string[] }[];
         message?: string;
         nameFieldLabel?: string;
         showsTagField?: string;
@@ -668,13 +668,13 @@ interface FocusAnyApi {
     /**
      * Get cursor screen position
      */
-    getCursorScreenPoint(): {x: number; y: number};
+    getCursorScreenPoint(): { x: number; y: number };
 
     /**
      * Get display nearest to point
      * @param point
      */
-    getDisplayNearestPoint(point: {x: number; y: number}): any;
+    getDisplayNearestPoint(point: { x: number; y: number }): any;
 
     /**
      * Check if running on macOS
@@ -770,18 +770,7 @@ interface FocusAnyApi {
      * @param name
      * @param hotkey
      */
-    addLaunch(keyword: string, name: string, hotkey: {
-        key: string;
-        // Alt / Option
-        altKey: boolean;
-        // Ctrl / Control
-        ctrlKey: boolean;
-        // Command / Win
-        metaKey: boolean;
-        // Shift
-        shiftKey: boolean;
-        times: number;
-    }): Promise<void>;
+    addLaunch(keyword: string, name: string, hotkey: HotkeyType): Promise<void>;
 
     /**
      * remove launch
