@@ -18,6 +18,7 @@ import {Dialog} from "../../lib/dialog";
 import SystemActionMatchDetailDialog from "./components/SystemActionMatchDetailDialog.vue";
 import {mapError} from "../../lib/error";
 import ActionTypeIcon from "./components/ActionTypeIcon.vue";
+import {t} from "../../lang";
 
 const actionMatchDetailDialog = ref<InstanceType<typeof SystemActionMatchDetailDialog> | null>(null);
 const records = ref<PluginRecord[]>([]);
@@ -175,18 +176,21 @@ const doPublish = async () => {
     }
 };
 const doPublishInfo = async () => {
-    Dialog.loadingOn("正在更新资料");
+    Dialog.loadingOn(t("正在更新资料"));
     try {
         await window.$mapi.manager.storePublishInfo(recordCurrent.value?.name as string, {
             version: recordCurrent.value?.version as string,
         });
-        Dialog.tipSuccess("更新资料成功");
+        Dialog.tipSuccess(t("更新资料成功"));
         doLoad().then();
     } catch (e) {
-        Dialog.tipError("更新资料失败:" + mapError(e));
+        Dialog.tipError(t("更新资料失败") + ":" + mapError(e));
     } finally {
         Dialog.loadingOff();
     }
+};
+const doLog = async () => {
+    await window.$mapi.manager.showLog(recordCurrent.value?.name as string);
 };
 const doInstallPlugin = async (type: "zip" | "config") => {
     const filters: any[] = [];
@@ -204,10 +208,10 @@ const doInstallPlugin = async (type: "zip" | "config") => {
     }
     try {
         await window.$mapi.manager.installPlugin(file);
-        Dialog.tipSuccess("安装成功");
+        Dialog.tipSuccess(t("安装成功"));
         doLoad().then();
     } catch (e) {
-        Dialog.tipError("安装失败:" + mapError(e));
+        Dialog.tipError(t('安装失败') + ":" + mapError(e));
     }
 };
 const doInstallStore = async () => {
@@ -241,10 +245,10 @@ const doInstallStore = async () => {
             <div class="border-t border-solid border-default py-2 text-center">
                 <a-dropdown-button type="primary" @click="doInstallStore" class="block">
                     <icon-apps class="mr-1"/>
-                    插件市场
+                    {{ $t('插件市场') }}
                     <template #content>
-                        <a-doption @click="doInstallPlugin('zip')">选择本地ZIP插件</a-doption>
-                        <a-doption @click="doInstallPlugin('config')">选择插件config.json</a-doption>
+                        <a-doption @click="doInstallPlugin('zip')">{{ $t('选择本地ZIP插件') }}</a-doption>
+                        <a-doption @click="doInstallPlugin('config')">{{ $t('选择插件config.json') }}</a-doption>
                     </template>
                 </a-dropdown-button>
             </div>
@@ -289,7 +293,7 @@ const doInstallStore = async () => {
                         size="small"
                         @click="doUninstall"
                     >
-                        卸载
+                        {{ $t('卸载') }}
                     </a-button>
                     <a-dropdown v-if="recordCurrent.runtime && recordCurrent.type === PluginType.DIR">
                         <a-button size="small" class="ml-1">
@@ -298,12 +302,15 @@ const doInstallStore = async () => {
                             </template>
                         </a-button>
                         <template #content>
-                            <a-doption @click="doRefreshInstall">刷新</a-doption>
+                            <a-doption @click="doRefreshInstall">{{ $t('刷新') }}</a-doption>
                             <a-doption v-if="developerPlugins.includes(recordCurrent.name)" @click="doPublish">
-                                发布插件
+                                {{ $t('发布插件') }}
                             </a-doption>
                             <a-doption v-if="developerPlugins.includes(recordCurrent.name)" @click="doPublishInfo">
-                                更新信息
+                                {{ $t('更新信息') }}
+                            </a-doption>
+                            <a-doption v-if="developerPlugins.includes(recordCurrent.name)" @click="doLog">
+                                {{ $t('日志') }}
                             </a-doption>
                         </template>
                     </a-dropdown>
@@ -316,13 +323,13 @@ const doInstallStore = async () => {
                     <a-radio value="keyword">
                         <div class="flex items-center">
                             <img class="w-6 h-6 mr-1 object-contain dark:invert" :src="SystemIcons.searchKeyword"/>
-                            搜索动作
+                            {{ $t('搜索动作') }}
                         </div>
                     </a-radio>
                     <a-radio value="match">
                         <div class="flex items-center">
                             <img class="w-6 h-6 mr-1 object-contain dark:invert" :src="SystemIcons.searchMatch"/>
-                            匹配动作
+                            {{ $t('匹配动作') }}
                         </div>
                     </a-radio>
                 </a-radio-group>
@@ -338,7 +345,7 @@ const doInstallStore = async () => {
                         />
                         <div class="mr-2">{{ a.title }}</div>
                         <ActionTypeIcon class="mr-2" :type="a.type"/>
-                        <a-tooltip :content="a['_pin'] ? '固定到搜索框' : '从搜索框取消固定'" position="left">
+                        <a-tooltip :content="a['_pin'] ? $t('固定到搜索框') : $t('从搜索框取消固定')" position="left">
                             <a
                                 href="javascript:;"
                                 class="inline-block w-6 h-6 mr-2 bg-gray-100 dark:bg-gray-600 text-center leading-6 rounded-full"
@@ -378,12 +385,15 @@ const doInstallStore = async () => {
                                 </a-button>
                             </a-button-group>
                             <template #content>
-                                <a-doption @click="doOpen(a as any)"> 打开</a-doption>
+                                <a-doption @click="doOpen(a as any)"> {{ $t('打开') }}</a-doption>
                                 <a-doption v-if="m['_disable']" @click="doDisable(a as any, m.name as string)">
-                                    启用
+                                    {{ $t('启用') }}
                                 </a-doption>
-                                <a-doption v-else @click="doDisable(a as any, m.name as string)"> 禁用</a-doption>
-                                <a-doption @click="actionMatchDetailDialog?.show(a as any, m as any)"> 详情</a-doption>
+                                <a-doption v-else @click="doDisable(a as any, m.name as string)"> {{ $t('禁用') }}
+                                </a-doption>
+                                <a-doption @click="actionMatchDetailDialog?.show(a as any, m as any)">
+                                    {{ $t('详情') }}
+                                </a-doption>
                             </template>
                         </a-dropdown>
                     </div>
@@ -413,7 +423,7 @@ const doInstallStore = async () => {
                                     @click.stop="actionMatchDetailDialog?.show(a as any, m as any)"
                                     size="small"
                                 >
-                                    正则
+                                    {{ $t('正则') }}
                                     <div class="inline-block max-w-32 overflow-hidden truncate">
                                         {{ (m as ActionMatchRegex).regex }}
                                     </div>
@@ -424,7 +434,7 @@ const doInstallStore = async () => {
                                     @click.stop="actionMatchDetailDialog?.show(a as any, m as any)"
                                     size="small"
                                 >
-                                    图片
+                                    {{ $t('图片') }}
                                 </a-button>
                                 <a-button
                                     v-else-if="(m as ActionMatchBase).type==='file'"
@@ -432,7 +442,7 @@ const doInstallStore = async () => {
                                     @click.stop="actionMatchDetailDialog?.show(a as any, m as any)"
                                     size="small"
                                 >
-                                    文件
+                                    {{ $t('文件') }}
                                 </a-button>
                                 <a-button
                                     v-else-if="(m as ActionMatchBase).type==='window'"
@@ -440,7 +450,7 @@ const doInstallStore = async () => {
                                     @click.stop="actionMatchDetailDialog?.show(a as any, m as any)"
                                     size="small"
                                 >
-                                    窗口
+                                    {{ $t('窗口') }}
                                     <div class="inline-block max-w-32 overflow-hidden truncate">
                                         {{ (m as ActionMatchWindow).nameRegex }}
                                         {{ (m as ActionMatchWindow).titleRegex }}
@@ -453,7 +463,7 @@ const doInstallStore = async () => {
                                     @click.stop="actionMatchDetailDialog?.show(a as any, m as any)"
                                     size="small"
                                 >
-                                    打开文件
+                                    {{ $t('打开文件') }}
                                     <div class="inline-block max-w-32 overflow-hidden truncate">
                                         <span v-if="(m as ActionMatchEditor).fadTypes">
                                             {{ (m as ActionMatchEditor).fadTypes?.join(",") }}
@@ -471,10 +481,13 @@ const doInstallStore = async () => {
                             </a-button-group>
                             <template #content>
                                 <a-doption v-if="m['_disable']" @click="doDisable(a as any, m.name as string)">
-                                    启用
+                                    {{ $t('启用') }}
                                 </a-doption>
-                                <a-doption v-else @click="doDisable(a as any, m.name as string)"> 禁用</a-doption>
-                                <a-doption @click="actionMatchDetailDialog?.show(a as any, m as any)"> 详情</a-doption>
+                                <a-doption v-else @click="doDisable(a as any, m.name as string)"> {{ $t('禁用') }}
+                                </a-doption>
+                                <a-doption @click="actionMatchDetailDialog?.show(a as any, m as any)">
+                                    {{ $t('详情') }}
+                                </a-doption>
                             </template>
                         </a-dropdown>
                     </div>

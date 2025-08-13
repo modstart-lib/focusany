@@ -69,6 +69,10 @@ const togglePinAction = async (pluginName: string, actionName: string, option?: 
     return ipcRenderer.invoke("manager:togglePinAction", pluginName, actionName, option);
 };
 
+const showLog = async (pluginName: string, option?: {}) => {
+    return ipcRenderer.invoke("manager:showLog", pluginName, option);
+}
+
 const clearCache = async (option?: {}) => {
     return ipcRenderer.invoke("manager:clearCache", option);
 };
@@ -246,6 +250,7 @@ export default {
     toggleDisabledActionMatch,
     listPinAction,
     togglePinAction,
+    showLog,
     clearCache,
     hotKeyWatch,
     hotKeyUnwatch,

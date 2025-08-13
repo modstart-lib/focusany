@@ -421,6 +421,7 @@ declare interface Window {
             ) => Promise<boolean>;
             listPinAction: (option?: {}) => Promise<any>;
             togglePinAction: (pluginName: string, actionName: string, option?: {}) => Promise<boolean>;
+            showLog: (pluginName: string, option?: {}) => Promise<void>;
             clearCache: (option?: {}) => Promise<void>;
             hotKeyWatch: (option?: {}) => Promise<void>;
             hotKeyUnwatch: (option?: {}) => Promise<void>;

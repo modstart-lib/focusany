@@ -121,6 +121,14 @@ ipcMain.handle("manager:togglePinAction", async (event, pluginName: string, acti
     return await ManagerConfig.togglePinAction(pluginName, actionName);
 });
 
+ipcMain.handle("manager:showLog", async (event, pluginName: string, option?: {}) => {
+    await ManagerPluginEvent.logShow({
+        _plugin: {
+            name: pluginName,
+        }
+    } as any, {})
+})
+
 ipcMain.handle("manager:clearCache", async (event, option?: {}) => {
     await ManagerConfig.clearCache();
     await ManagerSystem.clearCache();
