@@ -634,12 +634,38 @@ interface FocusAnyApi {
      */
     shellBeep(): void;
 
-    /**
-     * 模拟键盘按键
-     * @param key
-     * @param modifiers
-     */
-    simulateKeyboardTap(key: string, modifiers: ("ctrl" | "shift" | "command" | "option" | "alt")[]): void;
+
+    simulate: {
+        /**
+         * simulate keyboard tap
+         * @param key
+         * @param modifiers
+         */
+        keyboardTap(key: string, modifiers: ("ctrl" | "shift" | "command" | "option" | "alt")[]): Promise<void>;
+        /**
+         * simulate type string
+         * @param text
+         */
+        typeString(text: string): Promise<void>;
+        /**
+         * simulate mouse toggle
+         * @param type
+         * @param button
+         */
+        mouseToggle(type: 'down' | 'up', button: 'left' | 'right' | 'middle'): Promise<void>;
+        /**
+         * simulate mouse move
+         * @param x
+         * @param y
+         */
+        mouseMove(x: number, y: number): Promise<void>;
+        /**
+         * simulate mouse click
+         * @param button
+         * @param double
+         */
+        mouseClick(button: 'left' | 'right' | 'middle', double?: boolean): Promise<void>;
+    },
 
     /**
      * 模拟鼠标按下

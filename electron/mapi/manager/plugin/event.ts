@@ -359,6 +359,22 @@ export const ManagerPluginEvent = {
         });
         ManagerHotkeySimulate.keyTap(ManagerHotkeySimulate.toCode(key), modifiersNumber);
     },
+    simulateTypeString: async (context: PluginContext, data: any) => {
+        const {text} = data;
+        await ManagerAutomation.typeString(text);
+    },
+    simulateMouseToggle: async (context: PluginContext, data: any) => {
+        const {type, button} = data;
+        await ManagerAutomation.mouseToggle(type, button);
+    },
+    simulateMouseMove: async (context: PluginContext, data: any) => {
+        const {x, y} = data;
+        await ManagerAutomation.moveMouse(x, y);
+    },
+    simulateMouseClick: async (context: PluginContext, data: any) => {
+        const {button, double} = data;
+        await ManagerAutomation.mouseClick(button, double);
+    },
     screenCapture: async (context: PluginContext, data: any) => {
         screenCapture((image: string) => {
             if (context["_screenCaptureCallback"]) {

@@ -354,9 +354,25 @@ export const FocusAny = {
     getFileIcon(path: string) {
         return ipcSendSync("getFileIcon", {path});
     },
-    simulateKeyboardTap(key: string, modifiers: ("ctrl" | "shift" | "command" | "option" | "alt")[]) {
-        ipcSend("simulateKeyboardTap", {key, modifiers});
+
+    simulate: {
+        keyboardTap(key: string, modifiers: ("ctrl" | "shift" | "command" | "option" | "alt")[]) {
+            ipcSend("simulateKeyboardTap", {key, modifiers});
+        },
+        typeString(text: string) {
+            ipcSend("simulateTypeString", {text});
+        },
+        mouseToggle(type: 'down' | 'up', button: 'left' | 'right' | 'middle') {
+            ipcSend("simulateMouseToggle", {type, button});
+        },
+        mouseMove(x: number, y: number) {
+            ipcSend("simulateMouseMove", {x, y});
+        },
+        mouseClick(button: 'left' | 'right' | 'middle', double?: boolean) {
+            ipcSend("simulateMouseClick", {button, double});
+        }
     },
+
     getCursorScreenPoint() {
         return electronRemote.screen.getCursorScreenPoint();
     },

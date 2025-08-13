@@ -150,7 +150,7 @@ export const ManagerClipboard = {
         await Files.appendText(`clipboard/${filename}/data`, `${dataString}\n`);
         await ManagerPluginEvent.firePluginEvent("ClipboardChange", saveData);
     },
-    async list(): Promise<ClipboardHistoryRecord[]> {
+    async list(limit: number = -1): Promise<ClipboardHistoryRecord[]> {
         const fullPath = await Files.fullPath("clipboard");
         const dateDir = await Files.list("clipboard");
         // 按照倒序排列 pathname
@@ -177,10 +177,16 @@ export const ManagerClipboard = {
                     record.image = `file://${fullPath}/${dir.name}/${record.image}`;
                 }
                 result.push(record);
+                if (limit > 0 && result.length >= limit) {
+                    break;
+                }
                 if (result.length > ManagerClipboard.MAX_LIMIT) {
                     maxLimitReached = true;
                     break;
                 }
+            }
+            if (limit > 0 && result.length >= limit) {
+                break;
             }
         }
         return result;

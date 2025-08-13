@@ -440,8 +440,13 @@ ipcMain.handle("manager:storeInstallingInfo", async (event, pluginName: string, 
     return await ManagerPluginStore.storeInstallingInfo(pluginName);
 });
 
-ipcMain.handle("manager:clipboardList", async (event, option?: {}) => {
-    return await ManagerClipboard.list();
+ipcMain.handle("manager:clipboardList", async (event, option?: {
+    limit?: number;
+}) => {
+    option = Object.assign({
+        limit: -1,
+    }, option);
+    return await ManagerClipboard.list(option.limit);
 });
 
 ipcMain.handle("manager:clipboardClear", async (event, option?: {}) => {

@@ -2,9 +2,6 @@ import {app, BrowserWindow, desktopCapturer, session, shell} from "electron";
 import {optimizer} from "@electron-toolkit/utils";
 import path from "node:path";
 import fs from "node:fs";
-
-app.commandLine.appendSwitch("enable-experimental-web-platform-features");
-
 /** process.js 必须位于非依赖项的顶部 */
 import {isDummy} from "../lib/process";
 import * as remoteMain from "@electron/remote/main";
@@ -30,6 +27,8 @@ import {DevToolsManager} from "../lib/devtools";
 import {AppsMain} from "../mapi/app/main";
 import {ManagerEditor} from "../mapi/manager/editor";
 import {ProtocolMain} from "../mapi/protocol/main";
+
+app.commandLine.appendSwitch("enable-experimental-web-platform-features");
 
 const isDummyNew = isDummy;
 
