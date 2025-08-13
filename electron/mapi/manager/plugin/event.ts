@@ -329,6 +329,32 @@ export const ManagerPluginEvent = {
     getClipboardFiles: async (context: PluginContext, data: any) => {
         return getClipboardFiles();
     },
+    listClipboardItems: async (context: PluginContext, data: any) => {
+        if (!ManagerPluginPermission.checkPermit(context._plugin, "ClipboardManage")) {
+            throw new Error("Missing permission: ClipboardManage");
+        }
+        let {option} = data;
+        option = Object.assign({
+            limit: -1,
+        }, option);
+        return await ManagerClipboard.list(option.limit);
+    },
+    deleteClipboardItem: async (context: PluginContext, data: any) => {
+        if (!ManagerPluginPermission.checkPermit(context._plugin, "ClipboardManage")) {
+            throw new Error("Missing permission: ClipboardManage");
+        }
+        const {timestamp} = data;
+        if (!timestamp) {
+            throw new Error("Timestamp is required to delete clipboard item.");
+        }
+        return await ManagerClipboard.delete(timestamp);
+    },
+    clearClipboardItems: async (context: PluginContext, data: any) => {
+        if (!ManagerPluginPermission.checkPermit(context._plugin, "ClipboardManage")) {
+            throw new Error("Missing permission: ClipboardManage");
+        }
+        return await ManagerClipboard.clear();
+    },
     shellBeep: async (context: PluginContext, data: any) => {
         shell.beep();
     },

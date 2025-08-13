@@ -465,10 +465,6 @@ declare interface Window {
                 percent: number;
             }>;
 
-            clipboardList: (option?: { limit?: number }) => Promise<ClipboardHistoryRecord[]>;
-            clipboardClear: (option?: {}) => Promise<void>;
-            clipboardDelete: (timestamp: number, option?: {}) => Promise<void>;
-
             historyClear: (option?: {}) => Promise<void>;
             historyDelete: (pluginName: string, actionName: string, option?: {}) => Promise<void>;
         };

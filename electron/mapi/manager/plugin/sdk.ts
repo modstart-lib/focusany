@@ -126,6 +126,21 @@ export const PluginSdkCreate = (plugin: PluginRecord) => {
         > {
             return (await ManagerPluginEvent.getClipboardFiles(context, {})) as any;
         },
+        async listClipboardItems(option?: { limit?: number }): Promise<{
+            type: "file" | "image" | "text";
+            timestamp: number;
+            files?: FileItem[];
+            image?: string;
+            text?: string;
+        }[]> {
+            return ManagerPluginEvent.listClipboardItems(context, option || {});
+        },
+        async deleteClipboardItem(timestamp: number): Promise<void> {
+            return ManagerPluginEvent.deleteClipboardItem(context, {timestamp});
+        },
+        async clearClipboardItems(): Promise<void> {
+            return ManagerPluginEvent.clearClipboardItems(context, {});
+        },
         async shellOpenExternal(url: string) {
             await shell.openExternal(url);
         },

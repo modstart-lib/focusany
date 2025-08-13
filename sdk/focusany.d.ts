@@ -610,6 +610,29 @@ interface FocusAnyApi {
     getClipboardFiles(): FileItem[];
 
     /**
+     * List clipboard history
+     */
+    listClipboardItems(option?: { limit?: number }): Promise<{
+        type: "file" | "image" | "text";
+        timestamp: number;
+        files?: FileItem[];
+        image?: string;
+        text?: string;
+    }[]>;
+
+    /**
+     * Delete clipboard item by timestamp
+     * @param timestamp
+     */
+    deleteClipboardItem(timestamp: number): Promise<void>;
+
+    /**
+     * Clear clipboard history
+     */
+    clearClipboardItems(): Promise<void>;
+
+
+    /**
      * Open file with default application
      * @param fullPath
      */

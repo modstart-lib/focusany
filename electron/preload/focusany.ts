@@ -339,6 +339,21 @@ export const FocusAny = {
     }[] {
         return ipcSendSync("getClipboardFiles");
     },
+    async listClipboardItems(option?: { limit?: number }): Promise<{
+        type: "file" | "image" | "text";
+        timestamp: number;
+        files?: FileItem[];
+        image?: string;
+        text?: string;
+    }[]> {
+        return ipcSendAsync("listClipboardItems", {option});
+    },
+    async deleteClipboardItem(timestamp: number): Promise<void> {
+        return ipcSendAsync("deleteClipboardItem", {timestamp});
+    },
+    async clearClipboardItems(): Promise<void> {
+        return ipcSendAsync("clearClipboardItems");
+    },
     shellOpenExternal(url: string) {
         shell.openExternal(url).then();
     },
