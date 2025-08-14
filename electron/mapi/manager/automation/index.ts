@@ -15,14 +15,18 @@ export const ManagerAutomation = {
     lastWindowManager: null as Window | null,
     track() {
         setTimeout(async () => {
-            const win = await activeWindow();
-            if (win) {
-                if (!ManagerAutomation.lastWindow || win.id !== ManagerAutomation.lastWindow.id) {
-                    if (!ManagerAutomation.trackShouldIgnore(win)) {
-                        ManagerAutomation.lastWindow = win;
-                        ManagerAutomation.lastWindowManager = windowManager.getActiveWindow();
+            try {
+                const win = await activeWindow();
+                if (win) {
+                    if (!ManagerAutomation.lastWindow || win.id !== ManagerAutomation.lastWindow.id) {
+                        if (!ManagerAutomation.trackShouldIgnore(win)) {
+                            ManagerAutomation.lastWindow = win;
+                            ManagerAutomation.lastWindowManager = windowManager.getActiveWindow();
+                        }
                     }
                 }
+            } catch (e) {
+                Log.error('ManagerAutomation.track', e);
             }
             ManagerAutomation.track()
         }, 500);

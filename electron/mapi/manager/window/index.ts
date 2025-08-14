@@ -17,7 +17,6 @@ import {ManagerSystem} from "../system";
 import {PluginContext} from "../type";
 import {RemoteWebManager} from "./remoteWeb";
 import {PluginLog} from "../plugin/log";
-import {ManagerAutomation} from "../automation";
 
 const browserViews = new Map<WebContents, BrowserView>();
 const detachWindows = new Map<WebContents, BrowserWindow>();
@@ -244,6 +243,31 @@ export const ManagerWindow = {
         view._plugin = plugin;
         remoteMain.enable(view.webContents);
         DevToolsManager.register(`PluginView.${plugin.name}`, view);
+        view.webContents.on('did-fail-load', (event, errorCode, errorDescription, validatedURL) => {
+            PluginLog.error(plugin.name, 'Load.Error-did-fail-load', {
+                errorCode,
+                errorDescription,
+                validatedURL,
+            });
+        })
+        view.webContents.on('did-fail-provisional-load', (event, errorCode, errorDescription, validatedURL) => {
+            PluginLog.error(plugin.name, 'Load.Error-did-fail-provisional-load', {
+                errorCode,
+                errorDescription,
+                validatedURL,
+            });
+        })
+        view.webContents.on("preload-error", (event, preloadPath, error) => {
+            PluginLog.error(plugin.name, 'Load.Error-preload-error', {
+                error: error + "",
+                preloadPath,
+            })
+        });
+        view.webContents.on('render-process-gone', () => {
+            PluginLog.error(plugin.name, 'Load.Error-render-process-gone', {
+                error: 'render-process-gone',
+            });
+        });
         view.webContents.once("did-finish-load", async () => {
             await executeDarkMode(view, {
                 plugin,
@@ -260,17 +284,6 @@ export const ManagerWindow = {
                 view.webContents.setZoomFactor(zoom / 100);
             }, 0);
         });
-        view.webContents.on("preload-error", (event, preloadPath, error) => {
-            PluginLog.error(plugin.name, 'ManagerWindow.open.preload-error', {
-                error: error + "",
-                preloadPath,
-            })
-        });
-        view.webContents.on('render-process-gone', () => {
-            PluginLog.error(plugin.name, 'ManagerWindow.open.render-process-gone', {
-                error: 'render-process-gone',
-            });
-        });
         view.webContents.setWindowOpenHandler(({url}) => {
             if (url.startsWith("https://") || url.startsWith("http://")) {
                 shell.openExternal(url);
@@ -283,7 +296,7 @@ export const ManagerWindow = {
             DevToolsManager.autoShow(view);
         });
         view.webContents.on("before-input-event", (event, input) => {
-            // console.log('ManagerWindow.open.before-input-event', input)
+            // console.log('Load.Error-before-input-event', input)
             if (input.type === "keyUp") {
                 // exit when Escape key is pressed
                 if (mainWindowView === view) {
@@ -313,11 +326,19 @@ export const ManagerWindow = {
                 value: "",
                 placeholder: "",
             },
-            loadUrl: () => {
-                if (rendererIsUrl(main)) {
-                    view.webContents.loadURL(main).then();
-                } else {
-                    view.webContents.loadFile(main).then();
+            loadUrl: async () => {
+                try {
+                    if (rendererIsUrl(main)) {
+                        await view.webContents.loadURL(main)
+                    } else {
+                        await view.webContents.loadFile(main)
+                    }
+                } catch (e) {
+                    view.webContents.loadURL("about:blank").then();
+                    PluginLog.error(plugin.name, 'Load.Error-loadUrl', {
+                        error: e + "",
+                        main,
+                    });
                 }
             },
         };
