@@ -17,6 +17,7 @@ import {ManagerSystem} from "../system";
 import {PluginContext} from "../type";
 import {RemoteWebManager} from "./remoteWeb";
 import {PluginLog} from "../plugin/log";
+import {ManagerAutomation} from "../automation";
 
 const browserViews = new Map<WebContents, BrowserView>();
 const detachWindows = new Map<WebContents, BrowserWindow>();

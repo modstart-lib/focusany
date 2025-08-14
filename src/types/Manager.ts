@@ -166,6 +166,7 @@ export type ActiveWindow = {
     name: string;
     title: string;
     attr: Record<string, string>;
+    raw?: any;
 };
 
 export type ClipboardDataType = {

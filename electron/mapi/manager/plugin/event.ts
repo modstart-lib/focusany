@@ -387,6 +387,7 @@ export const ManagerPluginEvent = {
     },
     simulateTypeString: async (context: PluginContext, data: any) => {
         const {text} = data;
+        await ManagerAutomation.restoreLastWindow()
         await ManagerAutomation.typeString(text);
     },
     simulateMouseToggle: async (context: PluginContext, data: any) => {
@@ -633,6 +634,10 @@ export const ManagerPluginEvent = {
         } else {
             throw new Error(`Launch with keyword "${keyword}" not found.`);
         }
+    },
+
+    restoreLastActiveWindow: async (context: PluginContext, data: any) => {
+        await ManagerAutomation.restoreLastWindow();
     },
 
     getUserAccessToken: async (context: PluginContext, data: any) => {

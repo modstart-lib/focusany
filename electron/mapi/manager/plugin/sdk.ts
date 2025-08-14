@@ -299,6 +299,10 @@ export const PluginSdkCreate = (plugin: PluginRecord) => {
             return ManagerPluginEvent.removeLaunch(context, {keyword});
         },
 
+        async restoreLastActiveWindow(): Promise<void> {
+            return ManagerPluginEvent.restoreLastActiveWindow(context, {});
+        },
+
         async getUser(): Promise<{
             avatar: string;
             nickname: string;

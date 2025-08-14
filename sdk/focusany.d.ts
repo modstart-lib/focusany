@@ -802,6 +802,11 @@ interface FocusAnyApi {
     removeLaunch(keywords: string): void;
 
     /**
+     * restore last active window
+     */
+    restoreLastActiveWindow(): Promise<void>;
+
+    /**
      * 数据库操作
      */
     db: {
