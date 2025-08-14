@@ -1,15 +1,18 @@
 import {activeWindow, MacOSOwner, MacOSResult, Result} from "get-windows";
+import {windowManager} from "node-window-manager";
 import {ActiveWindow} from "../../../../src/types/Manager";
 import robot, {Keys} from "@hurdlegroup/robotjs";
 import {isLinux, isMac, isWin} from "../../../lib/env";
 import {exec} from "child_process";
 import {Log} from "../../log/main";
+import {Window} from "node-window-manager/src/classes/window";
 
 export const ManagerAutomation = {
     init() {
         ManagerAutomation.track();
     },
     lastWindow: null as Result | null,
+    lastWindowManager: null as Window | null,
     track() {
         setTimeout(async () => {
             const win = await activeWindow();
@@ -17,6 +20,7 @@ export const ManagerAutomation = {
                 if (!ManagerAutomation.lastWindow || win.id !== ManagerAutomation.lastWindow.id) {
                     if (!ManagerAutomation.trackShouldIgnore(win)) {
                         ManagerAutomation.lastWindow = win;
+                        ManagerAutomation.lastWindowManager = windowManager.getActiveWindow();
                     }
                 }
             }
@@ -34,17 +38,8 @@ export const ManagerAutomation = {
         return false;
     },
     restoreLastWindow: async (): Promise<void> => {
-        if (ManagerAutomation.lastWindow) {
-            if (isMac && (ManagerAutomation.lastWindow.owner as MacOSOwner).bundleId) {
-                return new Promise(resolve => {
-                    const cmd = `osascript -e 'tell application id "${(ManagerAutomation.lastWindow.owner as MacOSOwner).bundleId}" to activate'`;
-                    exec(cmd, (error, stdout, stderr) => resolve());
-                })
-            } else if (isLinux) {
-                //TODO
-            } else {
-                //TODO
-            }
+        if (ManagerAutomation.lastWindowManager) {
+            ManagerAutomation.lastWindowManager.bringToTop();
         }
     },
     async getActiveWindow(): Promise<ActiveWindow> {
