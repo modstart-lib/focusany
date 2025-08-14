@@ -556,8 +556,8 @@ export const FocusAny = {
         return ipcSendAsync("removeLaunch", {keyword});
     },
 
-    async restoreLastActiveWindow(): Promise<void> {
-        return ipcSendAsync("restoreLastActiveWindow");
+    async activateLatestWindow(): Promise<void> {
+        return ipcSendAsync("activateLatestWindow");
     },
 
     showUserLogin() {

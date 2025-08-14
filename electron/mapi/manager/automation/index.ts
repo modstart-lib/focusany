@@ -25,7 +25,7 @@ export const ManagerAutomation = {
                 }
             }
             ManagerAutomation.track()
-        }, 1000);
+        }, 500);
     },
     trackShouldIgnore(win: Result): boolean {
         if ('Electron' === win.owner.name && '%name%' === win.title) {
@@ -37,7 +37,7 @@ export const ManagerAutomation = {
         Log.info('ManagerAutomation.track', win);
         return false;
     },
-    restoreLastWindow: async (): Promise<void> => {
+    async activateLatestWindow(): Promise<void> {
         if (ManagerAutomation.lastWindowManager) {
             ManagerAutomation.lastWindowManager.bringToTop();
         }
