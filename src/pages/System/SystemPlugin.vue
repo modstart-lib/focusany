@@ -221,7 +221,7 @@ const doInstallStore = async () => {
 
 <template>
     <div class="flex h-full select-none">
-        <div class="w-56 flex-shrink-0 border-r border-default h-full flex flex-col relative">
+        <div class="w-64 flex-shrink-0 border-r border-default h-full flex flex-col relative">
             <div class="flex-grow overflow-y-auto p-1">
                 <div
                     v-for="(r, rIndex) in recordsFilter"

@@ -10,14 +10,25 @@ npm install focusany-sdk
 
 ## CLI Tools
 
-### Release Check
+### FocusAny CLI
 
-The `focusany-sdk-release-check` command helps ensure your project is ready for production by checking and updating the configuration file.
+The SDK now provides a unified command-line interface through the `focusany` command.
+
+```bash
+npx focusany <command> [options]
+```
+
+Available commands:
+- `release-prepare`: Check and update config.json for production release
+- `version`: Display the current version of FocusAny SDK
+- `help`: Show help information
+
+### Release Prepare
 
 #### Basic Usage
 
 ```bash
-npx focusany-sdk-release-check
+npx focusany release-prepare
 ```
 
 This will check `dist/config.json` in your current directory.
@@ -25,8 +36,10 @@ This will check `dist/config.json` in your current directory.
 #### Custom Config Path
 
 ```bash
-npx focusany-sdk-release-check path/to/your/config.json
+npx focusany release-prepare path/to/your/config.json
 ```
+
+
 
 This command will:
 - Look for the specified config file (or `dist/config.json` by default)
@@ -36,25 +49,35 @@ This command will:
 
 #### Usage Examples
 
-**Default config file:**
+**Release Prepare - Default config file:**
 ```bash
-npx focusany-sdk-release-check
+npx focusany release-prepare
 ```
 
-**Custom config file:**
+**Release Prepare - Custom config file:**
 ```bash
-npx focusany-sdk-release-check build/config.json
-npx focusany-sdk-release-check src/configs/app-config.json
+npx focusany release-prepare build/config.json
+npx focusany release-prepare src/configs/app-config.json
+```
+
+**Version Command:**
+```bash
+npx focusany version
+```
+
+**Help Command:**
+```bash
+npx focusany help
 ```
 
 Output example:
 ```
-🔍 FocusAny SDK Release Check
+🔍 FocusAny SDK Release Prepare
 使用自定义配置文件路径: build/config.json
 检查配置文件: /path/to/your/project/build/config.json
 ⚠️ 检测到 config.json 中的 env 字段为 "dev"，已将其修改为 "prod"
 ✅ 配置文件已更新
-🎉 Release check 完成
+🎉 Release prepare 完成
 ```
 
 ## Development

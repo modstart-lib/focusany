@@ -118,7 +118,7 @@ const doPin = async (action: ActionRecord) => {
 
 <template>
     <div class="flex h-full">
-        <div class="w-56 flex-shrink-0 border-r border-default p-1 h-full overflow-y-auto">
+        <div class="w-64 flex-shrink-0 border-r border-default p-1 h-full overflow-y-auto">
             <div class="p-2 text-gray-400 font-bold">{{ $t("内置") }}</div>
             <template v-for="(p, pIndex) in records">
                 <div

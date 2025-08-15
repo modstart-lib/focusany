@@ -78,10 +78,10 @@ const doHotkeyChange = async (index: number, hotkey: any) => {
                             <img class="w-6 h-6 object-contain dark:invert" :src="SystemIcons.command"/>
                         </a-tooltip>
                     </div>
-                    <div>
+                    <div class="w-42 flex-shrink-0">
                         <HotkeyInput :value="r.hotkey" @change="doHotkeyChange(rIndex, $event)"/>
                     </div>
-                    <div class="ml-3 flex-grow">
+                    <div class="ml-3 flex-shrink-0 w-28">
                         <a-input v-model="r.name"
                                  :disabled="r.type==='plugin'"
                                  @change="doSave()" :placeholder="$t('说明')"/>
@@ -92,7 +92,7 @@ const doHotkeyChange = async (index: number, hotkey: any) => {
                                  @change="doSave()" :placeholder="$t('动作名称，如 截图')"/>
                     </div>
                     <div class="ml-2">
-                        <a-button @click="doTest(rIndex)">
+                        <a-button @click="doTest(rIndex)" class="px-3">
                             <template #icon>
                                 <icon-play-arrow/>
                             </template>
