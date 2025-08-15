@@ -22,12 +22,12 @@
     "homepage": "https://github.com/modstart-lib/focusany#readme",
     "scripts": {
         "build": "npm run build:shim && npm run build:cli",
-        "build:shim": "babel focusany-shim.ts --out-file focusany-shim-browser.js --extensions \".ts\" && terser focusany-shim-browser.js --output focusany-shim-browser.min.js --compress --mangle",
-        "build:cli": "tsc --project tsconfig.cli.json",
-        "build:dev": "babel focusany-shim.ts --out-file focusany-shim-browser.js --extensions \".ts\"",
+        "build:shim": "npx babel focusany-shim.ts --out-file focusany-shim-browser.js --extensions \".ts\" && npx terser focusany-shim-browser.js --output focusany-shim-browser.min.js --compress --mangle",
+        "build:cli": "npx tsc --project tsconfig.cli.json",
+        "build:dev": "npx babel focusany-shim.ts --out-file focusany-shim-browser.js --extensions \".ts\"",
         "update": "npm run build",
-        "build:watch": "babel focusany-shim.ts --out-file focusany-shim-browser.js --extensions \".ts\" --watch",
-        "compress": "terser focusany-shim-browser.js --output focusany-shim-browser.min.js --compress --mangle",
+        "build:watch": "npx babel focusany-shim.ts --out-file focusany-shim-browser.js --extensions \".ts\" --watch",
+        "compress": "npx terser focusany-shim-browser.js --output focusany-shim-browser.min.js --compress --mangle",
         "prepublishOnly": "npm run build"
     },
     "exports": {
