@@ -19,7 +19,7 @@ jobs:
                   node-version: "20"
 
             - name: Install dependencies
-              run: npm build
+              run: npm install && npm build
 
             - name: Authenticate to npm
               run: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
