@@ -67,7 +67,7 @@ if (!app.requestSingleInstanceLock()) {
     process.exit(0);
 }
 
-app.disableHardwareAcceleration();
+// app.disableHardwareAcceleration();
 // app.setAccessibilitySupportEnabled(true)
 
 AppEnv.appRoot = process.env.APP_ROOT;
