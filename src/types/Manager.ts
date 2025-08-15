@@ -50,6 +50,7 @@ export type PluginRecord = {
         singleton?: boolean;
         zoom?: number;
         darkModeSupport?: boolean;
+        httpEntry?: boolean,
         remoteWebCacheEnable?: boolean;
         moreMenu?: {
             name: string;

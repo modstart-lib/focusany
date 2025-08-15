@@ -1,6 +1,6 @@
 {
     "name": "focusany-sdk",
-    "version": "1.2.0",
+    "version": "1.3.0",
     "description": "TypeScript definitions for FocusAny",
     "main": "./index.js",
     "types": "./index.d.ts",
@@ -21,15 +21,8 @@
     },
     "homepage": "https://github.com/modstart-lib/focusany#readme",
     "scripts": {
-        "build": "npm run build:shim && npm run build:cli",
-        "build:shim": "npx babel focusany-shim.ts --out-file focusany-shim-browser.js --extensions \".ts\" && npx terser focusany-shim-browser.js --output focusany-shim-browser.min.js --compress --mangle",
-        "build:cli": "npx tsc --project tsconfig.cli.json",
-        "build:dev": "npx babel focusany-shim.ts --out-file focusany-shim-browser.js --extensions \".ts\"",
-        "update": "npm run build",
-        "build:watch": "npx babel focusany-shim.ts --out-file focusany-shim-browser.js --extensions \".ts\" --watch",
-        "compress": "npx terser focusany-shim-browser.js --output focusany-shim-browser.min.js --compress --mangle",
-        "test": "node tests/test-release-prepare.js",
-        "prepublishOnly": "npm run build"
+        "build": "npx tsc --project tsconfig.json",
+        "test": "node tests/test-release-prepare.js"
     },
     "exports": {
         ".": {

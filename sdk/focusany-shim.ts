@@ -52,7 +52,7 @@ const FocusAnyShim = {
                 return navigator.platform.toLowerCase().includes("linux");
             },
             showNotification(body: string, clickActionName?: string): void {
-                focusanySupport.showToast(body, {
+                focusanySupport?.showToast(body, {
                     duration: 5000,
                     status: "info",
                 });
@@ -60,7 +60,7 @@ const FocusAnyShim = {
             showToast(body: string, options?: {duration?: number; status?: "info" | "success" | "error"}): void {
                 const duration =
                     typeof options?.duration === "number" && options.duration >= 0 ? options.duration : 3000;
-                const status = ["info", "success", "error"].includes(options?.status) ? options.status : "info";
+                const status = ["info", "success", "error"].includes(options?.status as string) ? options.status : "info";
 
                 // 创建SVG图标函数
                 const createSvgIcon = (type: string): string => {

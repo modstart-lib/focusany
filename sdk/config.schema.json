@@ -364,6 +364,10 @@
                     "type": "boolean",
                     "description": "是否支持暗黑模式，默认为 false"
                 },
+                "httpEntry": {
+                    "type": "boolean",
+                    "description": "是否使用 http 协议入口，默认为 false"
+                },
                 "remoteWebCacheEnable": {
                     "type": "boolean",
                     "description": "是否启用远程Web缓存，默认为 false"

@@ -107,7 +107,12 @@ export const ManagerWindow = {
             codeData?: any;
         }
     ) {
-        const {nodeIntegration, preloadBase, preload, main} = ManagerPlugin.getInfo(plugin);
+        const {
+            nodeIntegration,
+            preloadBase,
+            preload,
+            main
+        } = await ManagerPlugin.getInfo(plugin);
         // console.log('openForCode', {preload, main})
         const viewSession = await ManagerPlugin.getViewSession(plugin);
         if (preloadBase) {
@@ -190,8 +195,17 @@ export const ManagerWindow = {
         });
     },
     async open(plugin: PluginRecord, action: ActionRecord, option?: {}) {
-        const {nodeIntegration, preloadBase, preload, main, width, height, autoDetach, singleton, zoom} =
-            ManagerPlugin.getInfo(plugin);
+        const {
+            nodeIntegration,
+            preloadBase,
+            preload,
+            main,
+            width,
+            height,
+            autoDetach,
+            singleton,
+            zoom
+        } = await ManagerPlugin.getInfo(plugin);
         // console.log('ManagerWindow.open', {nodeIntegration, preload, main, width, height, autoDetach})
         const readyData = {};
         readyData["actionName"] = action.name;

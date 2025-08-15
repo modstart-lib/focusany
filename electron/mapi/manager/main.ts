@@ -20,10 +20,12 @@ import {ManagerEditor} from "./editor";
 import ProtocolMain from "../protocol/main";
 import {AppsMain} from "../app/main";
 import {PluginLog} from "./plugin/log";
+import {PluginHttp} from "./plugin/http";
 
 const init = () => {
     ManagerClipboard.init().then();
     ManagerEditor.init().then();
+    PluginHttp.init().then();
 };
 
 const ready = () => {

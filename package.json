@@ -82,6 +82,7 @@
         "date-and-time": "^3.4.1",
         "dayjs": "^1.11.12",
         "electron-context-menu": "^4.0.4",
+        "express": "^5.1.0",
         "extract-file-icon": "^0.3.2",
         "ffmpeg-static": "^5.2.0",
         "fix-path": "^4.0.0",

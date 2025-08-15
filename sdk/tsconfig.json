@@ -1,21 +1,17 @@
 {
     "compilerOptions": {
+        "target": "ES2020",
         "module": "CommonJS",
-        "lib": [
-            "ES6",
-            "DOM"
-        ],
-        "target": "ES6",
-        "noImplicitAny": true,
-        "noImplicitThis": true,
-        "strictNullChecks": true,
-        "strictFunctionTypes": true,
-        "types": [],
-        "noEmit": true,
-        "forceConsistentCasingInFileNames": true
+        "lib": ["ES2020"],
+        "outDir": "./",
+        "rootDir": "./",
+        "strict": false,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "declaration": false,
+        "moduleResolution": "node"
     },
-    "files": [
-        "index.d.ts",
-        "focusany.d.ts"
-    ]
+    "include": ["*.ts","*/**.ts"],
+    "exclude": ["node_modules", "*.js","*/**.js","*.d.ts"]
 }

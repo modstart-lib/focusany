@@ -24,6 +24,7 @@ import {AppsMain} from "../../app/main";
 import {ManagerConfig} from "../config/config";
 import {ManagerBackend} from "../backend";
 import {session} from "electron";
+import {PluginHttp} from "./http";
 
 type PluginInfo = {
     type: PluginType;
@@ -44,7 +45,7 @@ export const ManagerPlugin = {
         MemoryCacheUtil.forget("Plugins");
         MemoryCacheUtil.forget("PluginActions");
     },
-    getInfo(plugin: PluginRecord) {
+    async getInfo(plugin: PluginRecord) {
         // nodeIntegration
         let nodeIntegration = false;
         if (plugin.type === PluginType.SYSTEM) {
@@ -74,12 +75,18 @@ export const ManagerPlugin = {
         }
         // main && mainView
         let main = plugin.main || null;
+        if (main && plugin.setting?.httpEntry) {
+            main = await PluginHttp.url(plugin.name, main);
+        }
         if (!main) {
             main = rendererDistPath("static/pluginEmpty.html");
         }
         let mainView = plugin.mainView || null;
         if (!mainView) {
             mainView = main;
+        }
+        if (mainView && plugin.setting?.httpEntry) {
+            mainView = await PluginHttp.url(plugin.name, mainView);
         }
         if (plugin.runtime?.root) {
             if (!rendererIsUrl(main)) {
@@ -240,6 +247,7 @@ export const ManagerPlugin = {
         plugin.setting = Object.assign(
             {
                 remoteWebCacheEnable: false,
+                httpEntry: false,
                 moreMenu: [],
             },
             plugin.setting || {}
