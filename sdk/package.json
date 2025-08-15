@@ -1,9 +1,12 @@
 {
     "name": "focusany-sdk",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "description": "TypeScript definitions for FocusAny",
     "main": "./index.js",
     "types": "./index.d.ts",
+    "bin": {
+        "focusany-sdk-release-check": "./bin/release-check.js"
+    },
     "repository": {
         "type": "git",
         "url": "https://github.com/modstart-lib/focusany"
@@ -18,11 +21,14 @@
     },
     "homepage": "https://github.com/modstart-lib/focusany#readme",
     "scripts": {
-        "build": "babel focusany-shim.ts --out-file focusany-shim-browser.js --extensions \".ts\" && terser focusany-shim-browser.js --output focusany-shim-browser.min.js --compress --mangle",
+        "build": "npm run build:shim && npm run build:cli",
+        "build:shim": "babel focusany-shim.ts --out-file focusany-shim-browser.js --extensions \".ts\" && terser focusany-shim-browser.js --output focusany-shim-browser.min.js --compress --mangle",
+        "build:cli": "tsc --project tsconfig.cli.json",
         "build:dev": "babel focusany-shim.ts --out-file focusany-shim-browser.js --extensions \".ts\"",
         "update": "npm run build",
         "build:watch": "babel focusany-shim.ts --out-file focusany-shim-browser.js --extensions \".ts\" --watch",
-        "compress": "terser focusany-shim-browser.js --output focusany-shim-browser.min.js --compress --mangle"
+        "compress": "terser focusany-shim-browser.js --output focusany-shim-browser.min.js --compress --mangle",
+        "prepublishOnly": "npm run build"
     },
     "exports": {
         ".": {
@@ -39,6 +45,8 @@
         "@babel/core": "^7.28.0",
         "@babel/preset-env": "^7.28.0",
         "@babel/preset-typescript": "^7.27.1",
-        "terser": "^5.43.1"
+        "@types/node": "^20.0.0",
+        "terser": "^5.43.1",
+        "typescript": "^5.0.0"
     }
 }

@@ -488,6 +488,7 @@ export const ManagerPlugin = {
             }
         }
         await KVDBMain.remove(CommonConfig.dbSystem, pi);
+        await ManagerConfig.clearCustomAction(name);
         await this.clearCache();
         await this.clearViewSession(plugin);
     },

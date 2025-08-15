@@ -88,7 +88,7 @@ export const ManagerConfig = {
         });
     },
     async save(config: ConfigRecord): Promise<void> {
-        delete config["data"];
+        // delete config["data"];
         const doc = {
             _id: CommonConfig.dbConfigId,
             ...config,
@@ -245,7 +245,9 @@ export const ManagerConfig = {
                 customAction[plugin.name].push(a);
             }
         }
-        delete customAction["data"];
+        await this.updateCustomAction(customAction);
+    },
+    async updateCustomAction(customAction: Record<string, ActionRecord[]>) {
         await KVDBMain.putForce(CommonConfig.dbSystem, {
             _id: CommonConfig.dbCustomActionId,
             ...customAction,
@@ -258,11 +260,15 @@ export const ManagerConfig = {
             return;
         }
         customAction[plugin.name] = customAction[plugin.name].filter(v => v.name !== name);
-        await KVDBMain.putForce(CommonConfig.dbSystem, {
-            _id: CommonConfig.dbCustomActionId,
-            ...customAction,
-        });
-        MemoryCacheUtil.forget("CustomActions");
+        await this.updateCustomAction(customAction);
+    },
+    async clearCustomAction(pluginName: string) {
+        const customAction = await this.getCustomAction();
+        if (!(pluginName in customAction)) {
+            return;
+        }
+        delete customAction[pluginName];
+        await this.updateCustomAction(customAction);
     },
     async getHistoryAction(): Promise<PluginActionRecord[]> {
         return MemoryCacheUtil.remember("HistoryActions", async () => {

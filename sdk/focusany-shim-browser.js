@@ -436,7 +436,6 @@ const FocusAnyShim = {
         },
         apply(target, thisArg, argumentsList) {
           console.error(`FocusAny Shim: ${path}() is not supported in web environment`);
-          throw new Error(`FocusAny function ${path}() is not available in web environment`);
         }
       });
     }
