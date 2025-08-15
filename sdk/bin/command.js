@@ -45,40 +45,38 @@ function releasePrepare(args) {
     const configPath = customConfigPath
         ? path.resolve(cwd, customConfigPath)
         : path.resolve(cwd, "dist/config.json");
-    console.log("🔍 FocusAny SDK Release Prepare");
+    const configDir = path.dirname(configPath);
+    console.log("🔍 Release Prepare");
     if (customConfigPath) {
         console.log(`Using custom config file path: ${customConfigPath}`);
     }
     console.log(`Checking config file: ${configPath}`);
-    if (fs.existsSync(configPath)) {
-        try {
-            const configContent = fs.readFileSync(configPath, "utf-8");
-            const json = JSON.parse(configContent);
-            if (json.development && json.development.env === "dev") {
-                console.warn(`⚠️ Detected env field in config.json is "dev", it has been changed to "prod"`);
-                json.development.env = "prod";
-                fs.writeFileSync(configPath, JSON.stringify(json, null, 4), "utf-8");
-                console.log("✅ Configuration file has been updated");
-            }
-            else {
-                console.log("✅ Configuration check passed, env field is already set for production environment");
-            }
-        }
-        catch (error) {
-            console.error("❌ Error reading or parsing configuration file:", error.message);
-            process.exit(1);
-        }
-    }
-    else {
-        console.warn(`⚠️ Configuration file not found ${configPath}`);
-        if (customConfigPath) {
-            console.log("💡 Please check if the provided configuration file path is correct");
-        }
-        else {
-            console.log("💡 Please make sure to run this command in the project root directory that contains dist/config.json");
-            console.log("💡 Or specify a custom configuration file path: npx focusany release-prepare path/to/config.json");
-        }
+    if (!fs.existsSync(configPath)) {
+        console.warn(`❌ Configuration file not found ${configPath}`);
         process.exit(1);
+    }
+    let json = null;
+    let jsonChanged = false;
+    try {
+        const configContent = fs.readFileSync(configPath, "utf-8");
+        json = JSON.parse(configContent);
+    }
+    catch (error) {
+        console.error("❌ Error reading or parsing configuration file:", error.message);
+        process.exit(1);
+    }
+    if (!json) {
+        console.error("❌ Error parsing configuration file, json is null");
+        process.exit(1);
+    }
+    if (json.development && json.development.env === "dev") {
+        console.warn(`⚠️ Detected env field in config.json is "dev", it has been changed to "prod"`);
+        json.development.env = "prod";
+        jsonChanged = true;
+    }
+    if (jsonChanged) {
+        fs.writeFileSync(configPath, JSON.stringify(json, null, 4), "utf-8");
+        console.log("✅ config.json file has been updated");
     }
     console.log("🎉 Release prepare completed");
 }
@@ -117,6 +115,7 @@ Examples:
 function main() {
     const args = process.argv.slice(2);
     const command = args.shift() || "help";
+    console.log("🚀 [FocusAny SDK] Start");
     switch (command) {
         case "release-prepare":
             releasePrepare(args);
@@ -132,6 +131,7 @@ function main() {
             showHelp();
             process.exit(1);
     }
+    console.log("🚀 [FocusAny SDK] End");
 }
 // Execute the main function
 main();

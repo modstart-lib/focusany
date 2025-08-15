@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FocusAny Shim 测试</title>
+    <title>FocusAny Shim Test</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -123,29 +123,29 @@
 
 <body>
     <div class="container">
-        <h1>🚀 FocusAny Shim 版本测试</h1>
+        <h1>🚀 FocusAny Shim Version Test</h1>
         <div class="status">
-            <strong>状态:</strong> <span id="status">初始化中...</span>
+            <strong>Status:</strong> <span id="status">Initializing...</span>
         </div>
 
         <div class="button-group">
-            <button onclick="testBasicNotification()">📢 基础通知</button>
-            <button onclick="testSuccessToast()" class="success">✅ 成功提示</button>
-            <button onclick="testErrorToast()" class="error">❌ 错误提示</button>
-            <button onclick="testInfoToast()" class="info">ℹ️ 信息提示</button>
-            <button onclick="testLongDuration()">⏰ 长时间通知</button>
-            <button onclick="testZeroDuration()">🔄 永久通知</button>
-            <button onclick="testCopyText()">📋 复制文本</button>
-            <button onclick="testPlatformDetection()">💻 平台检测</button>
-            <button onclick="testDbOperations()">💾 数据库操作</button>
-            <button onclick="clearLog()">🗑️ 清空日志</button>
+            <button onclick="testBasicNotification()">📢 Basic Notification</button>
+            <button onclick="testSuccessToast()" class="success">✅ Success Toast</button>
+            <button onclick="testErrorToast()" class="error">❌ Error Toast</button>
+            <button onclick="testInfoToast()" class="info">ℹ️ Info Toast</button>
+            <button onclick="testLongDuration()">⏰ Long Duration</button>
+            <button onclick="testZeroDuration()">🔄 Permanent Notification</button>
+            <button onclick="testCopyText()">📋 Copy Text</button>
+            <button onclick="testPlatformDetection()">💻 Platform Detection</button>
+            <button onclick="testDbOperations()">💾 Database Operations</button>
+            <button onclick="clearLog()">🗑️ Clear Log</button>
         </div>
 
-        <h3>📋 执行日志:</h3>
-        <div id="log">等待测试...</div>
+        <h3>📋 Execution Log:</h3>
+        <div id="log">Waiting for test...</div>
     </div>
 
-    <!-- 加载 Babel 转换后的 FocusAny Shim -->
+    <!-- Load Babel-transformed FocusAny Shim -->
     <script src="focusany-shim-browser.min.js"></script>
 
     <script>
@@ -162,7 +162,7 @@
 
         function clearLog() {
             document.getElementById('log').innerHTML = '';
-            addLog('日志已清空');
+            addLog('Log cleared');
         }
 
         function updateStatus(message, type = 'info') {
@@ -171,107 +171,107 @@
             status.className = `log-${type}`;
         }
 
-        // 测试函数
+        // Test functions
         function testBasicNotification() {
-            addLog('=== 测试基础通知 ===');
+            addLog('=== Testing Basic Notification ===');
             try {
-                window.focusany.showNotification("这是一个基础通知测试");
-                addLog('✅ 基础通知调用成功', 'success');
+                window.focusany.showNotification("This is a basic notification test");
+                addLog('✅ Basic notification call successful', 'success');
             } catch (e) {
-                addLog('❌ 基础通知调用失败: ' + e.message, 'error');
+                addLog('❌ Basic notification call failed: ' + e.message, 'error');
             }
         }
 
         function testSuccessToast() {
-            addLog('=== 测试成功提示 ===');
+            addLog('=== Testing Success Toast ===');
             try {
-                window.focusany.showToast("操作执行成功！", { status: "success", duration: 3000 });
-                addLog('✅ 成功提示调用成功', 'success');
+                window.focusany.showToast("Operation executed successfully!", { status: "success", duration: 3000 });
+                addLog('✅ Success toast call successful', 'success');
             } catch (e) {
-                addLog('❌ 成功提示调用失败: ' + e.message, 'error');
+                addLog('❌ Success toast call failed: ' + e.message, 'error');
             }
         }
 
         function testErrorToast() {
-            addLog('=== 测试错误提示 ===');
+            addLog('=== Testing Error Toast ===');
             try {
-                window.focusany.showToast("发生了一个错误！", { status: "error", duration: 4000 });
-                addLog('✅ 错误提示调用成功', 'success');
+                window.focusany.showToast("An error occurred!", { status: "error", duration: 4000 });
+                addLog('✅ Error toast call successful', 'success');
             } catch (e) {
-                addLog('❌ 错误提示调用失败: ' + e.message, 'error');
+                addLog('❌ Error toast call failed: ' + e.message, 'error');
             }
         }
 
         function testInfoToast() {
-            addLog('=== 测试信息提示 ===');
+            addLog('=== Testing Info Toast ===');
             try {
-                window.focusany.showToast("这是一条信息提示", { status: "info", duration: 2000 });
-                addLog('✅ 信息提示调用成功', 'success');
+                window.focusany.showToast("This is an information message", { status: "info", duration: 2000 });
+                addLog('✅ Info toast call successful', 'success');
             } catch (e) {
-                addLog('❌ 信息提示调用失败: ' + e.message, 'error');
+                addLog('❌ Info toast call failed: ' + e.message, 'error');
             }
         }
 
         function testLongDuration() {
-            addLog('=== 测试长时间通知 ===');
+            addLog('=== Testing Long Duration Notification ===');
             try {
-                window.focusany.showToast("这个通知会显示10秒", { duration: 10000 });
-                addLog('✅ 长时间通知调用成功', 'success');
+                window.focusany.showToast("This notification will display for 10 seconds", { duration: 10000 });
+                addLog('✅ Long duration notification call successful', 'success');
             } catch (e) {
-                addLog('❌ 长时间通知调用失败: ' + e.message, 'error');
+                addLog('❌ Long duration notification call failed: ' + e.message, 'error');
             }
         }
 
         function testZeroDuration() {
-            addLog('=== 测试永久通知 ===');
+            addLog('=== Testing Permanent Notification ===');
             try {
-                window.focusany.showToast("这个通知不会自动消失，点击X关闭", { duration: 0 });
-                addLog('✅ 永久通知调用成功', 'success');
+                window.focusany.showToast("This notification won't disappear automatically, click X to close", { duration: 0 });
+                addLog('✅ Permanent notification call successful', 'success');
             } catch (e) {
-                addLog('❌ 永久通知调用失败: ' + e.message, 'error');
+                addLog('❌ Permanent notification call failed: ' + e.message, 'error');
             }
         }
 
         function testCopyText() {
-            addLog('=== 测试复制文本 ===');
+            addLog('=== Testing Copy Text ===');
             try {
                 const result = window.focusany.copyText("Hello from FocusAny Shim!");
                 if (result) {
-                    addLog('✅ 文本复制成功', 'success');
-                    window.focusany.showToast("文本已复制到剪贴板", { status: "success" });
+                    addLog('✅ Text copied successfully', 'success');
+                    window.focusany.showToast("Text has been copied to clipboard", { status: "success" });
                 } else {
-                    addLog('❌ 文本复制失败', 'error');
+                    addLog('❌ Text copy failed', 'error');
                 }
             } catch (e) {
-                addLog('❌ 复制文本调用失败: ' + e.message, 'error');
+                addLog('❌ Copy text call failed: ' + e.message, 'error');
             }
         }
 
         function testPlatformDetection() {
-            addLog('=== 测试平台检测 ===');
+            addLog('=== Testing Platform Detection ===');
             try {
                 const isMac = window.focusany.isMacOs();
                 const isWindows = window.focusany.isWindows();
                 const isLinux = window.focusany.isLinux();
 
                 addLog(`macOS: ${isMac}, Windows: ${isWindows}, Linux: ${isLinux}`);
-                addLog('✅ 平台检测完成', 'success');
+                addLog('✅ Platform detection completed', 'success');
 
                 let platform = 'Unknown';
                 if (isMac) platform = 'macOS';
                 else if (isWindows) platform = 'Windows';
                 else if (isLinux) platform = 'Linux';
 
-                window.focusany.showToast(`检测到平台: ${platform}`, { status: "info" });
+                window.focusany.showToast(`Detected platform: ${platform}`, { status: "info" });
             } catch (e) {
-                addLog('❌ 平台检测失败: ' + e.message, 'error');
+                addLog('❌ Platform detection failed: ' + e.message, 'error');
             }
         }
 
         function testDbOperations() {
-            addLog('=== 测试数据库操作 ===');
+            addLog('=== Testing Database Operations ===');
             try {
-                // 测试写入
+                // Test write
                 const doc = {
                     _id: 'test-' + Date.now(),
                     name: 'Test Document',
@@ -280,33 +280,33 @@
                 };
 
                 const putResult = window.focusany.db.put(doc);
-                addLog(`写入文档: ${JSON.stringify(putResult)}`);
+                addLog(`Document written: ${JSON.stringify(putResult)}`);
 
-                // 测试读取
+                // Test read
                 const getResult = window.focusany.db.get(doc._id);
-                addLog(`读取文档: ${JSON.stringify(getResult)}`);
+                addLog(`Document read: ${JSON.stringify(getResult)}`);
 
-                // 测试查询所有
+                // Test query all
                 const allDocs = window.focusany.db.allDocs();
-                addLog(`所有文档数量: ${allDocs.length}`);
+                addLog(`Total documents: ${allDocs.length}`);
 
-                addLog('✅ 数据库操作测试完成', 'success');
-                window.focusany.showToast("数据库操作测试完成", { status: "success" });
+                addLog('✅ Database operations test completed', 'success');
+                window.focusany.showToast("Database operations test completed", { status: "success" });
             } catch (e) {
-                addLog('❌ 数据库操作失败: ' + e.message, 'error');
+                addLog('❌ Database operations failed: ' + e.message, 'error');
             }
         }
 
-        // 页面加载完成后的检查
+        // Check after page load is complete
         document.addEventListener('DOMContentLoaded', function () {
-            addLog('页面加载完成');
+            addLog('Page loading complete');
 
             setTimeout(() => {
                 if (window.focusany) {
-                    addLog('✅ FocusAny Shim 已成功加载', 'success');
-                    updateStatus('✅ FocusAny Shim 就绪', 'success');
+                    addLog('✅ FocusAny Shim loaded successfully', 'success');
+                    updateStatus('✅ FocusAny Shim ready', 'success');
 
-                    // 测试可用方法
+                    // Test available methods
                     const methods = ['showNotification', 'showToast', 'copyText', 'isMacOs', 'isWindows', 'isLinux'];
                     const availableMethods = methods.filter(method => {
                         try {
@@ -316,21 +316,21 @@
                         }
                     });
 
-                    addLog(`可用方法: ${availableMethods.join(', ')}`);
+                    addLog(`Available methods: ${availableMethods.join(', ')}`);
 
-                    // 自动显示欢迎消息
-                    window.focusany.showToast("FocusAny Shim Babel 版本加载成功！", {
+                    // Automatically display welcome message
+                    window.focusany.showToast("FocusAny Shim Babel version loaded successfully!", {
                         status: "success",
                         duration: 3000
                     });
                 } else {
-                    addLog('❌ FocusAny Shim 加载失败', 'error');
-                    updateStatus('❌ FocusAny Shim 加载失败', 'error');
+                    addLog('❌ FocusAny Shim failed to load', 'error');
+                    updateStatus('❌ FocusAny Shim failed to load', 'error');
                 }
             }, 100);
         });
 
-        // 监听控制台输出
+        // Monitor console output
         const originalLog = console.log;
         const originalError = console.error;
 

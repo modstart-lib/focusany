@@ -1,0 +1,17 @@
+{
+  "development": {
+    "env": "dev",
+    "debug": true,
+    "apiEndpoint": "https://api-dev.example.com"
+  },
+  "production": {
+    "env": "prod",
+    "debug": false,
+    "apiEndpoint": "https://api.example.com"
+  },
+  "test": {
+    "enabled": true,
+    "mockResponses": true,
+    "timeout": 5000
+  }
+}

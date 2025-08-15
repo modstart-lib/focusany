@@ -1,2 +1,3 @@
 example/
 *.tgz
+tests/

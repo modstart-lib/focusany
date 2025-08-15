@@ -28,6 +28,7 @@
         "update": "npm run build",
         "build:watch": "npx babel focusany-shim.ts --out-file focusany-shim-browser.js --extensions \".ts\" --watch",
         "compress": "npx terser focusany-shim-browser.js --output focusany-shim-browser.min.js --compress --mangle",
+        "test": "node tests/test-release-prepare.js",
         "prepublishOnly": "npm run build"
     },
     "exports": {
