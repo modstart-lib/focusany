@@ -6,7 +6,7 @@ const FocusAnyShim = {
             return;
         }
 
-        const focusanySupport: Partial<FocusAnyApi> = {
+        const focusanySupport = {
             onPluginReady(
                 callback: (data: {
                     actionName: string;
@@ -52,15 +52,16 @@ const FocusAnyShim = {
                 return navigator.platform.toLowerCase().includes("linux");
             },
             showNotification(body: string, clickActionName?: string): void {
-                focusanySupport?.showToast(body, {
+                focusanySupport.showToast(body, {
                     duration: 5000,
                     status: "info",
                 });
             },
-            showToast(body: string, options?: {duration?: number; status?: "info" | "success" | "error"}): void {
+            showToast(body: string, options?: { duration?: number; status?: "info" | "success" | "error" }): void {
+                options = options || {};
                 const duration =
-                    typeof options?.duration === "number" && options.duration >= 0 ? options.duration : 3000;
-                const status = ["info", "success", "error"].includes(options?.status as string) ? options.status : "info";
+                    typeof options.duration === "number" && options.duration >= 0 ? options.duration : 3000;
+                const status = ["info", "success", "error"].includes(options.status as string) ? options.status : "info";
 
                 // 创建SVG图标函数
                 const createSvgIcon = (type: string): string => {
@@ -84,7 +85,7 @@ const FocusAnyShim = {
                     success: {background: "#52c41a", color: "#ffffff", icon: createSvgIcon("success")},
                     error: {background: "#ff4d4f", color: "#ffffff", icon: createSvgIcon("error")},
                 };
-                const currentStyle = statusStyles[status];
+                const currentStyle = statusStyles[status as keyof typeof statusStyles];
 
                 let container = document.getElementById("focusany-shim-toast-container");
                 if (!container) {
@@ -342,7 +343,7 @@ const FocusAnyShim = {
                 },
                 getItem<T = any>(key: string): T {
                     const value = localStorage.getItem(key);
-                    return value ? JSON.parse(value) : null;
+                    return value ? JSON.parse(value) : null as any;
                 },
                 removeItem(key: string): void {
                     localStorage.removeItem(key);
@@ -383,7 +384,7 @@ const FocusAnyShim = {
                     );
                     return "";
                 },
-                save(filename: string, data: string | Uint8Array, option?: {isBase64?: boolean}): boolean {
+                save(filename: string, data: string | Uint8Array, option?: { isBase64?: boolean }): boolean {
                     // 使用浏览器下载功能
                     try {
                         const blob = new Blob([data as any], {type: "application/octet-stream"});
@@ -402,11 +403,12 @@ const FocusAnyShim = {
                     }
                 },
             },
-        };
+        } as FocusAnyApi
 
         // 创建一个递归的 Proxy 来处理任意深度的属性访问
         function createErrorProxy(path: string = "focusany", supportObj?: any): any {
-            return new Proxy(() => {}, {
+            return new Proxy(() => {
+            }, {
                 get(target, prop) {
                     const currentPath = `${path}.${String(prop)}`;
 
