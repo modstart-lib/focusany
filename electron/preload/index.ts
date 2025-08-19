@@ -80,6 +80,18 @@ window["__page"] = {
     onPluginState: (cb: Function) => {
         window["__page"].hooks.onPluginState = cb;
     },
+    onPluginCodeInit: (cb: Function) => {
+        window["__page"].hooks.onPluginCodeInit = cb;
+    },
+    onPluginCodeData: (cb: Function) => {
+        window["__page"].hooks.onPluginCodeData = cb;
+    },
+    onPluginCodeSetting: (cb: Function) => {
+        window["__page"].hooks.onPluginCodeSetting = cb;
+    },
+    onPluginCodeExit: (cb: Function) => {
+        window["__page"].hooks.onPluginCodeExit = cb;
+    },
     onSetSubInput: (cb: Function) => {
         window["__page"].hooks.onSetSubInput = cb;
     },

@@ -122,8 +122,16 @@ const openAction = async (action: ActionRecord) => {
     return ipcRenderer.invoke("manager:openAction", action);
 };
 
-const openActionForWindow = async (type: "open" | "close", action: ActionRecord) => {
-    return ipcRenderer.invoke("manager:openActionForWindow", type, action);
+const openActionCode = async (id: string) => {
+    return ipcRenderer.invoke("manager:openActionCode", id);
+}
+
+const searchActionCode = async (keywords: string) => {
+    return ipcRenderer.invoke("manager:searchActionCode", keywords);
+}
+
+const openActionWindow = async (type: "open" | "close", action: ActionRecord) => {
+    return ipcRenderer.invoke("manager:openActionWindow", type, action);
 };
 
 const closeMainPlugin = async (option?: {}) => {
@@ -261,7 +269,9 @@ export default {
     subInputChange,
     openPlugin,
     openAction,
-    openActionForWindow,
+    openActionCode,
+    searchActionCode,
+    openActionWindow,
     closeMainPlugin,
     openMainPluginDevTools,
     openMainPluginLog,

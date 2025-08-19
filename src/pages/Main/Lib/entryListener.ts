@@ -69,7 +69,11 @@ export const EntryListener = {
         }
         if (!option.isFastPanel && manager.currentText) {
             if (manager.currentText.split("\n").length === 1 && manager.currentText.length < 100) {
-                if (manager.searchLastKeywords && manager.searchLastKeywords !== manager.currentText) {
+                if (
+                    !manager.searchLastKeywords
+                    ||
+                    (manager.searchLastKeywords && manager.searchLastKeywords !== manager.currentText)
+                ) {
                     searchValue = manager.currentText;
                     manager.setCurrentText("");
                 }
@@ -87,7 +91,6 @@ export const EntryListener = {
         //     option,
         //     useClipboard,
         //     clipboardContent,
-        //     clipboardChangeTime,
         //     image: manager.currentImage,
         //     files: manager.currentFiles,
         //     text: manager.currentText

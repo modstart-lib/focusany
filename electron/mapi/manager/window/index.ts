@@ -21,9 +21,17 @@ import {PluginLog} from "../plugin/log";
 const browserViews = new Map<WebContents, BrowserView>();
 const detachWindows = new Map<WebContents, BrowserWindow>();
 let mainWindowView: BrowserView | null = null;
+const mainPluginActionCode = {
+    view: null as BrowserView | null,
+    action: null as ActionRecord | null,
+    codeData: null,
+    items: [] as {
+        id: string;
+        [key: string]: any;
+    }[],
+}
 
 const addBrowserViews = (view: BrowserView) => {
-    // console.log('addBrowserViews.value', view)
     browserViews.set(view.webContents, view);
 };
 
@@ -78,7 +86,7 @@ export const ManagerWindow = {
         }
         return null;
     },
-    detachWindowOperate: (type: "open" | "close", action: ActionRecord) => {
+    async detachWindowOperate(type: "open" | "close", action: ActionRecord) {
         let win = null;
         for (const w of ManagerWindow.listDetachWindows()) {
             if (w.id === action.runtime.windowId) {
@@ -99,6 +107,112 @@ export const ManagerWindow = {
         setTimeout(() => {
             AppRuntime.mainWindow.hide();
         }, 100);
+    },
+    async _logPluginViewError(view: BrowserView, plugin: PluginRecord) {
+        view.webContents.on('did-fail-load', (event, errorCode, errorDescription, validatedURL) => {
+            PluginLog.error(plugin.name, 'Load.Error-did-fail-load', {
+                errorCode,
+                errorDescription,
+                validatedURL,
+            });
+        })
+        view.webContents.on('did-fail-provisional-load', (event, errorCode, errorDescription, validatedURL) => {
+            PluginLog.error(plugin.name, 'Load.Error-did-fail-provisional-load', {
+                errorCode,
+                errorDescription,
+                validatedURL,
+            });
+        })
+        view.webContents.on("preload-error", (event, preloadPath, error) => {
+            PluginLog.error(plugin.name, 'Load.Error-preload-error', {
+                error: error + "",
+                preloadPath,
+            })
+        });
+        view.webContents.on('render-process-gone', () => {
+            PluginLog.error(plugin.name, 'Load.Error-render-process-gone', {
+                error: 'render-process-gone',
+            });
+        });
+    },
+    async _pluginViewLoad(view: BrowserView, main: string) {
+        try {
+            if (rendererIsUrl(main)) {
+                await view.webContents.loadURL(main)
+            } else {
+                await view.webContents.loadFile(main)
+            }
+        } catch (e) {
+            view.webContents.loadURL("about:blank").then();
+            PluginLog.error(view._plugin.name, 'Load.Error-loadUrl', {
+                error: e + "",
+                main,
+            });
+        }
+    },
+    async _pluginActionCodeEnd() {
+        if (mainPluginActionCode.view) {
+            AppRuntime.mainWindow.removeBrowserView(mainPluginActionCode.view);
+            removeBrowserViews(mainPluginActionCode.view);
+            if (
+                mainPluginActionCode.view._plugin.development &&
+                mainPluginActionCode.view._plugin.development.env === PluginEnv.DEV &&
+                mainPluginActionCode.view._plugin.development.keepCodeDevTools
+            ) {
+                PluginLog.info(mainPluginActionCode.view._plugin.name, "ManagerWindow.KeepCodeDevTools", {
+                    action: mainPluginActionCode.action,
+                    codeData: mainPluginActionCode.codeData,
+                })
+            } else {
+                // @ts-ignore
+                mainPluginActionCode.view.webContents?.destroy();
+                mainPluginActionCode.view = null;
+            }
+        }
+        mainPluginActionCode.action = null;
+        mainPluginActionCode.codeData = null;
+        mainPluginActionCode.items = [];
+    },
+    async _viewCodeCallJs(js: string) {
+        return await mainPluginActionCode.view.webContents.executeJavaScript(`(async()=>{ ${js} })();`);
+    },
+    async actionCodeExecute(id: string | null = null, keywords: string | null = null) {
+        let item = null
+        if (id) {
+            item = mainPluginActionCode.items.find(i => i.id === id);
+        }
+        try {
+            await executeHooks(AppRuntime.mainWindow, "PluginCodeSetting", {
+                loading: true,
+            });
+            const value = await this._viewCodeCallJs(
+                `return await window.exports.code['${mainPluginActionCode.action.name}'].execute(
+                    ${JSON.stringify(item)},
+                    ${JSON.stringify(keywords)},
+                    ${JSON.stringify(mainPluginActionCode.codeData)}
+                );`
+            );
+            // console.log('ManagerWindow.openActionCode', {value})
+            if (!value || !value.command) {
+                throw `ManagerWindow.OpenActionCode.ResultEmpty`;
+            }
+            if ('data' === value.command) {
+                mainPluginActionCode.items = value.items || [];
+                await executeHooks(AppRuntime.mainWindow, "PluginCodeData", {
+                    items: value.items,
+                });
+            } else if ('close' === value.command) {
+                await this.close();
+                AppRuntime.mainWindow.hide();
+            } else {
+                throw `ManagerWindow.OpenActionCode.CommandError:${value.command}`;
+            }
+        } catch (e) {
+            PluginLog.error(mainWindowView._plugin.name, "Code.Error", {
+                error: e + "",
+                action: mainPluginActionCode.action,
+            });
+        }
     },
     async openForCode(
         plugin: PluginRecord,
@@ -136,61 +250,63 @@ export const ManagerWindow = {
                 spellcheck: false,
             },
         });
+        mainPluginActionCode.view = view;
+        mainPluginActionCode.action = action;
+        mainPluginActionCode.codeData = option?.codeData || null;
+        await ManagerWindow._logPluginViewError(view, plugin);
         addBrowserViews(view);
         view._plugin = plugin;
         view._window = AppRuntime.mainWindow;
         remoteMain.enable(view.webContents);
         AppRuntime.mainWindow.addBrowserView(view);
-        view.webContents.loadURL(main).then();
+        ManagerWindow._pluginViewLoad(view, main).then();
         DevToolsManager.register(`MainCodeView.${plugin.name}`, view);
-        view.webContents.on("preload-error", (event, preloadPath, error) => {
-            Log.error("ManagerWindow.openForCode.preload-error", error);
-        });
+        const logPluginError = (e) => {
+            PluginLog.error(plugin.name, "Code.Error", {
+                error: e + "",
+                action,
+                option,
+            });
+        }
+        const endView = () => {
+            setTimeout(() => {
+                this._pluginActionCodeEnd()
+            }, 1000);
+            AppRuntime.mainWindow.hide();
+        }
+        AppRuntime.mainWindow.setSize(WindowConfig.pluginWidth, WindowConfig.mainHeight);
         return new Promise((resolve, reject) => {
             view.webContents.once("dom-ready", async () => {
                 DevToolsManager.autoShow(view);
                 view.setBounds({
                     x: 0,
                     y: 0,
-                    width: 0, //size[0],
+                    width: 0,
                     height: 0,
                 });
-                const evalJs = `
-            (async()=>{
-                const name = '${action.name}';
-                if(window.exports && window.exports.code && (name in window.exports.code)) {
-                    return await window.exports.code[name](${JSON.stringify(option.codeData)})
-                }else{
-                    throw new Error('ActionCodeNotFound : ' + name)
-                }
-            })();
-            `;
-                view.webContents
-                    ?.executeJavaScript(evalJs)
-                    .then(value => {
+                try {
+                    const codeType = await this._viewCodeCallJs(`return typeof window.exports.code['${action.name}'];`);
+                    if ('function' === codeType) {
+                        const value = await this._viewCodeCallJs(`return await window.exports.code[name](${JSON.stringify(mainPluginActionCode.codeData)});`);
                         resolve(value);
-                    })
-                    .catch(e => {
-                        Log.error("ManagerWindow.openForCode.evalJs.error", e);
-                        reject(e);
-                    })
-                    .finally(() => {
-                        setTimeout(() => {
-                            // console.log('ManagerWindow.openForCode.evalJs.finally')
-                            AppRuntime.mainWindow.removeBrowserView(view);
-                            removeBrowserViews(view);
-                            if (
-                                view._plugin.development &&
-                                view._plugin.development.env === PluginEnv.DEV &&
-                                view._plugin.development.keepCodeDevTools
-                            ) {
-                                // 保留最后调试信息
-                            } else {
-                                // @ts-ignore
-                                view.webContents?.destroy();
-                            }
-                        }, 1000);
-                    });
+                        endView();
+                    } else {
+                        const commandType = await this._viewCodeCallJs(`return window.exports.code['${action.name}'].type;`);
+                        if (!commandType) {
+                            throw `CodeCommandTypeError:${commandType}`;
+                        }
+                        await executeHooks(AppRuntime.mainWindow, "PluginCodeInit", {
+                            plugin: plugin,
+                            type: commandType,
+                        });
+                        this.openActionCode().then()
+                        resolve(null);
+                    }
+                } catch (e) {
+                    logPluginError(e);
+                    reject(e);
+                    endView();
+                }
             });
         });
     },
@@ -253,35 +369,11 @@ export const ManagerWindow = {
                 spellcheck: false,
             },
         });
+        await ManagerWindow._logPluginViewError(view, plugin);
         addBrowserViews(view);
         view._plugin = plugin;
         remoteMain.enable(view.webContents);
         DevToolsManager.register(`PluginView.${plugin.name}`, view);
-        view.webContents.on('did-fail-load', (event, errorCode, errorDescription, validatedURL) => {
-            PluginLog.error(plugin.name, 'Load.Error-did-fail-load', {
-                errorCode,
-                errorDescription,
-                validatedURL,
-            });
-        })
-        view.webContents.on('did-fail-provisional-load', (event, errorCode, errorDescription, validatedURL) => {
-            PluginLog.error(plugin.name, 'Load.Error-did-fail-provisional-load', {
-                errorCode,
-                errorDescription,
-                validatedURL,
-            });
-        })
-        view.webContents.on("preload-error", (event, preloadPath, error) => {
-            PluginLog.error(plugin.name, 'Load.Error-preload-error', {
-                error: error + "",
-                preloadPath,
-            })
-        });
-        view.webContents.on('render-process-gone', () => {
-            PluginLog.error(plugin.name, 'Load.Error-render-process-gone', {
-                error: 'render-process-gone',
-            });
-        });
         view.webContents.once("did-finish-load", async () => {
             await executeDarkMode(view, {
                 plugin,
@@ -341,19 +433,7 @@ export const ManagerWindow = {
                 placeholder: "",
             },
             loadUrl: async () => {
-                try {
-                    if (rendererIsUrl(main)) {
-                        await view.webContents.loadURL(main)
-                    } else {
-                        await view.webContents.loadFile(main)
-                    }
-                } catch (e) {
-                    view.webContents.loadURL("about:blank").then();
-                    PluginLog.error(plugin.name, 'Load.Error-loadUrl', {
-                        error: e + "",
-                        main,
-                    });
-                }
+                ManagerWindow._pluginViewLoad(view, main).then();
             },
         };
         setTimeout(async () => {
@@ -392,12 +472,15 @@ export const ManagerWindow = {
             await executePluginHooks(mainWindowView, "PluginExit", null).then();
             await executeHooks(AppRuntime.mainWindow, "PluginExit", {
                 openForNext: option.openForNext,
-            }).then();
+            })
             removeBrowserViews(mainWindowView);
             AppRuntime.mainWindow.removeBrowserView(mainWindowView);
             // @ts-ignore
             mainWindowView.webContents?.destroy();
             mainWindowView = null;
+        } else if (mainPluginActionCode.view && (!plugin || mainPluginActionCode.view._plugin.name === plugin.name)) {
+            await executeHooks(AppRuntime.mainWindow, "PluginCodeExit", {})
+            await this._pluginActionCodeEnd()
         } else {
             // detach的插件窗口
             if (option.window) {

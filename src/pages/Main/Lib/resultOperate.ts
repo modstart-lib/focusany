@@ -1,6 +1,6 @@
 import {computed, ref, watch} from "vue";
 import {chunk} from "lodash-es";
-import {ActionRecord, PluginRecord} from "../../../types/Manager";
+import {ActionRecord} from "../../../types/Manager";
 import {useManagerStore} from "../../../store/modules/manager";
 import {ComputedRef} from "@vue/reactivity";
 import {EntryListener} from "./entryListener";
@@ -124,7 +124,32 @@ export const useResultOperate = () => {
         actionActionIndex.value = 0;
     };
 
-    const doActionNavigate = (direction: string) => {
+    const doCodeNavigate = (direction: string) => {
+        let index = manager.actionCodeItems.findIndex(item => item.id === manager.actionCodeItemActiveId);
+        switch (direction) {
+            case "up":
+            case "left":
+                index = Math.max(index - 1, 0);
+                break;
+            case "down":
+            case "right":
+                index = Math.min(index + 1, manager.actionCodeItems.length - 1);
+                break;
+        }
+        manager.actionCodeItemActiveId = manager.actionCodeItems[index].id;
+        setTimeout(() => {
+            const codeItemElement = document.getElementById(`MainResult_CodeItem_${manager.actionCodeItemActiveId}`);
+            if (codeItemElement) {
+                codeItemElement.scrollIntoView({
+                    behavior: "smooth",
+                    block: "nearest",
+                    inline: "nearest",
+                });
+            }
+        }, 10)
+    }
+
+    const _doActionNavigate = (direction: string) => {
         const grids: any[][] = [];
         [
             [showDetachWindowActions.value, "window"],
@@ -188,10 +213,10 @@ export const useResultOperate = () => {
         }
         activeActionGroup.value = grids[activeGridRowIndex][activeGridColIndex].group;
         actionActionIndex.value = grids[activeGridRowIndex][activeGridColIndex].index;
-        manager.setSelectedAction(getActiveAction() as ActionRecord);
+        manager.setSelectedAction(_getActiveAction() as ActionRecord);
     };
 
-    const getActiveAction = () => {
+    const _getActiveAction = () => {
         let activeAction: any = null;
         switch (activeActionGroup.value) {
             case "window":
@@ -215,15 +240,25 @@ export const useResultOperate = () => {
 
     const onInputKey = (key: string) => {
         if (["up", "down", "left", "right"].includes(key)) {
-            doActionNavigate(key);
+            if (manager.activePlugin && manager.activePluginType === 'code') {
+                doCodeNavigate(key);
+            } else {
+                _doActionNavigate(key);
+            }
         } else if ("enter" === key) {
+            if (manager.activePlugin && manager.activePluginType === 'code') {
+                if (manager.actionCodeItemActiveId) {
+                    doOpenActionCode(manager.actionCodeItemActiveId).then();
+                }
+                return;
+            }
             if (manager.searchIsCompositing) {
                 return;
             }
-            const action = getActiveAction();
+            const action = _getActiveAction();
             if (action) {
                 if (activeActionGroup.value === "window") {
-                    openActionForWindow("open", action).then();
+                    openActionWindow("open", action).then();
                 } else {
                     doOpenAction(action).then();
                 }
@@ -258,8 +293,12 @@ export const useResultOperate = () => {
         await manager.openAction(action);
     };
 
-    const openActionForWindow = async (type: "open", action: ActionRecord) => {
-        await manager.openActionForWindow(type, action);
+    const doOpenActionCode = async (id: string) => {
+        await manager.openActionCode(id);
+    }
+
+    const openActionWindow = async (type: "open", action: ActionRecord) => {
+        await manager.openActionWindow(type, action);
     };
 
     const doHistoryClear = async () => {
@@ -297,12 +336,11 @@ export const useResultOperate = () => {
         showPinActions,
         activeActionGroup,
         actionActionIndex,
-        doActionNavigate,
-        getActiveAction,
         onInputKey,
         onClose,
         doOpenAction,
-        openActionForWindow,
+        doOpenActionCode,
+        openActionWindow,
         doHistoryClear,
         doHistoryDelete,
         doPinToggle,

@@ -71,7 +71,7 @@ export const Manager = {
             }
         }
     },
-    async openActionForWindow(type: "open" | "close", action: ActionRecord) {
+    async openActionWindow(type: "open" | "close", action: ActionRecord) {
         await ManagerWindow.detachWindowOperate(type, action);
     },
     async openAction(action: ActionRecord) {
@@ -91,17 +91,17 @@ export const Manager = {
                 exec(action.data.command);
                 break;
             case ActionTypeEnum.WEB:
-                await ManagerWindow.open(plugin, action);
+                await ManagerWindow.open(plugin, action)
                 break;
             case ActionTypeEnum.CODE:
-                ManagerCode.execute(plugin, action).then();
+                await ManagerCode.execute(plugin, action)
                 break;
             case ActionTypeEnum.BACKEND:
-                ManagerBackend.runAction(plugin, action).then();
+                await ManagerBackend.runAction(plugin, action)
                 break;
         }
         if (action.trackHistory) {
-            await ManagerConfig.addHistoryAction(plugin, action);
+            await ManagerConfig.addHistoryAction(plugin, action)
         }
     },
     async getPlugin(name: string) {

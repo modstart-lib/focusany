@@ -98,6 +98,49 @@ window.__page.onPluginState(() => {
         placeholder: manager.searchSubPlaceholder,
     };
 });
+window.__page.onPluginCodeInit((data: {
+    plugin: PluginRecord;
+    type: 'list' | never,
+}) => {
+    console.log('main.onPluginCodeInit', data);
+    manager.setActivePlugin(data.plugin, "code");
+    manager.setActivePluginLoading(false);
+    manager.setSubInput({
+        placeholder: "",
+        isFocus: true,
+        isVisible: true,
+    });
+    manager.actionCodeType = data.type;
+    setTimeout(() => {
+        mainSearch.value?.focus(false);
+    }, 1000);
+})
+window.__page.onPluginCodeSetting((data: {
+    loading: boolean;
+}) => {
+    // console.log('main.onPluginCodeData', data);
+    manager.actionCodeLoading = data.loading || false;
+});
+window.__page.onPluginCodeData((data: {
+    items: any[],
+}) => {
+    // console.log('main.onPluginCodeData', data);
+    manager.actionCodeLoading = false;
+    manager.actionCodeItems = data.items;
+    manager.actionCodeItemActiveId = data.items.length > 0 ? data.items[0].id : null;
+});
+window.__page.onPluginCodeExit(() => {
+    // console.log('main.onPluginCodeExit');
+    manager.setActivePlugin(null);
+    manager.search("");
+    mainResult.value?.onPluginExit();
+    manager.actionCodeItems = []
+    manager.actionCodeItemActiveId = null;
+    manager.actionCodeType = null;
+    setTimeout(() => {
+        mainSearch.value?.focus(true);
+    }, 1000);
+});
 window.__page.onSetSubInput((param: { placeholder: string; isFocus: boolean; isVisible: boolean }) => {
     // console.log('main.onSetSubInput', param)
     manager.setSubInput(param);
@@ -118,8 +161,13 @@ window.__page.onSetSubInputValue((value: string) => {
 
 window.addEventListener("keydown", e => {
     const {resultKey} = onKeyDown(e);
+    // console.log('main.onKeyDown', e, resultKey);
     if (resultKey) {
         mainResult.value?.onInputKey(resultKey);
+    }else if(manager.activePlugin && manager.activePluginType==='code'){
+        if(['1', '2', '3', '4', '5', '6', '7', '8', '9'].includes(e.key)) {
+            mainResult.value?.onInputHotKey(e);
+        }
     }
 });
 onMounted(() => {

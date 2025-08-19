@@ -152,7 +152,7 @@ ipcMain.handle("manager::listAction", async event => {
 const mergeViewActionRuntime = async (actions: ActionRecord[]) => {
     for (const a of actions) {
         const plugin = await Manager.getPlugin(a.pluginName);
-        const {nodeIntegration, preloadBase, mainView} = ManagerPlugin.getInfo(plugin);
+        const {nodeIntegration, preloadBase, mainView} = await ManagerPlugin.getInfo(plugin);
         a.runtime.view = {
             nodeIntegration,
             preloadBase,
@@ -313,8 +313,16 @@ ipcMain.handle("manager:openAction", async (event, action: ActionRecord) => {
     await Manager.openAction(action);
 });
 
-ipcMain.handle("manager:openActionForWindow", async (event, type: "open" | "close", action: ActionRecord) => {
-    await Manager.openActionForWindow(type, action);
+ipcMain.handle("manager:openActionCode", async (event, id: string) => {
+    await ManagerWindow.actionCodeExecute(id, null);
+});
+
+ipcMain.handle("manager:searchActionCode", async (event, keywords: string) => {
+    await ManagerWindow.actionCodeExecute(null, keywords);
+});
+
+ipcMain.handle("manager:openActionWindow", async (event, type: "open" | "close", action: ActionRecord) => {
+    await Manager.openActionWindow(type, action);
 });
 
 ipcMain.handle("manager:closeMainPlugin", async (event, option?: {}) => {

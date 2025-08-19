@@ -1,17 +1,9 @@
 <template>
     <div class="pb-result">
-        <div ref="groupContainer">
-            <div v-if="manager.activePlugin && manager.activePluginLoading">
-                <div class="text-center py-32">
-                    <div class="mb-6 relative">
-                        <div class="w-12 h-12 bg-gradient-to-b from-gray-100 to-gray-300 absolute top-0 left-0 right-0 bottom-0 m-auto rounded-full animate-spin"></div>
-                        <img class="w-10 h-10 opacity-50 mx-auto" src="./../../assets/image/search-icon.svg" />
-                    </div>
-                    <div class="text-gray-400">{{$t('正在启动')}}</div>
-                </div>
-            </div>
+        <div ref="resultContainer">
+            <ResultLoading v-if="manager.activePlugin && manager.activePluginLoading"/>
             <div
-                class="group-container"
+                class="action-container"
                 :class="{'has-actions': hasActions, 'has-view-actions': hasViewActions}"
                 v-else-if="!manager.activePlugin">
                 <div class="group-main">
@@ -19,7 +11,7 @@
                         <div class="group-title">
                             <div class="title">
                                 <img draggable="false" class="dark:invert" :src="SystemIcons.searchWindow"/>
-                                {{$t('窗口')}}
+                                {{ $t('窗口') }}
                             </div>
                             <div class="more">&nbsp;</div>
                         </div>
@@ -29,7 +21,7 @@
                                 v-for="(a, aIndex) in showDetachWindowActions"
                                 :class="{active: activeActionGroup === 'window' && actionActionIndex === aIndex}"
                             >
-                                <ResultWindowItem :action="a" @open="openActionForWindow('open', a)"/>
+                                <ResultWindowItem :action="a" @open="openActionWindow('open', a)"/>
                             </div>
                         </div>
                     </div>
@@ -41,10 +33,10 @@
                         >
                             <div class="title">
                                 <img draggable="false" class="dark:invert" :src="SystemIcons.searchKeyword"/>
-                                {{$t('搜索结果')}}
+                                {{ $t('搜索结果') }}
                             </div>
                             <div class="more" v-if="!searchActionIsExtend">
-                                {{$t('展开全部')}}({{ manager.searchActions.length }})
+                                {{ $t('展开全部') }}({{ manager.searchActions.length }})
                             </div>
                         </div>
                         <div class="group-items">
@@ -70,10 +62,10 @@
                         >
                             <div class="title">
                                 <img class="dark:invert" :src="SystemIcons.searchMatch"/>
-                                {{$t('匹配结果')}}
+                                {{ $t('匹配结果') }}
                             </div>
                             <div class="more" v-if="!matchActionIsExtend">
-                                {{$t('展开全部')}}({{ manager.matchActions.length }})
+                                {{ $t('展开全部') }}({{ manager.matchActions.length }})
                             </div>
                         </div>
                         <div class="group-items">
@@ -95,14 +87,14 @@
                         <div class="group-title" :class="!historyActionIsExtend ? 'has-more' : ''">
                             <div class="title">
                                 <icon-history/>
-                                {{$t('最近使用')}}
+                                {{ $t('最近使用') }}
                             </div>
                             <div class="more">
                                 <a href="javascript:;" class="auto-hide" @click="doHistoryClear">
                                     <icon-delete/>
                                 </a>
                                 <a href="javascript:;" v-if="!historyActionIsExtend" @click="doHistoryActionExtend">
-                                    {{$t('展开全部')}}({{ manager.historyActions.length }})
+                                    {{ $t('展开全部') }}({{ manager.historyActions.length }})
                                 </a>
                             </div>
                         </div>
@@ -127,11 +119,11 @@
                         <div class="group-title" :class="!pinActionIsExtend ? 'has-more' : ''">
                             <div class="title">
                                 <i class="iconfont icon-pin"></i>
-                                {{$t('已固定')}}
+                                {{ $t('已固定') }}
                             </div>
                             <div class="more">
                                 <a href="javascript:;" v-if="!pinActionIsExtend" @click="doPinActionExtend">
-                                    {{ $t('展开全部')}}({{ manager.pinActions.length }})
+                                    {{ $t('展开全部') }}({{ manager.pinActions.length }})
                                 </a>
                             </div>
                         </div>
@@ -152,7 +144,7 @@
                         <div class="group-title">
                             <div class="title">
                                 <icon-search/>
-                                {{$t('搜索结果')}}
+                                {{ $t('搜索结果') }}
                             </div>
                         </div>
                         <div class="text-center" style="height: 250px">
@@ -179,7 +171,7 @@
                                     {{ r.title }}
                                 </div>
                                 <div v-if="0" class="action">
-                                    <a href="javascript:;"> {{$t('关闭')}} </a>
+                                    <a href="javascript:;"> {{ $t('关闭') }} </a>
                                     <a href="javascript:;">
                                         <icon-more-vertical/>
                                     </a>
@@ -206,12 +198,19 @@
                     </div>
                 </div>
             </div>
+            <div v-else-if="manager.activePlugin && manager.activePluginType==='code'">
+                <ResultActionCodeLoading v-if="manager.actionCodeLoading"/>
+                <ResultActionCodeItemList v-else-if="'list'===manager.actionCodeType"
+                                          :do-open-action-code="doOpenActionCode"
+                                          :is-osx="isOsx"
+                />
+            </div>
         </div>
     </div>
 </template>
 
 <script lang="ts" setup>
-import {ref} from "vue";
+import {onBeforeMount, ref} from "vue";
 import {fireResultResize, useResultResize} from "./Lib/resultResize";
 import {useResultOperate} from "./Lib/resultOperate";
 import {useManagerStore} from "../../store/modules/manager";
@@ -220,6 +219,9 @@ import {SystemIcons} from "../../../electron/mapi/manager/system/asset/icon";
 import {useViewOperate} from "./Lib/viewOperate";
 import {PluginType} from "../../types/Manager";
 import ResultWindowItem from "./Components/ResultWindowItem.vue";
+import ResultActionCodeLoading from "./Components/ResultActionCodeLoading.vue";
+import ResultActionCodeItemList from "./Components/ResultActionCodeItemList.vue";
+import ResultLoading from "./Components/ResultLoading.vue";
 
 const manager = useManagerStore();
 
@@ -241,34 +243,64 @@ const {
     showPinActions,
     activeActionGroup,
     actionActionIndex,
-    doActionNavigate,
-    getActiveAction,
     onInputKey,
     onClose,
     doOpenAction,
-    openActionForWindow,
+    doOpenActionCode,
+    openActionWindow,
     doHistoryClear,
     doHistoryDelete,
     doPinToggle,
 } = useResultOperate();
 
+const isOsx = ref(false);
+
+onBeforeMount(async () => {
+    isOsx.value = window.$mapi.app.isPlatform("osx");
+});
+
 const {webUserAgent, viewActions} = useViewOperate("main");
 
 const emit = defineEmits([]);
 
-const groupContainer = ref<HTMLElement | null>(null);
-useResultResize(groupContainer);
+const resultContainer = ref<HTMLElement | null>(null);
+useResultResize(resultContainer);
 
 const onPluginExit = () => {
-    fireResultResize(groupContainer);
+    fireResultResize(resultContainer);
 };
 
 const onPluginDetached = () => {
-    fireResultResize(groupContainer);
+    fireResultResize(resultContainer);
+};
+
+const onInputHotKey = (e: KeyboardEvent) => {
+    if (['1', '2', '3', '4', '5', '6', '7', '8', '9'].includes(e.key)) {
+        let pass = false;
+        if (isOsx.value) {
+            if (e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey) {
+                pass = true;
+            }
+        } else {
+            if (e.ctrlKey && !e.metaKey && !e.shiftKey && !e.altKey) {
+                pass = true;
+            }
+        }
+        if (pass) {
+            const index = parseInt(e.key) - 1;
+            if (manager.actionCodeItems.length > index) {
+                const item = manager.actionCodeItems[index];
+                if (item) {
+                    doOpenActionCode(item.id);
+                }
+            }
+        }
+    }
 };
 
 defineExpose({
     onInputKey,
+    onInputHotKey,
     onClose,
     onPluginExit,
     onPluginDetached,
@@ -301,7 +333,7 @@ defineExpose({
         background: #bbbbbb;
     }
 
-    .group-container {
+    .action-container {
         display: flex;
 
         .group-main {
@@ -470,6 +502,7 @@ defineExpose({
             }
         }
     }
+
 }
 
 [data-theme="dark"] {

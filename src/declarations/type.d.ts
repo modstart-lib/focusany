@@ -23,6 +23,10 @@ declare interface Window {
         onPluginExit: (cb: Function) => void;
         onPluginDetached: (cb: Function) => void;
         onPluginState: (cb: Function) => void;
+        onPluginCodeInit: (cb: Function) => void;
+        onPluginCodeSetting: (cb: Function) => void;
+        onPluginCodeData: (cb: Function) => void;
+        onPluginCodeExit: (cb: Function) => void;
         onSetSubInput: (cb: Function) => void;
         onRemoveSubInput: (cb: Function) => void;
         onSetSubInputValue: (cb: Function) => void;
@@ -400,7 +404,9 @@ declare interface Window {
 
             openPlugin: (pluginName: string, option?: {}) => Promise<void>;
             openAction: (action: ActionRecord) => Promise<void>;
-            openActionForWindow: (type: "open", action: ActionRecord) => Promise<void>;
+            openActionCode: (id: string | null) => Promise<void>;
+            searchActionCode: (keywords: string | null) => Promise<void>;
+            openActionWindow: (type: "open", action: ActionRecord) => Promise<void>;
 
             closeMainPlugin: (option?: {}) => Promise<void>;
             openMainPluginDevTools: (option?: {}) => Promise<void>;

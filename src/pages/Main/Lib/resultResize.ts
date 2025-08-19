@@ -16,6 +16,8 @@ export const useResultResize = (groupContainer: any) => {
             // console.log('resize', width, height, manager.activePlugin)
             if (!manager.activePlugin && !ignoreNextResize) {
                 manager.resize(width, height + WindowConfig.mainHeight).then();
+            } else if (manager.activePlugin && manager.activePluginType === 'code') {
+                manager.resize(width, height + WindowConfig.mainHeight).then();
             }
         });
     });

@@ -21,6 +21,10 @@ const subInputChangeDebounce = debounce(keywords => {
     window.$mapi.manager.subInputChange(keywords);
 }, 300);
 
+const searchActionCodeDebounce = debounce((keywords) => {
+    window.$mapi.manager.searchActionCode(keywords).then()
+}, 300);
+
 export const managerStore = defineStore("manager", {
     state: () => ({
         config: {} as ConfigRecord,
@@ -42,7 +46,16 @@ export const managerStore = defineStore("manager", {
 
         selectedAction: null as ActionRecord | null,
         activePlugin: null as PluginRecord | null,
+        activePluginType: null as "code" | null,
         activePluginLoading: false,
+
+        actionCodeLoading: false,
+        actionCodeType: null as "list" | null,
+        actionCodeItemActiveId: null as string | null,
+        actionCodeItems: [] as {
+            id: string,
+            [key: string]: any;
+        }[],
 
         currentFiles: [] as FileItem[],
         currentImage: "",
@@ -83,8 +96,9 @@ export const managerStore = defineStore("manager", {
         setActivePluginLoading(loading: boolean) {
             this.activePluginLoading = loading;
         },
-        setActivePlugin(plugin: PluginRecord | null) {
+        setActivePlugin(plugin: PluginRecord | null, type: "code" | null = null) {
             this.activePlugin = plugin;
+            this.activePluginType = plugin ? type : null;
         },
         setSearchValue(value: string) {
             if (this.activePlugin) {
@@ -121,7 +135,7 @@ export const managerStore = defineStore("manager", {
                     currentImage: this.currentImage,
                     currentText: this.currentText,
                 },
-                (result: {matchActions: ActionRecord[]; viewActions: ActionRecord[]}) => {
+                (result: { matchActions: ActionRecord[]; viewActions: ActionRecord[] }) => {
                     this.fastPanelMatchActions = result.matchActions;
                     this.fastPanelViewActions = result.viewActions;
                     this.fastPanelActionLoading = false;
@@ -135,6 +149,11 @@ export const managerStore = defineStore("manager", {
 
         async search(keywords: string) {
             if (this.activePlugin) {
+                if (this.activePluginType === 'code') {
+                    this.searchValue = keywords;
+                    searchActionCodeDebounce(keywords);
+                    return;
+                }
                 subInputChangeDebounce(keywords);
                 this.searchValue = keywords;
                 return;
@@ -190,7 +209,6 @@ export const managerStore = defineStore("manager", {
             await window.$mapi.manager.openAction(toRaw(action));
             if (
                 action.type === ActionTypeEnum.COMMAND ||
-                action.type === ActionTypeEnum.CODE ||
                 action.type === ActionTypeEnum.BACKEND
             ) {
                 await window.$mapi.manager.hide();
@@ -203,8 +221,15 @@ export const managerStore = defineStore("manager", {
             // this.historyActions = [];
             // this.pinActions = [];
         },
-        async openActionForWindow(type: "open", action: ActionRecord) {
-            await window.$mapi.manager.openActionForWindow(type, toRaw(action));
+        async openActionCode(id: string) {
+            if (!this.activePlugin || this.activePluginType !== "code") {
+                return;
+            }
+            this.actionCodeItemActiveId = id;
+            await window.$mapi.manager.openActionCode(id);
+        },
+        async openActionWindow(type: "open", action: ActionRecord) {
+            await window.$mapi.manager.openActionWindow(type, toRaw(action));
         },
         async closeMainPlugin() {
             await window.$mapi.manager.closeMainPlugin();
@@ -218,7 +243,7 @@ export const managerStore = defineStore("manager", {
         async detachPlugin() {
             await window.$mapi.manager.detachPlugin();
         },
-        setSubInput(payload: {placeholder: string; isFocus: boolean; isVisible: boolean}) {
+        setSubInput(payload: { placeholder: string; isFocus: boolean; isVisible: boolean }) {
             if (!this.activePlugin) {
                 return;
             }
