@@ -10,12 +10,16 @@ export const useSearchOperate = emit => {
     const doShowMenu = () => {
         const menuTemplate: any[] = [];
         if (manager.activePlugin) {
-            menuTemplate.push({
-                label: t("独立窗口显示"),
-                click: () => {
-                    doDetachPlugin().then();
-                },
-            });
+            if (manager.activePluginType === 'code') {
+                // do nothing
+            } else {
+                menuTemplate.push({
+                    label: t("独立窗口显示"),
+                    click: () => {
+                        doDetachPlugin().then();
+                    },
+                });
+            }
             menuTemplate.push({
                 label: t("插件调试窗口"),
                 click: async () => {

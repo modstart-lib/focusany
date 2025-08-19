@@ -50,6 +50,7 @@ export const managerStore = defineStore("manager", {
         activePluginLoading: false,
 
         actionCodeLoading: false,
+        actionCodeError: null as string | null,
         actionCodeType: null as "list" | null,
         actionCodeItemActiveId: null as string | null,
         actionCodeItems: [] as {

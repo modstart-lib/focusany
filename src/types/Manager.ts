@@ -64,6 +64,8 @@ export type PluginRecord = {
         env?: "dev" | "prod";
         main?: string;
         mainView?: string;
+        showDevTools?: boolean;
+        showCodeDevTools?: boolean;
         keepCodeDevTools?: boolean;
         showViewDevTools?: boolean;
     };

@@ -199,7 +199,9 @@
                 </div>
             </div>
             <div v-else-if="manager.activePlugin && manager.activePluginType==='code'">
-                <ResultActionCodeLoading v-if="manager.actionCodeLoading"/>
+                <ResultActionCodeError v-if="manager.actionCodeError"
+                                       :error="manager.actionCodeError"/>
+                <ResultActionCodeLoading v-else-if="manager.actionCodeLoading"/>
                 <ResultActionCodeItemList v-else-if="'list'===manager.actionCodeType"
                                           :do-open-action-code="doOpenActionCode"
                                           :is-osx="isOsx"
@@ -222,6 +224,7 @@ import ResultWindowItem from "./Components/ResultWindowItem.vue";
 import ResultActionCodeLoading from "./Components/ResultActionCodeLoading.vue";
 import ResultActionCodeItemList from "./Components/ResultActionCodeItemList.vue";
 import ResultLoading from "./Components/ResultLoading.vue";
+import ResultActionCodeError from "./Components/ResultActionCodeError.vue";
 
 const manager = useManagerStore();
 

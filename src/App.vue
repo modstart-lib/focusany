@@ -101,12 +101,13 @@ window.__page.onPluginState(() => {
 window.__page.onPluginCodeInit((data: {
     plugin: PluginRecord;
     type: 'list' | never,
+    placeholder: string;
 }) => {
-    console.log('main.onPluginCodeInit', data);
+    // console.log('main.onPluginCodeInit', data);
     manager.setActivePlugin(data.plugin, "code");
     manager.setActivePluginLoading(false);
     manager.setSubInput({
-        placeholder: "",
+        placeholder: data.placeholder,
         isFocus: true,
         isVisible: true,
     });
@@ -116,15 +117,30 @@ window.__page.onPluginCodeInit((data: {
     }, 1000);
 })
 window.__page.onPluginCodeSetting((data: {
-    loading: boolean;
+    loading?: boolean;
+    error?: string;
+    placeholder?: string;
 }) => {
     // console.log('main.onPluginCodeData', data);
-    manager.actionCodeLoading = data.loading || false;
+    if ('loading' in data) {
+        manager.actionCodeLoading = data.loading || false;
+    }
+    if ('error' in data) {
+        manager.actionCodeError = data.error || '';
+    }
+    if ('placeholder' in data) {
+        manager.setSubInput({
+            placeholder: data.placeholder as string,
+            isFocus: true,
+            isVisible: true,
+        });
+    }
 });
 window.__page.onPluginCodeData((data: {
     items: any[],
 }) => {
     // console.log('main.onPluginCodeData', data);
+    manager.actionCodeError = null;
     manager.actionCodeLoading = false;
     manager.actionCodeItems = data.items;
     manager.actionCodeItemActiveId = data.items.length > 0 ? data.items[0].id : null;
@@ -164,8 +180,8 @@ window.addEventListener("keydown", e => {
     // console.log('main.onKeyDown', e, resultKey);
     if (resultKey) {
         mainResult.value?.onInputKey(resultKey);
-    }else if(manager.activePlugin && manager.activePluginType==='code'){
-        if(['1', '2', '3', '4', '5', '6', '7', '8', '9'].includes(e.key)) {
+    } else if (manager.activePlugin && manager.activePluginType === 'code') {
+        if (['1', '2', '3', '4', '5', '6', '7', '8', '9'].includes(e.key)) {
             mainResult.value?.onInputHotKey(e);
         }
     }

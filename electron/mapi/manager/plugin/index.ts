@@ -255,6 +255,8 @@ export const ManagerPlugin = {
 
         plugin.development = Object.assign(
             {
+                showDevTools: false,
+                showCodeDevTools: false,
                 keepCodeDevTools: false,
             },
             plugin.development
@@ -605,4 +607,10 @@ export const ManagerPlugin = {
             await viewSession.clearStorageData();
         }
     },
+    isDevelopmentCheck(plugin: PluginRecord, key: keyof NonNullable<PluginRecord["development"]>) {
+        if (!plugin.development || plugin.development.env !== PluginEnv.DEV) {
+            return false;
+        }
+        return !!plugin.development[key];
+    }
 };

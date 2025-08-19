@@ -1,6 +1,6 @@
 import * as remoteMain from "@electron/remote/main";
 import {BrowserView, BrowserWindow, screen, shell, WebContents} from "electron";
-import {ActionRecord, PluginEnv, PluginRecord, PluginState} from "../../../../src/types/Manager";
+import {ActionRecord, PluginRecord, PluginState} from "../../../../src/types/Manager";
 import {WindowConfig} from "../../../config/window";
 import {DevToolsManager} from "../../../lib/devtools";
 import {isMac} from "../../../lib/env";
@@ -154,11 +154,7 @@ export const ManagerWindow = {
         if (mainPluginActionCode.view) {
             AppRuntime.mainWindow.removeBrowserView(mainPluginActionCode.view);
             removeBrowserViews(mainPluginActionCode.view);
-            if (
-                mainPluginActionCode.view._plugin.development &&
-                mainPluginActionCode.view._plugin.development.env === PluginEnv.DEV &&
-                mainPluginActionCode.view._plugin.development.keepCodeDevTools
-            ) {
+            if (ManagerPlugin.isDevelopmentCheck(mainPluginActionCode.view._plugin, 'keepCodeDevTools')) {
                 PluginLog.info(mainPluginActionCode.view._plugin.name, "ManagerWindow.KeepCodeDevTools", {
                     action: mainPluginActionCode.action,
                     codeData: mainPluginActionCode.codeData,
@@ -182,9 +178,11 @@ export const ManagerWindow = {
             item = mainPluginActionCode.items.find(i => i.id === id);
         }
         try {
-            await executeHooks(AppRuntime.mainWindow, "PluginCodeSetting", {
-                loading: true,
-            });
+            if (!(item && ('loading' in item) && !item.loading)) {
+                await executeHooks(AppRuntime.mainWindow, "PluginCodeSetting", {
+                    loading: true,
+                });
+            }
             const value = await this._viewCodeCallJs(
                 `return await window.exports.code['${mainPluginActionCode.action.name}'].execute(
                     ${JSON.stringify(item)},
@@ -192,23 +190,52 @@ export const ManagerWindow = {
                     ${JSON.stringify(mainPluginActionCode.codeData)}
                 );`
             );
-            // console.log('ManagerWindow.openActionCode', {value})
+            // console.log('ManagerWindow.openActionCode.value', JSON.stringify(value))
             if (!value || !value.command) {
                 throw `ManagerWindow.OpenActionCode.ResultEmpty`;
             }
+            const plugin = mainPluginActionCode.view._plugin;
+            if ('placeholder' in value) {
+                await executeHooks(AppRuntime.mainWindow, "PluginCodeSetting", {
+                    placeholder: value.placeholder,
+                });
+            }
             if ('data' === value.command) {
                 mainPluginActionCode.items = value.items || [];
+                // icon path
+                mainPluginActionCode.items.forEach(item => {
+                    if (item.icon && !item.icon.startsWith("http:") && !item.icon.startsWith("file:") && !item.icon.startsWith("data:")) {
+                        item.icon = `file://${plugin.runtime.root}/${item.icon}`;
+                    }
+                })
                 await executeHooks(AppRuntime.mainWindow, "PluginCodeData", {
                     items: value.items,
                 });
+            } else if ('search' === value.command) {
+                this.actionCodeExecute(null, value.keywords).then();
+            } else if ('msg' === value.command) {
+                await executeHooks(AppRuntime.mainWindow, "PluginCodeSetting", {
+                    loading: false,
+                });
+                AppsMain.toast(value.msg, {
+                    status: value.type || "info",
+                }).then()
             } else if ('close' === value.command) {
                 await this.close();
                 AppRuntime.mainWindow.hide();
+            } else if ('error' === value.command) {
+                await executeHooks(AppRuntime.mainWindow, "PluginCodeSetting", {
+                    loading: false,
+                    error: value.error,
+                });
             } else {
                 throw `ManagerWindow.OpenActionCode.CommandError:${value.command}`;
             }
         } catch (e) {
-            PluginLog.error(mainWindowView._plugin.name, "Code.Error", {
+            await executeHooks(AppRuntime.mainWindow, "PluginCodeSetting", {
+                error: e + "",
+            });
+            PluginLog.error(mainPluginActionCode.view._plugin.name, "Code.Error", {
                 error: e + "",
                 action: mainPluginActionCode.action,
             });
@@ -278,6 +305,13 @@ export const ManagerWindow = {
         return new Promise((resolve, reject) => {
             view.webContents.once("dom-ready", async () => {
                 DevToolsManager.autoShow(view);
+                if (ManagerPlugin.isDevelopmentCheck(plugin, 'showCodeDevTools')) {
+                    view.webContents.openDevTools({
+                        mode: "detach",
+                        activate: true,
+                        title: `MainPluginCodeView.${plugin.name}`,
+                    });
+                }
                 view.setBounds({
                     x: 0,
                     y: 0,
@@ -295,11 +329,13 @@ export const ManagerWindow = {
                         if (!commandType) {
                             throw `CodeCommandTypeError:${commandType}`;
                         }
+                        const placeholder = await this._viewCodeCallJs(`return window.exports.code['${action.name}'].placeholder;`);
                         await executeHooks(AppRuntime.mainWindow, "PluginCodeInit", {
                             plugin: plugin,
                             type: commandType,
+                            placeholder: placeholder || '输入关键词搜索',
                         });
-                        this.openActionCode().then()
+                        this.actionCodeExecute().then()
                         resolve(null);
                     }
                 } catch (e) {
@@ -400,6 +436,13 @@ export const ManagerWindow = {
         // console.log('ManagerWindow.open', {nodeIntegration, preload, main, width, height, autoDetach})
         view.webContents.once("dom-ready", async () => {
             DevToolsManager.autoShow(view);
+            if (ManagerPlugin.isDevelopmentCheck(plugin, 'showDevTools')) {
+                view.webContents.openDevTools({
+                    mode: "detach",
+                    activate: true,
+                    title: `PluginView.${plugin.name}`,
+                });
+            }
         });
         view.webContents.on("before-input-event", (event, input) => {
             // console.log('Load.Error-before-input-event', input)
@@ -494,14 +537,28 @@ export const ManagerWindow = {
         const devToolsWin = DevToolsManager.getWindow(mainWindowView)
         if (devToolsWin) {
             devToolsWin.close()
-        } else if (mainWindowView.webContents.isDevToolsOpened()) {
-            mainWindowView.webContents.closeDevTools();
+        } else if (mainWindowView) {
+            if (mainWindowView.webContents.isDevToolsOpened()) {
+                mainWindowView.webContents.closeDevTools();
+            } else {
+                mainWindowView.webContents.openDevTools({
+                    mode: "detach",
+                    activate: true,
+                    title: `MainPluginView`,
+                });
+            }
+        } else if (mainPluginActionCode.view) {
+            if (mainPluginActionCode.view.webContents.isDevToolsOpened()) {
+                mainPluginActionCode.view.webContents.closeDevTools();
+            } else {
+                mainPluginActionCode.view.webContents.openDevTools({
+                    mode: "detach",
+                    activate: true,
+                    title: `MainPluginCodeView.${mainPluginActionCode.view._plugin.name}`,
+                });
+            }
         } else {
-            mainWindowView.webContents.openDevTools({
-                mode: "detach",
-                activate: true,
-                title: `MainPluginView`,
-            });
+            Log.error("ManagerWindow.openMainPluginDevTools", "mainWindowViewNotFound");
         }
     },
     async _showInMainWindow(

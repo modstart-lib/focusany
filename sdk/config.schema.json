@@ -284,6 +284,14 @@
                     "type": "string",
                     "description": "dev环境 快捷面板/智能视图快速面板入口文件，通常为开发环境如 http://localhost:8080"
                 },
+                "showDevTools": {
+                    "type": "boolean",
+                    "description": "dev环境 是否在插件加载完成后显示开发者窗口"
+                },
+                "showCodeDevTools": {
+                    "type": "boolean",
+                    "description": "dev环境 是否在code执行完成后显示开发者窗口"
+                },
                 "keepCodeDevTools": {
                     "type": "boolean",
                     "description": "dev环境 插件是否在code执行完成后保留开发者窗口"
