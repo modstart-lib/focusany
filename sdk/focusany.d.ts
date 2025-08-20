@@ -658,7 +658,6 @@ interface FocusAnyApi {
      */
     clearClipboardItems(): Promise<void>;
 
-
     /**
      * Open file with default application
      * @param fullPath
@@ -681,7 +680,6 @@ interface FocusAnyApi {
      * Play system beep sound
      */
     shellBeep(): void;
-
 
     simulate: {
         /**
@@ -761,6 +759,18 @@ interface FocusAnyApi {
     ): Promise<any>;
 
     /**
+     * set remote web runtime
+     * @param info
+     */
+    setRemoteWebRuntime(info: {
+        userAgent: string;
+        urlMap: Record<string, string>;
+        types: string[];
+        domains: string[];
+        blocks: string[];
+    }): Promise<undefined>;
+
+    /**
      * list large language model
      */
     llmListModels(): Promise<
@@ -777,18 +787,11 @@ interface FocusAnyApi {
      * call large language model chat
      * @param callInfo
      */
-    llmChat(callInfo: {
-        providerId: string;
-        modelId: string;
-        message: string;
-    }): Promise<{
-        code: number;
-        msg: string;
-        data?: {
+    llmChat(callInfo: { providerId: string; modelId: string; message: string }): Promise<
+        BaseResult<{
             message: string;
-        };
-    }>;
-
+        }>
+    >;
 
     /**
      * write info log
@@ -820,13 +823,17 @@ interface FocusAnyApi {
      * @param name
      * @param hotkey
      */
-    addLaunch(keyword: string, name: string, hotkey: HotkeyType): Promise<void>;
+    addLaunch(
+        keyword: string,
+        name: string,
+        hotkey: HotkeyType
+    ): Promise<void>;
 
     /**
      * remove launch
-     * @param keywords
+     * @param keyword
      */
-    removeLaunch(keywords: string): void;
+    removeLaunch(keyword: string): void;
 
     /**
      * activate latest window
@@ -834,130 +841,118 @@ interface FocusAnyApi {
     activateLatestWindow(): Promise<void>;
 
     /**
-     * 数据库操作
+     * File operations
+     */
+    file: {
+        /**
+         * Check if file or directory exists
+         * @param path
+         */
+        exists(path: string): Promise<boolean>;
+        /**
+         * Read file content
+         * @param path File path
+         */
+        read(path: string): Promise<string>;
+        /**
+         * Write file content
+         * @param path File path
+         * @param data File content
+         */
+        write(path: string, data: string): Promise<void>;
+        /**
+         * Delete file or directory
+         * @param path File or directory path
+         */
+        remove(path: string): Promise<void>;
+        /**
+         * Get file extension
+         */
+        ext(path: string): Promise<string>;
+    };
+
+    /**
+     * Database operations
      */
     db: {
         /**
-         * 添加文档
+         * Add document
          * @param doc
          */
         put(doc: DbDoc): DbReturn;
         /**
-         * 获取文档
+         * Get document
          * @param id
          */
         get<T extends {} = Record<string, any>>(id: string): DbDoc<T> | null;
         /**
-         * 删除文档
+         * Delete document
          * @param doc
          */
         remove(doc: string | DbDoc): DbReturn;
         /**
-         * 批量添加文档
+         * Bulk add documents
          * @param docs
          */
         bulkDocs(docs: DbDoc[]): DbReturn[];
         /**
-         * 批量获取文档
+         * Bulk get documents
          * @param key
          */
         allDocs<T extends {} = Record<string, any>>(key?: string): DbDoc<T>[];
         /**
-         * 保存附件
+         * Save attachment
          * @param docId
          * @param attachment
          * @param type
          */
         postAttachment(docId: string, attachment: Uint8Array, type: string): DbReturn;
         /**
-         * 获取附件
+         * Get attachment
          * @param docId
          */
         getAttachment(docId: string): Uint8Array | null;
         /**
-         * 获取附件类型
+         * Get attachment type
          * @param docId
          */
         getAttachmentType(docId: string): string | null;
     };
 
     /**
-     * 本地存储
+     * Local storage
      */
     dbStorage: {
         /**
-         * 设置存储
+         * Set storage
          * @param key
          * @param value
          */
         setItem(key: string, value: any): void;
         /**
-         * 获取存储
+         * Get storage
          * @param key
          */
         getItem<T = any>(key: string): T;
         /**
-         * 移除存储
+         * Remove storage
          * @param key
          */
         removeItem(key: string): void;
     };
 
     /**
-     * set remote web runtime
-     * @param info
-     */
-    setRemoteWebRuntime(info: {
-        userAgent: string;
-        urlMap: Record<string, string>;
-        types: string[];
-        domains: string[];
-        blocks: string[];
-    }): Promise<undefined>;
-
-    /**
-     * 文件
-     */
-    file: {
-        /**
-         * 判断文件或目录是否存在
-         * @param path
-         */
-        exists(path: string): Promise<boolean>;
-        /**
-         * 读取文件内容
-         * @param path 文件路径
-         */
-        read(path: string): Promise<string>;
-        /**
-         * 写入文件内容
-         * @param path 文件路径
-         * @param data 文件内容
-         */
-        write(path: string, data: string): Promise<void>;
-        /**
-         * 删除文件或目录
-         * @param path 文件或目录路径
-         */
-        remove(path: string): Promise<void>;
-        /**
-         * 获取文件后缀
-         */
-        ext(path: string): Promise<string>;
-    };
-
-    /**
-     * 快捷文件
+     * Fast access documents
      */
     fad: {
         /**
-         * 读取快捷文件内容
+         * Read fast access document content
          * @param type
          * @param path
          */
         read(type: string, path: string): Promise<any>;
         /**
-         * 写入快捷文件内容
+         * Write fast access document content
          * @param type
          * @param path
          * @param data
@@ -966,26 +961,26 @@ interface FocusAnyApi {
     };
 
     /**
-     * 智能区域
+     * Quick panel view
      */
     view: {
         /**
-         * 设置快捷面板当前插件渲染区域的高度
+         * Set height of current plugin render area in quick panel
          * @param height
          */
         setHeight(height: number): void;
         /**
-         * 获取快捷面板当前插件渲染区域的高度
+         * Get height of current plugin render area in quick panel
          */
         getHeight(): Promise<number>;
     };
 
     /**
-     * 分离窗口
+     * Detached window
      */
     detach: {
         /**
-         * 设置分离窗口的标题
+         * Set detached window title
          * @param title
          */
         setTitle(title: string): void;
@@ -1001,60 +996,60 @@ interface FocusAnyApi {
             }[]
         ): void;
         /**
-         * 设置分离窗口的位置
+         * Set detached window position
          * @param position
          */
         setPosition(position: "center" | "right-bottom" | "left-top" | "right-top" | "left-bottom"): void;
         /**
-         * 设置分离窗口是否置顶
+         * Set detached window always on top
          * @param alwaysOnTop
          */
         setAlwaysOnTop(alwaysOnTop: boolean): void;
         /**
-         * 设置分离窗口的大小
+         * Set detached window size
          */
         setSize(width: number, height: number): void;
     };
 
     /**
-     * 工具
+     * Utilities
      */
     util: {
         /**
-         * 生成随机字符串
+         * Generate random string
          * @param length
          */
         randomString(length: number): string;
         /**
-         * Buffer 转 Base64
+         * Convert Buffer to Base64
          * @param buffer
          */
         bufferToBase64(buffer: Uint8Array): string;
         /**
-         * Base64 转 Buffer
+         * Convert Base64 to Buffer
          */
         base64ToBuffer(base64: string): Uint8Array;
         /**
-         * 获取当前时间戳字符串
+         * Get current timestamp string
          */
         datetimeString(): string;
         /**
-         * 数据转 Base64
+         * Convert data to Base64
          * @param data
          */
         base64Encode(data: any): string;
         /**
-         * Base64 转数据
+         * Convert Base64 to data
          * @param data
          */
         base64Decode(data: string): any;
         /**
-         * MD5 摘要
+         * MD5 hash
          * @param data
          */
         md5(data: string): string;
         /**
-         * 保存文件
+         * Save file
          * @param filename
          * @param data
          * @param option
