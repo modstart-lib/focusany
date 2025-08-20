@@ -1,6 +1,8 @@
 /// <reference path="electron-browser-window.d.ts"/>
 /// <reference path="electron.d.ts"/>
 
+// all the api not end with `Async` are synchronous, and the ones that end with `Async` are asynchronous.
+
 declare interface Window {
     focusany: FocusAnyApi;
 }
@@ -221,12 +223,12 @@ interface FocusAnyApi {
     /**
      * Hide plugin main window
      */
-    hideMainWindow(): boolean;
+    hideMainWindow(): void;
 
     /**
      * Show plugin main window
      */
-    showMainWindow(): boolean;
+    showMainWindow(): void;
 
     /**
      * Check if fast panel window is shown
@@ -236,12 +238,12 @@ interface FocusAnyApi {
     /**
      * Show fast panel window
      */
-    showFastPanelWindow(): boolean;
+    showFastPanelWindow(): void;
 
     /**
      * Hide fast panel window
      */
-    hideFastPanelWindow(): boolean;
+    hideFastPanelWindow(): void;
 
     /**
      * Set plugin height
@@ -261,23 +263,23 @@ interface FocusAnyApi {
         placeholder?: string,
         isFocus?: boolean,
         isVisible?: boolean
-    ): boolean;
+    ): void;
 
     /**
      * Remove input box listener
      */
-    removeSubInput(): boolean;
+    removeSubInput(): void;
 
     /**
      * Set sub input box value
      * @param value
      */
-    setSubInputValue(value: string): boolean;
+    setSubInputValue(value: string): void;
 
     /**
      * Sub input box lose focus
      */
-    subInputBlur(): boolean;
+    subInputBlur(): void;
 
     /**
      * Get plugin root directory
@@ -287,7 +289,12 @@ interface FocusAnyApi {
     /**
      * Get plugin configuration
      */
-    getPluginConfig(): any;
+    getPluginConfig(): {
+        name: string;
+        title: string;
+        version: string;
+        logo: string;
+    } | null;
 
     /**
      * Get plugin information
@@ -331,7 +338,7 @@ interface FocusAnyApi {
     /**
      * Close plugin
      */
-    outPlugin(): boolean;
+    outPlugin(): void;
 
     /**
      * Check if dark theme
@@ -460,13 +467,13 @@ interface FocusAnyApi {
      * Dynamically set plugin action
      * @param action
      */
-    setAction(action: PluginAction | PluginAction[]): boolean;
+    setAction(action: PluginAction | PluginAction[]): void;
 
     /**
      * Remove plugin action
      * @param name
      */
-    removeAction(name: string): boolean;
+    removeAction(name: string): void;
 
     /**
      * Get plugin actions
@@ -505,6 +512,7 @@ interface FocusAnyApi {
      * Show message box
      * @param message
      * @param options
+     * @return true if "yes" is clicked, false if "no" is clicked
      */
     showMessageBox(
         message: string,
@@ -513,7 +521,7 @@ interface FocusAnyApi {
             yes?: string;
             no?: string;
         }
-    ): void;
+    ): boolean;
 
     /**
      * Show open file dialog
@@ -681,6 +689,9 @@ interface FocusAnyApi {
      */
     shellBeep(): void;
 
+    /**
+     * simulate user input
+     */
     simulate: {
         /**
          * simulate keyboard tap

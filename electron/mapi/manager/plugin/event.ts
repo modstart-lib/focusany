@@ -518,13 +518,11 @@ export const ManagerPluginEvent = {
         const {action} = data;
         const plugin = context._plugin;
         await ManagerConfig.addCustomAction(plugin, action);
-        return true;
     },
     removeAction: async (context: PluginContext, data: any) => {
         const {name} = data;
         const plugin = context._plugin;
         await ManagerConfig.removeCustomAction(plugin, name);
-        return true;
     },
 
     setRemoteWebRuntime: async (context: PluginContext, data: any) => {

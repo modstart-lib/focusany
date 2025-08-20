@@ -463,11 +463,11 @@ export const FocusAny = {
     getActions(names?: string[]): PluginAction[] {
         return ipcSendSync("getActions", {names});
     },
-    setAction(action: PluginAction | PluginAction[]): boolean {
-        return ipcSendSync("setAction", {action});
+    setAction(action: PluginAction | PluginAction[]) {
+        ipcSendSync("setAction", {action});
     },
     removeAction(name: string) {
-        return ipcSendSync("removeAction", {name});
+        ipcSendSync("removeAction", {name});
     },
 
     sendBackendEvent(
@@ -564,12 +564,7 @@ export const FocusAny = {
         ipcSend("showUserLogin");
     },
 
-    getUser(): {
-        avatar: string;
-        nickname: string;
-        vipFlag: string;
-        deviceCode: string;
-    } | null {
+    getUser() {
         return ipcSendSync("getUser");
     },
 
