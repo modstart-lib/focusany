@@ -17,6 +17,7 @@ import {ManagerSystem} from "../system";
 import {PluginContext} from "../type";
 import {RemoteWebManager} from "./remoteWeb";
 import {PluginLog} from "../plugin/log";
+import ResultWindowItem from "../../../../src/pages/Main/Components/ResultWindowItem.vue";
 
 const browserViews = new Map<WebContents, BrowserView>();
 const detachWindows = new Map<WebContents, BrowserWindow>();
@@ -173,29 +174,36 @@ export const ManagerWindow = {
         return await mainPluginActionCode.view.webContents.executeJavaScript(`(async()=>{ ${js} })();`);
     },
     async actionCodeExecute(id: string | null = null, keywords: string | null = null) {
-        let item = null
+        let item: ActionCodeExecuteResultItem | null = null
         if (id) {
-            item = mainPluginActionCode.items.find(i => i.id === id);
+            item = mainPluginActionCode.items.find(i => i.id === id) as ActionCodeExecuteResultItem
         }
         try {
-            if (!(item && ('loading' in item) && !item.loading)) {
+            let hasLoading = false
+            if (!(item && ('loading' in item) && !item['loading'])) {
                 await executeHooks(AppRuntime.mainWindow, "PluginCodeSetting", {
                     loading: true,
                 });
+                hasLoading = true;
             }
-            const value = await this._viewCodeCallJs(
+            let value: ActionCodeExecuteResult = await this._viewCodeCallJs(
                 `return await window.exports.code['${mainPluginActionCode.action.name}'].execute(
                     ${JSON.stringify(item)},
                     ${JSON.stringify(keywords)},
                     ${JSON.stringify(mainPluginActionCode.codeData)}
                 );`
             );
-            // console.log('ManagerWindow.openActionCode.value', JSON.stringify(value))
-            if (!value || !value.command) {
-                throw `ManagerWindow.OpenActionCode.ResultEmpty`;
+            if (!value) {
+                value = {command: "none"} as ActionCodeExecuteResult;
             }
-            const plugin = mainPluginActionCode.view._plugin;
-            if ('placeholder' in value) {
+            if (hasLoading) {
+                await executeHooks(AppRuntime.mainWindow, "PluginCodeSetting", {
+                    loading: false,
+                });
+            }
+            // console.log('ManagerWindow.openActionCode.value', JSON.stringify(value))
+            const plugin: PluginRecord = mainPluginActionCode.view._plugin;
+            if (value.placeholder) {
                 await executeHooks(AppRuntime.mainWindow, "PluginCodeSetting", {
                     placeholder: value.placeholder,
                 });
@@ -211,23 +219,17 @@ export const ManagerWindow = {
                 await executeHooks(AppRuntime.mainWindow, "PluginCodeData", {
                     items: value.items,
                 });
-            } else if ('search' === value.command) {
-                this.actionCodeExecute(null, value.keywords).then();
-            } else if ('msg' === value.command) {
-                await executeHooks(AppRuntime.mainWindow, "PluginCodeSetting", {
-                    loading: false,
-                });
-                AppsMain.toast(value.msg, {
-                    status: value.type || "info",
-                }).then()
             } else if ('close' === value.command) {
                 await this.close();
                 AppRuntime.mainWindow.hide();
             } else if ('error' === value.command) {
                 await executeHooks(AppRuntime.mainWindow, "PluginCodeSetting", {
-                    loading: false,
                     error: value.error,
                 });
+            } else if ('clear' === value.command) {
+                await this.close();
+            } else if ('none' === value.command) {
+                // do nothing
             } else {
                 throw `ManagerWindow.OpenActionCode.CommandError:${value.command}`;
             }
@@ -325,15 +327,14 @@ export const ManagerWindow = {
                         resolve(value);
                         endView();
                     } else {
-                        const commandType = await this._viewCodeCallJs(`return window.exports.code['${action.name}'].type;`);
-                        if (!commandType) {
-                            throw `CodeCommandTypeError:${commandType}`;
+                        const codeSetting = await this._viewCodeCallJs(`return window.exports.code['${action.name}'].setting;`);
+                        if (!codeSetting) {
+                            throw `ManagerWindow.OpenForCode.SettingEmpty`;
                         }
-                        const placeholder = await this._viewCodeCallJs(`return window.exports.code['${action.name}'].placeholder;`);
                         await executeHooks(AppRuntime.mainWindow, "PluginCodeInit", {
                             plugin: plugin,
-                            type: commandType,
-                            placeholder: placeholder || '输入关键词搜索',
+                            type: codeSetting.type || 'list',
+                            placeholder: codeSetting.placeholder || '输入关键词搜索',
                         });
                         this.actionCodeExecute().then()
                         resolve(null);

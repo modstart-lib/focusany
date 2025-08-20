@@ -16,9 +16,10 @@ const props = defineProps<{
              :id="`MainResult_CodeItem_${ci.id}`"
              @click="doOpenActionCode(ci.id)"
              :class="{'bg-gray-200':manager.actionCodeItemActiveId===ci.id}">
-            <div class="w-10 h-10 bg-contain bg-center border-gray-300 mr-3 rounded-lg bg-no-repeat"
-                 :class="{'border':!!ci.iconBorder}"
-                 :style="{backgroundImage:`url(${ci.icon})`}"></div>
+            <div class="w-10 h-10 flex items-center justify-center border border-gray-300 mr-3 rounded-lg">
+                <div class="w-9 h-9 bg-contain bg-center bg-no-repeat"
+                     :style="{backgroundImage:`url(${ci.icon})`}"></div>
+            </div>
             <div class="flex-grow">
                 <div>{{ ci.title }}</div>
                 <div class="text-sm text-gray-500">{{ ci.description }}</div>

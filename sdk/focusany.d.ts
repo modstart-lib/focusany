@@ -71,6 +71,33 @@ type FileItem = {
     fileExt: string;
 };
 
+type ActionCodeSetting = {
+    type: "list",
+    placeholder: string;
+}
+
+type ActionCodeExecuteResultItem = {
+    id: string;
+    icon: string;
+    title: string;
+    description: string;
+    loading?: boolean;
+    // additional data
+    [key: string]: any;
+}
+
+type ActionCodeExecuteResult = {
+    command: "data" | "none" | "error" | "close" | "clear";
+    // set placeholder when placeholder is set
+    placeholder?: string;
+    // command === data
+    items?: ActionCodeExecuteResultItem[],
+    // command === error
+    error?: string;
+    // additional data
+    [key: string]: any;
+}
+
 declare type ActionMatchBase = {
     type: ActionMatchTypeEnum;
     name?: string;
