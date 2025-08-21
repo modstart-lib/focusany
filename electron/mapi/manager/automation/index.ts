@@ -1,9 +1,7 @@
-import {activeWindow, MacOSOwner, MacOSResult, Result} from "get-windows";
+import {activeWindow, Result} from "get-windows";
 import {windowManager} from "node-window-manager";
 import {ActiveWindow} from "../../../../src/types/Manager";
 import robot, {Keys} from "@hurdlegroup/robotjs";
-import {isLinux, isMac, isWin} from "../../../lib/env";
-import {exec} from "child_process";
 import {Log} from "../../log/main";
 import {Window} from "node-window-manager/src/classes/window";
 
@@ -38,7 +36,7 @@ export const ManagerAutomation = {
         if (['FocusAny'].includes(win.owner.name)) {
             return true;
         }
-        Log.info('ManagerAutomation.track', win);
+        // Log.info('ManagerAutomation.track', win);
         return false;
     },
     async activateLatestWindow(): Promise<void> {
