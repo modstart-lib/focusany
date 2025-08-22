@@ -17,7 +17,6 @@ import {ManagerSystem} from "../system";
 import {PluginContext} from "../type";
 import {RemoteWebManager} from "./remoteWeb";
 import {PluginLog} from "../plugin/log";
-import ResultWindowItem from "../../../../src/pages/Main/Components/ResultWindowItem.vue";
 
 const browserViews = new Map<WebContents, BrowserView>();
 const detachWindows = new Map<WebContents, BrowserWindow>();
@@ -411,7 +410,7 @@ export const ManagerWindow = {
         view._plugin = plugin;
         remoteMain.enable(view.webContents);
         DevToolsManager.register(`PluginView.${plugin.name}`, view);
-        view.webContents.once("did-finish-load", async () => {
+        view.webContents.once("dom-ready", async () => {
             await executeDarkMode(view, {
                 plugin,
                 isSystem: ManagerSystem.match(plugin.name),
@@ -728,7 +727,7 @@ export const ManagerWindow = {
         }
         const pluginJson = JSON.parse(JSON.stringify(view._plugin));
         return new Promise((resolve, reject) => {
-            win.webContents.once("did-finish-load", async () => {
+            win.webContents.once("dom-ready", async () => {
                 await executeDarkMode(win, {
                     plugin,
                     isSystem: true,
