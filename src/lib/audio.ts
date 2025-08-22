@@ -89,6 +89,9 @@ export const AudioUtil = {
         }
         return new Uint8Array(view.buffer);
     },
+    audioBufferDuration(buffer: AudioBuffer) {
+        return buffer.duration;
+    },
     audioBufferToWavBlob(buffer: AudioBuffer) {
         return new Blob([this.audioBufferToWav(buffer)], {type: "audio/wav"});
     },
