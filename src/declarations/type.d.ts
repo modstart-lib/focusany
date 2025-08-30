@@ -357,29 +357,6 @@ declare interface Window {
             getZipFileContent: (path: string, pathInZip: string) => Promise<string>;
             unzip: (zipPath: string, dest: string, option?: { process: Function }) => Promise<void>;
         };
-
-        ffmpeg: {
-            version: () => Promise<string>;
-            run: (args: string[]) => Promise<string>;
-            runToFileOrFail: (args: string[], format: string, label?: string) => Promise<string>;
-            getMediaDuration: (filePath: string, ms: boolean = false) => Promise<number>;
-            setMediaRatio: (
-                input: string,
-                output: string,
-                option?: {
-                    ratio: number;
-                }
-            ) => Promise<string>;
-            convertAudio: (
-                input: string,
-                output?: string,
-                option?: {
-                    channels?: number;
-                    sampleRate?: number;
-                    format?: string;
-                }
-            ) => Promise<string>;
-        };
         manager: {
             getConfig: () => Promise<ConfigRecord>;
             setConfig: (config: ConfigRecord) => Promise<void>;
