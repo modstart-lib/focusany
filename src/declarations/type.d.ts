@@ -98,6 +98,24 @@ declare interface Window {
                 send: (data: any) => void;
                 result: () => Promise<string>;
             }>;
+            spawnBinary: (
+                binary: string,
+                args: string[],
+                option?: {
+                    stdout?: (data: string, process: any) => void;
+                    stderr?: (data: string, process: any) => void;
+                    success?: (process: any) => void;
+                    error?: (msg: string, exitCode: number, process: any) => void;
+                    cwd?: string;
+                    outputEncoding?: string;
+                    env?: Record<string, any>;
+                    shell?: boolean;
+                } | null
+            ) => Promise<{
+                stop: () => void;
+                send: (data: any) => void;
+                result: () => Promise<string>;
+            }>;
             availablePort: (start: number, lockKey?: string, lockTime?: number) => Promise<number>;
             fixExecutable: (executable: string) => Promise<void>;
             getClipboardText: () => Promise<string>;
