@@ -156,9 +156,13 @@ interface PluginAction {
 }
 
 declare type CallPageOption = {
+    // default 10000 ms
     waitReadyTimeout?: number,
+    // default 60000 ms
     timeout?: number;
+    // default true, if false the render function will not work
     showWindow?: boolean;
+    // default true
     autoClose?: boolean;
 }
 
@@ -801,11 +805,11 @@ interface FocusAnyApi {
      * @param data
      * @param option
      */
-    callPage(
+    callPage<DataInput extends any, DataOutput extends any>(
         type: string,
-        data?: any,
+        data?: DataInput,
         option?: CallPageOption
-    ): Promise<any>;
+    ): Promise<DataOutput>;
 
     /**
      * set remote web runtime

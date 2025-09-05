@@ -276,9 +276,7 @@ export const PluginSdkCreate = (plugin: PluginRecord) => {
         callPage(
             type: string,
             data?: any,
-            option?: {
-                timeout?: number;
-            }
+            option?: CallPageOption
         ): Promise<any> {
             return ManagerPluginEvent.callPage(context, {type, data, option});
         },

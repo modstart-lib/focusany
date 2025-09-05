@@ -478,13 +478,13 @@ export const ManagerWindow = {
                         option.callPage.onResult({code: -1, msg: e + ""});
                     })
                     .finally(() => {
-
+                        console.log('ManagerWindow.callPage.finally')
+                        if (option.callPage.option.autoClose) {
+                            setTimeout(() => {
+                                view._window.close();
+                            }, 1000);
+                        }
                     });
-                if (option.callPage.option.autoClose) {
-                    setTimeout(() => {
-                        view._window.close();
-                    }, 1000);
-                }
                 readyData["isView"] = true;
             }
         });
@@ -789,7 +789,7 @@ export const ManagerWindow = {
                 if (
                     option.option.type === 'action'
                     ||
-                    (option.option.type === 'callPage' && !option.option.callPage?.option.showWindow)
+                    (option.option.type === 'callPage' && option.option.callPage?.option.showWindow)
                 ) {
                     win.show();
                 }

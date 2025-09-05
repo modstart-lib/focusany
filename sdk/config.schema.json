@@ -306,12 +306,28 @@
                                                     "description": "参数类型，例如 string、number、boolean、array、object 等。",
                                                     "enum": [
                                                         "string",
-                                                        "number"
+                                                        "number",
+                                                        "object",
+                                                        "array",
+                                                        "boolean"
                                                     ]
                                                 },
                                                 "description": {
                                                     "type": "string",
                                                     "description": "参数描述，简要说明参数的用途。"
+                                                },
+                                                "examples": {
+                                                    "type": "array",
+                                                    "description": "参数示例值。",
+                                                    "items": {
+                                                        "type": [
+                                                            "string",
+                                                            "number",
+                                                            "object",
+                                                            "array",
+                                                            "boolean"
+                                                        ]
+                                                    }
                                                 }
                                             }
                                         }

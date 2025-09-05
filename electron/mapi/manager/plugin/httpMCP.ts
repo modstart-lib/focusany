@@ -144,9 +144,14 @@ export const PluginHttpMCP = {
     }
 }
 
-setTimeout(() => {
-    PluginHttpMCP['tools/call']({
-        name: 'BasicExample.basic-example-weather',
-        arguments: {city: 'Beijing'},
-    })
+setTimeout(async () => {
+    // PluginHttpMCP['tools/call']({
+    //     name: 'BasicExample.basic-example-weather',
+    //     arguments: {city: 'Beijing'},
+    // })
+    // const result = await PluginHttpMCP['tools/call']({
+    //     name: 'FabricEditor.fileToPng',
+    //     arguments: {path: '/Users/mz/Downloads/NewFile.FabricEditor.fad'},
+    // })
+    // Log.info('MCPServer.Test', {result});
 }, 5000);

@@ -531,7 +531,7 @@ export const ManagerPluginEvent = {
             {
                 waitReadyTimeout: 10 * 1000,
                 timeout: 60 * 1000,
-                showWindow: false,
+                showWindow: true,
                 autoClose: true,
             },
             option
