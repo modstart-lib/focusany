@@ -53,7 +53,7 @@ export const ManagerSystem = {
         return pluginActionBackend[pluginName][name] || null;
     },
     async listAction() {
-        return await MemoryCacheUtil.remember("SystemActions", async () => {
+        return await MemoryCacheUtil.remember<ActionRecord[]>("SystemActions", async () => {
             let actions: ActionRecord[] = [];
             const plugins = await this.list();
             for (const p of plugins) {

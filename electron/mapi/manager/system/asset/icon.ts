@@ -11,6 +11,7 @@ import command from "./command.svg";
 import database from "./database.svg";
 import folder from "./folder.svg";
 import model from "./model.svg";
+import mcp from "./mcp.svg";
 import screenshot from "./screenshot.svg";
 import plugin from "./plugin.svg";
 import thunder from "./thunder.svg";
@@ -37,6 +38,7 @@ export const SystemIcons = {
     database,
     folder,
     model,
+    mcp,
     screenshot,
     plugin,
     thunder,

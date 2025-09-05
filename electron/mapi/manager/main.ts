@@ -21,6 +21,7 @@ import ProtocolMain from "../protocol/main";
 import {AppsMain} from "../app/main";
 import {PluginLog} from "./plugin/log";
 import {PluginHttp} from "./plugin/http";
+import {PluginHttpMCP} from "./plugin/httpMCP";
 
 const init = () => {
     ManagerClipboard.init().then();
@@ -57,6 +58,17 @@ ipcMain.handle("manager:getConfig", async event => {
 
 ipcMain.handle("manager:setConfig", async (event, config) => {
     return await ManagerConfig.save(config);
+});
+
+ipcMain.handle("manager:getMcpServer", async event => {
+    return await PluginHttp.getMcpServer()
+});
+
+ipcMain.handle("manager:getMcpInfo", async event => {
+    const toolsResult = await PluginHttpMCP['tools/list']({})
+    return {
+        tools: toolsResult.tools,
+    };
 });
 
 ipcMain.handle("manager:isShown", async event => {

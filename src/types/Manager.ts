@@ -34,6 +34,9 @@ export type PluginRecord = {
     main: string;
     mainView?: string;
     actions: ActionRecord[];
+    mcp?: {
+        tools?: MCPToolsRecord[],
+    },
     description?: string;
     preload?: string;
     platform?: PlatformType[];
@@ -225,6 +228,16 @@ export type ActionRecord = {
         windowCount?: number;
     };
 };
+
+export type MCPToolsRecord = {
+    name: string;
+    description: string;
+    inputSchema: {
+        type: "object",
+        properties: Record<string, { type: string, description?: string, default?: any }>,
+        required?: keyof MCPToolsRecord["inputSchema"]["properties"][],
+    }
+}
 
 export type PluginActionRecord = {
     pluginName: string;

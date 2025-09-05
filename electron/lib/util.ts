@@ -355,8 +355,7 @@ export const TimeUtil = {
     },
     replacePattern(text: string) {
         // @ts-ignore
-        return text
-            .replaceAll("{year}", dayjs().format("YYYY"))
+        return text.replaceAll("{year}", dayjs().format("YYYY"))
             .replaceAll("{month}", dayjs().format("MM"))
             .replaceAll("{day}", dayjs().format("DD"))
             .replaceAll("{hour}", dayjs().format("HH"))
@@ -496,9 +495,9 @@ export const MemoryCacheUtil = {
             }
         }
     },
-    async remember(key: string, callback: () => Promise<any>, ttl: number = 3600) {
+    async remember<T extends any>(key: string, callback: () => Promise<any>, ttl: number = 3600) {
         if (this.pool[key] && this.pool[key].expire > TimeUtil.timestamp()) {
-            return this.pool[key].value;
+            return this.pool[key].value as T;
         }
         const value = await callback();
         this.pool[key] = {
@@ -506,7 +505,7 @@ export const MemoryCacheUtil = {
             expire: TimeUtil.timestamp() + ttl,
         };
         this._gc();
-        return value;
+        return value as T;
     },
     get(key: string) {
         if (this.pool[key] && this.pool[key].expire > TimeUtil.timestamp()) {

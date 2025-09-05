@@ -8,7 +8,7 @@ import {PluginLog} from "../plugin/log";
 export const ManagerBackend = {
     async run(
         plugin: PluginRecord,
-        type: "hook" | "event" | "action",
+        type: "hook" | "event" | "action" | "mcpTool",
         key: string,
         data: any,
         option?: {

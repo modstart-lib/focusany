@@ -7,5 +7,6 @@ declare module "electron" {
     interface BrowserWindow {
         _name?: string;
         _plugin?: any;
+        _type?: "action" | "callPage";
     }
 }

@@ -412,6 +412,9 @@ export const Manager = {
                     break;
                 }
             }
+            if (win._type && win._type === "callPage") {
+                continue;
+            }
             if (!actionWeb) {
                 continue;
             }

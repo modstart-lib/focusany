@@ -215,7 +215,7 @@ export const ManagerPlugin = {
             root?: string;
             configJson?: any;
         }
-    ) {
+    ): Promise<PluginRecord> {
         option = Object.assign(
             {
                 type: null,
@@ -243,6 +243,13 @@ export const ManagerPlugin = {
         plugin.preload = plugin.preload || null;
         plugin.author = plugin.author || null;
         plugin.homepage = plugin.homepage || null;
+
+        if (!plugin.mcp) {
+            plugin.mcp = {};
+        }
+        if (!plugin.mcp.tools) {
+            plugin.mcp.tools = [];
+        }
 
         plugin.setting = Object.assign(
             {
@@ -459,6 +466,7 @@ export const ManagerPlugin = {
             root,
             configJson: p,
         });
+        const runtime = plugin.runtime;
         delete plugin.runtime;
         const info: PluginInfo = {
             type: pluginInfo.type,
@@ -473,6 +481,7 @@ export const ManagerPlugin = {
         });
         await this.clearCache();
         setTimeout(async () => {
+            plugin.runtime = runtime;
             await ManagerBackend.run(plugin, "hook", "installed", {});
         }, 1000);
     },
@@ -512,8 +521,8 @@ export const ManagerPlugin = {
     async isPluginInstalling(name: string) {
 
     },
-    async list() {
-        const plugins = await MemoryCacheUtil.remember("Plugins", async () => {
+    async list(): Promise<PluginRecord[]> {
+        const plugins = await MemoryCacheUtil.remember<PluginRecord[]>("Plugins", async () => {
             // await this.install(`${process.cwd()}/plugin-examples/plugin-example`, 'system')
             let plugins: PluginRecord[] = [];
             const pluginInfos = await KVDBMain.allDocs(CommonConfig.dbSystem, `${CommonConfig.dbPluginIdPrefix}/`);
@@ -586,7 +595,7 @@ export const ManagerPlugin = {
         return null;
     },
     async listAction() {
-        return await MemoryCacheUtil.remember("PluginActions", async () => {
+        return await MemoryCacheUtil.remember<ActionRecord[]>("PluginActions", async () => {
             let actions: ActionRecord[] = [];
             const plugins = await this.list();
             for (const p of plugins) {

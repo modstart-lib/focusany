@@ -9,6 +9,14 @@ const setConfig = async (config: ConfigRecord) => {
     return ipcRenderer.invoke("manager:setConfig", config);
 };
 
+const getMcpServer = async () => {
+    return ipcRenderer.invoke("manager:getMcpServer");
+}
+
+const getMcpInfo = async () => {
+    return ipcRenderer.invoke("manager:getMcpInfo");
+}
+
 const isShown = async () => {
     return ipcRenderer.invoke("manager:isShown");
 };
@@ -241,6 +249,9 @@ const historyDelete = async (pluginName: string, actionName: string, option?: {}
 export default {
     getConfig,
     setConfig,
+
+    getMcpServer,
+    getMcpInfo,
 
     isShown,
     show,

@@ -155,6 +155,13 @@ interface PluginAction {
     type?: "command" | "web" | "code" | "backend";
 }
 
+declare type CallPageOption = {
+    waitReadyTimeout?: number,
+    timeout?: number;
+    showWindow?: boolean;
+    autoClose?: boolean;
+}
+
 interface FocusAnyApi {
     /**
      * Plugin application initialization complete callback
@@ -168,6 +175,7 @@ interface FocusAnyApi {
             requestId: string;
             reenter: boolean;
             isView: boolean;
+            type: "action" | "callPage"
         }) => void
     ): void;
 
@@ -767,6 +775,36 @@ interface FocusAnyApi {
         option?: {
             timeout: number;
         }
+    ): Promise<any>;
+
+    /**
+     * Register backend caller in web
+     * @param type
+     * @param callback
+     * @param option
+     */
+    registerCallPage(
+        type: string,
+        callback: (
+            resolve: (data: any) => void,
+            reject: (error: string) => void,
+            data: any
+        ) => void,
+        option?: {
+            timeout?: number;
+        }
+    ): void;
+
+    /**
+     * call backend from backend.cjs script
+     * @param type
+     * @param data
+     * @param option
+     */
+    callPage(
+        type: string,
+        data?: any,
+        option?: CallPageOption
     ): Promise<any>;
 
     /**

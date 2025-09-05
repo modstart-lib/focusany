@@ -1,11 +1,12 @@
 import {AppRuntime} from "../env";
-import {ipcMain} from "electron";
+import {ipcMain, WebContents} from "electron";
 import {StrUtil} from "../../lib/util";
 import {ManagerWindow} from "../manager/window";
 
-const init = async () => {};
+const init = async () => {
+};
 
-type NameType = "main" | "fastPanel" | string;
+type NameType = "main" | "fastPanel" | string | WebContents;
 type EventType = "APP_READY" | "CALL_PAGE" | "CHANNEL" | "BROADCAST";
 type BroadcastType =
     | "ConfigChange"
@@ -81,6 +82,10 @@ const sendRaw = (webContents: any, type: EventType, data: any = {}, id?: string)
 const send = (name: NameType, type: EventType, data: any = {}, id?: string): boolean => {
     id = id || StrUtil.randomString(32);
     const payload = {id, type, data};
+    if (typeof name !== 'string') {
+        (name as WebContents).send("MAIN_PROCESS_MESSAGE", payload);
+        return true;
+    }
     if (name === "main") {
         if (!AppRuntime.mainWindow) {
             return false;
@@ -106,18 +111,22 @@ ipcMain.handle("event:send", async (_, name: NameType, type: EventType, data: an
 });
 
 const callPage = async (
-    name: string,
+    name: NameType,
     type: string,
     data: any,
     option?: {
         waitReadyTimeout?: number;
         timeout?: number;
     }
-) => {
+): Promise<{
+    code: number;
+    msg: string;
+    data?: any;
+}> => {
     option = Object.assign(
         {
             waitReadyTimeout: 10 * 1000,
-            timeout: 10 * 1000,
+            timeout: 60 * 1000,
         },
         option
     );

@@ -265,6 +265,83 @@
                 }
             }
         },
+        "mcp": {
+            "type": "object",
+            "description": "MCP 配置，描述了插件应用在 MCP 中的相关信息。",
+            "properties": {
+                "tools": {
+                    "type": "array",
+                    "description": "插件应用提供的工具列表，一个插件应用可以提供多个工具。",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string",
+                                "description": "工具名称，此为必选项，且插件应用内不可重复。建议使用小写+点号分隔，例如 'list.plugins'。"
+                            },
+                            "description": {
+                                "type": "string",
+                                "description": "工具描述，简要说明工具的用途。"
+                            },
+                            "inputSchema": {
+                                "type": "object",
+                                "description": "工具输入参数的 JSON Schema。必须符合 JSON Schema Draft 7 标准。",
+                                "properties": {
+                                    "type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "object"
+                                        ],
+                                        "description": "输入参数必须是对象类型。"
+                                    },
+                                    "properties": {
+                                        "type": "object",
+                                        "description": "对象的属性定义。每个属性名对应一个参数。",
+                                        "additionalProperties": {
+                                            "type": "object",
+                                            "description": "参数的 JSON Schema 定义。例如 {\"type\":\"string\",\"description\":\"...\"}",
+                                            "properties": {
+                                                "type": {
+                                                    "type": "string",
+                                                    "description": "参数类型，例如 string、number、boolean、array、object 等。",
+                                                    "enum": [
+                                                        "string",
+                                                        "number"
+                                                    ]
+                                                },
+                                                "description": {
+                                                    "type": "string",
+                                                    "description": "参数描述，简要说明参数的用途。"
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "required": {
+                                        "type": "array",
+                                        "description": "必填参数列表。",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "required": [
+                                    "type",
+                                    "properties"
+                                ]
+                            }
+                        },
+                        "required": [
+                            "name",
+                            "description",
+                            "inputSchema"
+                        ]
+                    }
+                }
+            },
+            "required": [
+                "tools"
+            ]
+        },
         "development": {
             "type": "object",
             "properties": {

@@ -31,6 +31,24 @@ const mainPluginActionCode = {
     }[],
 }
 
+type OpenOptionType = {
+    type: "action" | "callPage",
+    callPage?: {
+        type: string,
+        data: any,
+        option: CallPageOption,
+        onResult: (result: { code: number, msg: string, data?: any }) => void,
+    }
+}
+
+type OpenShowWindowOption = {
+    loadUrl: () => void;
+    pluginState: PluginState;
+    width: number;
+    height: number;
+    option: OpenOptionType;
+}
+
 const addBrowserViews = (view: BrowserView) => {
     browserViews.set(view.webContents, view);
 };
@@ -346,7 +364,14 @@ export const ManagerWindow = {
             });
         });
     },
-    async open(plugin: PluginRecord, action: ActionRecord, option?: {}) {
+    async open(plugin: PluginRecord, action?: ActionRecord, option?: OpenOptionType) {
+        option = Object.assign(
+            {
+                type: "action",
+                callPage: {},
+            },
+            option
+        );
         const {
             nodeIntegration,
             preloadBase,
@@ -360,13 +385,14 @@ export const ManagerWindow = {
         } = await ManagerPlugin.getInfo(plugin);
         // console.log('ManagerWindow.open', {nodeIntegration, preload, main, width, height, autoDetach})
         const readyData = {};
-        readyData["actionName"] = action.name;
-        readyData["actionMatch"] = action.runtime?.match;
-        readyData["actionMatchFiles"] = action.runtime?.matchFiles;
-        readyData["requestId"] = action.runtime?.requestId;
+        readyData["actionName"] = action?.name || null;
+        readyData["actionMatch"] = action?.runtime?.match || null;
+        readyData["actionMatchFiles"] = action?.runtime?.matchFiles || [];
+        readyData["requestId"] = action?.runtime?.requestId || null;
         readyData["reenter"] = false;
         readyData["isView"] = false;
-        if (singleton) {
+        readyData["type"] = option.type;
+        if (option.type === 'action' && singleton) {
             for (const v of this.listBrowserViews()) {
                 if (v._plugin.name === plugin.name) {
                     v._window.show();
@@ -443,6 +469,24 @@ export const ManagerWindow = {
                     title: `PluginView.${plugin.name}`,
                 });
             }
+            if (option.type === 'callPage') {
+                Events.callPage(view.webContents, option.callPage.type, option.callPage.data, option.callPage.option)
+                    .then(result => {
+                        option.callPage.onResult(result);
+                    })
+                    .catch(e => {
+                        option.callPage.onResult({code: -1, msg: e + ""});
+                    })
+                    .finally(() => {
+
+                    });
+                if (option.callPage.option.autoClose) {
+                    setTimeout(() => {
+                        view._window.close();
+                    }, 1000);
+                }
+                readyData["isView"] = true;
+            }
         });
         view.webContents.on("before-input-event", (event, input) => {
             // console.log('Load.Error-before-input-event', input)
@@ -468,16 +512,18 @@ export const ManagerWindow = {
                 checkForHotkey(view as any, input);
             }
         });
-        const windowOption = {
+        const windowOption: OpenShowWindowOption = {
             width,
             height,
             pluginState: {
                 value: "",
                 placeholder: "",
+                isVisible: false,
             },
             loadUrl: async () => {
                 ManagerWindow._pluginViewLoad(view, main).then();
             },
+            option,
         };
         setTimeout(async () => {
             if (autoDetach) {
@@ -485,7 +531,7 @@ export const ManagerWindow = {
                     AppRuntime.mainWindow.hide();
                 }
             }
-            if (autoDetach) {
+            if (autoDetach || option.type === "callPage") {
                 await this._showInDetachWindow(view, windowOption);
             } else {
                 await this._showInMainWindow(view, windowOption);
@@ -563,12 +609,7 @@ export const ManagerWindow = {
     },
     async _showInMainWindow(
         view: BrowserView,
-        option: {
-            loadUrl: () => void;
-            pluginState: PluginState;
-            width: number;
-            height: number;
-        }
+        option: OpenShowWindowOption
     ) {
         if (!(await ManagerPluginEvent.isMainWindowShown(null, null))) {
             await ManagerPluginEvent.showMainWindow(null, null);
@@ -610,12 +651,7 @@ export const ManagerWindow = {
     },
     async _showInDetachWindow(
         view: BrowserView,
-        option: {
-            loadUrl: () => void;
-            pluginState: PluginState;
-            width: number;
-            height: number;
-        }
+        option: OpenShowWindowOption
     ) {
         const plugin = view._plugin;
         let alwaysOnTop = false;
@@ -659,6 +695,7 @@ export const ManagerWindow = {
         });
         win._name = `DetachWindow.${view._plugin.name}`;
         win._plugin = view._plugin;
+        win._type = option.option.type;
         view._window = win;
         remoteMain.enable(win.webContents);
         win.on("close", () => {
@@ -749,7 +786,13 @@ export const ManagerWindow = {
                     state: option.pluginState,
                     param: pluginParam,
                 });
-                win.show();
+                if (
+                    option.option.type === 'action'
+                    ||
+                    (option.option.type === 'callPage' && !option.option.callPage?.option.showWindow)
+                ) {
+                    win.show();
+                }
                 resolve(undefined);
             });
             rendererLoadPath(win, "page/detachWindow.html");

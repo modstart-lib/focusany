@@ -251,6 +251,46 @@ export const PluginSdkCreate = (plugin: PluginRecord) => {
         async removeAction(name: string) {
             return ManagerPluginEvent.removeAction(context, {name});
         },
+        async sendBackendEvent(
+            event: string,
+            data?: any,
+            option?: {
+                timeout: number;
+            }
+        ): Promise<any> {
+            throw new Error("Only can be called in plugin web");
+        },
+        registerCallPage(
+            type: string,
+            callback: (
+                resolve: (data: any) => void,
+                reject: (error: string) => void,
+                data: any
+            ) => void,
+            option?: {
+                timeout?: number;
+            }
+        ) {
+            throw new Error("Only can be called in plugin web");
+        },
+        callPage(
+            type: string,
+            data?: any,
+            option?: {
+                timeout?: number;
+            }
+        ): Promise<any> {
+            return ManagerPluginEvent.callPage(context, {type, data, option});
+        },
+        setRemoteWebRuntime(info: {
+            userAgent: string;
+            urlMap: Record<string, string>;
+            types: string[];
+            domains: string[];
+            blocks: string[];
+        }): Promise<undefined> {
+            throw new Error("Only can be called in plugin web");
+        },
         async llmListModels(): Promise<{
             providerId: string;
             providerLogo: string;

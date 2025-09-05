@@ -525,6 +525,37 @@ export const ManagerPluginEvent = {
         await ManagerConfig.removeCustomAction(plugin, name);
     },
 
+    callPage: async (context: PluginContext, data_: any) => {
+        let {type, data, option} = data_;
+        option = Object.assign(
+            {
+                waitReadyTimeout: 10 * 1000,
+                timeout: 60 * 1000,
+                showWindow: false,
+                autoClose: true,
+            },
+            option
+        ) as CallPageOption;
+        const plugin = context._plugin;
+        return new Promise<any>((resolve, reject) => {
+            ManagerWindow.open(plugin, null, {
+                type: "callPage",
+                callPage: {
+                    type,
+                    data,
+                    option,
+                    onResult(result) {
+                        if (result.code === 0) {
+                            resolve(result.data);
+                        } else {
+                            reject(new Error(result.msg || "Error"));
+                        }
+                    },
+                }
+            })
+        })
+    },
+
     setRemoteWebRuntime: async (context: PluginContext, data: any) => {
         const {info} = data;
         const plugin = context._plugin;

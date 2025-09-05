@@ -371,6 +371,11 @@ declare interface Window {
             getConfig: () => Promise<ConfigRecord>;
             setConfig: (config: ConfigRecord) => Promise<void>;
 
+            getMcpServer: () => Promise<string>;
+            getMcpInfo: () => Promise<{
+                tools: { name: string; description: string }[],
+            }>;
+
             isShown: () => Promise<boolean>;
             show: () => Promise<void>;
             hide: () => Promise<void>;

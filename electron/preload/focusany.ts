@@ -498,6 +498,39 @@ export const FocusAny = {
         });
     },
 
+    registerCallPage(
+        type: string,
+        callback: (
+            resolve: (data: any) => void,
+            reject: (error: string) => void,
+            data: any
+        ) => void,
+        option?: {
+            timeout?: number;
+        }
+    ) {
+        option = Object.assign({
+            timeout: 30 * 1000,
+        }, option || {});
+        if (!("__page" in window)) {
+            (window as any)["__page"] = {};
+        }
+        if (!("callPage" in (window as any)["__page"])) {
+            (window as any)["__page"].callPage = {};
+        }
+        (window as any)["__page"].callPage[type] = callback;
+    },
+
+    callPage(
+        type: string,
+        data?: any,
+        option?: {
+            timeout?: number;
+        }
+    ): Promise<any> {
+        throw new Error("Only can be called in backend.cjs");
+    },
+
     setRemoteWebRuntime(info: {
         userAgent: string;
         urlMap: Record<string, string>;
