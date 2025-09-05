@@ -11,7 +11,7 @@ import SystemUser from "./System/SystemUser.vue";
 import SystemAbout from "./System/SystemAbout.vue";
 import SystemModel from "./System/SystemModel.vue";
 import SystemMCP from "./System/SystemMCP.vue";
-const tab = ref("");
+const tab = ref("setting");
 window.focusany.onPluginReady(data => {
     const actionNameMap = {
         "page-data": "data",

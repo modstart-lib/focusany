@@ -783,12 +783,12 @@ interface FocusAnyApi {
      * @param callback
      * @param option
      */
-    registerCallPage(
+    registerCallPage<DataInput extends any, DataOutput extends any>(
         type: string,
         callback: (
-            resolve: (data: any) => void,
+            resolve: (data: DataOutput) => void,
             reject: (error: string) => void,
-            data: any
+            data: DataInput
         ) => void,
         option?: {
             timeout?: number;

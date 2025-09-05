@@ -1,6 +1,6 @@
 {
     "name": "focusany-sdk",
-    "version": "1.3.3",
+    "version": "1.3.4",
     "description": "TypeScript definitions for FocusAny",
     "main": "./index.js",
     "types": "./index.d.ts",
