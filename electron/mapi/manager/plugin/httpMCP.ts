@@ -110,7 +110,7 @@ export const PluginHttpMCP = {
                     for (const tool of plugin.mcp.tools) {
                         tools.push({
                             ...tool,
-                            name: `${plugin.name}.${tool.name}`,
+                            name: `${plugin.name}-${tool.name}`,
                         });
                     }
                 }
@@ -122,12 +122,12 @@ export const PluginHttpMCP = {
     },
     'tools/call': async (params: Record<string, any>) => {
         const {name, arguments: args} = params;
-        const pcs = name.split('.');
+        const pcs = name.split('-');
         if (pcs.length < 2) {
             throw new Error('Invalid tool name');
         }
         const pluginName = pcs.shift()!;
-        const toolName = pcs.join('.');
+        const toolName = pcs.join('-');
         const plugin = await ManagerPlugin.get(pluginName);
         if (!plugin) {
             throw new Error('Plugin not found');

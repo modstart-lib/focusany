@@ -1,8 +1,6 @@
 /// <reference path="electron-browser-window.d.ts"/>
 /// <reference path="electron.d.ts"/>
 
-// all the api not end with `Async` are synchronous, and the ones that end with `Async` are asynchronous.
-
 declare interface Window {
     focusany: FocusAnyApi;
 }
@@ -922,6 +920,16 @@ interface FocusAnyApi {
          * Get file extension
          */
         ext(path: string): Promise<string>;
+        /**
+         * save file to temp path
+         */
+        writeTemp(
+            ext: string,
+            data: string | Uint8Array,
+            option?: {
+                isBase64?: boolean;
+            }
+        ): Promise<string>;
     };
 
     /**

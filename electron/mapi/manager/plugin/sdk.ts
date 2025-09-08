@@ -352,6 +352,32 @@ export const PluginSdkCreate = (plugin: PluginRecord) => {
         async getUserAccessToken(): Promise<{ token: string; expireAt: number }> {
             return ManagerPluginEvent.getUserAccessToken(context, {});
         },
+        file: {
+            async exists(path: string): Promise<boolean> {
+                return ManagerPluginEvent.fileExists(context, {path});
+            },
+            async read(path: string): Promise<string> {
+                return ManagerPluginEvent.fileRead(context, {path});
+            },
+            async write(path: string, data: string): Promise<void> {
+                return ManagerPluginEvent.fileWrite(context, {path, data});
+            },
+            async remove(path: string): Promise<void> {
+                return ManagerPluginEvent.fileRemove(context, {path});
+            },
+            async ext(path: string): Promise<string> {
+                return ManagerPluginEvent.fileExt(context, {path});
+            },
+            async writeTemp(
+                ext: string,
+                data: string | Uint8Array,
+                option?: {
+                    isBase64?: boolean;
+                }
+            ): Promise<string> {
+                return ManagerPluginEvent.fileWriteTemp(context, {ext, data, option});
+            }
+        },
         db: {
             async put(doc: { _id: string; data: any; _rev?: string }) {
                 return ManagerPluginEvent.dbPut(context, {doc});

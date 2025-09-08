@@ -29,6 +29,7 @@ import {Files} from "../../file/main";
 import {listModels, modelChat} from "./llm";
 import {Page} from "../../../page";
 import {PluginLog} from "./log";
+import fs from "fs";
 
 const getHeadHeight = (win: BrowserWindow) => {
     if (win === AppRuntime.mainWindow) {
@@ -813,9 +814,9 @@ export const ManagerPluginEvent = {
     },
 
     // file
-    fileExists: async (context: PluginContext, data: any) => {
+    fileExists: async (context: PluginContext, data: any): Promise<boolean> => {
         if (!ManagerPluginPermission.check(context._plugin, "basic", "File")) {
-            return;
+            return false;
         }
         const {path} = data;
         return await Files.exists(path, {
@@ -841,7 +842,7 @@ export const ManagerPluginEvent = {
             isFullPath: true,
         });
     },
-    fileRemove: async (context: PluginContext, data: any) => {
+    fileRemove: async (context: PluginContext, data: any): Promise<void> => {
         if (!ManagerPluginPermission.check(context._plugin, "basic", "File")) {
             return;
         }
@@ -854,6 +855,25 @@ export const ManagerPluginEvent = {
         const {path} = data;
         const ext = Files.ext(path);
         return ext ? ext : "";
+    },
+    fileWriteTemp: async (context: PluginContext, data_: any) => {
+        if (!ManagerPluginPermission.check(context._plugin, "basic", "File")) {
+            return;
+        }
+        let {ext, data, option} = data_;
+        option = Object.assign({
+            isBase64: false,
+        }, option);
+        const tempPath = await Files.temp(ext);
+        if (option?.isBase64) {
+            // remove prefix data:image/svg+xml;base64,
+            if ((data as string).startsWith("data:")) {
+                data = (data as string).split(",")[1];
+            }
+            data = Buffer.from(data as string, "base64");
+        }
+        fs.writeFileSync(tempPath, data as Uint8Array);
+        return tempPath;
     },
 
     // db

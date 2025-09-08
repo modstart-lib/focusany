@@ -664,6 +664,15 @@ export const FocusAny = {
         ext(path: string): Promise<string> {
             return ipcSendAsync("fileExt", {path});
         },
+        writeTemp(
+            ext: string,
+            data: string | Uint8Array,
+            option?: {
+                isBase64?: boolean;
+            }
+        ): Promise<string> {
+            return ipcSendAsync("fileWriteTemp", {ext, data, option});
+        }
     },
 
     db: {
