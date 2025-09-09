@@ -1,5 +1,7 @@
-declare interface Window {
-    __page: {
+export {};
+
+declare global {
+    const __page: {
         onShow: (cb: Function) => void;
         onHide: (cb: Function) => void;
         onMaximize: (cb: Function) => void;
@@ -34,7 +36,7 @@ declare interface Window {
         onDetachWindowClosed: (cb: Function) => void;
     };
     focusany: FocusAnyApi;
-    $mapi: {
+    const $mapi: {
         app: {
             getPreload: () => Promise<string>;
             resourcePathResolve: (filePath: string) => Promise<string>;
@@ -492,4 +494,9 @@ declare interface Window {
             historyDelete: (pluginName: string, actionName: string, option?: {}) => Promise<void>;
         };
     };
+}
+
+declare interface Window {
+    __page: typeof __page;
+    $mapi: typeof $mapi;
 }
