@@ -62,7 +62,7 @@ export const ManagerPluginStore = {
             // console.log('ManagerPluginStore.install.downloadStart');
             let lastPercent = 0;
             await Files.download(packageUrl, tempFile, {
-                isFullPath: true,
+                isDataPath: false,
                 progress(percent, total) {
                     const p = Math.floor(percent * 100 * 0.99);
                     if (lastPercent != p) {
@@ -126,7 +126,7 @@ export const ManagerPluginStore = {
         }
         const root = plugin.runtime.root;
         const config = await Files.read(resolve(root, "config.json"), {
-            isFullPath: true,
+            isDataPath: false,
         });
         if (!config) {
             throw "PluginFormatError:-9";
@@ -157,7 +157,7 @@ export const ManagerPluginStore = {
         const releaseDocPath = resolve(root, configJson["development"]["releaseDoc"]);
         // console.log('releaseDocPath', releaseDocPath)
         const releaseDoc = await Files.read(releaseDocPath, {
-            isFullPath: true,
+            isDataPath: false,
         });
         if (releaseDoc) {
             const parts = releaseDoc.split("---");
@@ -207,11 +207,11 @@ export const ManagerPluginStore = {
         }
         // console.log('tempFile', tempFile)
         const buffer = await Files.readBuffer(tempFile, {
-            isFullPath: true,
+            isDataPath: false,
         });
         payload.package = buffer.toString("base64");
         await Files.deletes(tempFile, {
-            isFullPath: true,
+            isDataPath: false,
         });
         return await UserApi.post("store/plugin_publish", {
             ...payload,
@@ -245,7 +245,7 @@ export const ManagerPluginStore = {
         }
         const root = plugin.runtime.root;
         const config = await Files.read(resolve(root, "config.json"), {
-            isFullPath: true,
+            isDataPath: false,
         });
         if (!config) {
             throw "PluginFormatError:-12";
@@ -288,7 +288,7 @@ export const ManagerPluginStore = {
         configJson["development"]["contentDoc"] = configJson["development"]["contentDoc"] || "content.md";
         const contentDocPath = resolve(root, configJson["development"]["contentDoc"]);
         const contentDoc = await Files.read(contentDocPath, {
-            isFullPath: true,
+            isDataPath: false,
         });
         if (contentDoc) {
             result.pluginContent = MarkdownUtil.toHtml(contentDoc);
@@ -296,7 +296,7 @@ export const ManagerPluginStore = {
         configJson["development"]["previewDoc"] = configJson["development"]["previewDoc"] || "preview.md";
         const previewDocPath = resolve(root, configJson["development"]["previewDoc"]);
         const previewDoc = await Files.read(previewDocPath, {
-            isFullPath: true,
+            isDataPath: false,
         });
         if (previewDoc) {
             const images = [];

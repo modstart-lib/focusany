@@ -12,7 +12,7 @@ const getIconFile = appFileInput => {
     return new Promise((resolve, reject) => {
         const plistPath = path.join(appFileInput, "Contents", "Info.plist");
         Files.read(plistPath, {
-            isFullPath: true,
+            isDataPath: false,
         })
             .then(plistContent => {
                 if (plistContent) {
@@ -58,19 +58,19 @@ export const getIcon = async (appPath: string, appName: string) => {
     try {
         const iconPathUrl = "file://" + path.join(iconTempDir, `${encodeURIComponent(appName)}.png`);
         const iconPath = path.join(iconTempDir, `${appName}.png`);
-        if (await Files.exists(iconPath, {isFullPath: true})) {
+        if (await Files.exists(iconPath, {isDataPath: false})) {
             return iconPathUrl;
         }
         const iconNone = path.join(iconTempDir, `${appName}.none`);
         const iconNoneUrl = path.join(iconTempDir, `${appName}.none`);
-        if (await Files.exists(iconNone, {isFullPath: true})) {
+        if (await Files.exists(iconNone, {isDataPath: false})) {
             return iconNoneUrl;
         }
-        if (!(await Files.exists(iconTempDir, {isFullPath: true}))) {
+        if (!(await Files.exists(iconTempDir, {isDataPath: false}))) {
             fs.mkdirSync(iconTempDir, {recursive: true});
         }
         await app2png(appPath, iconPath);
-        if (!(await Files.exists(iconPath, {isFullPath: true}))) {
+        if (!(await Files.exists(iconPath, {isDataPath: false}))) {
             fs.writeFileSync(iconNone, "");
             throw "IconGetError";
         }

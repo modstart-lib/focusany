@@ -142,17 +142,17 @@ export const ManagerClipboard = {
         if (saveData.image) {
             const imageMd5 = EncodeUtil.md5(saveData.image);
             let imageFile = `clipboard/${filename}/${imageMd5}`;
-            Files.writeBuffer(imageFile, FileUtil.base64ToBuffer(saveData.image)).then();
+            Files.writeBuffer(imageFile, FileUtil.base64ToBuffer(saveData.image), {isDataPath: true}).then();
             saveData.image = imageMd5;
         }
         const dataString = this.encrypt(saveData);
         // console.log('clipboard.write', `clipboard/${filename}/data`, dataString)
-        await Files.appendText(`clipboard/${filename}/data`, `${dataString}\n`);
+        await Files.appendText(`clipboard/${filename}/data`, `${dataString}\n`, {isDataPath: true});
         await ManagerPluginEvent.firePluginEvent("ClipboardChange", saveData);
     },
     async list(limit: number = -1): Promise<ClipboardHistoryRecord[]> {
         const fullPath = await Files.fullPath("clipboard");
-        const dateDir = await Files.list("clipboard");
+        const dateDir = await Files.list("clipboard", {isDataPath: true});
         // 按照倒序排列 pathname
         dateDir.sort((a, b) => {
             return b.pathname.localeCompare(a.pathname);
@@ -161,10 +161,10 @@ export const ManagerClipboard = {
         let maxLimitReached = false;
         for (const dir of dateDir) {
             if (maxLimitReached) {
-                await Files.deletes(`clipboard/${dir.name}`);
+                await Files.deletes(`clipboard/${dir.name}`, {isDataPath: true});
                 continue;
             }
-            const data = await Files.read(`clipboard/${dir.name}/data`);
+            const data = await Files.read(`clipboard/${dir.name}/data`, {isDataPath: true});
             for (const line of data.split("\n").reverse()) {
                 if (!line) {
                     continue;
@@ -192,11 +192,11 @@ export const ManagerClipboard = {
         return result;
     },
     async clear() {
-        await Files.deletes("clipboard");
+        await Files.deletes("clipboard", {isDataPath: true});
     },
     async delete(timestamp: number) {
         const date = TimeUtil.timestampDayStart(timestamp * 1000);
-        const data = await Files.read(`clipboard/${date}/data`);
+        const data = await Files.read(`clipboard/${date}/data`, {isDataPath: true});
         const lines = data.split("\n");
         const result = [];
         for (const line of lines) {
@@ -211,6 +211,6 @@ export const ManagerClipboard = {
                 result.push(line);
             }
         }
-        await Files.write(`clipboard/${date}/data`, result.join("\n"));
+        await Files.write(`clipboard/${date}/data`, result.join("\n"), {isDataPath: true});
     },
 };

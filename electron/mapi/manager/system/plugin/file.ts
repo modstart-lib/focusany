@@ -24,7 +24,7 @@ export const FilePlugin: PluginRecord = {
 };
 
 const listActions = async () => {
-    return await MemoryCacheUtil.remember("FileActions", async () => {
+    return await MemoryCacheUtil.remember<ActionRecord[]>("FileActions", async () => {
         const actions: ActionRecord[] = [];
         const records = await ManagerSystemPluginFile.list();
         records.forEach((record, recordIndex) => {

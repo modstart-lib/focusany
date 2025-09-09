@@ -8,7 +8,8 @@ import {AppsMain} from "../../app/main";
 export const ManagerEditor = {
     filePath: null,
     isReady: false,
-    async init() {},
+    async init() {
+    },
     async ready() {
         this.isReady = true;
     },
@@ -23,7 +24,7 @@ export const ManagerEditor = {
         }
         try {
             const result = await Files.read(file, {
-                isFullPath: true,
+                isDataPath: false,
             });
             const json = JSON.parse(result);
             this.faDataTypeCache[file] = json["type"];
@@ -64,7 +65,7 @@ export const ManagerEditor = {
                     Log.info("ManagerEditor.openFileEditor.Empty", this.filePath);
                     return;
                 }
-                if (!(await Files.exists(this.filePath, {isFullPath: true}))) {
+                if (!(await Files.exists(this.filePath, {isDataPath: false}))) {
                     Log.info("ManagerEditor.openFileEditor.NotFound", this.filePath);
                     return;
                 }

@@ -377,7 +377,7 @@ export const ManagerPlugin = {
         let guessType = type || PluginType.DIR;
         if (
             !(await Files.isDirectory(fileOrPath, {
-                isFullPath: true,
+                isDataPath: false,
             }))
         ) {
             if (fileOrPath.endsWith("config.json")) {
@@ -388,12 +388,12 @@ export const ManagerPlugin = {
                 const plugin = await ManagerPlugin.get(name);
                 if (
                     await Files.exists(target, {
-                        isFullPath: true,
+                        isDataPath: false,
                     })
                 ) {
                     if (!plugin) {
                         await Files.deletes(target, {
-                            isFullPath: true,
+                            isDataPath: false,
                         });
                     }
                 }
@@ -502,7 +502,7 @@ export const ManagerPlugin = {
         if (info.type === PluginType.STORE || info.type === PluginType.ZIP) {
             if (info.root) {
                 await Files.deletes(info.root, {
-                    isFullPath: true,
+                    isDataPath: false,
                 });
             }
         }
@@ -579,7 +579,7 @@ export const ManagerPlugin = {
         root = root.replace(/[\\/]+$/, "");
         const configPath = root + "/config.json";
         const config = await Files.read(configPath, {
-            isFullPath: true,
+            isDataPath: false,
         });
         if (!config) {
             return null;

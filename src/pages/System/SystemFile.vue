@@ -27,7 +27,7 @@ const doAdd = async () => {
         return;
     }
     let icon = SystemIcons.folder;
-    if (!(await window.$mapi.file.isDirectory(file))) {
+    if (!(await window.$mapi.file.isDirectory(file,{isDataPath:false}))) {
         icon = focusany.getFileIcon(file);
     }
     let title = FileUtil.getBaseName(file);

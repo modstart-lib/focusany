@@ -15,11 +15,11 @@ export const getAppTitle = async (locale: string, pathname: string, name: string
     for (const langDir of langDirs) {
         const infoPlistPath = pathname + "/Contents/Resources/" + langDir + "/InfoPlist.strings";
         // console.log('infoPlistPath', infoPlistPath)
-        if (!(await Files.exists(infoPlistPath, {isFullPath: true}))) {
+        if (!(await Files.exists(infoPlistPath, {isDataPath: false}))) {
             continue;
         }
         const buffer = await Files.readBuffer(infoPlistPath, {
-            isFullPath: true,
+            isDataPath: false,
         });
         const content = IconvUtil.bufferToUtf8(buffer) as string;
         // console.log('content', infoPlistPath, content.toString('utf8'))

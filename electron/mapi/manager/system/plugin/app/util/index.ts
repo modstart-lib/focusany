@@ -14,7 +14,7 @@ export const listFiles = async (
     let results: any[] = [];
     for (const path of paths) {
         for (let p of await Files.list(path, {
-            isFullPath: true,
+            isDataPath: false,
         })) {
             results.push(p);
         }

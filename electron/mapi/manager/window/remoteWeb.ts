@@ -36,10 +36,10 @@ export const RemoteWebManager = {
                 headers: {},
             };
             const meta = file + ".meta.json";
-            if (!(await Files.exists(meta, {isFullPath: true}))) {
+            if (!(await Files.exists(meta, {isDataPath: false}))) {
                 return defaultMeta;
             }
-            const content = await Files.read(meta, {isFullPath: true});
+            const content = await Files.read(meta, {isDataPath: false});
             if (!content) {
                 return defaultMeta;
             }
@@ -59,7 +59,7 @@ export const RemoteWebManager = {
         const writeFileMeta = async (file: string, meta: FileMeta): Promise<void> => {
             const metaFile = file + ".meta.json";
             const content = JSON.stringify(meta, null, 2);
-            await Files.write(metaFile, content, {isFullPath: true});
+            await Files.write(metaFile, content, {isDataPath: false});
         };
 
         const getCacheFile = (url: string, param: any = {}): string | null => {
@@ -102,8 +102,8 @@ export const RemoteWebManager = {
             const requestHandler = async (request): Promise<any> => {
                 const url = request.url;
                 const file = getCacheFile(url);
-                if (file && (await Files.exists(file, {isFullPath: true}))) {
-                    const buffer = await Files.readBuffer(file, {isFullPath: true});
+                if (file && (await Files.exists(file, {isDataPath: false}))) {
+                    const buffer = await Files.readBuffer(file, {isDataPath: false});
                     const fileMeta = await getFileMeta(file);
                     PluginLog.info(plugin.name, "RemoteWeb.Cache.Hit", {
                         url,
@@ -162,7 +162,7 @@ export const RemoteWebManager = {
                             }
                             let cacheStatus = "miss";
                             if (file) {
-                                await Files.writeBuffer(file, Buffer.from(buffer), {isFullPath: true});
+                                await Files.writeBuffer(file, Buffer.from(buffer), {isDataPath: false});
                                 await writeFileMeta(file, {mimeType, headers});
                                 cacheStatus = "cached";
                             }

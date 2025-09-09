@@ -820,7 +820,7 @@ export const ManagerPluginEvent = {
         }
         const {path} = data;
         return await Files.exists(path, {
-            isFullPath: true,
+            isDataPath: false,
         });
     },
     fileRead: async (context: PluginContext, data: any) => {
@@ -829,7 +829,7 @@ export const ManagerPluginEvent = {
         }
         const {path} = data;
         return await Files.read(path, {
-            isFullPath: true,
+            isDataPath: false,
             encoding: "utf-8",
         });
     },
@@ -839,7 +839,7 @@ export const ManagerPluginEvent = {
         }
         const {path, data: content} = data;
         return await Files.write(path, content, {
-            isFullPath: true,
+            isDataPath: false,
         });
     },
     fileRemove: async (context: PluginContext, data: any): Promise<void> => {
@@ -848,7 +848,7 @@ export const ManagerPluginEvent = {
         }
         const {path} = data;
         return await Files.deletes(path, {
-            isFullPath: true,
+            isDataPath: false,
         });
     },
     fileExt: async (context: PluginContext, data: any) => {
