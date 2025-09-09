@@ -359,7 +359,7 @@ const getBuildInfo = async () => {
         };
     }
     const json = await Files.read(rendererDistPath("build.json"), {
-        isFullPath: true,
+        isDataPath: false,
     });
     return JSON.parse(json);
 };
