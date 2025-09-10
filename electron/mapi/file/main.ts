@@ -7,7 +7,8 @@ ipcMain.handle("file:openFile", async (_, options): Promise<string | null> => {
             properties: ["openFile"],
             ...options,
         })
-        .catch(e => {});
+        .catch(e => {
+        });
     if (!res || res.canceled) {
         return null;
     }
@@ -20,7 +21,8 @@ ipcMain.handle("file:openDirectory", async (_, options): Promise<string | null> 
             properties: ["openDirectory"],
             ...options,
         })
-        .catch(e => {});
+        .catch(e => {
+        });
     if (!res || res.canceled) {
         return null;
     }
@@ -32,7 +34,8 @@ ipcMain.handle("file:openSave", async (_, options): Promise<string | null> => {
         .showSaveDialog({
             ...options,
         })
-        .catch(e => {});
+        .catch(e => {
+        });
     if (!res || res.canceled) {
         return null;
     }
