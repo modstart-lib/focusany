@@ -707,7 +707,7 @@ export const FocusAny = {
     },
     dbStorage: {
         setItem(key: string, value: any) {
-            return ipcSendSync("dbStorageSetItem", {key, value});
+            return ipcSendSync("dbStorageSetItem", {key, value: JSON.parse(JSON.stringify(value))});
         },
         getItem(key: string) {
             return ipcSendSync("dbStorageGetItem", {key});

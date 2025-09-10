@@ -71,7 +71,7 @@ export async function serveMcpRPC(req, res) {
         Log.info('MCPServer.call', {method, params, json});
         res.json(json);
     } catch (e) {
-        Log.error('MCPServer', {
+        Log.error('MCPServer.call', {
             method,
             params,
             error: e + '',
@@ -132,13 +132,27 @@ export const PluginHttpMCP = {
         if (!plugin) {
             throw new Error('Plugin not found');
         }
-        const result = await ManagerBackend.run(plugin, 'mcpTool', toolName, args || {}, {rejectIfError: true});
+        const result: any = await ManagerBackend.run(plugin, 'mcpTool', toolName, args || {}, {rejectIfError: true});
         if (!result) {
             PluginLog.error(plugin.name, `MCP.Tool.NoResult`, {
                 toolName,
                 args,
-            });
+            }, true);
             throw new Error('No result from tool');
+        }
+        if (result.content && Array.isArray(result.content)) {
+            result.content = result.content.map(item => {
+                if (item.type === 'image') {
+                    // remove prefix data:image/png;base64,iVBORw
+                    if (item.data && item.data.startsWith('data:image')) {
+                        const idx = item.data.indexOf('base64,');
+                        if (idx > 0) {
+                            item.data = item.data.substring(idx + 7);
+                        }
+                    }
+                }
+                return item;
+            })
         }
         return result;
     }

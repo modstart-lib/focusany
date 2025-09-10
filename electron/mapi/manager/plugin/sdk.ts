@@ -464,7 +464,7 @@ export const PluginSdkCreate = (plugin: PluginRecord) => {
                         try {
                             return await Promise.resolve(value.apply(obj, args));
                         } catch (error) {
-                            PluginLog.error(plugin.name, `Api.Error-${prop.toString()}`, {
+                            PluginLog.error(plugin.name, `SDK-${prop.toString()}`, {
                                 error: error + '',
                             });
                         }

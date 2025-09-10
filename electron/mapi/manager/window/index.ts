@@ -17,6 +17,7 @@ import {ManagerSystem} from "../system";
 import {PluginContext} from "../type";
 import {RemoteWebManager} from "./remoteWeb";
 import {PluginLog} from "../plugin/log";
+import Apps from "../../app";
 
 const browserViews = new Map<WebContents, BrowserView>();
 const detachWindows = new Map<WebContents, BrowserWindow>();
@@ -478,7 +479,6 @@ export const ManagerWindow = {
                         option.callPage.onResult({code: -1, msg: e + ""});
                     })
                     .finally(() => {
-                        console.log('ManagerWindow.callPage.finally')
                         if (option.callPage.option.autoClose) {
                             setTimeout(() => {
                                 view._window.close();
