@@ -5,6 +5,7 @@ import {StorageUtil} from "../../lib/storage";
 import {useModelStore} from "./store/model";
 import {StringUtil} from "../../lib/util";
 import {ModelChatResult} from "./provider/provider";
+import {t} from "../../lang";
 
 const modelStore = useModelStore();
 const selectedModel = ref<string>("");
@@ -32,12 +33,9 @@ const chat = async (
         format?: "text" | "json";
     }
 ): Promise<ModelChatResult> => {
-    option = Object.assign(
-        {
-            format: "text",
-        },
-        option
-    );
+    option = Object.assign({
+        format: "text",
+    }, option);
     if (param) {
         prompt = StringUtil.replaceParam(prompt, param);
     }
@@ -46,11 +44,13 @@ const chat = async (
     if (ret.code) {
         return ret;
     }
-    try {
-        ret.data.json = JSON.parse(ret.data.content);
-    } catch (e) {
-        ret.code = -1;
-        ret.msg = t("解析返回数据失败");
+    if (option.format === 'json') {
+        try {
+            ret.data!.json = JSON.parse(ret.data!.content!);
+        } catch (e) {
+            ret.code = -1;
+            ret.msg = t("解析返回数据失败");
+        }
     }
     return ret;
 };
@@ -60,5 +60,5 @@ defineExpose({
 </script>
 
 <template>
-    <ModelSelector v-model="selectedModel" />
+    <ModelSelector v-model="selectedModel"/>
 </template>
