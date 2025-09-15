@@ -219,7 +219,13 @@ type DefsMapi = {
         exists: (path: string, option?: { isDataPath?: boolean }) => Promise<boolean>;
         isDirectory: (path: string, option?: { isDataPath?: boolean }) => Promise<boolean>;
         mkdir: (path: string, option?: { isDataPath?: boolean }) => Promise<void>;
-        list: (path: string, option?: { isDataPath?: boolean }) => Promise<any[]>;
+        list: (path: string, option?: { isDataPath?: boolean }) => Promise<{
+            name: string,
+            pathname: string,
+            isDirectory: boolean,
+            size: number,
+            lastModified: number,
+        }[]>;
         listAll: (path: string, option?: { isDataPath?: boolean }) => Promise<any[]>;
         write: (path: string, data: any, option?: { isDataPath?: boolean }) => Promise<void>;
         writeBuffer: (path: string, data: any, option?: { isDataPath?: boolean }) => Promise<void>;
@@ -270,9 +276,15 @@ type DefsMapi = {
         openDirectory: (options: {} = {}) => Promise<string | null>;
         openSave: (options: {} = {}) => Promise<string | null>;
         ext: (path: string) => Promise<string>;
+        stat: (path: string, option?: { isDataPath?: boolean }) => Promise<{
+            size: number;
+            isDirectory: boolean;
+            lastModified: number;
+        }>;
         textToName: (text: string, ext: string = "", maxLimit: number = 100) => string;
         pathToName: (path: string, includeExt: boolean = true, maxLimit: number = 100) => string;
         hubRootDefault: () => Promise<string>;
+        hubRoot: () => Promise<string>;
         hubSave: (
             file: string,
             option?: {
@@ -523,3 +535,4 @@ declare global {
 }
 
 export {};
+
