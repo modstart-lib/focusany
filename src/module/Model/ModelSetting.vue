@@ -190,7 +190,7 @@ watch(
                 </div>
                 <div class="mb-3 flex border rounded p-3 items-center" v-if="provider.id === 'buildIn'">
                     <div class="flex-grow">
-                        {{ $t("可用Token") }}
+                        {{ $t("能量") }}
                         <span class="font-bold">{{ ((userStore.data.lmApi?.quota || 0) / 1000).toFixed(2) }}K</span>
                     </div>
                     <div class="text-gray-400">
