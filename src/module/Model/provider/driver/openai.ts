@@ -30,14 +30,23 @@ export class OpenAiModelProvider extends AbstractModelProvider {
             const error = await response.text();
             throw `Request failed: ${response.status}\n${error}`;
         }
+        // check if is json
+        if (!response.headers.get("content-type")?.includes("application/json")) {
+            const error = await response.text();
+            throw `Response is not json: ${response.status}\n${error}`;
+        }
         const data = await response.json();
-        const content = data.choices[0].message.content;
-        return {
-            code: 0,
-            msg: "ok",
-            data: {
-                content,
-            },
-        };
+        try {
+            const content = data.choices[0].message.content;
+            return {
+                code: 0,
+                msg: "ok",
+                data: {
+                    content,
+                },
+            };
+        } catch (e) {
+            throw `Invalid response format: ${JSON.stringify(data)}`;
+        }
     }
 }

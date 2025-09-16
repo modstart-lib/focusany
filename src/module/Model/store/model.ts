@@ -41,7 +41,7 @@ const mapModelError = (e: any, provider: Provider) => {
         };
         const map = {
             insufficient_user_quota: {
-                msg: t("用户配额不足"),
+                msg: t("大模型Token余额不足，请充值后继续使用"),
                 callback: showCharge,
             },
         };

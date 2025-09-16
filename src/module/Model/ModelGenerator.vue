@@ -45,11 +45,24 @@ const chat = async (
         return ret;
     }
     if (option.format === 'json') {
+        let content = ret.data!.content;
+        if (!content) {
+            ret.code = -1;
+            ret.msg = t("返回数据为空");
+            return ret;
+        }
+        content = content.trim();
+        // ```json xxx ``` replace
+        if (/^```json/.test(content)) {
+            content = content.replace(/^```json/, '').replace(/```$/, '').trim();
+        } else if (/^```/.test(content)) {
+            content = content.replace(/^```/, '').replace(/```$/, '').trim();
+        }
         try {
-            ret.data!.json = JSON.parse(ret.data!.content!);
+            ret.data!.json = JSON.parse(content);
         } catch (e) {
             ret.code = -1;
-            ret.msg = t("解析返回数据失败");
+            ret.msg = t("解析返回数据失败") + ':' + content;
         }
     }
     return ret;

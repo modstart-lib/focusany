@@ -21,9 +21,20 @@ export const ModelProvider = {
         if (apiHost) {
             url = apiHost;
         }
+        // console.log('ModelProvider.apiUrl', {type, apiUrl, apiHost, url});
         switch (type) {
             case "openai":
-                url = url.replace(/\/v1\/chat\/completions$/, "");
+                /**
+                 * 根据传入的 url 判断是否需要在其末尾加 `/v[数字]/`。
+                 * - 如果 以 `/` 结尾，则不加
+                 * - 要加：其余情况。
+                 */
+                if (url.endsWith('/')) {
+                    return `${url}chat/completions`;
+                }
+                if (url.endsWith('/chat/completions')) {
+                    return url;
+                }
                 return `${url}/v1/chat/completions`;
         }
         throw new Error(`Unsupported provider type: ${type}`);

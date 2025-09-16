@@ -105,7 +105,7 @@ export function getProviderUrl(provider: Provider) {
 
 export const getProviderTitle = (providerId: string) => {
     const map = {
-        buildIn: "云端大模型",
+        buildIn: "大模型",
         aihubmix: "AiHubMix",
         alayanew: "Alaya NeW",
         anthropic: "Anthropic",
