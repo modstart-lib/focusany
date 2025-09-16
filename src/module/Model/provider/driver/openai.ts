@@ -15,6 +15,8 @@ export class OpenAiModelProvider extends AbstractModelProvider {
     }
 
     async chat(prompt: string): Promise<ModelChatResult> {
+        // this.config.url =  'http://localhost:3000/v1/chat/completions';
+        // this.config.apiKey = '';
         const response = await fetch(this.config.url, {
             method: "POST",
             headers: {

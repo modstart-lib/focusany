@@ -49,7 +49,8 @@ export const ModelProvider = {
             apiKey: string;
         }
     ): Promise<ModelChatResult> {
-        const url = this.apiUrl(config.type, config.apiUrl, config.apiHost);
+        let url = this.apiUrl(config.type, config.apiUrl, config.apiHost);
+
         if (!(config.type in ModelProviderMap)) {
             return {
                 code: -1,

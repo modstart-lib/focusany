@@ -82,6 +82,7 @@ const doGenerateReply = async () => {
 </script>
 
 <template>
+    <ModelGenerator ref="modelGenerator" :biz="biz"/>
     <a-button size="small" class="mr-1"
               @click="doGenerateReply"
               :loading="replyGenerateLoading">
@@ -90,6 +91,5 @@ const doGenerateReply = async () => {
         </template>
         {{ title }}
     </a-button>
-    <ModelGenerator ref="modelGenerator" :biz="biz"/>
 </template>
 

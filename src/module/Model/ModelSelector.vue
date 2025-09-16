@@ -58,7 +58,7 @@ const selectedModel = computed(() => {
 </script>
 
 <template>
-    <a-select ref="select" style="width: 20em" :placeholder="$t('选择模型')">
+    <a-select ref="select" style="width:auto;" :placeholder="$t('选择模型')">
         <template #label>
             <div class="flex items-center" v-if="selectedProvider && selectedModel">
                 <div class="mr-1">
