@@ -43,6 +43,7 @@ const listProviders = async (): Promise<Provider[]> => {
         });
     }
     const storageData = await StorageMain.read("models", []);
+    let buildInProviderData: any = null;
     if (storageData) {
         if (storageData.userProviders) {
             storageData.userProviders.forEach(provider => {
@@ -68,6 +69,7 @@ const listProviders = async (): Promise<Provider[]> => {
             });
         }
         if (storageData.providerData) {
+            buildInProviderData = storageData.providerData["buildIn"] || null;
             for (const providerId in storageData.providerData) {
                 const provider = results.find(p => p.id === providerId);
                 if (provider) {
@@ -112,6 +114,10 @@ const listProviders = async (): Promise<Provider[]> => {
                 editable: false,
             });
         }
+        let enabled = true;
+        if (buildInProviderData && 'enabled' in buildInProviderData) {
+            enabled = buildInProviderData.enabled;
+        }
         results.unshift({
             id: "buildIn",
             type: "openai",
@@ -128,7 +134,7 @@ const listProviders = async (): Promise<Provider[]> => {
                 apiKey: lmApi.apiKey,
                 apiHost: "",
                 models: models,
-                enabled: true,
+                enabled: enabled,
             },
         });
     }

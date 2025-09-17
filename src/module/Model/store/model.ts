@@ -13,7 +13,6 @@ import {t} from "../../../lang";
 import {useUserStore} from "../../../store/modules/user";
 import {watch} from "vue";
 import {AppConfig} from "../../../config";
-import {AbstractModelProvider} from "../provider/driver/base";
 
 const userStore = useUserStore();
 
@@ -31,7 +30,7 @@ const mapModelError = (e: any, provider: Provider) => {
     if (provider.id === "buildIn") {
         const msg = e + "";
         const showCharge = () => {
-            window.$mapi.user
+            $mapi.user
                 .open({
                     readyParam: {
                         page: "ChargeLmApi",
@@ -100,7 +99,8 @@ export const modelStore = defineStore("model", {
                     },
                 });
             }
-            const storageData = await window.$mapi.storage.read("models");
+            let buildInProviderData: any = null;
+            const storageData = await $mapi.storage.read("models");
             if (storageData) {
                 if (storageData.userProviders) {
                     storageData.userProviders.forEach(provider => {
@@ -126,6 +126,7 @@ export const modelStore = defineStore("model", {
                     });
                 }
                 if (storageData.providerData) {
+                    buildInProviderData = storageData.providerData["buildIn"] || null;
                     for (const providerId in storageData.providerData) {
                         const provider = results.find(p => p.id === providerId);
                         if (provider) {
@@ -156,9 +157,9 @@ export const modelStore = defineStore("model", {
                 }
             }
             this.providers = results;
-            await this.refreshBuildIn();
+            await this.refreshBuildIn(buildInProviderData);
         },
-        async refreshBuildIn() {
+        async refreshBuildIn(buildInProviderData?: any) {
             if (userStore.data && userStore.data.lmApi && userStore.data.lmApi.models) {
                 const lmApi = userStore.data.lmApi;
                 const buildInProvider = this.providers.find(p => p.id === "buildIn");
@@ -176,6 +177,11 @@ export const modelStore = defineStore("model", {
                         });
                     }
                     // console.log("model.init.buildIn", JSON.stringify({lmApi}, null, 2));
+                    let enabled = true;
+                    if (buildInProviderData && 'enabled' in buildInProviderData) {
+                        enabled = buildInProviderData.enabled;
+                    }
+                    console.log('model.init.buildIn', {enabled, buildInProviderData});
                     this.providers.unshift({
                         id: "buildIn",
                         type: "openai",
@@ -192,7 +198,7 @@ export const modelStore = defineStore("model", {
                             apiKey: lmApi.apiKey,
                             apiHost: "",
                             models: models,
-                            enabled: true,
+                            enabled: enabled,
                         },
                     });
                 } else {
@@ -406,7 +412,7 @@ export const modelStore = defineStore("model", {
                 }
             });
             const userProviders = model.providers.filter(provider => !provider.isSystem);
-            await window.$mapi.storage.write("models", ObjectUtil.clone({providerData, userProviders}));
+            await $mapi.storage.write("models", ObjectUtil.clone({providerData, userProviders}));
         }, 200),
     },
 });
