@@ -6,7 +6,16 @@ const FocusAnyShim = {
             return;
         }
 
+        let hooks: Record<string, any> = {
+            onLog: (label: string, data?: any) => {
+                console.log(`FocusAny Log: ${label}`, data || "");
+            }
+        }
+
         const focusanySupport = {
+            onLog(callback: (label: string, data?: any) => void): void {
+                hooks.onLog = callback;
+            },
             onPluginReady(
                 callback: (data: {
                     actionName: string;
@@ -403,6 +412,441 @@ const FocusAnyShim = {
                     }
                 },
             },
+            // Additional unimplemented methods with mock data
+            onPluginExit(callback: Function): void {
+                // Mock: do nothing
+            },
+            onPluginEvent(event: PluginEvent, callback: (data: any) => void): void {
+                // Mock: do nothing
+            },
+            offPluginEvent(event: PluginEvent, callback: (data: any) => void): void {
+                // Mock: do nothing
+            },
+            offPluginEventAll(event: PluginEvent): void {
+                // Mock: do nothing
+            },
+            onMoreMenuClick(callback: (data: { name: string }) => void): void {
+                // Mock: do nothing
+            },
+            registerHotkey(key: string | string[] | HotkeyQuickType | HotkeyType | HotkeyType[], callback: () => void): void {
+                // Mock: do nothing
+            },
+            unregisterHotkeyAll(): void {
+                // Mock: do nothing
+            },
+            isMainWindowShown(): boolean {
+                return true; // Mock: always shown
+            },
+            hideMainWindow(): void {
+                // Mock: do nothing
+            },
+            showMainWindow(): void {
+                // Mock: do nothing
+            },
+            isFastPanelWindowShown(): boolean {
+                return false; // Mock: not shown
+            },
+            showFastPanelWindow(): void {
+                // Mock: do nothing
+            },
+            hideFastPanelWindow(): void {
+                // Mock: do nothing
+            },
+            setExpendHeight(height: number): void {
+                // Mock: do nothing
+            },
+            setSubInput(onChange: (keywords: string) => void, placeholder?: string, isFocus?: boolean, isVisible?: boolean): void {
+                // Mock: do nothing
+            },
+            removeSubInput(): void {
+                // Mock: do nothing
+            },
+            setSubInputValue(value: string): void {
+                // Mock: do nothing
+            },
+            subInputBlur(): void {
+                // Mock: do nothing
+            },
+            getPluginRoot(): string {
+                return "/mock/plugin/root"; // Mock path
+            },
+            getPluginConfig(): { name: string; title: string; version: string; logo: string; } | null {
+                return {
+                    name: "mock-plugin",
+                    title: "Mock Plugin",
+                    version: "1.0.0",
+                    logo: ""
+                };
+            },
+            getPluginInfo(): {
+                nodeIntegration: boolean;
+                preloadBase: string;
+                preload: string;
+                main: string;
+                mainView: string;
+                width: number;
+                height: number;
+                autoDetach: boolean;
+                singleton: boolean;
+                zoom: number;
+            } {
+                return {
+                    nodeIntegration: false,
+                    preloadBase: "",
+                    preload: "",
+                    main: "",
+                    mainView: "",
+                    width: 800,
+                    height: 600,
+                    autoDetach: false,
+                    singleton: false,
+                    zoom: 1
+                };
+            },
+            getPluginEnv(): "dev" | "prod" {
+                return "dev";
+            },
+            getQuery(requestId: string): SearchQuery {
+                return {
+                    keywords: "",
+                    currentFiles: [],
+                    currentImage: "",
+                    currentText: ""
+                };
+            },
+            createBrowserWindow(url: string, options: any, callback?: () => void): any {
+                // Mock: open in new tab
+                window.open(url, "_blank");
+                if (callback) callback();
+                return {
+                    close: () => {
+                    }
+                };
+            },
+            outPlugin(): void {
+                // Mock: do nothing
+            },
+            isDarkColors(): boolean {
+                return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+            },
+            showUserLogin(): void {
+                // Mock: do nothing
+            },
+            getUser(): {
+                isLogin: boolean;
+                avatar: string;
+                nickname: string;
+                vipFlag: string;
+                deviceCode: string;
+                openId: string;
+            } {
+                return {
+                    isLogin: false,
+                    avatar: "",
+                    nickname: "Mock User",
+                    vipFlag: "",
+                    deviceCode: "mock-device",
+                    openId: ""
+                };
+            },
+            getUserAccessToken(): Promise<{ token: string; expireAt: number; }> {
+                return Promise.resolve({
+                    token: "mock-token",
+                    expireAt: Date.now() + 3600000
+                });
+            },
+            listGoods(query?: { ids?: string[] }): Promise<{
+                id: string;
+                title: string;
+                cover: string;
+                priceType: "fixed" | "dynamic";
+                fixedPrice: string;
+                description: string;
+            }[]> {
+                return Promise.resolve([]);
+            },
+            openGoodsPayment(options: {
+                goodsId: string;
+                price?: string;
+                outOrderId?: string;
+                outParam?: string;
+            }): Promise<{ paySuccess: boolean; }> {
+                return Promise.resolve({paySuccess: false});
+            },
+            queryGoodsOrders(options: { goodsId?: string; page?: number; pageSize?: number; }): Promise<{
+                page: number;
+                total: number;
+                records: { id: string; goodsId: string; status: "Paid" | "Unpaid"; }[];
+            }> {
+                return Promise.resolve({
+                    page: 1,
+                    total: 0,
+                    records: []
+                });
+            },
+            apiPost(url: string, body: any, option: {}): Promise<BaseResult> {
+                return Promise.resolve({
+                    code: 200,
+                    msg: "Mock response",
+                    data: null
+                });
+            },
+            setAction(action: PluginAction | PluginAction[]): void {
+                // Mock: do nothing
+            },
+            removeAction(name: string): void {
+                // Mock: do nothing
+            },
+            getActions(names?: string[]): PluginAction[] {
+                return [];
+            },
+            redirect(keywordsOrAction: string | string[], query?: SearchQuery): void {
+                // Mock: do nothing
+            },
+            showMessageBox(message: string, options: { title?: string; yes?: string; no?: string; }): boolean {
+                return confirm(message); // Mock: use browser confirm
+            },
+            showOpenDialog(options: {
+                title?: string;
+                defaultPath?: string;
+                buttonLabel?: string;
+                filters?: { name: string; extensions: string[] }[];
+                properties?: any[];
+                message?: string;
+                securityScopedBookmarks?: boolean;
+            }): string[] | undefined {
+                // Mock: return empty array
+                return [];
+            },
+            showSaveDialog(options: {
+                title?: string;
+                defaultPath?: string;
+                buttonLabel?: string;
+                filters?: { name: string; extensions: string[] }[];
+                message?: string;
+                nameFieldLabel?: string;
+                showsTagField?: string;
+                properties?: any[];
+                securityScopedBookmarks?: boolean;
+            }): string | undefined {
+                // Mock: return null
+                return undefined;
+            },
+            screenCapture(callback: (imgBase64: string) => void): void {
+                // Mock: do nothing
+            },
+            getNativeId(): string {
+                return "mock-native-id";
+            },
+            getAppVersion(): string {
+                return "1.0.0";
+            },
+            getPath(name: "home" | "appData" | "userData" | "temp" | "exe" | "desktop" | "documents" | "downloads" | "music" | "pictures" | "videos" | "logs"): string {
+                return `/mock/${name}`;
+            },
+            getFileIcon(path: string): string {
+                return ""; // Mock: empty icon
+            },
+            copyFile(file: string | string[]): boolean {
+                return false; // Mock: not supported
+            },
+            copyImage(image: string): boolean {
+                return false; // Mock: not supported
+            },
+            getClipboardText(): string {
+                return ""; // Mock: empty
+            },
+            getClipboardImage(): string {
+                return ""; // Mock: empty
+            },
+            getClipboardFiles(): FileItem[] {
+                return [];
+            },
+            listClipboardItems(option?: { limit?: number }): Promise<{
+                type: "file" | "image" | "text";
+                timestamp: number;
+                files?: FileItem[];
+                image?: string;
+                text?: string;
+            }[]> {
+                return Promise.resolve([]);
+            },
+            deleteClipboardItem(timestamp: number): Promise<void> {
+                return Promise.resolve();
+            },
+            clearClipboardItems(): Promise<void> {
+                return Promise.resolve();
+            },
+            shellOpenPath(fullPath: string): void {
+                // Mock: do nothing
+            },
+            shellShowItemInFolder(fullPath: string): void {
+                // Mock: do nothing
+            },
+            shellOpenExternal(url: string): void {
+                window.open(url, "_blank");
+            },
+            shellBeep(): void {
+                // Mock: do nothing
+            },
+            simulate: {
+                keyboardTap(key: string, modifiers: ("ctrl" | "shift" | "command" | "option" | "alt")[]): Promise<void> {
+                    return Promise.resolve();
+                },
+                typeString(text: string): Promise<void> {
+                    return Promise.resolve();
+                },
+                mouseToggle(type: "down" | "up", button: "left" | "right" | "middle"): Promise<void> {
+                    return Promise.resolve();
+                },
+                mouseMove(x: number, y: number): Promise<void> {
+                    return Promise.resolve();
+                },
+                mouseClick(button: "left" | "right" | "middle", double?: boolean): Promise<void> {
+                    return Promise.resolve();
+                },
+            },
+            getCursorScreenPoint(): { x: number; y: number } {
+                return {x: 0, y: 0}; // Mock: center
+            },
+            getDisplayNearestPoint(point: { x: number; y: number }): any {
+                return {
+                    id: 1,
+                    bounds: {x: 0, y: 0, width: 1920, height: 1080},
+                    workArea: {x: 0, y: 0, width: 1920, height: 1040},
+                    scaleFactor: 1
+                };
+            },
+            getPlatformArch(): "x86" | "arm64" | null {
+                return "x86"; // Mock
+            },
+            sendBackendEvent(event: string, data?: any, option?: { timeout: number; }): Promise<any> {
+                return Promise.resolve(null);
+            },
+            registerCallPage(type: string, callback: (resolve: (data: any) => void, reject: (error: string) => void, data: any) => void, option?: {
+                timeout?: number;
+            }): void {
+                // Mock: do nothing
+            },
+            callPage(type: string, data?: any, option?: CallPageOption): Promise<any> {
+                return Promise.resolve(null);
+            },
+            setRemoteWebRuntime(info: {
+                userAgent: string;
+                urlMap: Record<string, string>;
+                types: string[];
+                domains: string[];
+                blocks: string[];
+            }): Promise<undefined> {
+                return Promise.resolve(undefined);
+            },
+            llmListModels(): Promise<{
+                providerId: string;
+                providerLogo: string;
+                providerTitle: string;
+                modelId: string;
+                modelName: string;
+            }[]> {
+                return Promise.resolve([
+                    {
+                        providerId: "openai",
+                        providerLogo: "https://cdn.openai.com/chatgpt/images/chatgpt-logo.png",
+                        providerTitle: "OpenAI",
+                        modelId: "gpt-4",
+                        modelName: "GPT-4"
+                    },
+                    {
+                        providerId: "anthropic",
+                        providerLogo: "https://www.anthropic.com/images/anthropic-logo.png",
+                        providerTitle: "Anthropic",
+                        modelId: "claude-3-opus",
+                        modelName: "Claude 3 Opus"
+                    },
+                ]);
+            },
+            llmChat(callInfo: { providerId: string; modelId: string; message: string }): Promise<BaseResult<{
+                message: string;
+            }>> {
+                return Promise.resolve({
+                    code: 200,
+                    msg: "Mock response",
+                    data: {message: "Mock LLM response"}
+                });
+            },
+            logInfo(label: string, data?: any): void {
+                console.log(`FocusAny Log Info: ${label}`, data || "");
+            },
+            logError(label: string, data?: any): void {
+                console.error(`FocusAny Log Error: ${label}`, data || "");
+            },
+            logPath(): Promise<string> {
+                return Promise.resolve("/mock/log/path");
+            },
+            logShow(): void {
+                // Mock: do nothing
+            },
+            addLaunch(keyword: string, name: string, hotkey: HotkeyType): Promise<void> {
+                return Promise.resolve();
+            },
+            removeLaunch(keyword: string): void {
+                // Mock: do nothing
+            },
+            activateLatestWindow(): Promise<void> {
+                return Promise.resolve();
+            },
+            file: {
+                exists(path: string): Promise<boolean> {
+                    return Promise.resolve(false);
+                },
+                read(path: string): Promise<string> {
+                    return Promise.resolve("");
+                },
+                write(path: string, data: string): Promise<void> {
+                    return Promise.resolve();
+                },
+                remove(path: string): Promise<void> {
+                    return Promise.resolve();
+                },
+                ext(path: string): Promise<string> {
+                    return Promise.resolve("");
+                },
+                writeTemp(ext: string, data: string | Uint8Array, option?: { isBase64?: boolean; }): Promise<string> {
+                    return Promise.resolve(`/mock/temp/file.${ext}`);
+                },
+            },
+            fad: {
+                read(type: string, path: string): Promise<any> {
+                    return Promise.resolve(null);
+                },
+                write(type: string, path: string, data: any): Promise<void> {
+                    return Promise.resolve();
+                },
+            },
+            view: {
+                setHeight(height: number): void {
+                    // Mock: do nothing
+                },
+                getHeight(): Promise<number> {
+                    return Promise.resolve(400);
+                },
+            },
+            detach: {
+                setTitle(title: string): void {
+                    // Mock: do nothing
+                },
+                setOperates(operates: { name: string; title: string; click: () => void; }[]): void {
+                    // Mock: do nothing
+                },
+                setPosition(position: "center" | "right-bottom" | "left-top" | "right-top" | "left-bottom"): void {
+                    // Mock: do nothing
+                },
+                setAlwaysOnTop(alwaysOnTop: boolean): void {
+                    // Mock: do nothing
+                },
+                setSize(width: number, height: number): void {
+                    // Mock: do nothing
+                },
+            },
         } as FocusAnyApi
 
         // 创建一个递归的 Proxy 来处理任意深度的属性访问
@@ -411,12 +855,47 @@ const FocusAnyShim = {
             }, {
                 get(target, prop) {
                     const currentPath = `${path}.${String(prop)}`;
-
                     // 如果是根级别且在支持对象中存在，直接返回
                     if (path === "focusany" && supportObj && prop in supportObj) {
-                        return supportObj[prop];
+                        const result = supportObj[prop];
+                        // console.log('FocusAny Shim: Accessing supported property:', {currentPath, result});
+                        return new Proxy(result, {
+                            get(t, p) {
+                                // console.log('FocusAny Shim: Accessing supported sub-property:', {currentPath: `${currentPath}.${String(p)}`});
+                                const value = (t as any)[p];
+                                if (typeof value === "function") {
+                                    return function (...args: any[]) {
+                                        return value.apply(t, args);
+                                    };
+                                }
+                                return value;
+                            },
+                            apply(t, thisArg, args) {
+                                console.log('FocusAny Shim: Calling supported function:', {
+                                    t,
+                                    currentPath,
+                                    thisArg,
+                                    args
+                                });
+                                const ret = (t as any).apply(thisArg, args);
+                                const pcs = currentPath.split(".");
+                                const name = pcs[pcs.length - 1];
+                                hooks.onLog && hooks.onLog(name, args.map(a => {
+                                    if (a instanceof Function) return 'function(){}';
+                                    return a;
+                                }));
+                                if (ret instanceof Promise) {
+                                    return ret.then((data: any) => {
+                                        hooks.onLog && hooks.onLog(`${name}.result`, data);
+                                        return data;
+                                    });
+                                } else {
+                                    hooks.onLog && hooks.onLog(`${name}.result`, ret);
+                                }
+                                return ret;
+                            }
+                        });
                     }
-
                     // 对于其他属性，返回一个新的 Proxy（不支持任何属性）
                     return createErrorProxy(currentPath, null);
                 },

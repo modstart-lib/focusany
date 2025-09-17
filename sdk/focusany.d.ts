@@ -165,6 +165,13 @@ declare type CallPageOption = {
 }
 
 interface FocusAnyApi {
+
+    /**
+     * set log listener
+     * @param callback
+     */
+    onLog(callback: (label: string, data?: any) => void): void;
+
     /**
      * Plugin application initialization complete callback
      * @param callback
