@@ -69,7 +69,7 @@
         "@electron-toolkit/utils": "^3.0.0",
         "@electron/remote": "^2.1.2",
         "@gradio/client": "^1.7.0",
-        "@hurdlegroup/robotjs": "^0.12.3",
+        "@nut-tree-fork/nut-js": "^4.2.6",
         "@types/showdown": "^2.0.6",
         "@uiw/codemirror-theme-dracula": "^4.23.0",
         "@uiw/codemirror-theme-quietlight": "^4.23.0",
