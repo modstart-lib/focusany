@@ -11,7 +11,7 @@ const props = defineProps<{
     defaultValue: string | { key: string, value: string }[];
     placeholder?: string;
     help?: string;
-    param?: Record<string, string>
+    param?: Record<string, string> | { name: string, label: string }[];
 }>();
 const visible = ref(false);
 const content = ref<string | { key: string, value: string }[]>("");
@@ -85,8 +85,20 @@ const type = computed(() => {
             </div>
             <div v-if="props.param">
                 <div class="mt-2 font-bold">{{ $t("可用变量") }}:</div>
-                <div class="mt-1">
-                    <div v-for="(value, key, index) in props.param" :key="key"
+                <div class="mt-1" v-if="Array.isArray(props.param)">
+                    <div v-for="item in props.param as any" :key="item.name"
+                         class="mr-4 inline-flex items-center text-xs">
+                        <div class="font-mono mr-1 cursor-pointer"
+                             @click="doCopy(`{${item.name}}`)">
+                            {{ "{" + item.name + "}" }}
+                        </div>
+                        <div class="text-gray-400">
+                            {{ item.label }}
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-1" v-else>
+                    <div v-for="(value, key) in props.param" :key="key"
                          class="mr-4 inline-flex items-center text-xs">
                         <div class="font-mono mr-1 cursor-pointer"
                              @click="doCopy(`{${key}}`)">
