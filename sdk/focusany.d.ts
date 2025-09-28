@@ -910,14 +910,25 @@ interface FocusAnyApi {
         /**
          * Read file content
          * @param path File path
+         * @param format File content format, default is 'string'
          */
-        read(path: string): Promise<string>;
+        read(
+            path: string,
+            format?: 'string' | 'buffer' | 'base64'
+        ): Promise<string | Uint8Array>;
         /**
          * Write file content
          * @param path File path
          * @param data File content
+         * @param option Write options
          */
-        write(path: string, data: string): Promise<void>;
+        write(
+            path: string,
+            data: string | Uint8Array,
+            option?: {
+                isBase64?: boolean;
+            }
+        ): Promise<void>;
         /**
          * Delete file or directory
          * @param path File or directory path

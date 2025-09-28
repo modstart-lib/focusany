@@ -652,11 +652,20 @@ export const FocusAny = {
         exists(path: string): Promise<boolean> {
             return ipcSendAsync("fileExists", {path});
         },
-        read(path: string): Promise<string> {
-            return ipcSendAsync("fileRead", {path});
+        read(
+            path: string,
+            format?: 'string' | 'buffer' | 'base64'
+        ): Promise<string | Uint8Array> {
+            return ipcSendAsync("fileRead", {path, format});
         },
-        write(path: string, data: string): Promise<void> {
-            return ipcSendAsync("fileWrite", {path, data});
+        write(
+            path: string,
+            data: string | Uint8Array,
+            option?: {
+                isBase64?: boolean;
+            }
+        ): Promise<void> {
+            return ipcSendAsync("fileWrite", {path, data, option});
         },
         remove(path: string): Promise<void> {
             return ipcSendAsync("fileRemove", {path});

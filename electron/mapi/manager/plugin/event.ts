@@ -827,7 +827,14 @@ export const ManagerPluginEvent = {
         if (!ManagerPluginPermission.check(context._plugin, "basic", "File")) {
             return;
         }
-        const {path} = data;
+        const {path, format} = data;
+        if ('buffer' === format) {
+            return await Files.readBuffer(path)
+        }
+        if ('base64' === format) {
+            const content = await Files.readBuffer(path)
+            return content.toString('base64')
+        }
         return await Files.read(path, {
             isDataPath: false,
             encoding: "utf-8",
@@ -837,10 +844,21 @@ export const ManagerPluginEvent = {
         if (!ManagerPluginPermission.check(context._plugin, "basic", "File")) {
             return;
         }
-        const {path, data: content} = data;
-        return await Files.write(path, content, {
-            isDataPath: false,
-        });
+        let {path, data: content, option} = data;
+        option = Object.assign({
+            isBase64: false,
+        }, option)
+        if (typeof content === 'string') {
+            if (option.isBase64) {
+                if (content.startsWith("data:")) {
+                    content = content.split(",")[1];
+                }
+                content = Buffer.from(content, "base64");
+                return await Files.writeBuffer(path, content);
+            }
+            return await Files.write(path, content);
+        }
+        return await Files.writeBuffer(path, content);
     },
     fileRemove: async (context: PluginContext, data: any): Promise<void> => {
         if (!ManagerPluginPermission.check(context._plugin, "basic", "File")) {
