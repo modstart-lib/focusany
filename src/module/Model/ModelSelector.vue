@@ -55,6 +55,15 @@ const selectedModel = computed(() => {
     }
     return null;
 });
+defineExpose({
+    getInfo: () => {
+        return {
+            providerLogo: getModelLogo(selectedModel.value?.id || ''),
+            providerTitle: selectedProvider.value?.title || '',
+            modelName: selectedModel.value?.name || '',
+        };
+    },
+});
 </script>
 
 <template>

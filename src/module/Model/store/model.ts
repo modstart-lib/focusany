@@ -16,6 +16,15 @@ import {AppConfig} from "../../../config";
 
 const userStore = useUserStore();
 
+export type ModelItem = {
+    id: string;
+    providerId: string;
+    providerLogo: string;
+    providerTitle: string;
+    modelId: string;
+    modelName: string;
+}
+
 watch(
     () => userStore.data,
     newValue => {
@@ -158,6 +167,26 @@ export const modelStore = defineStore("model", {
             }
             this.providers = results;
             await this.refreshBuildIn(buildInProviderData);
+        },
+        async enabledModels(): Promise<ModelItem[]> {
+            const results: ModelItem[] = [];
+            this.providers.forEach(provider => {
+                if (provider.data.enabled) {
+                    provider.data.models.forEach(model => {
+                        if (model.enabled) {
+                            results.push({
+                                id: provider.id + "|" + model.id,
+                                providerId: provider.id,
+                                providerLogo: provider.logo || "",
+                                providerTitle: provider.title || "",
+                                modelId: model.id,
+                                modelName: model.name,
+                            });
+                        }
+                    });
+                }
+            });
+            return results;
         },
         async refreshBuildIn(buildInProviderData?: any) {
             if (userStore.data && userStore.data.lmApi && userStore.data.lmApi.models) {
