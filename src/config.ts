@@ -4,6 +4,7 @@ const BASE_URL = "https://focusany.com";
 
 export const AppConfig = {
     name: "FocusAny",
+    title: "FocusAny",
     slogan: "专注提效的AI工具条",
     version: packageJson.version,
     website: `${BASE_URL}`,

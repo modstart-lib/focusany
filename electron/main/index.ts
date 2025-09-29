@@ -114,7 +114,7 @@ async function createWindow() {
     });
     AppRuntime.mainWindow = new BrowserWindow({
         show: true,
-        title: AppConfig.name,
+        title: AppConfig.title,
         ...(!isPackaged ? {icon} : {}),
         frame: false,
         transparent: false,
