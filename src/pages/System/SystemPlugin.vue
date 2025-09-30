@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, nextTick, onMounted, ref} from "vue";
+import {computed, nextTick, onBeforeUnmount, onMounted, ref} from "vue";
 import {
     ActionMatchBase,
     ActionMatchEditor,
@@ -8,7 +8,6 @@ import {
     ActionMatchText,
     ActionMatchWindow,
     ActionRecord,
-    ActionTypeEnum,
     PluginActionRecord,
     PluginRecord,
     PluginType,
@@ -24,9 +23,17 @@ const actionMatchDetailDialog = ref<InstanceType<typeof SystemActionMatchDetailD
 const records = ref<PluginRecord[]>([]);
 const recordCurrentIndex = ref(-1);
 const actionTab = ref("keyword");
+const filterKeywords = ref("");
 
 const recordsFilter = computed(() => {
     return records.value.filter(r => {
+        if (filterKeywords.value) {
+            const kw = filterKeywords.value.toLowerCase();
+            if (r.title.toLowerCase().includes(kw) || r.name.toLowerCase().includes(kw) || r.description?.toLowerCase().includes(kw)) {
+                return true;
+            }
+            return false;
+        }
         return !["store", "workflow", "app", "file"].includes(r.name);
     });
 });
@@ -57,6 +64,9 @@ const currentPluginActionsMatchList = computed(() => {
             );
         }) || []
     );
+});
+const currentPluginMcpList = computed(() => {
+    return recordCurrent.value?.mcp?.tools || [];
 });
 const disabledPluginActionMatches = ref<Record<string, Record<string, string[]>>>({});
 const pinPluginAction = ref<PluginActionRecord[]>([]);
@@ -113,7 +123,14 @@ onMounted(async () => {
     // console.log('pinPluginAction', pinPluginAction.value)
     loadDeveloperInfo().then();
     await doLoad();
+    focusany.setSubInput((keywords) => {
+        filterKeywords.value = keywords;
+    }, t('搜索插件'), true, true);
 });
+onBeforeUnmount(() => {
+    focusany.removeSubInput();
+});
+
 const doActivePlugin = (index: number) => {
     actionTab.value = "keyword";
     recordCurrentIndex.value = index;
@@ -200,7 +217,6 @@ const doInstallPlugin = async (type: "zip" | "config") => {
         filters.push({name: "config.json", extensions: ["json"]});
     }
     const file = await window.$mapi.file.openFile({
-        properties: ["openFile"],
         filters,
     });
     if (!file) {
@@ -223,6 +239,7 @@ const doInstallStore = async () => {
     <div class="flex h-full select-none">
         <div class="w-64 flex-shrink-0 border-r border-default h-full flex flex-col relative">
             <div class="flex-grow overflow-y-auto p-1">
+                <m-empty v-if="!recordsFilter.length" text="没有找到插件"/>
                 <div
                     v-for="(r, rIndex) in recordsFilter"
                     class="flex items-center rounded-lg cursor-pointer select-none p-2 hover:bg-gray-100 dark:hover:bg-gray-600 relative"
@@ -262,12 +279,15 @@ const doInstallStore = async () => {
                     />
                 </div>
                 <div class="flex-grow w-0 truncate">
-                    <div class="text-lg leading-6 flex items-center">
+                    <div class="leading-6 flex items-center">
                         <div class="font-bold mr-2">{{ recordCurrent.title }}</div>
-                        <div class="text-gray-400 text-sm mr-2" v-if="recordCurrent.type !== PluginType.SYSTEM">
+                        <div class="flex-grow"></div>
+                    </div>
+                    <div class="flex items-center mb-1">
+                        <div class="text-gray-400 text-xs mr-2" v-if="recordCurrent.type !== PluginType.SYSTEM">
                             {{ recordCurrent.name }}
                         </div>
-                        <div class="text-gray-400 text-sm mr-2" v-if="recordCurrent.type !== PluginType.SYSTEM">
+                        <div class="text-gray-400 text-xs mr-2" v-if="recordCurrent.type !== PluginType.SYSTEM">
                             v{{ recordCurrent.version }}
                         </div>
                         <a-tooltip :content="'本地插件:' + recordCurrent.runtime?.root">
@@ -280,7 +300,7 @@ const doInstallStore = async () => {
                         </a-tooltip>
                         <div class="flex-grow"></div>
                     </div>
-                    <div class="text-gray-400 text-sm w-0">
+                    <div class="text-gray-400 text-sm w-full truncate">
                         {{ recordCurrent.description }}
                     </div>
                 </div>
@@ -330,6 +350,12 @@ const doInstallStore = async () => {
                         <div class="flex items-center">
                             <img class="w-6 h-6 mr-1 object-contain dark:invert" :src="SystemIcons.searchMatch"/>
                             {{ $t('匹配动作') }}
+                        </div>
+                    </a-radio>
+                    <a-radio value="mcp">
+                        <div class="flex items-center">
+                            <img class="w-6 h-6 mr-1 object-contain dark:invert" :src="SystemIcons.mcp"/>
+                            MCP
                         </div>
                     </a-radio>
                 </a-radio-group>
@@ -399,7 +425,7 @@ const doInstallStore = async () => {
                     </div>
                 </div>
             </div>
-            <div v-if="actionTab === 'match'">
+            <div v-else-if="actionTab === 'match'">
                 <m-empty v-if="!currentPluginActionsMatchList.length"/>
                 <div v-for="a in currentPluginActionsMatchList" class="py-2">
                     <div class="mb-4 flex items-center">
@@ -491,6 +517,14 @@ const doInstallStore = async () => {
                             </template>
                         </a-dropdown>
                     </div>
+                </div>
+            </div>
+            <div v-else-if="actionTab === 'mcp'">
+                <m-empty v-if="currentPluginMcpList.length === 0"/>
+                <div v-for="tool in currentPluginMcpList" :key="tool.name"
+                     class="mb-2 p-2 border border-gray-300 rounded-lg hover:bg-gray-100">
+                    <div class="font-bold">{{ tool.name }}</div>
+                    <div class="text-sm text-gray-600">{{ tool.description }}</div>
                 </div>
             </div>
         </div>

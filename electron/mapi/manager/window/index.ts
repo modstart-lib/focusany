@@ -810,6 +810,9 @@ export const ManagerWindow = {
             pluginState,
             width: bounds.width,
             height: bounds.height,
+            option: {
+                type: "action",
+            }
         });
         mainWindowView = null;
         await executeHooks(AppRuntime.mainWindow, "PluginDetached");
