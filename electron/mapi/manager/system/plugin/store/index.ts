@@ -9,7 +9,6 @@ import {Misc} from "../../../../misc";
 import fs from "node:fs";
 import {resolve} from "node:path";
 import {MarkdownUtil} from "../../../../../lib/util";
-import {map} from "lodash-es";
 import {AppsMain} from "../../../../app/main";
 
 export const ManagerPluginStore = {
@@ -194,7 +193,18 @@ export const ManagerPluginStore = {
         const pluginInfo = await this._getPluginInfo(root, configJson);
         const tempFile = await Files.temp("zip");
         await Misc.zip(tempFile, plugin.runtime.root, {
-            end: (archive: any) => {
+            filter: async (entry) => {
+                if (entry.isDir) {
+                    if (["node_modules", ".git"].includes(entry.name)) {
+                        return false;
+                    }
+                    if (await Files.exists(resolve(entry.fullPath, ".faignore"))) {
+                        return false;
+                    }
+                }
+                return true;
+            },
+            end: async (archive: any) => {
                 delete configJson["development"];
                 delete configJson["$schema"];
                 archive.append(JSON.stringify(configJson, null, 4), {
