@@ -341,7 +341,7 @@ export const ManagerWindow = {
                 try {
                     const codeType = await this._viewCodeCallJs(`return typeof window.exports.code['${action.name}'];`);
                     if ('function' === codeType) {
-                        const value = await this._viewCodeCallJs(`return await window.exports.code[name](${JSON.stringify(mainPluginActionCode.codeData)});`);
+                        const value = await this._viewCodeCallJs(`return await window.exports.code['${action.name}'](${JSON.stringify(mainPluginActionCode.codeData)});`);
                         resolve(value);
                         endView();
                     } else {
