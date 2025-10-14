@@ -37,11 +37,11 @@ fi
 #cp -a share-binary/linux-x86/scrcpy electron/resources/extra/linux-x86/scrcpy
 #cp -a share-binary/linux-x86/ffmpeg electron/resources/extra/linux-x86/ffmpeg
 #cp -a share-binary/linux-x86/ffprobe electron/resources/extra/linux-x86/ffprobe
-#
-#rm -rfv electron/resources/extra/win-x86
-#mkdir -p electron/resources/extra/win-x86
-#cp -a share-binary/win-x86/ScreenCapture.exe electron/resources/extra/win-x86/ScreenCapture.exe
+
+rm -rfv electron/resources/extra/win-x86
+mkdir -p electron/resources/extra/win-x86
+cp -a share-binary/win-x86/ScreenCapture.exe electron/resources/extra/win-x86/ScreenCapture.exe
 #cp -a share-binary/win-x86/ffmpeg.exe electron/resources/extra/win-x86/ffmpeg.exe
 #cp -a share-binary/win-x86/ffprobe.exe electron/resources/extra/win-x86/ffprobe
 #
-#ls -R electron/resources/extra
+ls -R electron/resources/extra
