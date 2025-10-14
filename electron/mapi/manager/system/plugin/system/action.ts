@@ -5,6 +5,7 @@ import {Page} from "../../../../../page";
 import {KeyboardKey, ManagerHotkeySimulate} from "../../../hotkey/simulate";
 import {isLinux, isMac, isWin} from "../../../../../lib/env";
 import os from "os";
+import {colorPicker} from "../../../plugin/colorPicker";
 
 export const SystemActionCode = {
     screenshot: async (data: ActionTypeCodeData) => {
@@ -12,11 +13,16 @@ export const SystemActionCode = {
             AppsMain.setClipboardImage(image);
         });
     },
+    colorPicker: async (data: ActionTypeCodeData) => {
+        const color = await colorPicker();
+        AppsMain.setClipboardText(color);
+        await AppsMain.toast(`颜色 ${color} 已复制到剪贴板`);
+    },
     guide: async (data: ActionTypeCodeData) => {
-        Page.open("guide", {}).then();
+        await Page.open("guide", {})
     },
     about: async (data: ActionTypeCodeData) => {
-        Page.open("about", {}).then();
+        await Page.open("about", {})
     },
     lock: async (data: ActionTypeCodeData) => {
         if (isMac) {

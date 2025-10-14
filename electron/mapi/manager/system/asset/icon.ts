@@ -13,6 +13,7 @@ import folder from "./folder.svg";
 import model from "./model.svg";
 import mcp from "./mcp.svg";
 import screenshot from "./screenshot.svg";
+import colorPicker from "./color-picker.svg";
 import plugin from "./plugin.svg";
 import thunder from "./thunder.svg";
 import guide from "./guide.svg";
@@ -40,6 +41,7 @@ export const SystemIcons = {
     model,
     mcp,
     screenshot,
+    colorPicker,
     plugin,
     thunder,
     guide,
