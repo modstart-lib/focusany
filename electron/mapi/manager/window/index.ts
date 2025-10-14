@@ -541,8 +541,13 @@ export const ManagerWindow = {
         }, 0);
     },
     async subInputChange(win: BrowserWindow, keywords: string) {
-        const view = win.getBrowserView();
-        await executePluginHooks(view, "SubInputChange", keywords);
+        const views = win.getBrowserViews();
+        for (const view of views) {
+            if (AppRuntime.mainWindow === win && view !== mainWindowView) {
+                continue;
+            }
+            await executePluginHooks(view, "SubInputChange", keywords);
+        }
     },
     async close(
         plugin?: PluginRecord,

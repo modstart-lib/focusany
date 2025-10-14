@@ -18,31 +18,8 @@ export const ManagerClipboard = {
     lastContentJson: null,
     lastChangeTimestamp: 0,
     encryptKey: null,
-    gettingSelectedContent: false,
-    async getSelectedContent(): Promise<ClipboardDataType | null> {
-        this.gettingSelectedContent = true;
-        const old = await this._getClipboardContent();
-        clipboard.clear();
-        ManagerHotkeySimulate.keyTap(KeyboardKey.C, [isMac ? KeyboardKey.Meta : KeyboardKey.Ctrl]);
-        await new Promise(resolve => setTimeout(resolve, 200));
-        const select = await this._getClipboardContent();
-        clipboard.clear();
-        if (old) {
-            switch (old.type) {
-                case "file":
-                    setClipboardFiles(old.files.map(file => file.path));
-                    break;
-                case "image":
-                    AppsMain.setClipboardImage(old.image);
-                    break;
-                case "text":
-                    AppsMain.setClipboardText(old.text);
-                    break;
-            }
-        }
-        this.gettingSelectedContent = false;
-        return select;
-    },
+    clipboardBusy: false,
+    clipboardBackupData: null as ClipboardDataType | null,
     async init() {
         this.encryptKey = await StorageMain.get("clipboard", "encryptKey", null);
         if (!this.encryptKey) {
@@ -51,6 +28,47 @@ export const ManagerClipboard = {
         }
         this.monitorStart();
         // console.log('all', await this.list())
+    },
+    async waitClipboardFree() {
+        while (this.clipboardBusy) {
+            await sleep(10);
+        }
+    },
+    async backupClipboard() {
+        await this.waitClipboardFree();
+        this.clipboardBusy = true;
+        this.clipboardBackupData = await this._getClipboardContent();
+        clipboard.clear();
+    },
+    async restoreClipboard() {
+        clipboard.clear();
+        if (this.clipboardBackupData) {
+            await this._setClipboardContent(this.clipboardBackupData);
+            this.clipboardBackupData = null;
+        }
+        this.clipboardBusy = false;
+    },
+    async getSelectedContent(): Promise<ClipboardDataType | null> {
+        await this.backupClipboard();
+        ManagerHotkeySimulate.keyTap(KeyboardKey.C, [isMac ? KeyboardKey.Meta : KeyboardKey.Ctrl]);
+        await new Promise(resolve => setTimeout(resolve, 200));
+        const select = await this._getClipboardContent();
+        await this.restoreClipboard();
+        return select;
+    },
+
+    async _setClipboardContent(data: ClipboardDataType): Promise<void> {
+        switch (data.type) {
+            case "file":
+                setClipboardFiles(data.files.map(file => file.path));
+                break;
+            case "image":
+                AppsMain.setClipboardImage(data.image);
+                break;
+            case "text":
+                AppsMain.setClipboardText(data.text);
+                break;
+        }
     },
     async _getClipboardContent(): Promise<ClipboardDataType | null> {
         const files = getClipboardFiles();
@@ -76,10 +94,18 @@ export const ManagerClipboard = {
         }
         return null;
     },
-    async getClipboardContent(): Promise<ClipboardDataType | null> {
-        while (this.gettingSelectedContent) {
-            await sleep(10);
+    async pasteClipboardContent(data: ClipboardDataType): Promise<void> {
+        if (!data) {
+            return;
         }
+        await this.backupClipboard();
+        await this._setClipboardContent(data);
+        ManagerHotkeySimulate.keyTap(KeyboardKey.V, [isMac ? KeyboardKey.Meta : KeyboardKey.Ctrl]);
+        await sleep(200);
+        await this.restoreClipboard();
+    },
+    async getClipboardContent(): Promise<ClipboardDataType | null> {
+        await this.waitClipboardFree();
         const content = await this._getClipboardContent();
         this.watchNextTime = Date.now() + this.interval;
         const contentJson = JSON.stringify(content);

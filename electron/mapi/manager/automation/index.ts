@@ -2,8 +2,9 @@ import {Button, Key, keyboard, mouse} from "@nut-tree-fork/nut-js";
 import {activeWindow, Result} from "get-windows";
 import {windowManager} from "node-window-manager";
 import {Window} from "node-window-manager/src/classes/window";
-import {ActiveWindow} from "../../../../src/types/Manager";
+import {ActiveWindow, ClipboardDataType} from "../../../../src/types/Manager";
 import {Log} from "../../log/main";
+import {ManagerClipboard} from "../clipboard";
 
 export const ManagerAutomation = {
     init() {
@@ -12,31 +13,27 @@ export const ManagerAutomation = {
     lastWindow: null as Result | null,
     lastWindowManager: null as Window | null,
     track() {
-        setTimeout(async () => {
-            try {
-                const win = await activeWindow();
-                if (win) {
-                    if (!ManagerAutomation.lastWindow || win.id !== ManagerAutomation.lastWindow.id) {
-                        if (!ManagerAutomation.trackShouldIgnore(win)) {
-                            ManagerAutomation.lastWindow = win;
-                            ManagerAutomation.lastWindowManager = windowManager.getActiveWindow();
-                        }
+        windowManager.on('window-activated', async (win) => {
+            if (win) {
+                if (!ManagerAutomation.lastWindow || win.id !== ManagerAutomation.lastWindow.id) {
+                    if (!ManagerAutomation.trackShouldIgnore(win)) {
+                        ManagerAutomation.lastWindow = win;
+                        ManagerAutomation.lastWindowManager = windowManager.getActiveWindow();
                     }
                 }
-            } catch (e) {
-                Log.error('ManagerAutomation.track', e);
             }
-            ManagerAutomation.track()
-        }, 500);
+        });
     },
-    trackShouldIgnore(win: Result): boolean {
-        if ('Electron' === win.owner.name && '%name%' === win.title) {
+    trackShouldIgnore(win: Window): boolean {
+        if (['Electron'].includes(win.getTitle())) {
             return true;
         }
-        if (['FocusAny'].includes(win.owner.name)) {
-            return true;
-        }
-        // Log.info('ManagerAutomation.track', win);
+        // if (['FocusAny'].includes(win.getOwner()?.name)) {
+        //     return true;
+        // }
+        Log.info('ManagerAutomation.track', {
+            win, title: win.getTitle(), owner: win.getOwner()
+        });
         return false;
     },
     async activateLatestWindow(): Promise<void> {
@@ -63,7 +60,11 @@ export const ManagerAutomation = {
         return win;
     },
     async typeString(text: string): Promise<void> {
-        await keyboard.type(text);
+        // await keyboard.type(text);
+        await ManagerClipboard.pasteClipboardContent({
+            type: "text",
+            text: text,
+        } as ClipboardDataType)
     },
     async typeKey(key: string): Promise<void> {
         const keyMap: { [key: string]: Key } = {
