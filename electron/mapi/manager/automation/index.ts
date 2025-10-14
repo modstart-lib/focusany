@@ -25,7 +25,10 @@ export const ManagerAutomation = {
         });
     },
     trackShouldIgnore(win: Window): boolean {
-        if (['Electron'].includes(win.getTitle())) {
+        if (!win || !win.id) {
+            return true;
+        }
+        if (['Electron', 'FocusAny'].includes(win.getTitle())) {
             return true;
         }
         // if (['FocusAny'].includes(win.getOwner()?.name)) {
