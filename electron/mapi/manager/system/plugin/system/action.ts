@@ -14,9 +14,7 @@ export const SystemActionCode = {
         });
     },
     colorPicker: async (data: ActionTypeCodeData) => {
-        const color = await colorPicker();
-        AppsMain.setClipboardText(color);
-        await AppsMain.toast(`颜色 ${color} 已复制到剪贴板`);
+        colorPicker().then();
     },
     guide: async (data: ActionTypeCodeData) => {
         await Page.open("guide", {})
