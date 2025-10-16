@@ -1,10 +1,9 @@
-import { FileType, screen as nutScreen, Region } from '@nut-tree-fork/nut-js';
-import { BrowserWindow, ipcMain, nativeImage, screen } from 'electron';
-import { unlinkSync } from 'fs';
-import { tmpdir } from 'os';
-import { uIOhook, UiohookKey } from 'uiohook-napi';
-import { isLinux, isMac, isWin } from "../../../lib/env";
-import { AppsMain } from "../../app/main";
+import {FileType, Region, screen as nutScreen} from '@nut-tree-fork/nut-js';
+import {BrowserWindow, ipcMain, nativeImage, screen} from 'electron';
+import {uIOhook, UiohookKey} from 'uiohook-napi';
+import {isLinux, isMac, isWin} from "../../../lib/env";
+import {AppsMain} from "../../app/main";
+import {Files} from "../../file/main";
 
 let currentPromise: Promise<void> | null = null;
 
@@ -15,7 +14,6 @@ export const colorPicker = async (): Promise<void> => {
     currentPromise = new Promise<void>((resolve) => {
         let magnifierWindow: BrowserWindow | null = null;
         let isPicking = true;
-        let updateTimer: NodeJS.Timeout | null = null;
         let updating = false;
         let currentColor: string = '#FFFFFF';
         let bitmaps: {
@@ -30,10 +28,6 @@ export const colorPicker = async (): Promise<void> => {
         }[] = [];
 
         const cleanup = () => {
-            if (updateTimer) {
-                clearTimeout(updateTimer);
-                updateTimer = null;
-            }
             if (magnifierWindow) {
                 magnifierWindow.close();
                 magnifierWindow = null;
@@ -211,14 +205,15 @@ export const colorPicker = async (): Promise<void> => {
                     const clampedPhysicalWidth = Math.min(physicalWidth, totalWidth - clampedPhysicalX);
                     const clampedPhysicalHeight = Math.min(physicalHeight, totalHeight - clampedPhysicalY);
                     const region = new Region(clampedPhysicalX, clampedPhysicalY, clampedPhysicalWidth, clampedPhysicalHeight);
-                    const fileName = `color-picker-${display.id}-${Date.now()}`;
-                    const capturePath = await (nutScreen.captureRegion as any)(fileName, region, FileType.PNG, tmpdir());
-                    if (typeof capturePath !== 'string') {
-                        console.error('Unexpected capture path:', capturePath);
-                        return null;
-                    }
+                    const capturePath = await (nutScreen.captureRegion as any)(
+                        await Files.tempName(),
+                        region,
+                        FileType.PNG,
+                        await Files.tempRoot()
+                    );
+                    // console.log('capturePath', capturePath);
                     const image = nativeImage.createFromPath(capturePath);
-                    unlinkSync(capturePath);
+                    Files.deletes(capturePath).then();
                     const bitmap = image.getBitmap() as any;
                     const size = image.getSize();
                     return {
