@@ -6,6 +6,7 @@ import {KeyboardKey, ManagerHotkeySimulate} from "../../../hotkey/simulate";
 import {isLinux, isMac, isWin} from "../../../../../lib/env";
 import os from "os";
 import {colorPicker} from "../../../plugin/colorPicker";
+import {screenRecord} from "../../../plugin/screenRecord";
 
 export const SystemActionCode = {
     screenshot: async (data: ActionTypeCodeData) => {
@@ -15,6 +16,9 @@ export const SystemActionCode = {
     },
     colorPicker: async (data: ActionTypeCodeData) => {
         colorPicker().then();
+    },
+    screenRecord: async (data: ActionTypeCodeData) => {
+        screenRecord().then();
     },
     guide: async (data: ActionTypeCodeData) => {
         await Page.open("guide", {})

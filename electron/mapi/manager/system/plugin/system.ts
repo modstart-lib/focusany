@@ -74,6 +74,13 @@ export const SystemPlugin: PluginRecord = {
             matches: ["颜色拾取", "ColorPicker"] as any,
         },
         {
+            name: "screenRecord",
+            title: "屏幕录制",
+            type: ActionTypeEnum.CODE,
+            icon: SystemIcons.screenRecord,
+            matches: ["屏幕录制", "ScreenRecord"] as any,
+        },
+        {
             name: "guide",
             title: "新手指引",
             type: ActionTypeEnum.CODE,
