@@ -210,7 +210,6 @@ export const managerStore = defineStore("manager", {
             await window.$mapi.manager.openAction(toRaw(action));
             if (
                 action.type === ActionTypeEnum.COMMAND ||
-                action.type === ActionTypeEnum.CODE ||
                 action.type === ActionTypeEnum.BACKEND
             ) {
                 await window.$mapi.manager.hide();

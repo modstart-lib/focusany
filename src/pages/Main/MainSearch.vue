@@ -100,7 +100,7 @@
 </template>
 
 <script setup lang="ts">
-import {onMounted, ref, watch} from "vue";
+import {nextTick, onMounted, ref, watch} from "vue";
 import FileExt from "../../components/common/FileExt.vue";
 import {useManagerStore} from "../../store/modules/manager";
 import {useSearchOperate} from "./Lib/searchOperate";
@@ -150,7 +150,9 @@ const updateWidth = () => {
 watch(
     () => manager.searchValue,
     value => {
-        updateWidth();
+        nextTick(() => {
+            updateWidth();
+        });
     }
 );
 
