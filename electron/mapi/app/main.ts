@@ -253,6 +253,9 @@ const defaultDarkModeBackgroundColor = async () => {
 
 nativeTheme.on("updated", () => {
     Events.broadcast("DarkModeChange", {isDarkMode: isDarkMode()});
+    AppsMain.defaultDarkModeBackgroundColor().then(color => {
+        AppRuntime.mainWindow.setBackgroundColor(color)
+    });
 });
 
 ipcMain.handle("app:isDarkMode", () => {
