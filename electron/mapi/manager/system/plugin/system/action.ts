@@ -7,26 +7,33 @@ import {isLinux, isMac, isWin} from "../../../../../lib/env";
 import os from "os";
 import {colorPicker} from "../../../plugin/colorPicker";
 import {screenRecord} from "../../../plugin/screenRecord";
+import {AppRuntime} from "../../../../env";
 
 export const SystemActionCode = {
     screenshot: async (data: ActionTypeCodeData) => {
+        AppRuntime.mainWindow.hide();
         screenCapture((image: string) => {
             AppsMain.setClipboardImage(image);
         });
     },
     colorPicker: async (data: ActionTypeCodeData) => {
+        AppRuntime.mainWindow.hide();
         colorPicker().then();
     },
     screenRecord: async (data: ActionTypeCodeData) => {
+        AppRuntime.mainWindow.hide();
         screenRecord().then();
     },
     guide: async (data: ActionTypeCodeData) => {
+        AppRuntime.mainWindow.hide();
         await Page.open("guide", {})
     },
     about: async (data: ActionTypeCodeData) => {
+        AppRuntime.mainWindow.hide();
         await Page.open("about", {})
     },
     lock: async (data: ActionTypeCodeData) => {
+        AppRuntime.mainWindow.hide();
         if (isMac) {
             ManagerHotkeySimulate.keyTap(KeyboardKey.Q, [KeyboardKey.Meta, KeyboardKey.Ctrl]);
         } else if (isWin) {
@@ -36,6 +43,7 @@ export const SystemActionCode = {
         }
     },
     ip: async (data: ActionTypeCodeData) => {
+        AppRuntime.mainWindow.hide();
         const ip = getLocalIPAddress();
         AppsMain.setClipboardText(ip);
         AppsMain.toast(`IP地址 ${ip} 已复制到剪贴板`);

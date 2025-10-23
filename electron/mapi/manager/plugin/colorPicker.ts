@@ -328,10 +328,12 @@ export const colorPicker = async (): Promise<void> => {
                 isPicking = false;
                 resolve();
                 cleanup();
+                currentPromise = null;
             } else if (event.keycode === UiohookKey.Escape) { // ESC to exit
                 isPicking = false;
                 resolve(); // Or currentColor, but exit without copying
                 cleanup();
+                currentPromise = null;
             }
         };
         uIOhook.on('mousemove', mouseMoveCallback);
