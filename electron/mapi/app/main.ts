@@ -248,7 +248,7 @@ const defaultDarkModeBackgroundColor = async () => {
     if (await shouldDarkMode()) {
         return "#17171A";
     }
-    return "#FFFFFF";
+    return "#00FFFFFF";
 };
 
 nativeTheme.on("updated", () => {

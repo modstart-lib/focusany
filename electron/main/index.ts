@@ -117,7 +117,7 @@ async function createWindow() {
         title: AppConfig.title,
         ...(!isPackaged ? {icon} : {}),
         frame: false,
-        transparent: false,
+        transparent: true,
         hasShadow: true,
         // center: true,
         x: wx,
