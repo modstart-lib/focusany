@@ -204,10 +204,11 @@ onMounted(() => {
 </script>
 
 <style lang="less">
+@mainBorderRadius: 15px;
 #main {
     height: 100vh;
     overflow: hidden;
-    border-radius: 15px;
+    border-radius: @mainBorderRadius;
     background: #FFFFFF;
 
     &.no-active-plugin {
@@ -216,7 +217,7 @@ onMounted(() => {
             position: absolute;
             inset: 0;
             padding: 2px;
-            border-radius: 15px;
+            border-radius: @mainBorderRadius;
             background-image: linear-gradient(130deg, #3377fe, #4c6fff, #8370ff, #ba59ff);
             background-size: 300% 300%;
             animation: border-flow 2s linear infinite;
