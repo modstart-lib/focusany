@@ -55,6 +55,7 @@ export const managerStore = defineStore("manager", {
         actionCodeItemActiveId: null as string | null,
         actionCodeItems: [] as {
             id: string,
+            shortcutIndex: number,
             [key: string]: any;
         }[],
 

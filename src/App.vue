@@ -142,7 +142,12 @@ window.__page.onPluginCodeData((data: {
     // console.log('main.onPluginCodeData', data);
     manager.actionCodeError = null;
     manager.actionCodeLoading = false;
-    manager.actionCodeItems = data.items;
+    manager.actionCodeItems = data.items.map((o, oIndex) => {
+        return {
+            shortcutIndex: oIndex <= 8 ? oIndex + 1 : -1,
+            ...o
+        }
+    });
     manager.actionCodeItemActiveId = data.items.length > 0 ? data.items[0].id : null;
 });
 window.__page.onPluginCodeExit(() => {

@@ -6,6 +6,7 @@ import {ComputedRef} from "@vue/reactivity";
 import {EntryListener} from "./entryListener";
 import {Dialog} from "../../../lib/dialog";
 import {t} from "../../../lang";
+import {UI} from "../../../lib/ui";
 
 type ActionGroupType = "window" | "search" | "match" | "history" | "pin" | never;
 
@@ -140,11 +141,31 @@ export const useResultOperate = () => {
         setTimeout(() => {
             const codeItemElement = document.getElementById(`MainResult_CodeItem_${manager.actionCodeItemActiveId}`);
             if (codeItemElement) {
-                codeItemElement.scrollIntoView({
-                    behavior: "smooth",
-                    block: "nearest",
-                    inline: "nearest",
-                });
+                const container = document.getElementById('MainResult_Container');
+                if (container) {
+                    UI.smoothScrollTop(
+                        container,
+                        codeItemElement.offsetTop - container.offsetTop - container.clientHeight / 2 + codeItemElement.clientHeight / 2
+                    ).then(() => {
+                        // 计算完全在可视范围内的元素，使用shortcutIndex进行编号
+                        const visibleItemIndexes = Array.from(container.querySelectorAll('.pb-main-result-code-item')).map((el, idx) => {
+                            const item = el as HTMLElement;
+                            const itemTop = item.offsetTop - container.offsetTop;
+                            const itemBottom = itemTop + item.clientHeight;
+                            if (itemTop >= container.scrollTop && itemBottom <= container.scrollTop + container.clientHeight) {
+                                return idx;
+                            }
+                            return null;
+                        }).filter(idx => idx !== null) as number[];
+                        manager.actionCodeItems.forEach((item, idx) => {
+                            if (visibleItemIndexes.includes(idx)) {
+                                item.shortcutIndex = visibleItemIndexes.indexOf(idx) + 1;
+                            } else {
+                                item.shortcutIndex = -1;
+                            }
+                        });
+                    })
+                }
             }
         }, 10)
     }

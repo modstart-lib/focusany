@@ -1,5 +1,5 @@
 <template>
-    <div class="pb-result">
+    <div class="pb-result" id="MainResult_Container">
         <div ref="resultContainer">
             <ResultLoading v-if="manager.activePlugin && manager.activePluginLoading"/>
             <div
@@ -290,12 +290,12 @@ const onInputHotKey = (e: KeyboardEvent) => {
             }
         }
         if (pass) {
-            const index = parseInt(e.key) - 1;
-            if (manager.actionCodeItems.length > index) {
-                const item = manager.actionCodeItems[index];
-                if (item) {
-                    doOpenActionCode(item.id);
-                }
+            const index = parseInt(e.key);
+            const item = manager.actionCodeItems.find(o => {
+                return o.shortcutIndex === index;
+            });
+            if (item) {
+                doOpenActionCode(item.id);
             }
         }
     }
