@@ -4,6 +4,7 @@ import {isDev} from "../lib/env";
 import source from "./source.json";
 import enUS from "./en-US.json";
 import zhCN from "./zh-CN.json";
+import zhTW from "./zh-TW.json"; // 新增
 
 let localeInit = false;
 export const defaultLocale = "zh-CN";
@@ -18,6 +19,11 @@ export const messageList = [
         name: "zh-CN",
         label: "简体中文",
         messages: zhCN,
+    },
+    {
+        name: "zh-TW",
+        label: "繁體中文（臺灣）",
+        messages: zhTW,
     },
 ];
 
