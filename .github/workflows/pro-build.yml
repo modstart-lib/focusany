@@ -141,6 +141,7 @@ jobs:
           draft: false
           prerelease: false
           fail_on_unmatched_files: false
+          overwrite: true
           files: |
             code/dist-release/*.exe
             code/dist-release/*.dmg
