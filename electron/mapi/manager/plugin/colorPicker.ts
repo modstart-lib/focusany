@@ -291,7 +291,7 @@ export const colorPicker = async (): Promise<void> => {
                 const g = colors[centerIndex + 1];
                 const b = colors[centerIndex + 2];
                 const hex = '#' + r.toString(16).padStart(2, '0') + g.toString(16).padStart(2, '0') + b.toString(16).padStart(2, '0');
-                currentColor = hex;
+                currentColor = hex.toUpperCase();
                 magnifierWindow!.webContents.executeJavaScript(`
                     window.electronAPI.updateColor('${hex}');
                 `);
