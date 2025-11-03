@@ -15,8 +15,22 @@
             width:100vw;
             height:100vh;
             display: flex;
-            background: #FFFFFF;
             border-radius: 15px;
+            background-image: linear-gradient(130deg, #a8c8f4, #61c4f5, #ba59ff);
+            background-size: 300% 300%;
+            animation: border-flow-loading 2s linear infinite;
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        }
+        @keyframes border-flow-loading {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
         }
         #app-loading .container{
             margin:auto;

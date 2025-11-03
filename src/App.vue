@@ -216,7 +216,7 @@ onMounted(() => {
             content: "";
             position: absolute;
             inset: 0;
-            padding: 5px;
+            padding: 4px;
             border-radius: @mainBorderRadius;
             background-image: linear-gradient(130deg, #a8c8f4, #61c4f5, #ba59ff);
             background-size: 300% 300%;
