@@ -8,6 +8,7 @@ import {clipboard} from "electron";
 import {isMac} from "../../../lib/env";
 import {KeyboardKey, ManagerHotkeySimulate} from "../hotkey/simulate";
 import {ManagerPluginEvent} from "../plugin/event";
+import {Log} from "../../log/main";
 
 export const ManagerClipboard = {
     MAX_LIMIT: 1000,
@@ -191,6 +192,11 @@ export const ManagerClipboard = {
                 continue;
             }
             const data = await Files.read(`clipboard/${dir.name}/data`, {isDataPath: true});
+            if (!data) {
+                await Files.deletes(`clipboard/${dir.name}`, {isDataPath: true});
+                Log.error('ManagerClipboard.list', `Deleted empty clipboard directory: clipboard/${dir.name}`);
+                continue;
+            }
             for (const line of data.split("\n").reverse()) {
                 if (!line) {
                     continue;
