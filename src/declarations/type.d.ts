@@ -349,7 +349,6 @@ type DefsMapi = {
         tick: (name: string, data: any = null) => Promise<void>;
     };
     lang: {
-        writeSourceKey: (key: string) => Promise<void>;
         writeSourceKeyUse: (key: string) => Promise<void>;
     };
     event: {
