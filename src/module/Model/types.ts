@@ -32,3 +32,11 @@ export type Provider = {
     };
     runtime?: {};
 };
+
+export type ChatParam = {
+    systemPrompt: string | null;
+}
+
+export type ChatParam = {
+    systemPrompt: string | null;
+}
