@@ -29,7 +29,6 @@ pnpm-lock.yaml
 yarn.lock
 database.db
 
-src/lang/source-use.json
 /focusany-plugin-*
 /data
 /data-*
