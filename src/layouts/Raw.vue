@@ -5,7 +5,7 @@ import {t} from "../lang";
 
 const app = getCurrentInstance();
 const doQuit = () => {
-    Dialog.confirm(t("确定退出吗？")).then(() => {
+    Dialog.confirm(t("common.confirmQuit")).then(() => {
         window.$mapi.app.quit();
     });
 };
