@@ -487,7 +487,7 @@ export const ImportUtil = {
             }
         }
         const backend = await import(/* @vite-ignore */ `file://${tempPath}`);
-        // console.log('loadCommonJs', `${cjsPath}?t=${md5}`)
+        // console.log('loadCommonJs', `file://${cjsPath}?t=${md5}`)
         return backend.default;
     },
 };

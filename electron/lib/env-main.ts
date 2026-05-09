@@ -21,12 +21,14 @@ export const preloadPluginDefault = path.join(MAIN_DIST, "preload-plugin/plugin.
 export const rendererLoadPath = (window: BrowserWindow | BrowserView, fileName: string) => {
     if (!isPackaged && process.env.VITE_DEV_SERVER_URL) {
         const x = new url.URL(rendererDistPath(fileName));
+        // console.log('rendererLoadPath', fileName, x.toString())
         if (window instanceof BrowserView) {
             window.webContents.loadURL(x.toString());
         } else {
             window.loadURL(x.toString());
         }
     } else {
+        // console.log('rendererLoadPath', fileName, rendererDistPath(fileName))
         if (window instanceof BrowserView) {
             window.webContents.loadFile(rendererDistPath(fileName));
         } else {
@@ -54,7 +56,7 @@ export const getGpuInfo = async () => {
     }[];
     try {
         // @ts-ignore
-        const si = await import(/* @vite-ignore */ "systeminformation");
+        const si = await import("systeminformation");
         const graphics = await si.graphics();
         graphics.controllers.forEach((controller, index) => {
             list.push({

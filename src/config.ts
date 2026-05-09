@@ -1,6 +1,7 @@
 import packageJson from "../package.json";
 
 const BASE_URL = "https://focusany.com";
+// const BASE_URL = 'http://focusany.demo.soft.host';
 
 export const AppConfig = {
     name: "FocusAny",

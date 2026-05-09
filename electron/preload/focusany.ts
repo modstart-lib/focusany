@@ -495,6 +495,9 @@ export const FocusAny = {
                 event,
                 data,
             });
+            setTimeout(() => {
+                resolve(null);
+            }, 1000);
         });
     },
 

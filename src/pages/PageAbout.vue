@@ -92,30 +92,6 @@ const doDevSettingTriggerClick = () => {
                     </a-button>
                 </div>
             </div>
-            <div class="flex mb-3 items-center">
-                <div class="w-20">{{ t("声明") }}</div>
-                <div class="flex-grow">
-                    {{ t("本产品为开源软件，遵循 AGPL-3.0 license 协议。") }}
-                </div>
-            </div>
-            <div class="mb-3 mt-6 flex items-center">
-                <a
-                    :href="AppConfig.websiteGithub"
-                    target="_blank"
-                    class="bg-gray-100 dark:bg-gray-700 w-0 flex-grow mr-1 rounded-lg py-2 px-8 inline-flex items-center hover:shadow-lg"
-                >
-                    <img src="./../assets/image/github.svg" class="w-6 h-6 mr-2 object-contain" />
-                    <div class="flex-grow">Github</div>
-                </a>
-                <a
-                    :href="AppConfig.websiteGitee"
-                    target="_blank"
-                    class="bg-gray-100 dark:bg-gray-700 w-0 flex-grow mr-1 rounded-lg py-2 px-8 inline-flex items-center hover:shadow-lg"
-                >
-                    <img src="./../assets/image/gitee.svg" class="w-6 h-6 mr-2 object-contain" />
-                    <div class="flex-grow">Gitee</div>
-                </a>
-            </div>
             <div class="text-gray-400 text-center select-none">&copy; {{ licenseYear }} {{ AppConfig.name }}</div>
         </div>
     </div>

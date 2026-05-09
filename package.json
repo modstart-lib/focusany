@@ -4,6 +4,7 @@
     "main": "dist-electron/main/index.js",
     "description": "FocusAny",
     "author": "ModStartLib",
+    "homepage": "https://focusany.com",
     "license": "Apache-2.0",
     "private": true,
     "keywords": [

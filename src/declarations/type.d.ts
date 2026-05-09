@@ -521,6 +521,7 @@ type DefsMapi = {
     };
 };
 
+
 declare global {
     interface Window {
         __page: DefsPage;

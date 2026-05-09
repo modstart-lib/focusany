@@ -192,6 +192,7 @@ window.addEventListener("keydown", e => {
         }
     }
 });
+
 onMounted(() => {
     setTimeout(async () => {
         const checkAtLaunch = await window.$mapi.config.get("updaterCheckAtLaunch", "yes");
