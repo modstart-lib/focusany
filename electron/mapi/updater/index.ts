@@ -1,5 +1,10 @@
-import {AppConfig} from "../../../src/config";
-import {platformArch, platformName, platformUUID, platformVersion} from "../../lib/env";
+import { AppConfig } from "../../../src/config";
+import {
+    platformArch,
+    platformName,
+    platformUUID,
+    platformVersion,
+} from "../../lib/env";
 
 const checkForUpdate = async () => {
     try {

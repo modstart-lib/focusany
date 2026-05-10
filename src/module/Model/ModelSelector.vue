@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import {useModelStore} from "./store/model";
-import {computed, ref} from "vue";
-import {getModelLogo} from "./models";
+import { useModelStore } from "./store/model";
+import { computed, ref } from "vue";
+import { getModelLogo } from "./models";
 
 type ModelRecord = {
     providerId: string;
@@ -58,18 +58,25 @@ const selectedModel = computed(() => {
 defineExpose({
     getInfo: () => {
         return {
-            providerLogo: getModelLogo(selectedModel.value?.id || ''),
-            providerTitle: selectedProvider.value?.title || '',
-            modelName: selectedModel.value?.name || '',
+            providerLogo: getModelLogo(selectedModel.value?.id || ""),
+            providerTitle: selectedProvider.value?.title || "",
+            modelName: selectedModel.value?.name || "",
         };
     },
 });
 </script>
 
 <template>
-    <a-select ref="select" style="width:auto;" :placeholder="$t('model.select')">
+    <a-select
+        ref="select"
+        style="width: auto"
+        :placeholder="$t('model.select')"
+    >
         <template #label>
-            <div class="flex items-center" v-if="selectedProvider && selectedModel">
+            <div
+                class="flex items-center"
+                v-if="selectedProvider && selectedModel"
+            >
                 <div class="mr-1">
                     <a-avatar
                         :image-url="getModelLogo(selectedModel.id)"
@@ -92,7 +99,10 @@ defineExpose({
                 </div>
             </div>
         </template>
-        <a-option v-for="p in availableModels" :value="p.providerId + '|' + p.modelId">
+        <a-option
+            v-for="p in availableModels"
+            :value="p.providerId + '|' + p.modelId"
+        >
             <div class="flex items-center">
                 <div class="mr-1">
                     <a-avatar

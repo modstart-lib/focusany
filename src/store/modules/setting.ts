@@ -1,8 +1,9 @@
-import {defineStore} from "pinia";
+import { defineStore } from "pinia";
 import store from "../index";
-import {AppConfig} from "../../config";
-import {computed} from "vue";
-import {cloneDeep} from "lodash-es";
+import { AppConfig } from "../../config";
+import { computed } from "vue";
+import { cloneDeep } from "lodash-es";
+import { applyLocale } from "../../lang";
 
 export const settingStore = defineStore("setting", {
     state() {
@@ -49,6 +50,9 @@ export const settingStore = defineStore("setting", {
             (async () => {
                 this.config = await window.$mapi.config.all();
                 this.setupDarkMode();
+                if (data?.key === "lang" && data?.value) {
+                    applyLocale(data.value);
+                }
             })();
         },
         onConfigEnvChangeBroadcast(data: any) {
@@ -127,7 +131,10 @@ const setting = settingStore(store);
 setting.init().then();
 
 window.__page.onBroadcast("ConfigChange", setting.onConfigChangeBroadcast);
-window.__page.onBroadcast("ConfigEnvChange", setting.onConfigEnvChangeBroadcast);
+window.__page.onBroadcast(
+    "ConfigEnvChange",
+    setting.onConfigEnvChangeBroadcast,
+);
 window.__page.onBroadcast("DarkModeChange", setting.onDarkModeChangeBroadcast);
 
 export const useSettingStore = () => {

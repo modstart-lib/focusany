@@ -1,12 +1,12 @@
-import {createRouter, createWebHashHistory} from "vue-router";
+import { createRouter, createWebHashHistory } from "vue-router";
 
 const routes = [
     {
         path: "/",
         component: () => import("./layouts/Main.vue"),
         children: [
-            {path: "", component: () => import("./pages/Home.vue")},
-            {path: "setting", component: () => import("./pages/Setting.vue")},
+            { path: "", component: () => import("./pages/Home.vue") },
+            { path: "setting", component: () => import("./pages/Setting.vue") },
         ],
     },
     {

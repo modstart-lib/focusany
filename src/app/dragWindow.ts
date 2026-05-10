@@ -1,4 +1,10 @@
-export const useDragWindow = ({name, ignore}: {name: string | null; ignore?: (e: MouseEvent) => boolean}) => {
+export const useDragWindow = ({
+    name,
+    ignore,
+}: {
+    name: string | null;
+    ignore?: (e: MouseEvent) => boolean;
+}) => {
     name = name || null;
     let animationId: number;
     let mouseX: number;
@@ -7,7 +13,7 @@ export const useDragWindow = ({name, ignore}: {name: string | null; ignore?: (e:
     let clientHeight = 0;
     let draggable = true;
 
-    const onDragWindowMouseDown = e => {
+    const onDragWindowMouseDown = (e) => {
         // 右击不移动
         if (e.button === 2) {
             return;
@@ -35,11 +41,18 @@ export const useDragWindow = ({name, ignore}: {name: string | null; ignore?: (e:
     };
 
     const moveWindow = () => {
-        window.$mapi.app.windowMove(name, {mouseX, mouseY, width: clientWidth, height: clientHeight}).then(() => {
-            if (draggable) {
-                animationId = requestAnimationFrame(moveWindow);
-            }
-        });
+        window.$mapi.app
+            .windowMove(name, {
+                mouseX,
+                mouseY,
+                width: clientWidth,
+                height: clientHeight,
+            })
+            .then(() => {
+                if (draggable) {
+                    animationId = requestAnimationFrame(moveWindow);
+                }
+            });
     };
 
     return {

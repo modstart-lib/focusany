@@ -1,23 +1,41 @@
 import * as remoteMain from "@electron/remote/main";
-import {BrowserView, BrowserWindow, screen, shell, WebContents} from "electron";
-import {ActionRecord, PluginRecord, PluginState} from "../../../../src/types/Manager";
-import {WindowConfig} from "../../../config/window";
-import {DevToolsManager} from "../../../lib/devtools";
-import {isMac} from "../../../lib/env";
-import {preloadDefault, rendererIsUrl, rendererLoadPath} from "../../../lib/env-main";
-import {HotKeyUtil} from "../../../lib/util";
-import {AppsMain} from "../../app/main";
-import {AppEnv, AppRuntime} from "../../env";
-import {Events} from "../../event/main";
-import {Log} from "../../log/main";
-import {executeDarkMode, executeHooks, executePluginHooks} from "../lib/hooks";
-import {ManagerPlugin} from "../plugin";
-import {ManagerPluginEvent} from "../plugin/event";
-import {ManagerSystem} from "../system";
-import {PluginContext} from "../type";
-import {RemoteWebManager} from "./remoteWeb";
-import {PluginLog} from "../plugin/log";
-import Apps from "../../app";
+import {
+    BrowserView,
+    BrowserWindow,
+    screen,
+    shell,
+    WebContents,
+} from "electron";
+import {
+    ActionRecord,
+    PluginRecord,
+    PluginState,
+} from "../../../../src/types/Manager";
+import { t } from "../../../config/lang";
+import { WindowConfig } from "../../../config/window";
+import { DevToolsManager } from "../../../lib/devtools";
+import { isMac } from "../../../lib/env";
+import {
+    preloadDefault,
+    rendererIsUrl,
+    rendererLoadPath,
+} from "../../../lib/env-main";
+import { HotKeyUtil } from "../../../lib/util";
+import { AppsMain } from "../../app/main";
+import { AppEnv, AppRuntime } from "../../env";
+import { Events } from "../../event/main";
+import { Log } from "../../log/main";
+import {
+    executeDarkMode,
+    executeHooks,
+    executePluginHooks,
+} from "../lib/hooks";
+import { ManagerPlugin } from "../plugin";
+import { ManagerPluginEvent } from "../plugin/event";
+import { PluginLog } from "../plugin/log";
+import { ManagerSystem } from "../system";
+import { PluginContext } from "../type";
+import { RemoteWebManager } from "./remoteWeb";
 
 const browserViews = new Map<WebContents, BrowserView>();
 const detachWindows = new Map<WebContents, BrowserWindow>();
@@ -30,17 +48,17 @@ const mainPluginActionCode = {
         id: string;
         [key: string]: any;
     }[],
-}
+};
 
 type OpenOptionType = {
-    type: "action" | "callPage",
+    type: "action" | "callPage";
     callPage?: {
-        type: string,
-        data: any,
-        option: CallPageOption,
-        onResult: (result: { code: number, msg: string, data?: any }) => void,
-    }
-}
+        type: string;
+        data: any;
+        option: CallPageOption;
+        onResult: (result: { code: number; msg: string; data?: any }) => void;
+    };
+};
 
 type OpenShowWindowOption = {
     loadUrl: () => void;
@@ -48,7 +66,7 @@ type OpenShowWindowOption = {
     width: number;
     height: number;
     option: OpenOptionType;
-}
+};
 
 const addBrowserViews = (view: BrowserView) => {
     browserViews.set(view.webContents, view);
@@ -70,9 +88,12 @@ const checkForHotkey = async (view: PluginContext, input: Electron.Input) => {
     if (view._event && view._event["Hotkey"]) {
         const hotkey = HotKeyUtil.getFromEvent(input);
         if (hotkey) {
-            view._event["Hotkey"].forEach(({id, hotkeys}) => {
+            view._event["Hotkey"].forEach(({ id, hotkeys }) => {
                 if (HotKeyUtil.match(hotkeys, hotkey)) {
-                    executePluginHooks(view as BrowserView, "Hotkey", {id, hotkey});
+                    executePluginHooks(view as BrowserView, "Hotkey", {
+                        id,
+                        hotkey,
+                    });
                 }
             });
         }
@@ -94,7 +115,7 @@ export const ManagerWindow = {
         }
         const iterator = browserViews.entries();
         while (true) {
-            const {value, done} = iterator.next();
+            const { value, done } = iterator.next();
             if (done) {
                 break;
             }
@@ -122,48 +143,61 @@ export const ManagerWindow = {
         } else {
             win.close();
         }
-        AppRuntime.mainWindow.setSize(WindowConfig.mainWidth, WindowConfig.mainHeight);
+        AppRuntime.mainWindow.setSize(
+            WindowConfig.mainWidth,
+            WindowConfig.mainHeight,
+        );
         setTimeout(() => {
             AppRuntime.mainWindow.hide();
         }, 100);
     },
     async _logPluginViewError(view: BrowserView, plugin: PluginRecord) {
-        view.webContents.on('did-fail-load', (event, errorCode, errorDescription, validatedURL) => {
-            PluginLog.error(plugin.name, 'Load.Error-did-fail-load', {
-                errorCode,
-                errorDescription,
-                validatedURL,
-            });
-        })
-        view.webContents.on('did-fail-provisional-load', (event, errorCode, errorDescription, validatedURL) => {
-            PluginLog.error(plugin.name, 'Load.Error-did-fail-provisional-load', {
-                errorCode,
-                errorDescription,
-                validatedURL,
-            });
-        })
+        view.webContents.on(
+            "did-fail-load",
+            (event, errorCode, errorDescription, validatedURL) => {
+                PluginLog.error(plugin.name, "Load.Error-did-fail-load", {
+                    errorCode,
+                    errorDescription,
+                    validatedURL,
+                });
+            },
+        );
+        view.webContents.on(
+            "did-fail-provisional-load",
+            (event, errorCode, errorDescription, validatedURL) => {
+                PluginLog.error(
+                    plugin.name,
+                    "Load.Error-did-fail-provisional-load",
+                    {
+                        errorCode,
+                        errorDescription,
+                        validatedURL,
+                    },
+                );
+            },
+        );
         view.webContents.on("preload-error", (event, preloadPath, error) => {
-            PluginLog.error(plugin.name, 'Load.Error-preload-error', {
+            PluginLog.error(plugin.name, "Load.Error-preload-error", {
                 error: error + "",
                 preloadPath,
-            })
+            });
         });
-        view.webContents.on('render-process-gone', () => {
-            PluginLog.error(plugin.name, 'Load.Error-render-process-gone', {
-                error: 'render-process-gone',
+        view.webContents.on("render-process-gone", () => {
+            PluginLog.error(plugin.name, "Load.Error-render-process-gone", {
+                error: "render-process-gone",
             });
         });
     },
     async _pluginViewLoad(view: BrowserView, main: string) {
         try {
             if (rendererIsUrl(main)) {
-                await view.webContents.loadURL(main)
+                await view.webContents.loadURL(main);
             } else {
-                await view.webContents.loadFile(main)
+                await view.webContents.loadFile(main);
             }
         } catch (e) {
             view.webContents.loadURL("about:blank").then();
-            PluginLog.error(view._plugin.name, 'Load.Error-loadUrl', {
+            PluginLog.error(view._plugin.name, "Load.Error-loadUrl", {
                 error: e + "",
                 main,
             });
@@ -173,11 +207,20 @@ export const ManagerWindow = {
         if (mainPluginActionCode.view) {
             AppRuntime.mainWindow.removeBrowserView(mainPluginActionCode.view);
             removeBrowserViews(mainPluginActionCode.view);
-            if (ManagerPlugin.isDevelopmentCheck(mainPluginActionCode.view._plugin, 'keepCodeDevTools')) {
-                PluginLog.info(mainPluginActionCode.view._plugin.name, "ManagerWindow.KeepCodeDevTools", {
-                    action: mainPluginActionCode.action,
-                    codeData: mainPluginActionCode.codeData,
-                })
+            if (
+                ManagerPlugin.isDevelopmentCheck(
+                    mainPluginActionCode.view._plugin,
+                    "keepCodeDevTools",
+                )
+            ) {
+                PluginLog.info(
+                    mainPluginActionCode.view._plugin.name,
+                    "ManagerWindow.KeepCodeDevTools",
+                    {
+                        action: mainPluginActionCode.action,
+                        codeData: mainPluginActionCode.codeData,
+                    },
+                );
             } else {
                 // @ts-ignore
                 mainPluginActionCode.view.webContents?.destroy();
@@ -189,16 +232,23 @@ export const ManagerWindow = {
         mainPluginActionCode.items = [];
     },
     async _viewCodeCallJs(js: string) {
-        return await mainPluginActionCode.view.webContents.executeJavaScript(`(async()=>{ ${js} })();`);
+        return await mainPluginActionCode.view.webContents.executeJavaScript(
+            `(async()=>{ ${js} })();`,
+        );
     },
-    async actionCodeExecute(id: string | null = null, keywords: string | null = null) {
-        let item: ActionCodeExecuteResultItem | null = null
+    async actionCodeExecute(
+        id: string | null = null,
+        keywords: string | null = null,
+    ) {
+        let item: ActionCodeExecuteResultItem | null = null;
         if (id) {
-            item = mainPluginActionCode.items.find(i => i.id === id) as ActionCodeExecuteResultItem
+            item = mainPluginActionCode.items.find(
+                (i) => i.id === id,
+            ) as ActionCodeExecuteResultItem;
         }
         try {
-            let hasLoading = false
-            if (!(item && ('loading' in item) && !item['loading'])) {
+            let hasLoading = false;
+            if (!(item && "loading" in item && !item["loading"])) {
                 await executeHooks(AppRuntime.mainWindow, "PluginCodeSetting", {
                     loading: true,
                 });
@@ -209,10 +259,10 @@ export const ManagerWindow = {
                     ${JSON.stringify(item)},
                     ${JSON.stringify(keywords)},
                     ${JSON.stringify(mainPluginActionCode.codeData)}
-                );`
+                );`,
             );
             if (!value) {
-                value = {command: "none"} as ActionCodeExecuteResult;
+                value = { command: "none" } as ActionCodeExecuteResult;
             }
             if (hasLoading) {
                 await executeHooks(AppRuntime.mainWindow, "PluginCodeSetting", {
@@ -226,27 +276,32 @@ export const ManagerWindow = {
                     placeholder: value.placeholder,
                 });
             }
-            if ('data' === value.command) {
+            if ("data" === value.command) {
                 mainPluginActionCode.items = value.items || [];
                 // icon path
-                mainPluginActionCode.items.forEach(item => {
-                    if (item.icon && !item.icon.startsWith("http:") && !item.icon.startsWith("file:") && !item.icon.startsWith("data:")) {
+                mainPluginActionCode.items.forEach((item) => {
+                    if (
+                        item.icon &&
+                        !item.icon.startsWith("http:") &&
+                        !item.icon.startsWith("file:") &&
+                        !item.icon.startsWith("data:")
+                    ) {
                         item.icon = `file://${plugin.runtime.root}/${item.icon}`;
                     }
-                })
+                });
                 await executeHooks(AppRuntime.mainWindow, "PluginCodeData", {
                     items: value.items,
                 });
-            } else if ('close' === value.command) {
+            } else if ("close" === value.command) {
                 await this.close();
                 AppRuntime.mainWindow.hide();
-            } else if ('error' === value.command) {
+            } else if ("error" === value.command) {
                 await executeHooks(AppRuntime.mainWindow, "PluginCodeSetting", {
                     error: value.error,
                 });
-            } else if ('clear' === value.command) {
+            } else if ("clear" === value.command) {
                 await this.close();
-            } else if ('none' === value.command) {
+            } else if ("none" === value.command) {
                 // do nothing
             } else {
                 throw `ManagerWindow.OpenActionCode.CommandError:${value.command}`;
@@ -255,10 +310,14 @@ export const ManagerWindow = {
             await executeHooks(AppRuntime.mainWindow, "PluginCodeSetting", {
                 error: e + "",
             });
-            PluginLog.error(mainPluginActionCode.view._plugin.name, "Code.Error", {
-                error: e + "",
-                action: mainPluginActionCode.action,
-            });
+            PluginLog.error(
+                mainPluginActionCode.view._plugin.name,
+                "Code.Error",
+                {
+                    error: e + "",
+                    action: mainPluginActionCode.action,
+                },
+            );
         }
     },
     async openForCode(
@@ -266,14 +325,10 @@ export const ManagerWindow = {
         action: ActionRecord,
         option?: {
             codeData?: any;
-        }
+        },
     ) {
-        const {
-            nodeIntegration,
-            preloadBase,
-            preload,
-            main
-        } = await ManagerPlugin.getInfo(plugin);
+        const { nodeIntegration, preloadBase, preload, main } =
+            await ManagerPlugin.getInfo(plugin);
         // console.log('openForCode', {preload, main})
         const viewSession = await ManagerPlugin.getViewSession(plugin);
         if (preloadBase) {
@@ -314,18 +369,23 @@ export const ManagerWindow = {
                 action,
                 option,
             });
-        }
+        };
         const endView = () => {
             setTimeout(() => {
-                this._pluginActionCodeEnd()
+                this._pluginActionCodeEnd();
             }, 1000);
             AppRuntime.mainWindow.hide();
-        }
-        AppRuntime.mainWindow.setSize(WindowConfig.pluginWidth, WindowConfig.mainHeight);
+        };
+        AppRuntime.mainWindow.setSize(
+            WindowConfig.pluginWidth,
+            WindowConfig.mainHeight,
+        );
         return new Promise((resolve, reject) => {
             view.webContents.once("dom-ready", async () => {
                 DevToolsManager.autoShow(view);
-                if (ManagerPlugin.isDevelopmentCheck(plugin, 'showCodeDevTools')) {
+                if (
+                    ManagerPlugin.isDevelopmentCheck(plugin, "showCodeDevTools")
+                ) {
                     view.webContents.openDevTools({
                         mode: "detach",
                         activate: true,
@@ -339,22 +399,34 @@ export const ManagerWindow = {
                     height: 0,
                 });
                 try {
-                    const codeType = await this._viewCodeCallJs(`return typeof window.exports.code['${action.name}'];`);
-                    if ('function' === codeType) {
-                        const value = await this._viewCodeCallJs(`return await window.exports.code['${action.name}'](${JSON.stringify(mainPluginActionCode.codeData)});`);
+                    const codeType = await this._viewCodeCallJs(
+                        `return typeof window.exports.code['${action.name}'];`,
+                    );
+                    if ("function" === codeType) {
+                        const value = await this._viewCodeCallJs(
+                            `return await window.exports.code['${action.name}'](${JSON.stringify(mainPluginActionCode.codeData)});`,
+                        );
                         resolve(value);
                         endView();
                     } else {
-                        const codeSetting = await this._viewCodeCallJs(`return window.exports.code['${action.name}'].setting;`);
+                        const codeSetting = await this._viewCodeCallJs(
+                            `return window.exports.code['${action.name}'].setting;`,
+                        );
                         if (!codeSetting) {
                             throw `ManagerWindow.OpenForCode.SettingEmpty`;
                         }
-                        await executeHooks(AppRuntime.mainWindow, "PluginCodeInit", {
-                            plugin: plugin,
-                            type: codeSetting.type || 'list',
-                            placeholder: codeSetting.placeholder || '输入关键词搜索',
-                        });
-                        this.actionCodeExecute().then()
+                        await executeHooks(
+                            AppRuntime.mainWindow,
+                            "PluginCodeInit",
+                            {
+                                plugin: plugin,
+                                type: codeSetting.type || "list",
+                                placeholder:
+                                    codeSetting.placeholder ||
+                                    t("store.searchPlaceholder"),
+                            },
+                        );
+                        this.actionCodeExecute().then();
                         resolve(null);
                     }
                 } catch (e) {
@@ -365,13 +437,17 @@ export const ManagerWindow = {
             });
         });
     },
-    async open(plugin: PluginRecord, action?: ActionRecord, option?: OpenOptionType) {
+    async open(
+        plugin: PluginRecord,
+        action?: ActionRecord,
+        option?: OpenOptionType,
+    ) {
         option = Object.assign(
             {
                 type: "action",
                 callPage: {},
             },
-            option
+            option,
         );
         const {
             nodeIntegration,
@@ -382,7 +458,7 @@ export const ManagerWindow = {
             height,
             autoDetach,
             singleton,
-            zoom
+            zoom,
         } = await ManagerPlugin.getInfo(plugin);
         // console.log('ManagerWindow.open', {nodeIntegration, preload, main, width, height, autoDetach})
         const readyData = {};
@@ -393,12 +469,16 @@ export const ManagerWindow = {
         readyData["reenter"] = false;
         readyData["isView"] = false;
         readyData["type"] = option.type;
-        if (option.type === 'action' && singleton) {
+        if (option.type === "action" && singleton) {
             for (const v of this.listBrowserViews()) {
                 if (v._plugin.name === plugin.name) {
                     v._window.show();
                     v._window.focus();
-                    await executeHooks(AppRuntime.mainWindow, "PluginAlreadyOpened", {});
+                    await executeHooks(
+                        AppRuntime.mainWindow,
+                        "PluginAlreadyOpened",
+                        {},
+                    );
                     readyData["reenter"] = true;
                     await executePluginHooks(v, "PluginReady", readyData);
                     return;
@@ -453,30 +533,35 @@ export const ManagerWindow = {
                 view.webContents.setZoomFactor(zoom / 100);
             }, 0);
         });
-        view.webContents.setWindowOpenHandler(({url}) => {
+        view.webContents.setWindowOpenHandler(({ url }) => {
             if (url.startsWith("https://") || url.startsWith("http://")) {
                 shell.openExternal(url);
             }
-            return {action: "deny"};
+            return { action: "deny" };
         });
-        view.setAutoResize({width: true, height: true});
+        view.setAutoResize({ width: true, height: true });
         // console.log('ManagerWindow.open', {nodeIntegration, preload, main, width, height, autoDetach})
         view.webContents.once("dom-ready", async () => {
             DevToolsManager.autoShow(view);
-            if (ManagerPlugin.isDevelopmentCheck(plugin, 'showDevTools')) {
+            if (ManagerPlugin.isDevelopmentCheck(plugin, "showDevTools")) {
                 view.webContents.openDevTools({
                     mode: "detach",
                     activate: true,
                     title: `PluginView.${plugin.name}`,
                 });
             }
-            if (option.type === 'callPage') {
-                Events.callPage(view.webContents, option.callPage.type, option.callPage.data, option.callPage.option)
-                    .then(result => {
+            if (option.type === "callPage") {
+                Events.callPage(
+                    view.webContents,
+                    option.callPage.type,
+                    option.callPage.data,
+                    option.callPage.option,
+                )
+                    .then((result) => {
                         option.callPage.onResult(result);
                     })
-                    .catch(e => {
-                        option.callPage.onResult({code: -1, msg: e + ""});
+                    .catch((e) => {
+                        option.callPage.onResult({ code: -1, msg: e + "" });
                     })
                     .finally(() => {
                         if (option.callPage.option.autoClose) {
@@ -494,7 +579,14 @@ export const ManagerWindow = {
                 // exit when Escape key is pressed
                 if (mainWindowView === view) {
                     if (input.key === "Escape") {
-                        if (!(input.meta || input.control || input.shift || input.alt)) {
+                        if (
+                            !(
+                                input.meta ||
+                                input.control ||
+                                input.shift ||
+                                input.alt
+                            )
+                        ) {
                             if (mainWindowView) {
                                 ManagerWindow.close();
                                 AppRuntime.mainWindow.webContents.focus();
@@ -503,8 +595,16 @@ export const ManagerWindow = {
                     }
                 } else {
                     if (input.key === "Escape") {
-                        if (!(input.meta || input.control || input.shift || input.alt)) {
-                            view._window.isFullScreen() && view._window.setFullScreen(false);
+                        if (
+                            !(
+                                input.meta ||
+                                input.control ||
+                                input.shift ||
+                                input.alt
+                            )
+                        ) {
+                            view._window.isFullScreen() &&
+                                view._window.setFullScreen(false);
                         }
                     }
                 }
@@ -554,27 +654,33 @@ export const ManagerWindow = {
         option?: {
             window?: BrowserWindow;
             openForNext?: boolean;
-        }
+        },
     ) {
         option = Object.assign(
             {
                 openForNext: false,
             },
-            option
+            option,
         );
-        if (mainWindowView && (!plugin || mainWindowView._plugin.name === plugin.name)) {
+        if (
+            mainWindowView &&
+            (!plugin || mainWindowView._plugin.name === plugin.name)
+        ) {
             await executePluginHooks(mainWindowView, "PluginExit", null).then();
             await executeHooks(AppRuntime.mainWindow, "PluginExit", {
                 openForNext: option.openForNext,
-            })
+            });
             removeBrowserViews(mainWindowView);
             AppRuntime.mainWindow.removeBrowserView(mainWindowView);
             // @ts-ignore
             mainWindowView.webContents?.destroy();
             mainWindowView = null;
-        } else if (mainPluginActionCode.view && (!plugin || mainPluginActionCode.view._plugin.name === plugin.name)) {
-            await executeHooks(AppRuntime.mainWindow, "PluginCodeExit", {})
-            await this._pluginActionCodeEnd()
+        } else if (
+            mainPluginActionCode.view &&
+            (!plugin || mainPluginActionCode.view._plugin.name === plugin.name)
+        ) {
+            await executeHooks(AppRuntime.mainWindow, "PluginCodeExit", {});
+            await this._pluginActionCodeEnd();
         } else {
             // detach的插件窗口
             if (option.window) {
@@ -585,9 +691,9 @@ export const ManagerWindow = {
         }
     },
     async openMainPluginDevTools(option?: {}) {
-        const devToolsWin = DevToolsManager.getWindow(mainWindowView)
+        const devToolsWin = DevToolsManager.getWindow(mainWindowView);
         if (devToolsWin) {
-            devToolsWin.close()
+            devToolsWin.close();
         } else if (mainWindowView) {
             if (mainWindowView.webContents.isDevToolsOpened()) {
                 mainWindowView.webContents.closeDevTools();
@@ -609,13 +715,13 @@ export const ManagerWindow = {
                 });
             }
         } else {
-            Log.error("ManagerWindow.openMainPluginDevTools", "mainWindowViewNotFound");
+            Log.error(
+                "ManagerWindow.openMainPluginDevTools",
+                "mainWindowViewNotFound",
+            );
         }
     },
-    async _showInMainWindow(
-        view: BrowserView,
-        option: OpenShowWindowOption
-    ) {
+    async _showInMainWindow(view: BrowserView, option: OpenShowWindowOption) {
         if (!(await ManagerPluginEvent.isMainWindowShown(null, null))) {
             await ManagerPluginEvent.showMainWindow(null, null);
         }
@@ -629,7 +735,10 @@ export const ManagerWindow = {
         view._window = AppRuntime.mainWindow;
         mainWindowView = view;
         AppRuntime.mainWindow.addBrowserView(view);
-        AppRuntime.mainWindow.setSize(option.width, WindowConfig.mainHeight + option.height);
+        AppRuntime.mainWindow.setSize(
+            option.width,
+            WindowConfig.mainHeight + option.height,
+        );
         const pluginParam = {};
         const pluginState: PluginState = {
             value: "",
@@ -643,7 +752,11 @@ export const ManagerWindow = {
         };
         await executeHooks(view._window, "PluginInit", pluginInitReadyParam);
         view.webContents.once("dom-ready", async () => {
-            await executeHooks(view._window, "PluginInitReady", pluginInitReadyParam);
+            await executeHooks(
+                view._window,
+                "PluginInitReady",
+                pluginInitReadyParam,
+            );
             view.setBounds({
                 x: 0,
                 y: WindowConfig.mainHeight,
@@ -654,26 +767,23 @@ export const ManagerWindow = {
         });
         option.loadUrl();
     },
-    async _showInDetachWindow(
-        view: BrowserView,
-        option: OpenShowWindowOption
-    ) {
+    async _showInDetachWindow(view: BrowserView, option: OpenShowWindowOption) {
         const plugin = view._plugin;
         let alwaysOnTop = false;
         if (plugin.setting?.detachAlwaysOnTop) {
             alwaysOnTop = true;
         }
-        const {x, y} = AppsMain.calcPositionInCurrentDisplay(
+        const { x, y } = AppsMain.calcPositionInCurrentDisplay(
             plugin.setting?.detachPosition || "center",
             option.width,
-            option.height + WindowConfig.detachWindowTitleHeight
+            option.height + WindowConfig.detachWindowTitleHeight,
         );
         let win = new BrowserWindow({
             height: option.height + WindowConfig.detachWindowTitleHeight,
             width: option.width,
             autoHideMenuBar: true,
             titleBarStyle: "hidden",
-            trafficLightPosition: {x: 10, y: 11},
+            trafficLightPosition: { x: 10, y: 11 },
             title: plugin.title,
             resizable: true,
             frame: false,
@@ -725,15 +835,23 @@ export const ManagerWindow = {
                 x: 0,
                 y: WindowConfig.detachWindowTitleHeight,
                 width: display.workArea.width,
-                height: display.workArea.height - WindowConfig.detachWindowTitleHeight,
+                height:
+                    display.workArea.height -
+                    WindowConfig.detachWindowTitleHeight,
             });
         });
         win.on("unmaximize", () => {
             executeHooks(win, "Unmaximize");
             const bounds = win.getBounds();
             const display = screen.getDisplayMatching(bounds);
-            const width = (display.scaleFactor * bounds.width) % 1 == 0 ? bounds.width : bounds.width - 2;
-            const height = (display.scaleFactor * bounds.height) % 1 == 0 ? bounds.height : bounds.height - 2;
+            const width =
+                (display.scaleFactor * bounds.width) % 1 == 0
+                    ? bounds.width
+                    : bounds.width - 2;
+            const height =
+                (display.scaleFactor * bounds.height) % 1 == 0
+                    ? bounds.height
+                    : bounds.height - 2;
             view.setBounds({
                 x: 0,
                 y: WindowConfig.detachWindowTitleHeight,
@@ -758,11 +876,11 @@ export const ManagerWindow = {
                 executeHooks(win, "LeaveFullScreen");
             });
         }
-        win.webContents.on("will-navigate", event => {
+        win.webContents.on("will-navigate", (event) => {
             event.preventDefault();
         });
         win.webContents.setWindowOpenHandler(() => {
-            return {action: "deny"};
+            return { action: "deny" };
         });
         if (option.loadUrl) {
             option.loadUrl();
@@ -774,7 +892,7 @@ export const ManagerWindow = {
                     plugin,
                     isSystem: true,
                 });
-                view.setAutoResize({width: true, height: true});
+                view.setAutoResize({ width: true, height: true });
                 win.setBrowserView(view);
                 view.setBounds({
                     x: 0,
@@ -792,9 +910,9 @@ export const ManagerWindow = {
                     param: pluginParam,
                 });
                 if (
-                    option.option.type === 'action'
-                    ||
-                    (option.option.type === 'callPage' && option.option.callPage?.option.showWindow)
+                    option.option.type === "action" ||
+                    (option.option.type === "callPage" &&
+                        option.option.callPage?.option.showWindow)
                 ) {
                     win.show();
                 }
@@ -808,7 +926,10 @@ export const ManagerWindow = {
         if (!mainWindowView) {
             throw "MainViewNotFound";
         }
-        const pluginState: PluginState = await executeHooks(AppRuntime.mainWindow, "PluginState");
+        const pluginState: PluginState = await executeHooks(
+            AppRuntime.mainWindow,
+            "PluginState",
+        );
         AppRuntime.mainWindow.removeBrowserView(mainWindowView);
         const bounds = mainWindowView.getBounds();
         await this._showInDetachWindow(mainWindowView, {
@@ -817,24 +938,32 @@ export const ManagerWindow = {
             height: bounds.height,
             option: {
                 type: "action",
-            }
+            },
         });
         mainWindowView = null;
         await executeHooks(AppRuntime.mainWindow, "PluginDetached");
         AppRuntime.mainWindow.hide();
     },
-    async toggleDetachPluginAlwaysOnTop(view: BrowserView, alwaysOnTop: boolean, option?: {}) {
+    async toggleDetachPluginAlwaysOnTop(
+        view: BrowserView,
+        alwaysOnTop: boolean,
+        option?: {},
+    ) {
         view._window.setAlwaysOnTop(alwaysOnTop);
         return alwaysOnTop;
     },
     async setDetachPluginZoom(view: BrowserView, zoom: number, option?: {}) {
         view.webContents.setZoomFactor(zoom / 100);
     },
-    async firePluginMoreMenuClick(view: BrowserView, name: string, option?: {}) {
-        await executePluginHooks(view, "MoreMenuClick", {name});
+    async firePluginMoreMenuClick(
+        view: BrowserView,
+        name: string,
+        option?: {},
+    ) {
+        await executePluginHooks(view, "MoreMenuClick", { name });
     },
     async fireDetachOperateClick(view: BrowserView, name: string, option?: {}) {
-        await executePluginHooks(view, "DetachOperateClick", {name});
+        await executePluginHooks(view, "DetachOperateClick", { name });
     },
     async closeDetachPlugin(view: BrowserView, option?: {}) {
         view._window.close();

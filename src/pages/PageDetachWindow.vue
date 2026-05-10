@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import {onBeforeMount, ref} from "vue";
-import {PluginRecord, PluginState, PluginType} from "../types/Manager";
-import {useDetachWindowOperate} from "./DetachWindow/operate";
+import { onBeforeMount, ref } from "vue";
+import { PluginRecord, PluginState, PluginType } from "../types/Manager";
+import { useDetachWindowOperate } from "./DetachWindow/operate";
 import debounce from "lodash/debounce";
-import {useSettingStore} from "../store/modules/setting";
+import { useSettingStore } from "../store/modules/setting";
 
 const setting = useSettingStore();
 
@@ -14,14 +14,14 @@ const isOsx = ref(false);
 const isFullscreen = ref(false);
 const plugin = ref<PluginRecord | null>(null);
 const alwaysOnTop = ref(false);
-const operates = ref<{name: string; title: string}[]>([]);
+const operates = ref<{ name: string; title: string }[]>([]);
 const searchInput = ref<any>(null);
 const searchPlaceholder = ref("");
 const searchValue = ref("");
 const searchVisible = ref(false);
 const windowTitle = ref("");
 
-const subInputChangeDebounce = debounce(keywords => {
+const subInputChangeDebounce = debounce((keywords) => {
     window.$mapi.manager.subInputChange(keywords);
 }, 300);
 
@@ -30,7 +30,10 @@ onBeforeMount(async () => {
 });
 
 const doToggleAlwaysOnTop = async () => {
-    alwaysOnTop.value = await window.$mapi.manager.toggleDetachPluginAlwaysOnTop(!alwaysOnTop.value);
+    alwaysOnTop.value =
+        await window.$mapi.manager.toggleDetachPluginAlwaysOnTop(
+            !alwaysOnTop.value,
+        );
 };
 
 const doOperate = async (name: string) => {
@@ -44,7 +47,9 @@ const onSubInputChange = (value: string) => {
 
 // const getId = () => id.value
 
-const {doShowZoomMenu, doShowMoreMenu, doClose} = useDetachWindowOperate({plugin});
+const { doShowZoomMenu, doShowMoreMenu, doClose } = useDetachWindowOperate({
+    plugin,
+});
 
 window.__page.onPluginInit(
     (data: {
@@ -62,15 +67,17 @@ window.__page.onPluginInit(
         searchPlaceholder.value = data.state.placeholder;
         searchVisible.value = data.state.isVisible;
         windowTitle.value = data.plugin.title;
-    }
+    },
 );
-window.__page.onSetSubInput((param: {placeholder: string; isFocus: boolean; isVisible: boolean}) => {
-    searchPlaceholder.value = param.placeholder;
-    searchVisible.value = param.isVisible;
-    if (param.isFocus && searchInput.value) {
-        searchInput.value.focus();
-    }
-});
+window.__page.onSetSubInput(
+    (param: { placeholder: string; isFocus: boolean; isVisible: boolean }) => {
+        searchPlaceholder.value = param.placeholder;
+        searchVisible.value = param.isVisible;
+        if (param.isFocus && searchInput.value) {
+            searchInput.value.focus();
+        }
+    },
+);
 window.__page.onRemoveSubInput(() => {
     searchPlaceholder.value = "";
 });
@@ -93,9 +100,12 @@ window.__page.onDetachSet(
             alwaysOnTop.value = param.alwaysOnTop as boolean;
         }
         if ("operates" in param) {
-            operates.value = param.operates as {name: string; title: string}[];
+            operates.value = param.operates as {
+                name: string;
+                title: string;
+            }[];
         }
-    }
+    },
 );
 window.__page.onMaximize(() => {
     console.log("onMaximize");
@@ -114,13 +124,21 @@ window.__page.onLeaveFullScreen(() => {
 </script>
 
 <template>
-    <div class="pb-page-detach-window" v-if="!!plugin" :class="{osx: isOsx, fullscreen: isFullscreen}">
+    <div
+        class="pb-page-detach-window"
+        v-if="!!plugin"
+        :class="{ osx: isOsx, fullscreen: isFullscreen }"
+    >
         <div class="head">
             <div class="left">
                 <div class="icon">
                     <img
                         :src="plugin.logo"
-                        :class="plugin.type === PluginType.SYSTEM ? 'dark:invert' : 'plugin-logo-filter'"
+                        :class="
+                            plugin.type === PluginType.SYSTEM
+                                ? 'dark:invert'
+                                : 'plugin-logo-filter'
+                        "
                     />
                 </div>
                 <div class="title">
@@ -142,7 +160,7 @@ window.__page.onLeaveFullScreen(() => {
                 <a-input
                     ref="searchInput"
                     size="small"
-                    @input="e => onSubInputChange(e)"
+                    @input="(e) => onSubInputChange(e)"
                     :model-value="searchValue"
                     :placeholder="searchPlaceholder"
                 >
@@ -152,7 +170,11 @@ window.__page.onLeaveFullScreen(() => {
                 </a-input>
             </div>
             <div class="right">
-                <a href="javascript:;" @click="doToggleAlwaysOnTop" :class="{active: alwaysOnTop}">
+                <a
+                    href="javascript:;"
+                    @click="doToggleAlwaysOnTop"
+                    :class="{ active: alwaysOnTop }"
+                >
                     <icon-pushpin />
                 </a>
                 <span class="line"></span>

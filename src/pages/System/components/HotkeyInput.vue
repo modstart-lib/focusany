@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import {computed, onBeforeMount, ref, watch} from "vue";
-import {HotkeyKeyItem} from "../../../../electron/mapi/keys/type";
-import {t} from "../../../lang";
+import { computed, onBeforeMount, ref, watch } from "vue";
+import { HotkeyKeyItem } from "../../../../electron/mapi/keys/type";
+import { t } from "../../../lang";
 
 const focus = ref(false);
 const platformName = ref<"win" | "osx" | "linux" | null>(null);
@@ -23,7 +23,7 @@ const emit = defineEmits(["change"]);
 
 watch(
     () => props.value,
-    value => {
+    (value) => {
         if (value) {
             if (value.value) {
                 currentValue.value = value.value;
@@ -36,7 +36,7 @@ watch(
     },
     {
         immediate: true,
-    }
+    },
 );
 
 let lastKeyTime = 0;
@@ -47,7 +47,8 @@ const showHotkey = computed(() => {
         return null;
     }
     // console.log('currentValue.value', JSON.stringify(currentValue.value, null, 2))
-    const {key, altKey, ctrlKey, metaKey, shiftKey} = currentValue.value as HotkeyKeyItem;
+    const { key, altKey, ctrlKey, metaKey, shiftKey } =
+        currentValue.value as HotkeyKeyItem;
     const texts: string[] = [];
     if (ctrlKey) {
         if (platformName.value === "osx") {
@@ -139,7 +140,7 @@ const showHotkey = computed(() => {
         shiftKey: shiftKey,
         times: times,
     } as HotkeyKeyItem;
-    return texts.join("+") + (times > 1 ? t('双击') : "");
+    return texts.join("+") + (times > 1 ? t("hotkey.doubleClick") : "");
 });
 
 const onHotkey = (data: any) => {
@@ -169,11 +170,11 @@ const onBlur = () => {
 };
 const content = computed(() => {
     return [
-        t("使用方式："),
-        t("① 点击激活"),
+        t("hotkey.instructions"),
+        t("hotkey.step1"),
         platformName.value === "osx"
-            ? t("② 先按功能键（Control、Command、Option）再按其他普通键，也可快速按快功能键2次")
-            : t("② 先按功能键（Ctrl、Shift、Alt）再按其他普通键，也可快速按快功能键2次"),
+            ? t("hotkey.step2Mac")
+            : t("hotkey.step2Win"),
     ].join("");
 });
 </script>
@@ -184,9 +185,9 @@ const content = computed(() => {
             class="border-2 border-solid border-gray-300 dark:border-gray-600 dark:bg-gray-700 h-9 w-48 text-center rounded-lg cursor-pointer flex outline-none select-none"
             @focus="onFocus"
             @blur="onBlur"
-            :value="showHotkey ? showHotkey : $t('未设置')"
+            :value="showHotkey ? showHotkey : $t('hotkey.notSet')"
             readonly
-            :class="{active: focus}"
+            :class="{ active: focus }"
         />
     </a-tooltip>
 </template>

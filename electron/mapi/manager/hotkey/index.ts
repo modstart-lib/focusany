@@ -1,10 +1,10 @@
-import {uIOhook, UiohookKey} from "uiohook-napi";
-import {ManagerConfig} from "../config/config";
-import {ManagerHotkeyHandle} from "./handle";
-import {HotkeyMouseButtonEnum} from "../../keys/type";
-import {Events} from "../../event/main";
-import {KeysMain} from "../../keys/main";
-import {globalShortcut} from "electron";
+import { uIOhook, UiohookKey } from "uiohook-napi";
+import { ManagerConfig } from "../config/config";
+import { ManagerHotkeyHandle } from "./handle";
+import { HotkeyMouseButtonEnum } from "../../keys/type";
+import { Events } from "../../event/main";
+import { KeysMain } from "../../keys/main";
+import { globalShortcut } from "electron";
 
 type HotkeyKeyItem = {
     name: string;
@@ -100,7 +100,7 @@ export const ManagerHotkey = {
     },
 
     init() {
-        uIOhook.on("keydown", e => {
+        uIOhook.on("keydown", (e) => {
             if (this.isGrab) {
                 const data = {
                     type: "keydown",
@@ -145,11 +145,29 @@ export const ManagerHotkey = {
             }
             // keyConfigs end
             // keySimpleConfigs start
-            if (e.keycode === UiohookKey.Ctrl && !e.altKey && e.ctrlKey && !e.metaKey && !e.shiftKey) {
+            if (
+                e.keycode === UiohookKey.Ctrl &&
+                !e.altKey &&
+                e.ctrlKey &&
+                !e.metaKey &&
+                !e.shiftKey
+            ) {
                 this._keySimple.down = "Ctrl";
-            } else if (e.keycode === UiohookKey.Alt && e.altKey && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
+            } else if (
+                e.keycode === UiohookKey.Alt &&
+                e.altKey &&
+                !e.ctrlKey &&
+                !e.metaKey &&
+                !e.shiftKey
+            ) {
                 this._keySimple.down = "Alt";
-            } else if (e.keycode === UiohookKey.Meta && !e.altKey && !e.ctrlKey && e.metaKey && !e.shiftKey) {
+            } else if (
+                e.keycode === UiohookKey.Meta &&
+                !e.altKey &&
+                !e.ctrlKey &&
+                e.metaKey &&
+                !e.shiftKey
+            ) {
                 this._keySimple.down = "Meta";
             } else {
                 this._keySimple.down = null;
@@ -167,10 +185,12 @@ export const ManagerHotkey = {
             }
             this._keySimple.expire = now + this.keyMultiDelayTime;
             this.keySimpleConfigs
-                .filter(o => o.type === key && o.times <= this._keySimple.times)
-                .forEach(o => this.fire(o.name));
+                .filter(
+                    (o) => o.type === key && o.times <= this._keySimple.times,
+                )
+                .forEach((o) => this.fire(o.name));
         };
-        uIOhook.on("keyup", e => {
+        uIOhook.on("keyup", (e) => {
             if (
                 e.keycode === UiohookKey.Ctrl &&
                 !e.altKey &&
@@ -266,7 +286,9 @@ export const ManagerHotkey = {
                 this.fire(keyConfig.name);
             });
         }
-        this.keyConfigs = this.keyConfigs.filter(item => item.times && item.times > 1);
+        this.keyConfigs = this.keyConfigs.filter(
+            (item) => item.times && item.times > 1,
+        );
     },
 
     async configInit() {
@@ -347,7 +369,7 @@ export const ManagerHotkey = {
         if (!this.eventListeners[eventName]) {
             return;
         }
-        this.eventListeners[eventName].forEach(cb => cb(...args));
+        this.eventListeners[eventName].forEach((cb) => cb(...args));
     },
     on(eventName: string, callback: Function) {
         if (!this.eventListeners[eventName]) {
@@ -359,6 +381,8 @@ export const ManagerHotkey = {
         if (!this.eventListeners[eventName]) {
             return;
         }
-        this.eventListeners[eventName] = this.eventListeners[eventName].filter(cb => cb !== callback);
+        this.eventListeners[eventName] = this.eventListeners[eventName].filter(
+            (cb) => cb !== callback,
+        );
     },
 };

@@ -1,4 +1,4 @@
-import {callHandleFromMainOrRender} from "../env";
+import { callHandleFromMainOrRender } from "../env";
 
 const all = async () => {
     return callHandleFromMainOrRender("config:all");

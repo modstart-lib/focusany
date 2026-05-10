@@ -1,16 +1,17 @@
 <script setup lang="ts">
-import {useManagerStore} from "../../store/modules/manager";
-import {useSearchOperate} from "../Main/Lib/searchOperate";
+import IconFormatText from "~icons/mdi/format-text";
+import { useDragWindow } from "../../app/dragWindow";
 import FileExt from "../../components/common/FileExt.vue";
-import {EntryListener} from "../Main/Lib/entryListener";
-import {useDragWindow} from "../../app/dragWindow";
+import { useManagerStore } from "../../store/modules/manager";
+import { EntryListener } from "../Main/Lib/entryListener";
+import { useSearchOperate } from "../Main/Lib/searchOperate";
 
 const emit = defineEmits([]);
 const manager = useManagerStore();
 
-const {clipboardFilesInfo} = useSearchOperate(emit);
+const { clipboardFilesInfo } = useSearchOperate(emit);
 
-const {onDragWindowMouseDown} = useDragWindow({
+const { onDragWindowMouseDown } = useDragWindow({
     name: "fastPanel",
 });
 
@@ -33,18 +34,20 @@ defineExpose({
                     <FileExt :name="clipboardFilesInfo.extName" />
                 </div>
                 <div class="title">{{ clipboardFilesInfo.name }}</div>
-                <div class="count" v-if="manager.currentFiles.length > 1">x{{ manager.currentFiles.length }}</div>
+                <div class="count" v-if="manager.currentFiles.length > 1">
+                    x{{ manager.currentFiles.length }}
+                </div>
             </div>
             <div v-else-if="manager.currentImage" class="image">
                 <img :src="manager.currentImage" />
             </div>
             <div v-else-if="manager.currentText" class="text">
-                <i class="iconfont icon-text"></i>
+                <IconFormatText />
                 <div class="content">
                     {{ manager.currentText }}
                 </div>
             </div>
-            <div v-else>{{$t('快捷动作')}}</div>
+            <div v-else>{{ $t("fastPanel.shortcuts") }}</div>
         </div>
         <div class="right">
             <div class="icon" @click="manager.showMainWindow()">
@@ -90,7 +93,7 @@ defineExpose({
             align-items: center;
             flex-wrap: nowrap;
 
-            .iconfont {
+            svg {
                 flex-shrink: 0;
                 width: 20px;
                 height: 20px;

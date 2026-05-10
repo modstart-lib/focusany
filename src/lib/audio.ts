@@ -35,12 +35,18 @@ export const AudioUtil = {
         }
         return targetBuffer;
     },
-    audioBufferConvert(buffer: AudioBuffer, targetSampleRate: number, targetChannelNum: number) {
+    audioBufferConvert(
+        buffer: AudioBuffer,
+        targetSampleRate: number,
+        targetChannelNum: number,
+    ) {
         targetChannelNum = targetChannelNum || buffer.numberOfChannels;
         const numChannels = buffer.numberOfChannels;
         const sampleRate = buffer.sampleRate;
         const length = buffer.length;
-        const targetLength = Math.floor((length * targetSampleRate) / sampleRate);
+        const targetLength = Math.floor(
+            (length * targetSampleRate) / sampleRate,
+        );
         const targetBuffer = new AudioBuffer({
             length: targetLength,
             numberOfChannels: targetChannelNum,
@@ -50,7 +56,9 @@ export const AudioUtil = {
             const sourceChannel = buffer.getChannelData(channel % numChannels);
             const targetChannel = targetBuffer.getChannelData(channel);
             for (let i = 0; i < targetLength; i++) {
-                const sourceIndex = Math.floor((i * sampleRate) / targetSampleRate);
+                const sourceIndex = Math.floor(
+                    (i * sampleRate) / targetSampleRate,
+                );
                 targetChannel[i] = sourceChannel[sourceIndex];
             }
         }
@@ -83,7 +91,13 @@ export const AudioUtil = {
             for (let channel = 0; channel < numChannels; channel++) {
                 const sample = buffer.getChannelData(channel)[i];
                 const intSample = Math.max(-1, Math.min(1, sample));
-                view.setInt16(offset, Math.round(intSample < 0 ? intSample * 0x8000 : intSample * 0x7fff), true);
+                view.setInt16(
+                    offset,
+                    Math.round(
+                        intSample < 0 ? intSample * 0x8000 : intSample * 0x7fff,
+                    ),
+                    true,
+                );
                 offset += 2;
             }
         }
@@ -93,7 +107,7 @@ export const AudioUtil = {
         return buffer.duration;
     },
     audioBufferToWavBlob(buffer: AudioBuffer) {
-        return new Blob([this.audioBufferToWav(buffer)], {type: "audio/wav"});
+        return new Blob([this.audioBufferToWav(buffer)], { type: "audio/wav" });
     },
     fileToAudioBuffer(file: File) {
         return new Promise<AudioBuffer>((resolve, reject) => {
@@ -113,7 +127,7 @@ export const AudioUtil = {
             numberOfChannels: number;
         }>((resolve, reject) => {
             this.fileToAudioBuffer(file)
-                .then(buffer => {
+                .then((buffer) => {
                     resolve({
                         duration: buffer.duration,
                         sampleRate: buffer.sampleRate,

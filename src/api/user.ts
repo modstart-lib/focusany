@@ -1,4 +1,4 @@
-import {request} from "../lib/api";
+import { request } from "../lib/api";
 
 export function userInfoApi(): Promise<
     ApiResult<{

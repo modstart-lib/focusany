@@ -14,20 +14,31 @@
 // ------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------
 
-import {cloneDeep} from "lodash-es";
-import {defineStore} from "pinia";
-import {toRaw} from "vue";
-import {mapError} from "../../lib/error";
-import {StringUtil, TimeUtil} from "../../lib/util";
+import { cloneDeep } from "lodash-es";
+import { defineStore } from "pinia";
+import { toRaw } from "vue";
+import { mapError } from "../../lib/error";
+import { StringUtil, TimeUtil } from "../../lib/util";
 import store from "../index";
 
-export type TaskRecordStatus = "queue" | "running" | "querying" | "success" | "fail" | "delete";
+export type TaskRecordStatus =
+    | "queue"
+    | "running"
+    | "querying"
+    | "success"
+    | "fail"
+    | "delete";
 
 export type TaskRecordRunStatus = "retry" | "success" | "querying";
 
 export type TaskRecordQueryStatus = "running" | "success" | "fail";
 
-export type TaskChangeType = "running" | "success" | "fail" | "change" | "requestCancel";
+export type TaskChangeType =
+    | "running"
+    | "success"
+    | "fail"
+    | "change"
+    | "requestCancel";
 
 export type TaskRecord = {
     id: string;
@@ -59,7 +70,10 @@ export type TaskBiz = {
     // async task run, return querying | success | retry
     runFunc: (bizId: string, bizParam: any) => Promise<TaskRecordRunStatus>;
     // async task query status, return running | success | fail
-    queryFunc?: (bizId: string, bizParam: any) => Promise<TaskRecordQueryStatus>;
+    queryFunc?: (
+        bizId: string,
+        bizParam: any,
+    ) => Promise<TaskRecordQueryStatus>;
     // sync task success callback
     // async task success callback
     successFunc: (bizId: string, bizParam: any) => Promise<void>;
@@ -81,34 +95,34 @@ let runNextTimer = null as any;
 
 export const TestSync: TaskBiz = {
     runFunc: async (bizId, bizParam) => {
-        console.log("Task.TestSync.runFunc", {bizId, bizParam});
+        console.log("Task.TestSync.runFunc", { bizId, bizParam });
         return "success";
     },
     successFunc: async (bizId, bizParam) => {
-        console.log("Task.TestSync.successFunc", {bizId, bizParam});
+        console.log("Task.TestSync.successFunc", { bizId, bizParam });
     },
     failFunc: async (bizId, msg, bizParam) => {
-        console.log("Task.TestSync.failFunc", {bizId, bizParam, msg});
+        console.log("Task.TestSync.failFunc", { bizId, bizParam, msg });
     },
 };
 export const TestAsync: TaskBiz = {
     runFunc: async (bizId, bizParam) => {
-        console.log("Task.TestAsync.runFunc", {bizId, bizParam});
+        console.log("Task.TestAsync.runFunc", { bizId, bizParam });
         return "querying";
     },
     queryFunc(bizId, bizParam) {
-        return new Promise(resolve => {
-            console.log("Task.TestAsync.queryFunc", {bizId, bizParam});
+        return new Promise((resolve) => {
+            console.log("Task.TestAsync.queryFunc", { bizId, bizParam });
             setTimeout(() => {
                 resolve(Math.random() > 0.7 ? "success" : "running");
             }, 1000);
         });
     },
     successFunc: async (bizId, bizParam) => {
-        console.log("Task.TestAsync.successFunc", {bizId, bizParam});
+        console.log("Task.TestAsync.successFunc", { bizId, bizParam });
     },
     failFunc: async (bizId, msg, bizParam) => {
-        console.log("Task.TestAsync.failFunc", {bizId, bizParam, msg});
+        console.log("Task.TestAsync.failFunc", { bizId, bizParam, msg });
     },
 };
 
@@ -118,14 +132,17 @@ export const taskStore = defineStore("task", {
             isInit: false,
             bizMap: {} as Record<string, TaskBiz>,
             records: [] as TaskRecord[],
-            cancelMap: {} as Record<string, {
-                expire: number,
-            }>,
+            cancelMap: {} as Record<
+                string,
+                {
+                    expire: number;
+                }
+            >,
         };
     },
     actions: {
         async init() {
-            await $mapi.storage.get("task", "records", []).then(records => {
+            await $mapi.storage.get("task", "records", []).then((records) => {
                 this.records = records;
                 this.isInit = true;
                 this._run(true);
@@ -133,14 +150,14 @@ export const taskStore = defineStore("task", {
         },
         async waitInit() {
             while (!this.isInit) {
-                await new Promise(resolve => setTimeout(resolve, 100));
+                await new Promise((resolve) => setTimeout(resolve, 100));
             }
         },
         _runExecute() {
             let changed = false;
             // console.log('task._runExecute.start', JSON.stringify(this.records))
             // error record
-            this.records.forEach(record => {
+            this.records.forEach((record) => {
                 if (!this.bizMap[record.biz]) {
                     record.status = "fail";
                     record.msg = "biz not found";
@@ -150,18 +167,23 @@ export const taskStore = defineStore("task", {
             // console.log('task.records', JSON.stringify(this.records, null, 2))
             // request cancel
             this.records
-                .filter(r => r.status === "queue" || r.status === "running" || r.status === "querying")
-                .filter(r => this.shouldCancel(r.biz, r.bizId))
-                .forEach(record => {
+                .filter(
+                    (r) =>
+                        r.status === "queue" ||
+                        r.status === "running" ||
+                        r.status === "querying",
+                )
+                .filter((r) => this.shouldCancel(r.biz, r.bizId))
+                .forEach((record) => {
                     record.status = "fail";
                     record.msg = mapError("UserCancel");
                     changed = true;
                 });
             // queue
             this.records
-                .filter(r => r.status === "queue")
-                .filter(r => r.runAfter <= Date.now() && !r.runCalling)
-                .forEach(record => {
+                .filter((r) => r.status === "queue")
+                .filter((r) => r.runAfter <= Date.now() && !r.runCalling)
+                .forEach((record) => {
                     changed = true;
                     record.status = "running";
                     record.runStart = Date.now();
@@ -182,7 +204,8 @@ export const taskStore = defineStore("task", {
                                     record.status = "success";
                                     break;
                                 case "querying":
-                                    record.queryAfter = Date.now() + record.queryInterval;
+                                    record.queryAfter =
+                                        Date.now() + record.queryInterval;
                                     record.status = "querying";
                                     break;
                                 case "retry":
@@ -192,14 +215,16 @@ export const taskStore = defineStore("task", {
                                     break;
                             }
                         })
-                        .catch(e => {
+                        .catch((e) => {
                             runCallFinish = true;
                             record.status = "fail";
                             record.msg = mapError(e);
                             console.error("Task.RunFunc.Error", e);
-                            $mapi.log.error("Task.RunFunc.Error", e.toString()).catch(e => {
-                                console.error("Task.RunFunc.Error.Log", e);
-                            });
+                            $mapi.log
+                                .error("Task.RunFunc.Error", e.toString())
+                                .catch((e) => {
+                                    console.error("Task.RunFunc.Error.Log", e);
+                                });
                         })
                         .finally(() => {
                             record.runCalling = false;
@@ -208,9 +233,9 @@ export const taskStore = defineStore("task", {
                 });
             // querying
             this.records
-                .filter(r => r.status === "querying")
-                .filter(r => r.queryAfter <= Date.now() && !r.queryCalling)
-                .forEach(record => {
+                .filter((r) => r.status === "querying")
+                .filter((r) => r.queryAfter <= Date.now() && !r.queryCalling)
+                .forEach((record) => {
                     record.queryCalling = true;
                     const taskBiz = this.bizMap[record.biz];
                     taskBiz
@@ -218,7 +243,8 @@ export const taskStore = defineStore("task", {
                         .then((status: TaskRecordQueryStatus) => {
                             switch (status) {
                                 case "running":
-                                    record.queryAfter = Date.now() + record.queryInterval;
+                                    record.queryAfter =
+                                        Date.now() + record.queryInterval;
                                     break;
                                 case "success":
                                     record.status = "success";
@@ -230,14 +256,19 @@ export const taskStore = defineStore("task", {
                                     break;
                             }
                         })
-                        .catch(e => {
+                        .catch((e) => {
                             record.status = "fail";
                             record.msg = mapError(e);
                             changed = true;
                             console.error("Task.QueryFunc.Error", e);
-                            $mapi.log.error("Task.QueryFunc.Error", e.toString()).catch(e => {
-                                console.error("Task.QueryFunc.Error.Log", e);
-                            });
+                            $mapi.log
+                                .error("Task.QueryFunc.Error", e.toString())
+                                .catch((e) => {
+                                    console.error(
+                                        "Task.QueryFunc.Error.Log",
+                                        e,
+                                    );
+                                });
                         })
                         .finally(() => {
                             record.queryCalling = false;
@@ -245,18 +276,20 @@ export const taskStore = defineStore("task", {
                 });
             // expire
             this.records
-                .filter(r => r.status === "running" || r.status === "querying")
-                .filter(r => Date.now() - r.runStart > r.timeout)
-                .forEach(record => {
+                .filter(
+                    (r) => r.status === "running" || r.status === "querying",
+                )
+                .filter((r) => Date.now() - r.runStart > r.timeout)
+                .forEach((record) => {
                     record.status = "fail";
                     record.msg = mapError("ProcessTimeout");
                     changed = true;
                 });
             // success
             this.records
-                .filter(r => r.status === "success")
-                .filter(r => !r.successCalling)
-                .forEach(record => {
+                .filter((r) => r.status === "success")
+                .filter((r) => !r.successCalling)
+                .forEach((record) => {
                     record.successCalling = true;
                     changed = true;
                     this.bizMap[record.biz]
@@ -264,11 +297,16 @@ export const taskStore = defineStore("task", {
                         .then(() => {
                             record.status = "delete";
                         })
-                        .catch(e => {
+                        .catch((e) => {
                             console.error("Task.SuccessFunc.Error", e);
-                            $mapi.log.error("Task.SuccessFunc.Error", e.toString()).catch(e => {
-                                console.error("Task.SuccessFunc.Error.Log", e);
-                            });
+                            $mapi.log
+                                .error("Task.SuccessFunc.Error", e.toString())
+                                .catch((e) => {
+                                    console.error(
+                                        "Task.SuccessFunc.Error.Log",
+                                        e,
+                                    );
+                                });
                             record.status = "fail";
                             record.msg = mapError(e);
                         })
@@ -281,8 +319,8 @@ export const taskStore = defineStore("task", {
                 });
             // fail
             this.records
-                .filter(r => r.status === "fail")
-                .forEach(record => {
+                .filter((r) => r.status === "fail")
+                .forEach((record) => {
                     changed = true;
                     record.status = "delete";
                     if (!this.bizMap[record.biz]) {
@@ -290,13 +328,14 @@ export const taskStore = defineStore("task", {
                     }
                     this.bizMap[record.biz]
                         .failFunc(record.bizId, record.msg, record.bizParam)
-                        .then(() => {
-                        })
-                        .catch(e => {
+                        .then(() => {})
+                        .catch((e) => {
                             console.error("Task.FailFunc.Error", e);
-                            $mapi.log.error("Task.FailFunc.Error", e.toString()).catch(e => {
-                                console.error("Task.FailFunc.Error.Log", e);
-                            });
+                            $mapi.log
+                                .error("Task.FailFunc.Error", e.toString())
+                                .catch((e) => {
+                                    console.error("Task.FailFunc.Error.Log", e);
+                                });
                         })
                         .finally(() => {
                             this.fireChange(record, "fail");
@@ -304,7 +343,7 @@ export const taskStore = defineStore("task", {
                 });
             // console.log('task._runExecute.end', JSON.stringify(this.records))
             // delete
-            this.records = this.records.filter(r => r.status !== "delete");
+            this.records = this.records.filter((r) => r.status !== "delete");
             // sync
             if (changed) {
                 this.sync().then();
@@ -324,7 +363,7 @@ export const taskStore = defineStore("task", {
                 () => {
                     this._runExecute();
                 },
-                immediate ? 0 : 1000
+                immediate ? 0 : 1000,
             );
         },
         get(biz: string) {
@@ -336,15 +375,23 @@ export const taskStore = defineStore("task", {
         unregister(biz: string) {
             delete this.bizMap[biz];
         },
-        onChange(biz: string | null, callback: (bizId: string, type: TaskChangeType) => void) {
-            taskChangeListeners.push({biz, callback});
+        onChange(
+            biz: string | null,
+            callback: (bizId: string, type: TaskChangeType) => void,
+        ) {
+            taskChangeListeners.push({ biz, callback });
         },
-        offChange(biz: string | null, callback: (bizId: string, type: TaskChangeType) => void) {
-            const index = taskChangeListeners.findIndex(v => v.biz === biz && v.callback === callback);
+        offChange(
+            biz: string | null,
+            callback: (bizId: string, type: TaskChangeType) => void,
+        ) {
+            const index = taskChangeListeners.findIndex(
+                (v) => v.biz === biz && v.callback === callback,
+            );
             taskChangeListeners.splice(index, 1);
         },
         fireChange(record: Partial<TaskRecord>, type: TaskChangeType) {
-            taskChangeListeners.forEach(v => {
+            taskChangeListeners.forEach((v) => {
                 if (null === v.biz || v.biz === record.biz) {
                     v.callback(record.bizId as string, type);
                 }
@@ -354,10 +401,12 @@ export const taskStore = defineStore("task", {
             this.cancelMap[`${biz}-${bizId}`] = {
                 expire: TimeUtil.timestampMS() + 60 * 60 * 1000,
             };
-            this.fireChange({biz, bizId}, 'requestCancel')
+            this.fireChange({ biz, bizId }, "requestCancel");
             if (this.bizMap[biz]?.requestCancelFunc) {
-                this.bizMap[biz]?.requestCancelFunc?.(bizId, {}).catch(e => {
-                    $mapi.log.error("Task.RequestCancelFunc.Error", e.toString()).then();
+                this.bizMap[biz]?.requestCancelFunc?.(bizId, {}).catch((e) => {
+                    $mapi.log
+                        .error("Task.RequestCancelFunc.Error", e.toString())
+                        .then();
                 });
             }
         },
@@ -374,7 +423,12 @@ export const taskStore = defineStore("task", {
             }
             return false;
         },
-        async dispatch(biz: string, bizId: string, bizParam?: any, param?: object) {
+        async dispatch(
+            biz: string,
+            bizId: string,
+            bizParam?: any,
+            param?: object,
+        ) {
             await this.waitInit();
             if (!this.bizMap[biz]) {
                 throw new Error("TaskBizNotFound");
@@ -386,7 +440,7 @@ export const taskStore = defineStore("task", {
                     status: "queue",
                     runStart: 0,
                 },
-                param
+                param,
             );
             const taskRecord = {
                 id: `${biz}-${Date.now()}-${StringUtil.random(8)}`,
@@ -410,7 +464,7 @@ export const taskStore = defineStore("task", {
         async sync() {
             await this.waitInit();
             const savedRecords = toRaw(cloneDeep(this.records));
-            savedRecords.forEach(record => {
+            savedRecords.forEach((record) => {
                 // record.status = undefined
                 // record.runtime = undefined
             });

@@ -1,11 +1,11 @@
-import {listFiles} from "../util";
+import { listFiles } from "../util";
 import path from "path";
 import os from "os";
-import {shell} from "electron";
-import {AppRecord} from "../type";
-import {ShellUtil} from "../../../../../../lib/util";
-import {getIcon} from "./icon";
-import {getAppTitle} from "./title";
+import { shell } from "electron";
+import { AppRecord } from "../type";
+import { ShellUtil } from "../../../../../../lib/util";
+import { getIcon } from "./icon";
+import { getAppTitle } from "./title";
 
 export const ManagerAppWin = {
     list: async () => {
@@ -63,7 +63,13 @@ const readDir = async (dir: string) => {
 const lists = async (): Promise<AppRecord[]> => {
     appSet.clear();
     await readDir("C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs");
-    await readDir(path.join(os.homedir(), "./AppData/Roaming", "Microsoft\\Windows\\Start Menu\\Programs"));
+    await readDir(
+        path.join(
+            os.homedir(),
+            "./AppData/Roaming",
+            "Microsoft\\Windows\\Start Menu\\Programs",
+        ),
+    );
     // console.log('apps', apps)
     return apps;
 };

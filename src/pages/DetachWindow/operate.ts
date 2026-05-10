@@ -1,10 +1,12 @@
-import {Menu} from "@electron/remote";
-import {t} from "../../lang";
+import { Menu } from "@electron/remote";
+import { t } from "../../lang";
 
-export const useDetachWindowOperate = ({plugin}) => {
+export const useDetachWindowOperate = ({ plugin }) => {
     const doShowZoomMenu = () => {
         const menuTemplate: any[] = [];
-        const zoomPercent = [50, 67, 75, 80, 90, 100, 110, 125, 150, 175, 200, 250, 300];
+        const zoomPercent = [
+            50, 67, 75, 80, 90, 100, 110, 125, 150, 175, 200, 250, 300,
+        ];
         for (let z of zoomPercent) {
             menuTemplate.push({
                 label: `${z}%`,
@@ -21,36 +23,44 @@ export const useDetachWindowOperate = ({plugin}) => {
         const autoDetach = !!plugin.value.runtime.config.autoDetach;
         const menuTemplate: any[] = [];
         menuTemplate.push({
-            label: t("插件调试窗口"),
+            label: t("plugin.debugWindow"),
             click: async () => {
                 await window.$mapi.manager.openDetachPluginDevTools();
             },
-        })
+        });
         menuTemplate.push({
-            label: t("插件后端日志"),
+            label: t("plugin.backendLog"),
             click: async () => {
                 await window.$mapi.manager.openDetachPluginLog();
             },
         });
         if (!(plugin.value.setting && plugin.value.setting.autoDetach)) {
             menuTemplate.push({
-                label: t("自动分离为独立窗口显示"),
+                label: t("plugin.autoDetachWindow"),
                 type: "checkbox",
                 checked: autoDetach,
                 click: async () => {
                     await window.$mapi.manager.setPluginAutoDetach(!autoDetach);
-                    plugin.value.runtime.config = await window.$mapi.manager.getPluginConfig(plugin.value.name);
+                    plugin.value.runtime.config =
+                        await window.$mapi.manager.getPluginConfig(
+                            plugin.value.name,
+                        );
                 },
             });
         }
         if (plugin.value.setting) {
-            if (plugin.value.setting.moreMenu && plugin.value.setting.moreMenu.length > 0) {
+            if (
+                plugin.value.setting.moreMenu &&
+                plugin.value.setting.moreMenu.length > 0
+            ) {
                 for (const item of plugin.value.setting.moreMenu) {
-                    (item => {
+                    ((item) => {
                         menuTemplate.push({
                             label: item.title,
                             click: async () => {
-                                await window.$mapi.manager.firePluginMoreMenuClick(item.name);
+                                await window.$mapi.manager.firePluginMoreMenuClick(
+                                    item.name,
+                                );
                             },
                         });
                     })(item);

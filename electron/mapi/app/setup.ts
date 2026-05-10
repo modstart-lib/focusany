@@ -1,5 +1,5 @@
-import {Permissions} from "../../lib/permission";
-import {rendererDistPath} from "../../lib/env-main";
+import { Permissions } from "../../lib/permission";
+import { rendererDistPath } from "../../lib/env-main";
 
 export const SetupMain = {
     async isOk() {
@@ -16,7 +16,9 @@ export const SetupMain = {
             {
                 name: "accessibility",
                 title: t("setup.accessibility.title"),
-                status: (await Permissions.checkAccessibilityAccess()) ? "success" : "fail",
+                status: (await Permissions.checkAccessibilityAccess())
+                    ? "success"
+                    : "fail",
                 desc: t("setup.accessibility.desc"),
                 steps: [
                     {
@@ -28,7 +30,9 @@ export const SetupMain = {
             {
                 name: "screen",
                 title: t("setup.screen.title"),
-                status: (await Permissions.checkScreenCaptureAccess()) ? "success" : "fail",
+                status: (await Permissions.checkScreenCaptureAccess())
+                    ? "success"
+                    : "fail",
                 desc: t("setup.screen.desc"),
                 steps: [
                     {

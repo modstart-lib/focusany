@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import {ref} from "vue";
+import { ref } from "vue";
 import FeedbackTicketButton from "../components/common/FeedbackTicketButton.vue";
 import UpdaterButton from "../components/common/UpdaterButton.vue";
-import {AppConfig} from "../config";
-import {t} from "../lang";
-import {useSettingStore} from "../store/modules/setting";
+import { AppConfig } from "../config";
+import { t } from "../lang";
+import { useSettingStore } from "../store/modules/setting";
 
 const setting = useSettingStore();
 const licenseYear = new Date().getFullYear();
@@ -39,14 +39,20 @@ const doDevSettingTriggerClick = () => {
             <div class="flex pb-6">
                 <div class="m-auto" @click="doDevSettingTriggerClick">
                     <div>
-                        <img class="w-14 h-14 mx-auto" src="./../assets/image/logo.svg" />
+                        <img
+                            class="w-14 h-14 mx-auto"
+                            src="./../assets/image/logo.svg"
+                        />
                     </div>
                     <div class="text-xl pt-2 font-bold">
                         {{ AppConfig.title }}
                     </div>
                 </div>
             </div>
-            <div v-if="devSettingVisible" class="bg-gray-100 p-3 mb-3 rounded-lg">
+            <div
+                v-if="devSettingVisible"
+                class="bg-gray-100 p-3 mb-3 rounded-lg"
+            >
                 <div class="flex mb-4 items-center">
                     <icon-code class="mr-2" />
                     {{ $t("开发模式设置") }}
@@ -55,8 +61,16 @@ const doDevSettingTriggerClick = () => {
                     <div class="flex-grow">{{ $t("快速面板失焦隐藏") }}</div>
                     <div>
                         <a-radio-group
-                            :model-value="setting.configEnvGet('fastPanelAutoHide', true).value"
-                            @change="setting.onConfigEnvChange('fastPanelAutoHide', $event)"
+                            :model-value="
+                                setting.configEnvGet('fastPanelAutoHide', true)
+                                    .value
+                            "
+                            @change="
+                                setting.onConfigEnvChange(
+                                    'fastPanelAutoHide',
+                                    $event,
+                                )
+                            "
                         >
                             <a-radio :value="true">是</a-radio>
                             <a-radio :value="false">否</a-radio>
@@ -67,7 +81,10 @@ const doDevSettingTriggerClick = () => {
             <div class="flex mb-3 items-start">
                 <div class="w-20">{{ t("版本") }}</div>
                 <div class="flex-grow">
-                    <div>v{{ AppConfig.version }} Build {{ setting.buildInfo.buildId }}</div>
+                    <div>
+                        v{{ AppConfig.version }} Build
+                        {{ setting.buildInfo.buildId }}
+                    </div>
                     <div class="pt-2">
                         <UpdaterButton />
                     </div>
@@ -76,7 +93,11 @@ const doDevSettingTriggerClick = () => {
             <div class="flex mb-3 items-center">
                 <div class="w-20">{{ t("官网") }}</div>
                 <div class="flex-grow">
-                    <a :href="AppConfig.website" target="_blank" class="text-link">
+                    <a
+                        :href="AppConfig.website"
+                        target="_blank"
+                        class="text-link"
+                    >
                         {{ AppConfig.website }}
                     </a>
                 </div>
@@ -92,7 +113,9 @@ const doDevSettingTriggerClick = () => {
                     </a-button>
                 </div>
             </div>
-            <div class="text-gray-400 text-center select-none">&copy; {{ licenseYear }} {{ AppConfig.name }}</div>
+            <div class="text-gray-400 text-center select-none">
+                &copy; {{ licenseYear }} {{ AppConfig.name }}
+            </div>
         </div>
     </div>
 </template>

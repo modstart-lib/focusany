@@ -1,21 +1,26 @@
-import {Files} from "../../../../../file/main";
-import {IconvUtil} from "../../../../../../lib/util";
+import { Files } from "../../../../../file/main";
+import { IconvUtil } from "../../../../../../lib/util";
 
 const langDirMap = {
     "en-US": ["en.lproj"],
     "zh-CN": ["zh-Hans.lproj", "zh_CN.lproj"],
 };
 
-export const getAppTitle = async (locale: string, pathname: string, name: string) => {
+export const getAppTitle = async (
+    locale: string,
+    pathname: string,
+    name: string,
+) => {
     if (!(locale in langDirMap)) {
         return name;
     }
     const langDirs = langDirMap[locale];
     // console.log('langDirs', langDirs)
     for (const langDir of langDirs) {
-        const infoPlistPath = pathname + "/Contents/Resources/" + langDir + "/InfoPlist.strings";
+        const infoPlistPath =
+            pathname + "/Contents/Resources/" + langDir + "/InfoPlist.strings";
         // console.log('infoPlistPath', infoPlistPath)
-        if (!(await Files.exists(infoPlistPath, {isDataPath: false}))) {
+        if (!(await Files.exists(infoPlistPath, { isDataPath: false }))) {
             continue;
         }
         const buffer = await Files.readBuffer(infoPlistPath, {

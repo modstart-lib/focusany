@@ -1,4 +1,4 @@
-import {isMac} from "./env";
+import { isMac } from "./env";
 
 let nodeMacPermissions = null;
 if (isMac) {
@@ -15,7 +15,8 @@ export const Permissions = {
     async checkAccessibilityAccess(): Promise<boolean> {
         return new Promise((resolve, reject) => {
             if (isMac) {
-                const status = nodeMacPermissions.getAuthStatus("accessibility");
+                const status =
+                    nodeMacPermissions.getAuthStatus("accessibility");
                 resolve(status === "authorized");
             } else {
                 resolve(true);

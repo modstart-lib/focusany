@@ -1,5 +1,5 @@
-import electron, {BrowserWindow} from "electron";
-import {Log} from "./log";
+import electron, { BrowserWindow } from "electron";
+import { Log } from "./log";
 
 export const AppEnv = {
     isInit: false,
@@ -19,7 +19,7 @@ export const AppRuntime = {
 
 export const waitAppEnvReady = async () => {
     while (!AppEnv.isInit) {
-        await new Promise(resolve => {
+        await new Promise((resolve) => {
             setTimeout(resolve, 1000);
         });
     }

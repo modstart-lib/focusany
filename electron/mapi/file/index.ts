@@ -1,14 +1,14 @@
-import fs, {createWriteStream} from "node:fs";
+import fs, { createWriteStream } from "node:fs";
 import path from "node:path";
-import {Readable} from "node:stream";
-import {ReadableStream} from "node:stream/web";
-import {EncodeUtil, StrUtil, TimeUtil} from "../../lib/util";
+import { Readable } from "node:stream";
+import { ReadableStream } from "node:stream/web";
+import { EncodeUtil, StrUtil, TimeUtil } from "../../lib/util";
 import Apps from "../app";
-import {ConfigIndex} from "../config";
-import {AppEnv, waitAppEnvReady} from "../env";
-import {Log} from "../log";
+import { ConfigIndex } from "../config";
+import { AppEnv, waitAppEnvReady } from "../env";
+import { Log } from "../log";
 import electron from "electron";
-import {finished} from "stream/promises";
+import { finished } from "stream/promises";
 
 const nodePath = path;
 
@@ -23,7 +23,7 @@ const toNodeReadableStream = (stream: any) => {
             async pull(controller) {
                 const reader = stream.getReader();
                 while (true) {
-                    const {done, value} = await reader.read();
+                    const { done, value } = await reader.read();
                     if (done) break;
                     controller.enqueue(value);
                 }
@@ -39,7 +39,7 @@ const toWebReadableStream = (stream: any) => {
     const reader = stream[Symbol.asyncIterator]();
     return new window.ReadableStream({
         async pull(controller) {
-            const {value, done} = await reader.next();
+            const { value, done } = await reader.next();
             if (done) {
                 controller.close();
             } else {
@@ -47,7 +47,7 @@ const toWebReadableStream = (stream: any) => {
             }
         },
     });
-}
+};
 
 const root = () => {
     return AppEnv.dataRoot;
@@ -65,12 +65,15 @@ const fullPath = async (path: string) => {
     return nodePath.join(root(), path);
 };
 
-const exists = async (path: string, option?: { isDataPath?: boolean }): Promise<boolean> => {
+const exists = async (
+    path: string,
+    option?: { isDataPath?: boolean },
+): Promise<boolean> => {
     option = Object.assign(
         {
             isDataPath: false,
         },
-        option
+        option,
     );
     let fp = path;
     if (option.isDataPath) {
@@ -92,7 +95,7 @@ const isDirectory = async (path: string, option?: { isDataPath?: boolean }) => {
         {
             isDataPath: false,
         },
-        option
+        option,
     );
     let fp = path;
     if (option.isDataPath) {
@@ -109,14 +112,14 @@ const mkdir = async (path: string, option?: { isDataPath?: boolean }) => {
         {
             isDataPath: false,
         },
-        option
+        option,
     );
     let fp = path;
     if (option.isDataPath) {
         fp = await fullPath(path);
     }
     if (!fs.existsSync(fp)) {
-        fs.mkdirSync(fp, {recursive: true});
+        fs.mkdirSync(fp, { recursive: true });
     }
 };
 
@@ -125,7 +128,7 @@ const list = async (path: string, option?: { isDataPath?: boolean }) => {
         {
             isDataPath: false,
         },
-        option
+        option,
     );
     let fp = path;
     if (option.isDataPath) {
@@ -135,7 +138,7 @@ const list = async (path: string, option?: { isDataPath?: boolean }) => {
         return [];
     }
     const files = fs.readdirSync(fp);
-    return files.map(file => {
+    return files.map((file) => {
         const stat = fs.statSync(nodePath.join(fp, file));
         let f = {
             name: file,
@@ -153,7 +156,7 @@ const listAll = async (path: string, option?: { isDataPath?: boolean }) => {
         {
             isDataPath: false,
         },
-        option
+        option,
     );
     let fp = path;
     if (option.isDataPath) {
@@ -177,7 +180,9 @@ const listAll = async (path: string, option?: { isDataPath?: boolean }) => {
                 lastModified: stat.mtimeMs,
             };
             if (f.isDirectory) {
-                files = files.concat(listDirectory(nodePath.join(path, file), f.path));
+                files = files.concat(
+                    listDirectory(nodePath.join(path, file), f.path),
+                );
                 continue;
             }
             files.push(f);
@@ -187,12 +192,16 @@ const listAll = async (path: string, option?: { isDataPath?: boolean }) => {
     return listDirectory(fp);
 };
 
-const write = async (path: string, data: any, option?: { isDataPath?: boolean }) => {
+const write = async (
+    path: string,
+    data: any,
+    option?: { isDataPath?: boolean },
+) => {
     option = Object.assign(
         {
             isDataPath: false,
         },
-        option
+        option,
     );
     let fp = path;
     if (option.isDataPath) {
@@ -200,7 +209,7 @@ const write = async (path: string, data: any, option?: { isDataPath?: boolean })
     }
     const fullPathDir = nodePath.dirname(fp);
     if (!fs.existsSync(fullPathDir)) {
-        fs.mkdirSync(fullPathDir, {recursive: true});
+        fs.mkdirSync(fullPathDir, { recursive: true });
     }
     if (typeof data === "string") {
         data = {
@@ -212,12 +221,16 @@ const write = async (path: string, data: any, option?: { isDataPath?: boolean })
     fs.closeSync(f);
 };
 
-const writeStream = async (path: string, data: any, option?: { isDataPath?: boolean }) => {
+const writeStream = async (
+    path: string,
+    data: any,
+    option?: { isDataPath?: boolean },
+) => {
     option = Object.assign(
         {
             isDataPath: false,
         },
-        option
+        option,
     );
     let fp = path;
     if (option.isDataPath) {
@@ -225,7 +238,7 @@ const writeStream = async (path: string, data: any, option?: { isDataPath?: bool
     }
     const fullPathDir = nodePath.dirname(fp);
     if (!fs.existsSync(fullPathDir)) {
-        fs.mkdirSync(fullPathDir, {recursive: true});
+        fs.mkdirSync(fullPathDir, { recursive: true });
     }
     if (electron.ipcRenderer) {
         data = toNodeReadableStream(data);
@@ -235,12 +248,16 @@ const writeStream = async (path: string, data: any, option?: { isDataPath?: bool
     await finished(fileStream);
 };
 
-const writeBuffer = async (path: string, data: any, option?: { isDataPath?: boolean }) => {
+const writeBuffer = async (
+    path: string,
+    data: any,
+    option?: { isDataPath?: boolean },
+) => {
     option = Object.assign(
         {
             isDataPath: false,
         },
-        option
+        option,
     );
     let fp = path;
     if (option.isDataPath) {
@@ -248,7 +265,7 @@ const writeBuffer = async (path: string, data: any, option?: { isDataPath?: bool
     }
     const fullPathDir = nodePath.dirname(fp);
     if (!fs.existsSync(fullPathDir)) {
-        fs.mkdirSync(fullPathDir, {recursive: true});
+        fs.mkdirSync(fullPathDir, { recursive: true });
     }
     const f = fs.openSync(fp, "w");
     fs.writeSync(f, data);
@@ -260,14 +277,14 @@ const read = async (
     option?: {
         isDataPath?: boolean;
         encoding?: string;
-    }
+    },
 ) => {
     option = Object.assign(
         {
             isDataPath: false,
             encoding: "utf8",
         },
-        option
+        option,
     );
     let fp = path;
     if (option.isDataPath) {
@@ -284,12 +301,15 @@ const read = async (
     return content;
 };
 
-const readBuffer = async (path: string, option?: { isDataPath?: boolean }): Promise<Buffer> => {
+const readBuffer = async (
+    path: string,
+    option?: { isDataPath?: boolean },
+): Promise<Buffer> => {
     option = Object.assign(
         {
             isDataPath: false,
         },
-        option
+        option,
     );
     let fp = path;
     if (option.isDataPath) {
@@ -314,7 +334,7 @@ const readStream = async (path: string, option?: { isDataPath?: boolean }) => {
         {
             isDataPath: false,
         },
-        option
+        option,
     );
     let fp = path;
     if (option.isDataPath) {
@@ -335,13 +355,13 @@ const readLine = async (
     callback: (line: string) => void,
     option?: {
         isDataPath?: boolean;
-    }
+    },
 ) => {
     option = Object.assign(
         {
             isDataPath: false,
         },
-        option
+        option,
     );
     let fp = path;
     if (option.isDataPath) {
@@ -353,7 +373,7 @@ const readLine = async (
     return new Promise((resolve, reject) => {
         const f = fs.createReadStream(fp);
         let remaining = "";
-        f.on("data", chunk => {
+        f.on("data", (chunk) => {
             remaining += chunk;
             let index = remaining.indexOf("\n");
             let last = 0;
@@ -387,18 +407,21 @@ const clean = async (paths: string[], option?: { isDataPath?: boolean }) => {
     }
 };
 
-const deletes = async (path: string, option?: { isDataPath?: boolean }): Promise<void> => {
+const deletes = async (
+    path: string,
+    option?: { isDataPath?: boolean },
+): Promise<void> => {
     option = Object.assign(
         {
             isDataPath: false,
         },
-        option
+        option,
     );
     let fp = path;
     if (option.isDataPath) {
         fp = await fullPath(path);
     }
-    if (!(await exists(fp, {isDataPath: false}))) {
+    if (!(await exists(fp, { isDataPath: false }))) {
         return;
     }
     return new Promise((resolve, reject) => {
@@ -408,7 +431,7 @@ const deletes = async (path: string, option?: { isDataPath?: boolean }): Promise
                 return;
             }
             if (stat.isDirectory()) {
-                fs.rmdir(fp, {recursive: true}, err => {
+                fs.rmdir(fp, { recursive: true }, (err) => {
                     if (err) {
                         reject(err);
                         return;
@@ -416,7 +439,7 @@ const deletes = async (path: string, option?: { isDataPath?: boolean }): Promise
                     resolve(undefined);
                 });
             } else {
-                fs.unlink(fp, err => {
+                fs.unlink(fp, (err) => {
                     if (err) {
                         reject(err);
                         return;
@@ -433,14 +456,14 @@ const rename = async (
     option?: {
         isDataPath?: boolean;
         overwrite?: boolean;
-    }
+    },
 ) => {
     option = Object.assign(
         {
             isDataPath: false,
             overwrite: false,
         },
-        option
+        option,
     );
     let fullPathOld = pathOld;
     let fullPathNew = pathNew;
@@ -459,14 +482,13 @@ const rename = async (
     }
     const dir = nodePath.dirname(fullPathNew);
     if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir, {recursive: true});
+        fs.mkdirSync(dir, { recursive: true });
     }
     let success = false;
     try {
         fs.renameSync(fullPathOld, fullPathNew);
         success = true;
-    } catch (e) {
-    }
+    } catch (e) {}
     if (!success) {
         // cross-device link not permitted, rename
         fs.copyFileSync(fullPathOld, fullPathNew);
@@ -474,16 +496,20 @@ const rename = async (
     }
 };
 
-const copy = async (pathOld: string, pathNew: string, option?: {
-    isDataPath?: boolean,
-    overwrite?: boolean,
-}) => {
+const copy = async (
+    pathOld: string,
+    pathNew: string,
+    option?: {
+        isDataPath?: boolean;
+        overwrite?: boolean;
+    },
+) => {
     option = Object.assign(
         {
             isDataPath: false,
             overwrite: false,
         },
-        option
+        option,
     );
     let fullPathOld = pathOld;
     let fullPathNew = pathNew;
@@ -496,7 +522,7 @@ const copy = async (pathOld: string, pathNew: string, option?: {
     }
     if (fs.existsSync(fullPathNew)) {
         if (option.overwrite) {
-            await deletes(fullPathNew, {isDataPath: false});
+            await deletes(fullPathNew, { isDataPath: false });
         } else {
             throw `Copy.FileAlreadyExists - ${fullPathNew}`;
         }
@@ -504,7 +530,7 @@ const copy = async (pathOld: string, pathNew: string, option?: {
     // console.log('copy', fullPathOld, fullPathNew)
     const dir = nodePath.dirname(fullPathNew);
     if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir, {recursive: true});
+        fs.mkdirSync(dir, { recursive: true });
     }
     fs.copyFileSync(fullPathOld, fullPathNew);
 };
@@ -521,7 +547,7 @@ const hubRoot = async (): Promise<string> => {
         hubDir = hubDirDefault;
     }
     if (!fs.existsSync(hubDir)) {
-        fs.mkdirSync(hubDir, {recursive: true});
+        fs.mkdirSync(hubDir, { recursive: true });
     }
     return hubDir;
 };
@@ -534,13 +560,17 @@ const _getHubSavePath = async (
         [key: string]: any;
     },
     ext: string,
-    autoCreateDir: boolean = false
+    autoCreateDir: boolean = false,
 ) => {
     if (!saveGroup) {
         saveGroup = "file";
     }
     if (!savePath) {
-        savePath = path.join(saveGroup, "{year}{month}{day}", "{hour}{minute}_{second}_{random}");
+        savePath = path.join(
+            saveGroup,
+            "{year}{month}{day}",
+            "{hour}{minute}_{second}_{random}",
+        );
     }
     savePath = savePath.replace(/\\/g, "/");
     if (savePath.endsWith(`.${ext}`)) {
@@ -548,7 +578,9 @@ const _getHubSavePath = async (
     }
     for (const key in saveParam) {
         // only allow alphanumeric, Chinese characters, and hyphens
-        saveParam[key] = saveParam[key].toString().replace(/[^\w\u4e00-\u9fa5\-]/g, "");
+        saveParam[key] = saveParam[key]
+            .toString()
+            .replace(/[^\w\u4e00-\u9fa5\-]/g, "");
         // length limit
         if (saveParam[key].length > 100) {
             saveParam[key] = saveParam[key].substring(0, 100);
@@ -567,14 +599,18 @@ const _getHubSavePath = async (
     savePath = savePath.replace(/\{(\w+)\}/g, (match, key) => {
         return param[key] || key;
     });
-    while (await exists(path.join(hubRoot, savePath + `.${ext}`), {isDataPath: false})) {
+    while (
+        await exists(path.join(hubRoot, savePath + `.${ext}`), {
+            isDataPath: false,
+        })
+    ) {
         savePath = savePath + `-${StrUtil.randomString(3)}`;
     }
     if (autoCreateDir) {
         const savePathFull = path.join(hubRoot, savePath);
         const dir = nodePath.dirname(savePathFull);
-        if (!(await exists(dir, {isDataPath: false}))) {
-            fs.mkdirSync(dir, {recursive: true});
+        if (!(await exists(dir, { isDataPath: false }))) {
+            fs.mkdirSync(dir, { recursive: true });
         }
     }
     return `${savePath}.${ext}`;
@@ -586,7 +622,7 @@ const hubDelete = async (
         isDataPath?: boolean;
         ignoreWhenNotInHub?: boolean;
         tryLaterWhenFailed?: boolean;
-    }
+    },
 ) => {
     option = Object.assign(
         {
@@ -594,7 +630,7 @@ const hubDelete = async (
             ignoreWhenNotInHub: true,
             tryLaterWhenFailed: true,
         },
-        option
+        option,
     );
     let fp = file;
     const hubRoot_ = await hubRoot();
@@ -606,11 +642,11 @@ const hubDelete = async (
             return;
         }
     }
-    if (!(await exists(fp, {isDataPath: false}))) {
+    if (!(await exists(fp, { isDataPath: false }))) {
         throw `HubDelete.FileNotFound - ${fp}`;
     }
     const del = () => {
-        deletes(fp, {isDataPath: false}).catch(err => {
+        deletes(fp, { isDataPath: false }).catch((err) => {
             if (option.tryLaterWhenFailed) {
                 setTimeout(del, 1000);
             } else {
@@ -639,7 +675,7 @@ const hubFile = async (
         savePathParam?: {
             [key: string]: any;
         };
-    }
+    },
 ) => {
     option = Object.assign(
         {
@@ -649,7 +685,7 @@ const hubFile = async (
             savePath: null,
             savePathParam: {},
         },
-        option
+        option,
     );
     if (!ext) {
         throw "HubSave.FilePathEmpty";
@@ -661,7 +697,7 @@ const hubFile = async (
         option.savePath,
         option.savePathParam,
         ext,
-        option.autoCreateDir
+        option.autoCreateDir,
     );
     if (option.returnFullPath) {
         return path.join(hubRoot_, savePath);
@@ -686,7 +722,7 @@ const hubSave = async (
         savePathParam?: {
             [key: string]: any;
         };
-    }
+    },
 ) => {
     option = Object.assign(
         {
@@ -698,7 +734,7 @@ const hubSave = async (
             savePath: null,
             savePathParam: {},
         },
-        option
+        option,
     );
     if (!file) {
         throw "HubSave.FilePathEmpty";
@@ -720,13 +756,13 @@ const hubSave = async (
         option.saveGroup,
         option.savePath,
         option.savePathParam,
-        option.ext
+        option.ext,
     );
     const savePathFull = path.join(hubRoot_, savePath);
     if (option.cleanOld) {
-        await rename(file, savePathFull, {isDataPath: false});
-        if (await exists(file, {isDataPath: false})) {
-            deletes(file, {isDataPath: false}).then();
+        await rename(file, savePathFull, { isDataPath: false });
+        if (await exists(file, { isDataPath: false })) {
+            deletes(file, { isDataPath: false }).then();
         }
     } else {
         await copy(file, savePathFull, {
@@ -749,7 +785,7 @@ const hubSaveContent = async (
         savePathParam?: {
             [key: string]: any;
         };
-    }
+    },
 ) => {
     option = Object.assign(
         {
@@ -759,7 +795,7 @@ const hubSaveContent = async (
             savePath: null,
             savePathParam: {},
         },
-        option
+        option,
     );
     const hubRoot_ = await hubRoot();
     const savePath = await _getHubSavePath(
@@ -767,10 +803,10 @@ const hubSaveContent = async (
         option.saveGroup,
         option.savePath,
         option.savePathParam,
-        option.ext
+        option.ext,
     );
     const savePathFull = path.join(hubRoot_, savePath);
-    await write(savePathFull, content, {isDataPath: false});
+    await write(savePathFull, content, { isDataPath: false });
     if (option.returnFullPath) {
         return savePathFull;
     }
@@ -781,7 +817,7 @@ const tempRoot = async () => {
     await waitAppEnvReady();
     const tempDir = path.join(root(), "temp");
     if (!fs.existsSync(tempDir)) {
-        fs.mkdirSync(tempDir, {recursive: true});
+        fs.mkdirSync(tempDir, { recursive: true });
     }
     return tempDir;
 };
@@ -800,36 +836,48 @@ const autoCleanTemp = async (keepDays: number = 7) => {
             continue; // skip directories
         }
         const lastModified = new Date(stat.mtimeMs);
-        const diffDays = Math.floor((now.getTime() - lastModified.getTime()) / (1000 * 60 * 60 * 24));
+        const diffDays = Math.floor(
+            (now.getTime() - lastModified.getTime()) / (1000 * 60 * 60 * 24),
+        );
         if (diffDays >= keepDays) {
             fs.unlinkSync(filePath);
-            Log.info('AutoCleanTemp.Clean', filePath);
+            Log.info("AutoCleanTemp.Clean", filePath);
         } else {
             // console.log('AutoCleanTemp.Skip', filePath, diffDays);
         }
     }
 };
 
-const tempName = async (ext: string = "tmp", prefix: string = "file", suffix: string = ""): Promise<string> => {
+const tempName = async (
+    ext: string = "tmp",
+    prefix: string = "file",
+    suffix: string = "",
+): Promise<string> => {
     const parts = [prefix, TimeUtil.timestampInMs(), StrUtil.randomString(32)];
     if (suffix) {
         parts.push(suffix);
     }
     const p = parts.join("_");
     return `${p}.${ext}`;
-}
+};
 
-const temp = async (ext: string = "tmp", prefix: string = "file", suffix: string = ""): Promise<string> => {
+const temp = async (
+    ext: string = "tmp",
+    prefix: string = "file",
+    suffix: string = "",
+): Promise<string> => {
     const root = await tempRoot();
     return path.join(root, await tempName(ext, prefix, suffix));
 };
 
 const tempDir = async (prefix: string = "dir"): Promise<string> => {
     const root = await tempRoot();
-    const p = [prefix, TimeUtil.timestampInMs(), StrUtil.randomString(32)].join("_");
+    const p = [prefix, TimeUtil.timestampInMs(), StrUtil.randomString(32)].join(
+        "_",
+    );
     const dir = path.join(root, p);
     if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir, {recursive: true});
+        fs.mkdirSync(dir, { recursive: true });
     }
     return dir;
 };
@@ -840,7 +888,7 @@ const watchText = async (
     option?: {
         isDataPath?: boolean;
         limit?: number;
-    }
+    },
 ): Promise<{
     stop: Function;
 }> => {
@@ -852,7 +900,7 @@ const watchText = async (
             isDataPath: false,
             limit: 0,
         },
-        option
+        option,
     );
     let fp = path;
     if (option.isDataPath) {
@@ -911,7 +959,7 @@ const watchText = async (
             if (bytesRead < CHUNK_SIZE) {
                 isFirstReading = false;
                 if (firstReadingLines.length > 0) {
-                    firstReadingLines.forEach(lineItem => {
+                    firstReadingLines.forEach((lineItem) => {
                         callback(lineItem);
                     });
                     firstReadingLines = [];
@@ -942,12 +990,16 @@ const watchText = async (
 let appendTextPathCached = null;
 let appendTextStreamCached = null;
 
-const appendText = async (path: string, data: any, option?: { isDataPath?: boolean }) => {
+const appendText = async (
+    path: string,
+    data: any,
+    option?: { isDataPath?: boolean },
+) => {
     option = Object.assign(
         {
             isDataPath: false,
         },
-        option
+        option,
     );
     let fp = path;
     if (option.isDataPath) {
@@ -961,9 +1013,9 @@ const appendText = async (path: string, data: any, option?: { isDataPath?: boole
         }
         const fullPathDir = nodePath.dirname(fp);
         if (!fs.existsSync(fullPathDir)) {
-            fs.mkdirSync(fullPathDir, {recursive: true});
+            fs.mkdirSync(fullPathDir, { recursive: true });
         }
-        appendTextStreamCached = fs.createWriteStream(fp, {flags: "a"});
+        appendTextStreamCached = fs.createWriteStream(fp, { flags: "a" });
     }
     appendTextStreamCached.write(data);
 };
@@ -975,7 +1027,7 @@ const download = async (
         isDataPath?: boolean;
         userAgent?: string;
         progress?: (percent: number, total: number) => void;
-    }
+    },
 ): Promise<string> => {
     option = Object.assign(
         {
@@ -983,7 +1035,7 @@ const download = async (
             userAgent: Apps.getUserAgent(),
             progress: null,
         },
-        option
+        option,
     );
     if (!path) {
         const ext = FileIndex.ext(url);
@@ -996,7 +1048,7 @@ const download = async (
     }
     const fullPathDir = nodePath.dirname(fp);
     if (!fs.existsSync(fullPathDir)) {
-        fs.mkdirSync(fullPathDir, {recursive: true});
+        fs.mkdirSync(fullPathDir, { recursive: true });
     }
     const res = await fetch(url, {
         method: "GET",
@@ -1016,11 +1068,12 @@ const download = async (
     const fileStream = fs.createWriteStream(fp);
     return new Promise((resolve, reject) => {
         readableStream
-            .on("data", chunk => {
+            .on("data", (chunk) => {
                 // console.log('download.data', chunk.length)
                 downloaded += chunk.length;
                 if (totalSize) {
-                    option.progress && option.progress(downloaded / totalSize, totalSize);
+                    option.progress &&
+                        option.progress(downloaded / totalSize, totalSize);
                 }
                 fileStream.write(chunk);
             })
@@ -1029,7 +1082,7 @@ const download = async (
                 fileStream.end();
                 resolve(fp);
             })
-            .on("error", err => {
+            .on("error", (err) => {
                 // console.log('download.error', err)
                 fileStream.close();
                 reject(err);
@@ -1053,15 +1106,19 @@ const ext = (path: string) => {
     return nodePath.extname(path).replace(/^\./, "");
 };
 
-const stat = async (path: string, option?: { isDataPath?: boolean }): Promise<{
+const stat = async (
+    path: string,
+    option?: { isDataPath?: boolean },
+): Promise<{
     size: number;
     isDirectory: boolean;
     lastModified: number;
 }> => {
-    option = Object.assign({
+    option = Object.assign(
+        {
             isDataPath: false,
         },
-        option
+        option,
     );
     let fp = path;
     if (option.isDataPath) {
@@ -1073,7 +1130,7 @@ const stat = async (path: string, option?: { isDataPath?: boolean }): Promise<{
         isDirectory: stat.isDirectory(),
         lastModified: stat.mtimeMs,
     };
-}
+};
 
 const textToName = (text: string, ext: string = "", maxLimit: number = 100) => {
     if (text) {
@@ -1104,7 +1161,11 @@ const inDir = (path: string, dir: string) => {
     return path.startsWith(dir);
 };
 
-const pathToName = (path: string, includeExt: boolean = true, maxLimit: number = 100) => {
+const pathToName = (
+    path: string,
+    includeExt: boolean = true,
+    maxLimit: number = 100,
+) => {
     if (!path) {
         return "";
     }
@@ -1133,7 +1194,7 @@ const pathToName = (path: string, includeExt: boolean = true, maxLimit: number =
 const _sortObjectDeep = (obj: any): any => {
     if (Array.isArray(obj)) {
         return obj.map(_sortObjectDeep);
-    } else if (obj && typeof obj === 'object') {
+    } else if (obj && typeof obj === "object") {
         return Object.keys(obj)
             .sort()
             .reduce((acc, key) => {
@@ -1142,26 +1203,26 @@ const _sortObjectDeep = (obj: any): any => {
             }, {} as any);
     }
     return obj;
-}
+};
 
 const cacheKey = async (key: any): Promise<string> => {
     const keyObjString = JSON.stringify(_sortObjectDeep(key));
     const keyMd5 = EncodeUtil.md5(keyObjString);
     return path.join(await tempRoot(), `FileCache_${keyMd5}`);
-}
+};
 const cacheForget = async (key: any): Promise<void> => {
     const keyPath = await cacheKey(key);
     if (await exists(keyPath)) {
         await deletes(keyPath);
     }
-}
+};
 const cacheSet = async (key: any, data: any): Promise<void> => {
     const keyPath = await cacheKey(key);
     await write(keyPath, JSON.stringify(data));
-}
+};
 const cacheGet = async (key: any): Promise<any | null> => {
     const keyPath = await cacheKey(key);
-    if (!await exists(keyPath)) {
+    if (!(await exists(keyPath))) {
         return null;
     }
     const content = await read(keyPath);
@@ -1173,18 +1234,18 @@ const cacheGet = async (key: any): Promise<any | null> => {
     } catch (e) {
         return null;
     }
-}
+};
 const cacheGetPath = async (key: any): Promise<string | null> => {
     const p = await cacheGet(key);
     if (!p) {
         return null;
     }
-    if (!await exists(p)) {
+    if (!(await exists(p))) {
         await cacheForget(key);
         return null;
     }
     return p;
-}
+};
 
 export const FileIndex = {
     fullPath,

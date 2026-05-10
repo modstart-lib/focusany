@@ -1,5 +1,5 @@
-import {useManagerStore} from "../../../store/modules/manager";
-import {computed} from "vue";
+import { useManagerStore } from "../../../store/modules/manager";
+import { computed } from "vue";
 
 const manager = useManagerStore();
 export const useMainOperate = () => {
@@ -19,7 +19,7 @@ export const useMainOperate = () => {
     const onKeyDown = (e: KeyboardEvent) => {
         let resultKey = "";
 
-        const {ctrlKey, shiftKey, altKey, metaKey} = e;
+        const { ctrlKey, shiftKey, altKey, metaKey } = e;
 
         const modifiers: Array<string> = [];
         ctrlKey && modifiers.push("control");

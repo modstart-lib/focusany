@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import {nextTick, onBeforeMount, onMounted, ref} from "vue";
-import {AppConfig} from "../config";
+import { nextTick, onBeforeMount, onMounted, ref } from "vue";
+import { AppConfig } from "../config";
 import PageWebviewStatus from "../components/common/PageWebviewStatus.vue";
 
 const status = ref<InstanceType<typeof PageWebviewStatus> | null>(null);

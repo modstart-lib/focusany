@@ -1,5 +1,6 @@
-import { spawn } from 'child_process';
-import { BrowserWindow, desktopCapturer, dialog, screen } from 'electron';
+import { spawn } from "child_process";
+import { BrowserWindow, desktopCapturer, dialog, screen } from "electron";
+import { t } from "../../../config/lang";
 
 let isRecording = false;
 let ffmpegProcess: any = null;
@@ -14,9 +15,9 @@ const screenRecord = async (): Promise<void> => {
 
     // 选择保存路径
     const result = await dialog.showSaveDialog({
-        title: '选择保存路径',
-        defaultPath: 'screen_record.mp4',
-        filters: [{name: 'MP4', extensions: ['mp4']}]
+        title: t("plugin.selectSavePath"),
+        defaultPath: "screen_record.mp4",
+        filters: [{ name: "MP4", extensions: ["mp4"] }],
     });
 
     if (result.canceled) return;
@@ -24,13 +25,14 @@ const screenRecord = async (): Promise<void> => {
     const savePath = result.filePath;
 
     // 获取屏幕源
-    const sources = await desktopCapturer.getSources({types: ['screen']});
+    const sources = await desktopCapturer.getSources({ types: ["screen"] });
     if (sources.length === 0) return;
 
     // 选择屏幕，假设第一个
     const source = sources[0];
     const displays = screen.getAllDisplays();
-    const display = displays.find(d => d.id === Number(source.display_id)) || displays[0];
+    const display =
+        displays.find((d) => d.id === Number(source.display_id)) || displays[0];
 
     // 选择区域
     const bounds = await selectArea(display.bounds);
@@ -52,11 +54,12 @@ const selectArea = async (screenBounds: any): Promise<any> => {
             alwaysOnTop: true,
             webPreferences: {
                 nodeIntegration: true,
-                contextIsolation: false
-            }
+                contextIsolation: false,
+            },
         });
 
-        win.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(`
+        win.loadURL(
+            `data:text/html;charset=utf-8,${encodeURIComponent(`
 <html>
 <body style="margin:0;padding:0;background:rgba(0,0,0,0.3);cursor:crosshair;" onmousedown="start(event)" onmousemove="move(event)" onmouseup="end(event)">
 <div id="rect" style="position:absolute;border:2px solid red;display:none;"></div>
@@ -97,21 +100,27 @@ window.addEventListener('message', (e) => {
 </script>
 </body>
 </html>
-    `)}`);
+    `)}`,
+        );
 
-        win.webContents.on('console-message', (event, level, message) => {
-            if (message.startsWith('SELECT:')) {
+        win.webContents.on("console-message", (event, level, message) => {
+            if (message.startsWith("SELECT:")) {
                 const bounds = JSON.parse(message.substring(7));
                 win.close();
                 resolve(bounds);
             }
         });
 
-        win.on('closed', () => resolve(null));
+        win.on("closed", () => resolve(null));
     });
 };
 
-const startRecording = (savePath: string, sourceId: string, bounds: any, display: any) => {
+const startRecording = (
+    savePath: string,
+    sourceId: string,
+    bounds: any,
+    display: any,
+) => {
     isRecording = true;
 
     // 创建录制指示器窗口
@@ -125,11 +134,12 @@ const startRecording = (savePath: string, sourceId: string, bounds: any, display
         alwaysOnTop: true,
         webPreferences: {
             nodeIntegration: false,
-            contextIsolation: true
-        }
+            contextIsolation: true,
+        },
     });
 
-    recordingWindow.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(`
+    recordingWindow.loadURL(
+        `data:text/html;charset=utf-8,${encodeURIComponent(`
 <html>
 <head>
 <style>
@@ -152,7 +162,8 @@ body {
 </head>
 <body></body>
 </html>
-    `)}`);
+    `)}`,
+    );
 
     // 改变tray
     // if (tray) {
@@ -167,42 +178,61 @@ body {
     // ffmpeg命令
     const platform = process.platform;
     let args: string[];
-    if (platform === 'darwin') {
-        const screenIndex = parseInt(sourceId.split(':')[1]) + 1;
+    if (platform === "darwin") {
+        const screenIndex = parseInt(sourceId.split(":")[1]) + 1;
         args = [
-            '-f', 'avfoundation',
-            '-i', `${screenIndex}`,
-            '-vf', `crop=${bounds.width}:${bounds.height}:${bounds.x}:${bounds.y}`,
-            '-c:v', 'libx264',
-            '-preset', 'fast',
-            '-crf', '22',
-            '-c:a', 'aac',
-            savePath
+            "-f",
+            "avfoundation",
+            "-i",
+            `${screenIndex}`,
+            "-vf",
+            `crop=${bounds.width}:${bounds.height}:${bounds.x}:${bounds.y}`,
+            "-c:v",
+            "libx264",
+            "-preset",
+            "fast",
+            "-crf",
+            "22",
+            "-c:a",
+            "aac",
+            savePath,
         ];
-    } else if (platform === 'win32') {
+    } else if (platform === "win32") {
         args = [
-            '-f', 'gdigrab',
-            '-i', 'desktop',
-            '-vf', `crop=${bounds.width}:${bounds.height}:${bounds.x}:${bounds.y}`,
-            '-c:v', 'libx264',
-            '-preset', 'fast',
-            '-crf', '22',
-            savePath
+            "-f",
+            "gdigrab",
+            "-i",
+            "desktop",
+            "-vf",
+            `crop=${bounds.width}:${bounds.height}:${bounds.x}:${bounds.y}`,
+            "-c:v",
+            "libx264",
+            "-preset",
+            "fast",
+            "-crf",
+            "22",
+            savePath,
         ];
     } else {
         args = [
-            '-f', 'x11grab',
-            '-i', ':0.0',
-            '-vf', `crop=${bounds.width}:${bounds.height}:${bounds.x}:${bounds.y}`,
-            '-c:v', 'libx264',
-            '-preset', 'fast',
-            '-crf', '22',
-            savePath
+            "-f",
+            "x11grab",
+            "-i",
+            ":0.0",
+            "-vf",
+            `crop=${bounds.width}:${bounds.height}:${bounds.x}:${bounds.y}`,
+            "-c:v",
+            "libx264",
+            "-preset",
+            "fast",
+            "-crf",
+            "22",
+            savePath,
         ];
     }
 
-    ffmpegProcess = spawn('ffmpeg', args);
-    ffmpegProcess.on('close', () => {
+    ffmpegProcess = spawn("ffmpeg", args);
+    ffmpegProcess.on("close", () => {
         stopRecording();
     });
 };
@@ -211,7 +241,7 @@ const stopRecording = () => {
     if (!isRecording) return;
     isRecording = false;
     if (ffmpegProcess) {
-        ffmpegProcess.kill('SIGINT');
+        ffmpegProcess.kill("SIGINT");
         ffmpegProcess = null;
     }
 
@@ -235,4 +265,3 @@ const stopRecording = () => {
 };
 
 export { screenRecord };
-

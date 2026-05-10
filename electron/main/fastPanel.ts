@@ -1,15 +1,20 @@
-import {icnsLogoPath, icoLogoPath, logoPath} from "../config/icon";
-import {AppRuntime} from "../mapi/env";
-import {AppConfig} from "../../src/config";
-import {isPackaged} from "../lib/env";
-import {WindowConfig} from "../config/window";
-import {preloadDefault, RENDERER_DIST, rendererLoadPath, VITE_DEV_SERVER_URL} from "../lib/env-main";
+import { icnsLogoPath, icoLogoPath, logoPath } from "../config/icon";
+import { AppRuntime } from "../mapi/env";
+import { AppConfig } from "../../src/config";
+import { isPackaged } from "../lib/env";
+import { WindowConfig } from "../config/window";
+import {
+    preloadDefault,
+    RENDERER_DIST,
+    rendererLoadPath,
+    VITE_DEV_SERVER_URL,
+} from "../lib/env-main";
 import * as remoteMain from "@electron/remote/main";
-import {Page} from "../page";
-import {BrowserWindow} from "electron";
+import { Page } from "../page";
+import { BrowserWindow } from "electron";
 import path from "node:path";
-import {executeHooks} from "../mapi/manager/lib/hooks";
-import {DevToolsManager} from "../lib/devtools";
+import { executeHooks } from "../mapi/manager/lib/hooks";
+import { DevToolsManager } from "../lib/devtools";
 import ConfigMain from "../mapi/config/main";
 
 export const FastPanelMain = {
@@ -24,7 +29,7 @@ export const FastPanelMain = {
         AppRuntime.fastPanelWindow = new BrowserWindow({
             show: false,
             title: AppConfig.name,
-            ...(!isPackaged ? {icon} : {}),
+            ...(!isPackaged ? { icon } : {}),
             frame: false,
             transparent: false,
             hasShadow: true,
@@ -60,7 +65,10 @@ export const FastPanelMain = {
             await executeHooks(AppRuntime.fastPanelWindow, "Hide");
         });
         AppRuntime.fastPanelWindow.on("blur", async () => {
-            const fastPanelAutoHide = await ConfigMain.getEnv("fastPanelAutoHide", true);
+            const fastPanelAutoHide = await ConfigMain.getEnv(
+                "fastPanelAutoHide",
+                true,
+            );
             if (fastPanelAutoHide) {
                 AppRuntime.fastPanelWindow.hide();
             }

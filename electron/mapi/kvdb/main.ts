@@ -1,8 +1,8 @@
 import KVDB from "./kvdb";
-import {AppEnv} from "../env";
-import {DBError, Doc} from "./types";
-import {ipcMain} from "electron";
-import {WebDav} from "./webdav";
+import { AppEnv } from "../env";
+import { DBError, Doc } from "./types";
+import { ipcMain } from "electron";
+import { WebDav } from "./webdav";
 
 let kvdb: KVDB = null;
 
@@ -35,14 +35,13 @@ const put = async (name: string, data: Doc<any>) => {
     return result as Doc<any>;
 };
 
-
 const putForceLock = new Map<string, Promise<any>>();
 const putForce = async (name: string, data: Doc<any>) => {
     while (putForceLock.has(name)) {
         await putForceLock.get(name);
     }
     let release!: () => void;
-    const currentTask = new Promise<void>(resolve => {
+    const currentTask = new Promise<void>((resolve) => {
         release = resolve;
     });
     putForceLock.set(name, currentTask);
@@ -112,7 +111,12 @@ const count = async (name: string, key: string) => {
     return result as number;
 };
 
-const postAttachment = async (name: string, docId: string, attachment: any, type: string) => {
+const postAttachment = async (
+    name: string,
+    docId: string,
+    attachment: any,
+    type: string,
+) => {
     return await kvdb.postAttachment(name, docId, attachment, type);
 };
 
@@ -135,7 +139,11 @@ const importFromFile = async (file: string) => {
     return await kvdb.importFromFile(file);
 };
 
-const testWebdav = async (option: { url: string; username: string; password: string }) => {
+const testWebdav = async (option: {
+    url: string;
+    username: string;
+    password: string;
+}) => {
     const webdav = new WebDav(option);
     await webdav.checkConnection();
 };
@@ -146,7 +154,7 @@ const dumpToWebDav = async (
         url: string;
         username: string;
         password: string;
-    }
+    },
 ) => {
     return await kvdb.dumpToWavDav(file, option);
 };
@@ -157,7 +165,7 @@ const importFromWebDav = async (
         url: string;
         username: string;
         password: string;
-    }
+    },
 ) => {
     return await kvdb.importFromWebDav(file, option);
 };
@@ -168,7 +176,7 @@ const listWebDav = async (
         url: string;
         username: string;
         password: string;
-    }
+    },
 ) => {
     const webdav = new WebDav(option);
     await webdav.checkConnection();
@@ -207,17 +215,23 @@ ipcMain.handle("kvdb:count", (event, name: string, key: string) => {
     return count(name, key);
 });
 
-ipcMain.handle("kvdb:postAttachment", (event, name: string, docId: string, attachment: any, type: string) => {
-    return postAttachment(name, docId, attachment, type);
-});
+ipcMain.handle(
+    "kvdb:postAttachment",
+    (event, name: string, docId: string, attachment: any, type: string) => {
+        return postAttachment(name, docId, attachment, type);
+    },
+);
 
 ipcMain.handle("kvdb:getAttachment", (event, name: string, docId: string) => {
     return getAttachment(name, docId);
 });
 
-ipcMain.handle("kvdb:getAttachmentType", (event, name: string, docId: string) => {
-    return getAttachmentType(name, docId);
-});
+ipcMain.handle(
+    "kvdb:getAttachmentType",
+    (event, name: string, docId: string) => {
+        return getAttachmentType(name, docId);
+    },
+);
 
 ipcMain.handle("kvdb:dumpToFile", (event, file: string) => {
     return dumpToFile(file);
@@ -235,10 +249,10 @@ ipcMain.handle(
             url: string;
             username: string;
             password: string;
-        }
+        },
     ) => {
         return testWebdav(option);
-    }
+    },
 );
 
 ipcMain.handle(
@@ -250,10 +264,10 @@ ipcMain.handle(
             url: string;
             username: string;
             password: string;
-        }
+        },
     ) => {
         return dumpToWebDav(file, option);
-    }
+    },
 );
 
 ipcMain.handle(
@@ -265,10 +279,10 @@ ipcMain.handle(
             url: string;
             username: string;
             password: string;
-        }
+        },
     ) => {
         return importFromWebDav(file, option);
-    }
+    },
 );
 
 ipcMain.handle(
@@ -280,10 +294,10 @@ ipcMain.handle(
             url: string;
             username: string;
             password: string;
-        }
+        },
     ) => {
         return listWebDav(dir, option);
-    }
+    },
 );
 
 export const KVDBMain = {

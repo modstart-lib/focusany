@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {ref} from "vue";
+import { ref } from "vue";
 import ModelSetting from "./ModelSetting.vue";
 
 const visible = ref(false);
@@ -25,7 +25,7 @@ defineExpose({
             {{ $t("setting.llm") }}
         </template>
         <div class="-mx-5 -my-6" style="height: calc(100vh - 15rem)">
-            <ModelSetting/>
+            <ModelSetting />
         </div>
     </a-modal>
 </template>

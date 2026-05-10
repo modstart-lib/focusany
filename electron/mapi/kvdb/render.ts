@@ -1,5 +1,5 @@
-import {Doc} from "./types";
-import {ipcRenderer} from "electron";
+import { Doc } from "./types";
+import { ipcRenderer } from "electron";
 
 const put = async (name: string, doc: Doc) => {
     return ipcRenderer.invoke("kvdb:put", name, doc);
@@ -33,8 +33,19 @@ const count = async (name: string, key: string) => {
     return ipcRenderer.invoke("kvdb:count", name, key);
 };
 
-const postAttachment = async (name: string, docId: string, attachment: any, type: string) => {
-    return ipcRenderer.invoke("kvdb:postAttachment", name, docId, attachment, type);
+const postAttachment = async (
+    name: string,
+    docId: string,
+    attachment: any,
+    type: string,
+) => {
+    return ipcRenderer.invoke(
+        "kvdb:postAttachment",
+        name,
+        docId,
+        attachment,
+        type,
+    );
 };
 
 const getAttachment = async (name: string, docId: string) => {
@@ -53,7 +64,11 @@ const importFromFile = async (file: string) => {
     return ipcRenderer.invoke("kvdb:importFromFile", file);
 };
 
-const testWebdav = async (option: {url: string; username: string; password: string}) => {
+const testWebdav = async (option: {
+    url: string;
+    username: string;
+    password: string;
+}) => {
     return ipcRenderer.invoke("kvdb:testWebdav", option);
 };
 
@@ -63,7 +78,7 @@ const dumpToWebDav = async (
         url: string;
         username: string;
         password: string;
-    }
+    },
 ) => {
     return ipcRenderer.invoke("kvdb:dumpToWebDav", file, option);
 };
@@ -74,7 +89,7 @@ const importFromWebDav = async (
         url: string;
         username: string;
         password: string;
-    }
+    },
 ) => {
     return ipcRenderer.invoke("kvdb:importFromWebDav", file, option);
 };
@@ -85,7 +100,7 @@ const listWebDav = async (
         url: string;
         username: string;
         password: string;
-    }
+    },
 ) => {
     return ipcRenderer.invoke("kvdb:listWebDav", dir, option);
 };

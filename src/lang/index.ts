@@ -1,6 +1,6 @@
-import {createI18n} from "vue-i18n";
+import { createI18n } from "vue-i18n";
 
-import {isDev} from "../lib/env";
+import { isDev } from "../lib/env";
 import enUS from "./en-US.json";
 import zhCN from "./zh-CN.json";
 
@@ -37,7 +37,7 @@ export const i18n = createI18n({
     messages,
 });
 
-if (window.$mapi) {
+if (typeof window !== "undefined" && window.$mapi) {
     window.$mapi.config.get("lang", defaultLocale).then((lang: string) => {
         i18n.global.locale.value = lang as any;
         localeInit = true;
@@ -53,14 +53,14 @@ export type LocaleItem = {
 
 export const listLocales = () => {
     let list: LocaleItem[] = messageList;
-    list.forEach(item => {
+    list.forEach((item) => {
         item.active = i18n.global.locale.value === item.name;
     });
     return list;
 };
 
 export const getLocale = async () => {
-    return new Promise<string>(resolve => {
+    return new Promise<string>((resolve) => {
         if (localeInit) {
             resolve(i18n.global.locale.value);
         } else {
@@ -78,7 +78,7 @@ export const onLocaleChange = (callback: (lang: string) => void) => {
 };
 
 const fireLocaleChange = (lang: string) => {
-    localeChangeListener.forEach(callback => {
+    localeChangeListener.forEach((callback) => {
         callback(lang);
     });
 };
@@ -88,6 +88,11 @@ export const changeLocale = (lang: string) => {
     window.$mapi.config.set("lang", lang).then(() => {
         fireLocaleChange(lang);
     });
+};
+
+export const applyLocale = (lang: string) => {
+    i18n.global.locale.value = lang as any;
+    fireLocaleChange(lang);
 };
 
 export const t = (key: string, param: object | null = null) => {

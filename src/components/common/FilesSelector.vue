@@ -1,20 +1,23 @@
 <script setup lang="ts">
-import {computed} from "vue";
-import {t} from "../../lang";
-import {Dialog} from "../../lib/dialog";
-import {FileUtil} from "../../lib/file";
-import {doOpenFile} from "./util";
+import { computed } from "vue";
+import { t } from "../../lang";
+import { Dialog } from "../../lib/dialog";
+import { FileUtil } from "../../lib/file";
+import { doOpenFile } from "./util";
 
 const props = defineProps<{
     modelValue: string[];
-    extensions: string[],
+    extensions: string[];
 }>();
 const emit = defineEmits<{
     "update:modelValue": [string[]];
 }>();
 
 const doSelectFile = async () => {
-    const result = await doOpenFile({extensions: props.extensions, multiple: true});
+    const result = await doOpenFile({
+        extensions: props.extensions,
+        multiple: true,
+    });
     if (!result) {
         return;
     }
@@ -23,7 +26,11 @@ const doSelectFile = async () => {
     for (const file of files) {
         const ext = FileUtil.getExt(file);
         if (!props.extensions.includes(ext)) {
-            Dialog.tipError(t("hint.selectFileFormat", {extensions: props.extensions.join(',')}));
+            Dialog.tipError(
+                t("hint.selectFileFormat", {
+                    extensions: props.extensions.join(","),
+                }),
+            );
             return;
         }
         validFiles.push(file);
@@ -38,27 +45,33 @@ const removeFile = (index: number) => {
 };
 
 const names = computed(() => {
-    return props.modelValue.map(path => FileUtil.getBaseName(path, true));
+    return props.modelValue.map((path) => FileUtil.getBaseName(path, true));
 });
 </script>
 
 <template>
     <div class="flex flex-col gap-2">
         <div v-if="modelValue.length > 0" class="flex flex-col gap-1">
-            <div v-for="(name, index) in names" :key="index" class="flex items-center gap-2 text-sm text-black rounded-lg leading-7 px-3 min-h-7 border border-gray-500">
-                <icon-file/>
+            <div
+                v-for="(name, index) in names"
+                :key="index"
+                class="flex items-center gap-2 text-sm text-black rounded-lg leading-7 px-3 min-h-7 border border-gray-500"
+            >
+                <icon-file />
                 <a-tooltip :content="modelValue[index]" mini>
                     <span class="flex-grow">{{ name }}</span>
                 </a-tooltip>
                 <a-button size="mini" @click="removeFile(index)">
-                    <icon-close/>
+                    <icon-close />
                 </a-button>
             </div>
         </div>
         <a-button @click="doSelectFile">
-            <icon-plus/>
+            <icon-plus />
             {{ t("common.addFile") }}
-            ({{ t("common.extensions", {extensions: extensions.join(', ')}) }})
+            ({{
+                t("common.extensions", { extensions: extensions.join(", ") })
+            }})
         </a-button>
     </div>
 </template>

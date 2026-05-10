@@ -10,21 +10,31 @@ import {
     PluginRecord,
     PluginType,
 } from "../../../../src/types/Manager";
-import {Files} from "../../file/main";
-import {preloadDefault, preloadPluginDefault, rendererDistPath, rendererIsUrl} from "../../../lib/env-main";
-import {join} from "node:path";
-import {KVDBMain} from "../../kvdb/main";
-import {CommonConfig} from "../../../config/common";
-import {MemoryCacheUtil, StrUtil, UIUtil, VersionUtil} from "../../../lib/util";
-import {MiscMain} from "../../misc/main";
-import {platformName} from "../../../lib/env";
-import {AppConfig} from "../../../../src/config";
-import {WindowConfig} from "../../../config/window";
-import {AppsMain} from "../../app/main";
-import {ManagerConfig} from "../config/config";
-import {ManagerBackend} from "../backend";
-import {session} from "electron";
-import {PluginHttp} from "./http";
+import { Files } from "../../file/main";
+import {
+    preloadDefault,
+    preloadPluginDefault,
+    rendererDistPath,
+    rendererIsUrl,
+} from "../../../lib/env-main";
+import { join } from "node:path";
+import { KVDBMain } from "../../kvdb/main";
+import { CommonConfig } from "../../../config/common";
+import {
+    MemoryCacheUtil,
+    StrUtil,
+    UIUtil,
+    VersionUtil,
+} from "../../../lib/util";
+import { MiscMain } from "../../misc/main";
+import { platformName } from "../../../lib/env";
+import { AppConfig } from "../../../../src/config";
+import { WindowConfig } from "../../../config/window";
+import { AppsMain } from "../../app/main";
+import { ManagerConfig } from "../config/config";
+import { ManagerBackend } from "../backend";
+import { session } from "electron";
+import { PluginHttp } from "./http";
 
 type PluginInfo = {
     type: PluginType;
@@ -113,7 +123,11 @@ export const ManagerPlugin = {
         if (plugin.setting && plugin.setting.autoDetach) {
             autoDetach = true;
         }
-        if (!autoDetach && plugin.runtime.config && plugin.runtime.config.autoDetach) {
+        if (
+            !autoDetach &&
+            plugin.runtime.config &&
+            plugin.runtime.config.autoDetach
+        ) {
             autoDetach = true;
         }
         // width & height
@@ -122,11 +136,17 @@ export const ManagerPlugin = {
         if (plugin.setting) {
             const display = AppsMain.getCurrentScreenDisplay();
             if (plugin.setting.width) {
-                width = UIUtil.sizeToPx(plugin.setting.width + "", display.workArea.width);
+                width = UIUtil.sizeToPx(
+                    plugin.setting.width + "",
+                    display.workArea.width,
+                );
                 autoDetach = true;
             }
             if (plugin.setting.height) {
-                height = UIUtil.sizeToPx(plugin.setting.height + "", display.workArea.height);
+                height = UIUtil.sizeToPx(
+                    plugin.setting.height + "",
+                    display.workArea.height,
+                );
                 autoDetach = true;
             }
         }
@@ -185,7 +205,7 @@ export const ManagerPlugin = {
             }
             matches.push(m);
         }
-        if (!('trackHistory' in action)) {
+        if (!("trackHistory" in action)) {
             action.trackHistory = true;
         }
         const normalAction = {
@@ -214,13 +234,13 @@ export const ManagerPlugin = {
             type: PluginType;
             root?: string;
             configJson?: any;
-        }
+        },
     ): Promise<PluginRecord> {
         option = Object.assign(
             {
                 type: null,
             },
-            option
+            option,
         );
 
         if (!option.type) {
@@ -257,7 +277,7 @@ export const ManagerPlugin = {
                 httpEntry: false,
                 moreMenu: [],
             },
-            plugin.setting || {}
+            plugin.setting || {},
         );
 
         plugin.development = Object.assign(
@@ -266,7 +286,7 @@ export const ManagerPlugin = {
                 showCodeDevTools: false,
                 keepCodeDevTools: false,
             },
-            plugin.development
+            plugin.development,
         );
 
         plugin.type = option.type;
@@ -384,7 +404,8 @@ export const ManagerPlugin = {
                 fileOrPath = fileOrPath.replace(/[\/\\]config.json$/, "");
             } else {
                 guessType = PluginType.ZIP;
-                const {name, version, target} = await this.parsePackage(fileOrPath);
+                const { name, version, target } =
+                    await this.parsePackage(fileOrPath);
                 const plugin = await ManagerPlugin.get(name);
                 if (
                     await Files.exists(target, {
@@ -450,7 +471,10 @@ export const ManagerPlugin = {
         }, 1000);
     },
     async refreshInstall(name: string) {
-        const doc = await KVDBMain.get(CommonConfig.dbSystem, `${CommonConfig.dbPluginIdPrefix}/${name}`);
+        const doc = await KVDBMain.get(
+            CommonConfig.dbSystem,
+            `${CommonConfig.dbPluginIdPrefix}/${name}`,
+        );
         if (!doc) {
             throw `PluginNotExists : ${name}`;
         }
@@ -490,7 +514,10 @@ export const ManagerPlugin = {
         if (!plugin) {
             throw `PluginNotExists:-1:${name}`;
         }
-        const pi = await KVDBMain.get(CommonConfig.dbSystem, `${CommonConfig.dbPluginIdPrefix}/${name}`);
+        const pi = await KVDBMain.get(
+            CommonConfig.dbSystem,
+            `${CommonConfig.dbPluginIdPrefix}/${name}`,
+        );
         if (!pi) {
             throw `PluginNotExists:-2:${name}`;
         }
@@ -518,45 +545,58 @@ export const ManagerPlugin = {
         }
         return plugin.version;
     },
-    async isPluginInstalling(name: string) {
-
-    },
+    async isPluginInstalling(name: string) {},
     async list(): Promise<PluginRecord[]> {
-        const plugins = await MemoryCacheUtil.remember<PluginRecord[]>("Plugins", async () => {
-            // await this.install(`${process.cwd()}/plugin-examples/plugin-example`, 'system')
-            let plugins: PluginRecord[] = [];
-            const pluginInfos = await KVDBMain.allDocs(CommonConfig.dbSystem, `${CommonConfig.dbPluginIdPrefix}/`);
-            for (const pi of pluginInfos) {
-                const info: PluginInfo = pi as any;
-                if (!info.name || !info.version || !info.type || !info.config) {
-                    await KVDBMain.remove(CommonConfig.dbSystem, pi);
-                    continue;
-                }
-                let configJson = null;
-                if (info.type === PluginType.DIR) {
-                    configJson = await this._readPluginInfo(info.root);
-                    info.config = configJson;
-                    if (!info.config) {
-                        // 本地插件可能已经被删除
+        const plugins = await MemoryCacheUtil.remember<PluginRecord[]>(
+            "Plugins",
+            async () => {
+                // await this.install(`${process.cwd()}/plugin-examples/plugin-example`, 'system')
+                let plugins: PluginRecord[] = [];
+                const pluginInfos = await KVDBMain.allDocs(
+                    CommonConfig.dbSystem,
+                    `${CommonConfig.dbPluginIdPrefix}/`,
+                );
+                for (const pi of pluginInfos) {
+                    const info: PluginInfo = pi as any;
+                    if (
+                        !info.name ||
+                        !info.version ||
+                        !info.type ||
+                        !info.config
+                    ) {
                         await KVDBMain.remove(CommonConfig.dbSystem, pi);
                         continue;
                     }
+                    let configJson = null;
+                    if (info.type === PluginType.DIR) {
+                        configJson = await this._readPluginInfo(info.root);
+                        info.config = configJson;
+                        if (!info.config) {
+                            // 本地插件可能已经被删除
+                            await KVDBMain.remove(CommonConfig.dbSystem, pi);
+                            continue;
+                        }
+                    }
+                    plugins.push(
+                        await this.initIfNeed(info.config, {
+                            type: info.type,
+                            root: info.root,
+                            configJson,
+                        }),
+                    );
                 }
-                plugins.push(
-                    await this.initIfNeed(info.config, {
-                        type: info.type,
-                        root: info.root,
-                        configJson,
-                    })
-                );
-            }
-            // console.log('plugins', JSON.stringify(plugins))
-            return plugins;
-        });
+                // console.log('plugins', JSON.stringify(plugins))
+                return plugins;
+            },
+        );
         // 有开发选项并且是开发环境的插件，每次都重新读取 config
         for (let pIndex = 0; pIndex < plugins.length; pIndex++) {
             const p = plugins[pIndex];
-            if (p.type === PluginType.DIR && p.env === "dev" && p.runtime.root) {
+            if (
+                p.type === PluginType.DIR &&
+                p.env === "dev" &&
+                p.runtime.root
+            ) {
                 const configJson = await this._readPluginInfo(p.runtime.root);
                 plugins[pIndex] = await this.initIfNeed(p, {
                     type: p.type,
@@ -590,19 +630,21 @@ export const ManagerPlugin = {
                 return null;
             }
             return configJson;
-        } catch (e) {
-        }
+        } catch (e) {}
         return null;
     },
     async listAction() {
-        return await MemoryCacheUtil.remember<ActionRecord[]>("PluginActions", async () => {
-            let actions: ActionRecord[] = [];
-            const plugins = await this.list();
-            for (const p of plugins) {
-                actions = actions.concat(p.actions);
-            }
-            return actions;
-        });
+        return await MemoryCacheUtil.remember<ActionRecord[]>(
+            "PluginActions",
+            async () => {
+                let actions: ActionRecord[] = [];
+                const plugins = await this.list();
+                for (const p of plugins) {
+                    actions = actions.concat(p.actions);
+                }
+                return actions;
+            },
+        );
     },
     async getViewSession(plugin: PluginRecord, name: string = null) {
         if (name) {
@@ -616,10 +658,13 @@ export const ManagerPlugin = {
             await viewSession.clearStorageData();
         }
     },
-    isDevelopmentCheck(plugin: PluginRecord, key: keyof NonNullable<PluginRecord["development"]>) {
+    isDevelopmentCheck(
+        plugin: PluginRecord,
+        key: keyof NonNullable<PluginRecord["development"]>,
+    ) {
         if (!plugin.development || plugin.development.env !== PluginEnv.DEV) {
             return false;
         }
         return !!plugin.development[key];
-    }
+    },
 };

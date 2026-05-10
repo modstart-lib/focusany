@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import {PropType} from "vue";
-import {ActionRecord, PluginType} from "../../../types/Manager";
+import { PropType } from "vue";
+import IconPin from "~icons/mdi/pin";
+import { ActionRecord, PluginType } from "../../../types/Manager";
 
 const emit = defineEmits(["open", "delete", "pin"]);
 const props = defineProps({
@@ -20,25 +21,37 @@ const props = defineProps({
 </script>
 
 <template>
-    <div class="item-box hover:bg-gray-100 dark:hover:bg-gray-700" :data-action="action.fullName">
+    <div
+        class="item-box hover:bg-gray-100 dark:hover:bg-gray-700"
+        :data-action="action.fullName"
+    >
         <div class="icon" @click="emit('open')">
             <img
                 draggable="false"
-                :class="action.pluginType === PluginType.SYSTEM ? 'dark:invert' : 'plugin-logo-filter'"
+                :class="
+                    action.pluginType === PluginType.SYSTEM
+                        ? 'dark:invert'
+                        : 'plugin-logo-filter'
+                "
                 :src="action.icon"
             />
         </div>
         <div class="title" @click="emit('open')">
-            <span v-if="action.runtime?.searchTitleMatched" v-html="action.runtime?.searchTitleMatched"></span>
+            <span
+                v-if="action.runtime?.searchTitleMatched"
+                v-html="action.runtime?.searchTitleMatched"
+            ></span>
             <span v-else>{{ action.title }}</span>
-            <div v-if="0" class="absolute left-0 top-0" style="font-size: 8px">{{ action.fullName }}</div>
+            <div v-if="0" class="absolute left-0 top-0" style="font-size: 8px">
+                {{ action.fullName }}
+            </div>
         </div>
         <div class="action" v-if="showDelete || showPin">
             <a href="javascript:;" v-if="showDelete" @click="emit('delete')">
                 <icon-delete />
             </a>
             <a href="javascript:;" v-if="showPin" @click="emit('pin')">
-                <i class="iconfont icon-pin"></i>
+                <IconPin />
             </a>
         </div>
     </div>

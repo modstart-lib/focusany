@@ -1,4 +1,4 @@
-import {uIOhook, UiohookKey} from "uiohook-napi";
+import { uIOhook, UiohookKey } from "uiohook-napi";
 
 export const KeyboardKey = {
     ...UiohookKey,

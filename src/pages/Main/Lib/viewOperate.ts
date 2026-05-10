@@ -1,7 +1,7 @@
-import {ActionTypeEnum, PluginType} from "../../../types/Manager";
-import {computed, watch} from "vue";
-import {useManagerStore} from "../../../store/modules/manager";
-import {useSettingStore} from "../../../store/modules/setting";
+import { ActionTypeEnum, PluginType } from "../../../types/Manager";
+import { computed, watch } from "vue";
+import { useManagerStore } from "../../../store/modules/manager";
+import { useSettingStore } from "../../../store/modules/setting";
 
 const executePluginHooks = async (web: any, hook: string, data?: any) => {
     const evalJs = `
@@ -23,7 +23,7 @@ export const useViewOperate = (type: "fastPanel" | "main") => {
 
     const viewActions = computed(() => {
         if (type === "main") {
-            return manager.viewActions.map(a => {
+            return manager.viewActions.map((a) => {
                 a["_web"] = null;
                 a["_webInit"] = false;
                 a["_webReady"] = false;
@@ -31,7 +31,7 @@ export const useViewOperate = (type: "fastPanel" | "main") => {
                 return a;
             });
         }
-        return manager.fastPanelViewActions.map(a => {
+        return manager.fastPanelViewActions.map((a) => {
             a["_web"] = null;
             a["_webInit"] = false;
             a["_webReady"] = false;
@@ -58,7 +58,7 @@ export const useViewOperate = (type: "fastPanel" | "main") => {
             readyData["requestId"] = a.runtime?.requestId as any;
             readyData["reenter"] = false;
             readyData["isView"] = true;
-            (aa => {
+            ((aa) => {
                 aa["_web"].addEventListener("did-finish-load", async () => {
                     aa["_webReady"] = true;
                     aa["_web"].insertCSS(`body{overflow: hidden;}`);
@@ -68,12 +68,18 @@ export const useViewOperate = (type: "fastPanel" | "main") => {
                         document.documentElement.setAttribute('data-theme', 'dark');
                     `);
                         if (aa.pluginType === PluginType.SYSTEM) {
-                            aa["_web"].executeJavaScript(`document.body.setAttribute('arco-theme', 'dark');`);
+                            aa["_web"].executeJavaScript(
+                                `document.body.setAttribute('arco-theme', 'dark');`,
+                            );
                         }
                     }
                 });
                 aa["_web"].addEventListener("dom-ready", async () => {
-                    await executePluginHooks(a["_web"], "PluginReady", readyData);
+                    await executePluginHooks(
+                        a["_web"],
+                        "PluginReady",
+                        readyData,
+                    );
                     if (aa.runtime?.view?.showViewDevTools) {
                         aa["_web"].openDevTools({
                             mode: "detach",
@@ -81,16 +87,19 @@ export const useViewOperate = (type: "fastPanel" | "main") => {
                         });
                     }
                 });
-                aa["_web"].addEventListener("ipc-message", event => {
+                aa["_web"].addEventListener("ipc-message", (event) => {
                     if ("FocusAny.View" === event.channel) {
-                        const {id, type, data} = event.args[0];
+                        const { id, type, data } = event.args[0];
                         switch (type) {
                             case "view.setHeight":
                                 aa["_height"] = data.height;
                                 break;
                             case "view.getHeight":
                                 // console.log('view.getHeight', aa['_height'])
-                                aa["_web"].send(`FocusAny.View.${id}`, aa["_height"]);
+                                aa["_web"].send(
+                                    `FocusAny.View.${id}`,
+                                    aa["_height"],
+                                );
                                 break;
                         }
                     }
@@ -106,7 +115,7 @@ export const useViewOperate = (type: "fastPanel" | "main") => {
         },
         {
             deep: true,
-        }
+        },
     );
 
     return {

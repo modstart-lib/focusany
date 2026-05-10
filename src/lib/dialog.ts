@@ -1,7 +1,7 @@
-import {Message, MessageReturn, Modal} from "@arco-design/web-vue";
+import { Message, MessageReturn, Modal } from "@arco-design/web-vue";
 import Prompt from "./components/Prompt.vue";
-import {h} from "vue";
-import {i18n, t} from "../lang";
+import { h } from "vue";
+import { i18n, t } from "../lang";
 
 let loadingLayers: MessageReturn[] = [];
 
@@ -33,9 +33,12 @@ export const Dialog = {
             });
         });
     },
-    alertSuccess: (content: string, title: string | null = null): Promise<void> => {
+    alertSuccess: (
+        content: string,
+        title: string | null = null,
+    ): Promise<void> => {
         title = title || t("common.tip");
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
             Modal.confirm({
                 title,
                 content,
@@ -47,9 +50,12 @@ export const Dialog = {
             });
         });
     },
-    alertError: (content: string, title: string | null = null): Promise<void> => {
+    alertError: (
+        content: string,
+        title: string | null = null,
+    ): Promise<void> => {
         title = title || t("common.tip");
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
             Modal.confirm({
                 title,
                 content,
@@ -72,7 +78,7 @@ export const Dialog = {
     loadingUpdate: (content: string) => {
         if (loadingLayers.length > 0) {
             const contentContainer = document.querySelector(
-                ".arco-message-list .arco-message-loading .arco-message-content"
+                ".arco-message-list .arco-message-loading .arco-message-content",
             );
             if (contentContainer) {
                 contentContainer.innerHTML = content;
@@ -85,8 +91,11 @@ export const Dialog = {
             loading.close();
         }
     },
-    prompt: (content: string, defaultValue: string = ""): Promise<string | null> => {
-        return new Promise(resolve => {
+    prompt: (
+        content: string,
+        defaultValue: string = "",
+    ): Promise<string | null> => {
+        return new Promise((resolve) => {
             let inputValue = defaultValue;
             Modal.open({
                 title: content,

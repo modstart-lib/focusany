@@ -6,7 +6,7 @@ export const getAppTitle = async (
     desktopInfo: Record<string, string>,
     locale: string,
     pathname: string,
-    name: string
+    name: string,
 ) => {
     if (locale in langDirMap) {
         for (const k of langDirMap[locale]) {

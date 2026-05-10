@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import {onBeforeMount, onMounted, ref} from "vue";
-import {AppConfig} from "../config";
+import { onBeforeMount, onMounted, ref } from "vue";
+import { AppConfig } from "../config";
 
 const loading = ref(true);
 
@@ -13,7 +13,9 @@ onBeforeMount(() => {});
 
 <template>
     <div class="page-narrow-container p-8">
-        <div class="text-3xl font-bold mb-4">{{ $t("欢迎使用") }} {{ AppConfig.name }} ！</div>
+        <div class="text-3xl font-bold mb-4">
+            {{ $t("home.welcome") }} {{ AppConfig.name }} ！
+        </div>
         <div></div>
     </div>
 </template>

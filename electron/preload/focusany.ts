@@ -1,10 +1,18 @@
-import os from "os";
 import electronRemote from "@electron/remote";
-import path from "path";
+import { ipcRenderer, shell } from "electron";
 import fs from "fs";
-import {EncodeUtil, FileUtil, HotKeyUtil, StrUtil, TimeUtil} from "../lib/util";
-import {ipcRenderer, shell} from "electron";
-import {isMac} from "../lib/env";
+import os from "os";
+import path from "path";
+import zhCN from "../../src/lang/zh-CN.json";
+import { isMac } from "../lib/env";
+import {
+    EncodeUtil,
+    FileUtil,
+    HotKeyUtil,
+    StrUtil,
+    TimeUtil,
+} from "../lib/util";
+const t = (key: string): string => (zhCN as any)[key] || key;
 
 const ipcSendSync = (type: string, data?: any) => {
     executeHook("Log", `${type}`, data);
@@ -36,7 +44,11 @@ const ipcSend = (type: string, data?: any) => {
     executeHook("Log", `${type}`, data);
 };
 
-const ipcSendToHost = (type: string, data?: any, hasResult?: boolean): Promise<any> => {
+const ipcSendToHost = (
+    type: string,
+    data?: any,
+    hasResult?: boolean,
+): Promise<any> => {
     hasResult = hasResult || false;
     const id = StrUtil.randomString(16);
     return new Promise((resolve, reject) => {
@@ -82,12 +94,17 @@ export const FocusAny = {
 
     onPluginEvent(event: PluginEvent, callback: (data: any) => void) {
         if (!("onPluginEvent" in FocusAny.hooks)) {
-            FocusAny.hooks.onPluginEvent = (payload: { event: string; data: any }) => {
-                const {event, data} = payload;
+            FocusAny.hooks.onPluginEvent = (payload: {
+                event: string;
+                data: any;
+            }) => {
+                const { event, data } = payload;
                 if (event in FocusAny.hooks.onPluginEventCallbacks) {
-                    FocusAny.hooks.onPluginEventCallbacks[event].forEach((cb: (data: any) => void) => {
-                        cb(data);
-                    });
+                    FocusAny.hooks.onPluginEventCallbacks[event].forEach(
+                        (cb: (data: any) => void) => {
+                            cb(data);
+                        },
+                    );
                 }
             };
         }
@@ -98,7 +115,7 @@ export const FocusAny = {
             FocusAny.hooks.onPluginEventCallbacks[event] = [];
         }
         FocusAny.hooks.onPluginEventCallbacks[event].push(callback);
-        ipcSend("registerPluginEvent", {event});
+        ipcSend("registerPluginEvent", { event });
     },
     offPluginEvent(event: PluginEvent, callback: (data: any) => void) {
         if (!("onPluginEventCallbacks" in FocusAny.hooks)) {
@@ -107,12 +124,13 @@ export const FocusAny = {
         if (!(event in FocusAny.hooks.onPluginEventCallbacks)) {
             return;
         }
-        FocusAny.hooks.onPluginEventCallbacks[event] = FocusAny.hooks.onPluginEventCallbacks[event].filter(
-            c => c !== callback
-        );
+        FocusAny.hooks.onPluginEventCallbacks[event] =
+            FocusAny.hooks.onPluginEventCallbacks[event].filter(
+                (c) => c !== callback,
+            );
         if (FocusAny.hooks.onPluginEventCallbacks[event].length === 0) {
             delete FocusAny.hooks.onPluginEventCallbacks[event];
-            ipcSend("unregisterPluginEvent", {event});
+            ipcSend("unregisterPluginEvent", { event });
         }
     },
     offPluginEventAll(event: PluginEvent) {
@@ -123,14 +141,17 @@ export const FocusAny = {
             return;
         }
         delete FocusAny.hooks.onPluginEventCallbacks[event];
-        ipcSend("unregisterPluginEvent", {event});
+        ipcSend("unregisterPluginEvent", { event });
     },
 
     onMoreMenuClick(callback: (data: { name: string }) => void) {
         FocusAny.hooks.onMoreMenuClick = callback;
     },
 
-    registerHotkey(key: string | string[] | HotkeyQuickType | HotkeyType | HotkeyType[], callback: () => void) {
+    registerHotkey(
+        key: string | string[] | HotkeyQuickType | HotkeyType | HotkeyType[],
+        callback: () => void,
+    ) {
         if ("save" === key) {
             if (isMac) {
                 key = "Command+S";
@@ -141,20 +162,27 @@ export const FocusAny = {
         const hotkeys = HotKeyUtil.unify(key);
         if (!("hotKeyListeners" in FocusAny.hooks)) {
             FocusAny.hooks.hotKeyListeners = [];
-            FocusAny.hooks.onHotkey = (payload: { id: string; hotkey: HotkeyType }) => {
-                const {id, hotkey} = payload;
+            FocusAny.hooks.onHotkey = (payload: {
+                id: string;
+                hotkey: HotkeyType;
+            }) => {
+                const { id, hotkey } = payload;
                 FocusAny.hooks.hotKeyListeners.forEach(
-                    (listener: { id: string; hotkeys: HotkeyType[]; callback: () => void }) => {
+                    (listener: {
+                        id: string;
+                        hotkeys: HotkeyType[];
+                        callback: () => void;
+                    }) => {
                         if (listener.id === id) {
                             listener.callback();
                         }
-                    }
+                    },
                 );
             };
         }
         const id = StrUtil.randomString(16);
-        FocusAny.hooks.hotKeyListeners.push({id, hotkeys, callback});
-        ipcSend("registerHotkey", {id, hotkeys});
+        FocusAny.hooks.hotKeyListeners.push({ id, hotkeys, callback });
+        ipcSend("registerHotkey", { id, hotkeys });
     },
     unregisterHotkeyAll() {
         FocusAny.hooks.hotKeyListeners = [];
@@ -236,7 +264,12 @@ export const FocusAny = {
     setExpendHeight(height: number) {
         ipcSend("setExpendHeight", height);
     },
-    setSubInput(onChange: Function, placeholder: string = "", isFocus: boolean = true, isVisible: boolean = true) {
+    setSubInput(
+        onChange: Function,
+        placeholder: string = "",
+        isFocus: boolean = true,
+        isVisible: boolean = true,
+    ) {
         if (typeof onChange === "function") {
             FocusAny.hooks.onSubInputChange = onChange;
         }
@@ -251,7 +284,7 @@ export const FocusAny = {
         ipcSendSync("removeSubInput");
     },
     setSubInputValue(text: string) {
-        ipcSendSync("setSubInputValue", {text});
+        ipcSendSync("setSubInputValue", { text });
     },
     subInputBlur() {
         ipcSendSync("subInputBlur");
@@ -269,7 +302,7 @@ export const FocusAny = {
         return ipcSendSync("getPluginEnv");
     },
     getQuery(requestId: string): SearchQuery {
-        return ipcSendSync("getQuery", {requestId});
+        return ipcSendSync("getQuery", { requestId });
     },
     getPath(
         name:
@@ -284,21 +317,21 @@ export const FocusAny = {
             | "music"
             | "pictures"
             | "videos"
-            | "logs"
+            | "logs",
     ) {
-        return ipcSendSync("getPath", {name});
+        return ipcSendSync("getPath", { name });
     },
     showToast(
         body: string,
         options?: {
             duration?: number;
             status?: "info" | "success" | "error";
-        }
+        },
     ): void {
-        ipcSend("showToast", {body, options});
+        ipcSend("showToast", { body, options });
     },
     showNotification(body: string, clickActionName?: string) {
-        ipcSend("showNotification", {body, clickActionName});
+        ipcSend("showNotification", { body, clickActionName });
     },
     showMessageBox(
         message: string,
@@ -306,7 +339,7 @@ export const FocusAny = {
             title?: string;
             yes?: string;
             no?: string;
-        }
+        },
     ) {
         options = options || {};
         return ipcSendSync("showMessageBox", {
@@ -316,13 +349,13 @@ export const FocusAny = {
     },
 
     copyImage(image: string) {
-        return ipcSendSync("copyImage", {image});
+        return ipcSendSync("copyImage", { image });
     },
     copyText(text: string) {
-        return ipcSendSync("copyText", {text});
+        return ipcSendSync("copyText", { text });
     },
     copyFile(file: string | string[]) {
-        return ipcSendSync("copyFile", {file});
+        return ipcSendSync("copyFile", { file });
     },
     getClipboardText() {
         return ipcSendSync("getClipboardText", {});
@@ -339,17 +372,19 @@ export const FocusAny = {
     }[] {
         return ipcSendSync("getClipboardFiles");
     },
-    async listClipboardItems(option?: { limit?: number }): Promise<{
-        type: "file" | "image" | "text";
-        timestamp: number;
-        files?: FileItem[];
-        image?: string;
-        text?: string;
-    }[]> {
-        return ipcSendAsync("listClipboardItems", {option});
+    async listClipboardItems(option?: { limit?: number }): Promise<
+        {
+            type: "file" | "image" | "text";
+            timestamp: number;
+            files?: FileItem[];
+            image?: string;
+            text?: string;
+        }[]
+    > {
+        return ipcSendAsync("listClipboardItems", { option });
     },
     async deleteClipboardItem(timestamp: number): Promise<void> {
-        return ipcSendAsync("deleteClipboardItem", {timestamp});
+        return ipcSendAsync("deleteClipboardItem", { timestamp });
     },
     async clearClipboardItems(): Promise<void> {
         return ipcSendAsync("clearClipboardItems");
@@ -361,31 +396,34 @@ export const FocusAny = {
         shell.openPath(path).then();
     },
     shellShowItemInFolder(path: string) {
-        ipcSend("shellShowItemInFolder", {path});
+        ipcSend("shellShowItemInFolder", { path });
     },
     shellBeep() {
         ipcSend("shellBeep");
     },
     getFileIcon(path: string) {
-        return ipcSendSync("getFileIcon", {path});
+        return ipcSendSync("getFileIcon", { path });
     },
 
     simulate: {
-        keyboardTap(key: string, modifiers: ("ctrl" | "shift" | "command" | "option" | "alt")[]) {
-            ipcSend("simulateKeyboardTap", {key, modifiers});
+        keyboardTap(
+            key: string,
+            modifiers: ("ctrl" | "shift" | "command" | "option" | "alt")[],
+        ) {
+            ipcSend("simulateKeyboardTap", { key, modifiers });
         },
         typeString(text: string) {
-            ipcSend("simulateTypeString", {text});
+            ipcSend("simulateTypeString", { text });
         },
-        mouseToggle(type: 'down' | 'up', button: 'left' | 'right' | 'middle') {
-            ipcSend("simulateMouseToggle", {type, button});
+        mouseToggle(type: "down" | "up", button: "left" | "right" | "middle") {
+            ipcSend("simulateMouseToggle", { type, button });
         },
         mouseMove(x: number, y: number) {
-            ipcSend("simulateMouseMove", {x, y});
+            ipcSend("simulateMouseMove", { x, y });
         },
-        mouseClick(button: 'left' | 'right' | 'middle', double?: boolean) {
-            ipcSend("simulateMouseClick", {button, double});
-        }
+        mouseClick(button: "left" | "right" | "middle", double?: boolean) {
+            ipcSend("simulateMouseClick", { button, double });
+        },
     },
 
     getCursorScreenPoint() {
@@ -394,7 +432,11 @@ export const FocusAny = {
     getDisplayNearestPoint(point: { x: number; y: number }) {
         return electronRemote.screen.getDisplayNearestPoint(point);
     },
-    createBrowserWindow(url: string, options: BrowserWindow.InitOptions, callback?: () => void) {
+    createBrowserWindow(
+        url: string,
+        options: BrowserWindow.InitOptions,
+        callback?: () => void,
+    ) {
         // console.log('createBrowserWindow', JSON.stringify(url))
         const pluginRoot = this.getPluginRoot();
         // console.log('createBrowserWindow', JSON.stringify(url))
@@ -406,7 +448,7 @@ export const FocusAny = {
         let win = new electronRemote.BrowserWindow({
             useContentSize: true,
             resizable: true,
-            title: options.title || "新窗口",
+            title: options.title || t("plugin.newWindow"),
             show: true,
             backgroundColor: "#fff",
             ...options,
@@ -422,7 +464,11 @@ export const FocusAny = {
                 preload: preloadPath,
             },
         });
-        if (url.startsWith("file://") || url.startsWith("http://") || url.startsWith("https://")) {
+        if (
+            url.startsWith("file://") ||
+            url.startsWith("http://") ||
+            url.startsWith("https://")
+        ) {
             win.loadURL(url);
         } else {
             win.loadFile(url);
@@ -458,16 +504,16 @@ export const FocusAny = {
         return ipcSendSync("isDarkColors");
     },
     redirect(keywordsOrAction: string | string[], query?: SearchQuery): void {
-        ipcSend("redirect", {keywordsOrAction, query});
+        ipcSend("redirect", { keywordsOrAction, query });
     },
     getActions(names?: string[]): PluginAction[] {
-        return ipcSendSync("getActions", {names});
+        return ipcSendSync("getActions", { names });
     },
     setAction(action: PluginAction | PluginAction[]) {
-        ipcSendSync("setAction", {action});
+        ipcSendSync("setAction", { action });
     },
     removeAction(name: string) {
-        ipcSendSync("removeAction", {name});
+        ipcSendSync("removeAction", { name });
     },
 
     sendBackendEvent(
@@ -475,7 +521,7 @@ export const FocusAny = {
         data?: any,
         option?: {
             timeout: number;
-        }
+        },
     ): Promise<any> {
         option = Object.assign({
             timeout: 10 * 1000,
@@ -506,15 +552,18 @@ export const FocusAny = {
         callback: (
             resolve: (data: any) => void,
             reject: (error: string) => void,
-            data: any
+            data: any,
         ) => void,
         option?: {
             timeout?: number;
-        }
+        },
     ) {
-        option = Object.assign({
-            timeout: 30 * 1000,
-        }, option || {});
+        option = Object.assign(
+            {
+                timeout: 30 * 1000,
+            },
+            option || {},
+        );
         if (!("__page" in window)) {
             (window as any)["__page"] = {};
         }
@@ -529,7 +578,7 @@ export const FocusAny = {
         data?: any,
         option?: {
             timeout?: number;
-        }
+        },
     ): Promise<any> {
         throw new Error("Only can be called in backend.cjs");
     },
@@ -541,16 +590,18 @@ export const FocusAny = {
         domains: string[];
         blocks: string[];
     }): Promise<undefined> {
-        return ipcSendAsync("setRemoteWebRuntime", {info});
+        return ipcSendAsync("setRemoteWebRuntime", { info });
     },
 
-    llmListModels(): Promise<{
-        providerId: string;
-        providerLogo: string;
-        providerTitle: string;
-        modelId: string;
-        modelName: string;
-    }[]> {
+    llmListModels(): Promise<
+        {
+            providerId: string;
+            providerLogo: string;
+            providerTitle: string;
+            modelId: string;
+            modelName: string;
+        }[]
+    > {
         return ipcSendAsync("llmListModels");
     },
 
@@ -565,15 +616,15 @@ export const FocusAny = {
             message: string;
         };
     }> {
-        return ipcSendAsync("llmChat", {callInfo});
+        return ipcSendAsync("llmChat", { callInfo });
     },
 
     logInfo(label: string, data?: any): void {
-        ipcSend("logInfo", {label, logData: data});
+        ipcSend("logInfo", { label, logData: data });
     },
 
     logError(label: string, data?: any): void {
-        ipcSend("logError", {label, logData: data});
+        ipcSend("logError", { label, logData: data });
     },
 
     logPath(): Promise<string> {
@@ -584,12 +635,16 @@ export const FocusAny = {
         ipcSend("logShow");
     },
 
-    async addLaunch(keyword: string, name: string, hotkey: HotkeyType): Promise<void> {
-        return ipcSendAsync("addLaunch", {keyword, name, hotkey});
+    async addLaunch(
+        keyword: string,
+        name: string,
+        hotkey: HotkeyType,
+    ): Promise<void> {
+        return ipcSendAsync("addLaunch", { keyword, name, hotkey });
     },
 
     async removeLaunch(keyword: string): Promise<void> {
-        return ipcSendAsync("removeLaunch", {keyword});
+        return ipcSendAsync("removeLaunch", { keyword });
     },
 
     async activateLatestWindow(): Promise<void> {
@@ -618,16 +673,25 @@ export const FocusAny = {
             description: string;
         }[]
     > {
-        return ipcSendAsync("listGoods", {query});
+        return ipcSendAsync("listGoods", { query });
     },
 
-    openGoodsPayment(options: { goodsId: string; price?: string; outOrderId?: string; outParam?: string }): Promise<{
+    openGoodsPayment(options: {
+        goodsId: string;
+        price?: string;
+        outOrderId?: string;
+        outParam?: string;
+    }): Promise<{
         paySuccess: boolean;
     }> {
-        return ipcSendAsync("openGoodsPayment", {options});
+        return ipcSendAsync("openGoodsPayment", { options });
     },
 
-    queryGoodsOrders(options: { goodsId?: string; page?: number; pageSize?: number }): Promise<{
+    queryGoodsOrders(options: {
+        goodsId?: string;
+        page?: number;
+        pageSize?: number;
+    }): Promise<{
         page: number;
         total: number;
         records: {
@@ -636,74 +700,78 @@ export const FocusAny = {
             status: "Paid" | "Unpaid";
         }[];
     }> {
-        return ipcSendAsync("queryGoodsOrders", {options});
+        return ipcSendAsync("queryGoodsOrders", { options });
     },
 
     apiPost(
         url: string,
         body: any,
-        option: {}
+        option: {},
     ): Promise<{
         code: number;
         msg: string;
         data: any;
     }> {
-        return ipcSendAsync("apiPost", {url, body, option});
+        return ipcSendAsync("apiPost", { url, body, option });
     },
 
     file: {
         exists(path: string): Promise<boolean> {
-            return ipcSendAsync("fileExists", {path});
+            return ipcSendAsync("fileExists", { path });
         },
         read(
             path: string,
-            format?: 'string' | 'buffer' | 'base64'
+            format?: "string" | "buffer" | "base64",
         ): Promise<string | Uint8Array> {
-            return ipcSendAsync("fileRead", {path, format});
+            return ipcSendAsync("fileRead", { path, format });
         },
         write(
             path: string,
             data: string | Uint8Array,
             option?: {
                 isBase64?: boolean;
-            }
+            },
         ): Promise<void> {
-            return ipcSendAsync("fileWrite", {path, data, option});
+            return ipcSendAsync("fileWrite", { path, data, option });
         },
         remove(path: string): Promise<void> {
-            return ipcSendAsync("fileRemove", {path});
+            return ipcSendAsync("fileRemove", { path });
         },
         ext(path: string): Promise<string> {
-            return ipcSendAsync("fileExt", {path});
+            return ipcSendAsync("fileExt", { path });
         },
         writeTemp(
             ext: string,
             data: string | Uint8Array,
             option?: {
                 isBase64?: boolean;
-            }
+            },
         ): Promise<string> {
-            return ipcSendAsync("fileWriteTemp", {ext, data, option});
-        }
+            return ipcSendAsync("fileWriteTemp", { ext, data, option });
+        },
     },
 
     db: {
         put(doc: DbDoc) {
-            return ipcSendSync("dbPut", {doc});
+            return ipcSendSync("dbPut", { doc });
         },
         get<T extends {} = Record<string, any>>(id: string): DbDoc<T> | null {
-            return ipcSendSync("dbGet", {id});
+            return ipcSendSync("dbGet", { id });
         },
         remove(doc: string | DbDoc): DbReturn {
-            return ipcSendSync("dbRemove", {doc});
+            return ipcSendSync("dbRemove", { doc });
         },
         bulkDocs(docs: DbDoc[]): DbReturn[] {
-            return ipcSendSync("dbBulkDocs", {docs});
+            return ipcSendSync("dbBulkDocs", { docs });
         },
         allDocs<T extends {} = Record<string, any>>(key?: string): DbDoc<T>[] {
-            return ipcSendSync("dbAllDocs", {key});
+            return ipcSendSync("dbAllDocs", { key });
         },
-        postAttachment(docId: string, attachment: Buffer | Uint8Array, type: string): DbReturn {
+        postAttachment(
+            docId: string,
+            attachment: Buffer | Uint8Array,
+            type: string,
+        ): DbReturn {
             return ipcSendSync("dbPostAttachment", {
                 docId,
                 attachment,
@@ -711,27 +779,30 @@ export const FocusAny = {
             });
         },
         getAttachment(docId: string): Uint8Array | null {
-            return ipcSendSync("dbGetAttachment", {docId});
+            return ipcSendSync("dbGetAttachment", { docId });
         },
         getAttachmentType(docId: string): string | null {
-            return ipcSendSync("dbGetAttachmentType", {docId});
+            return ipcSendSync("dbGetAttachmentType", { docId });
         },
     },
     dbStorage: {
         setItem(key: string, value: any) {
-            return ipcSendSync("dbStorageSetItem", {key, value: JSON.parse(JSON.stringify(value))});
+            return ipcSendSync("dbStorageSetItem", {
+                key,
+                value: JSON.parse(JSON.stringify(value)),
+            });
         },
         getItem(key: string) {
-            return ipcSendSync("dbStorageGetItem", {key});
+            return ipcSendSync("dbStorageGetItem", { key });
         },
         removeItem(key: string) {
-            return ipcSendSync("dbStorageRemoveItem", {key});
+            return ipcSendSync("dbStorageRemoveItem", { key });
         },
     },
 
     view: {
         setHeight(height: number) {
-            ipcSendToHost("view.setHeight", {height}).then();
+            ipcSendToHost("view.setHeight", { height }).then();
         },
         getHeight(): Promise<number> {
             return ipcSendToHost("view.getHeight", {}, true);
@@ -740,13 +811,13 @@ export const FocusAny = {
 
     fad: {
         async read(type: string, path: string): Promise<any> {
-            const fileData = await ipcSendAsync("fileRead", {path});
+            const fileData = await ipcSendAsync("fileRead", { path });
             if (!fileData) {
-                throw "文件不存在或读取失败";
+                throw t("file.notFoundOrReadFailed");
             }
             const fileDataJson = JSON.parse(fileData);
             if (fileDataJson["type"] !== type) {
-                throw "不支持的文件类型";
+                throw t("file.unsupportedType");
             }
             return fileDataJson["data"];
         },
@@ -756,54 +827,63 @@ export const FocusAny = {
                 data,
             };
             const fileDataJson = JSON.stringify(fileData, null, 2);
-            await ipcSendAsync("fileWrite", {path, data: fileDataJson});
+            await ipcSendAsync("fileWrite", { path, data: fileDataJson });
         },
     },
 
     detach: {
         setTitle(title: string) {
-            ipcSend("detachSetTitle", {title});
+            ipcSend("detachSetTitle", { title });
         },
         setOperates(
             operates: {
                 name: string;
                 title: string;
                 click: () => void;
-            }[]
+            }[],
         ) {
-            const cleanOperates = operates.map(o => {
+            const cleanOperates = operates.map((o) => {
                 return {
                     name: o.name,
                     title: o.title,
                 };
             });
             if (!("onDetachOperateClick" in FocusAny.hooks)) {
-                FocusAny.hooks.onDetachOperateClick = (payload: { name: string }) => {
-                    const {name} = payload;
-                    FocusAny.hooks.detachOperates.forEach(o => {
+                FocusAny.hooks.onDetachOperateClick = (payload: {
+                    name: string;
+                }) => {
+                    const { name } = payload;
+                    FocusAny.hooks.detachOperates.forEach((o) => {
                         if (o.name === name) {
                             o.click();
                         }
                     });
                 };
             }
-            FocusAny.hooks.detachOperates = operates.map(o => {
+            FocusAny.hooks.detachOperates = operates.map((o) => {
                 return {
                     name: o.name,
                     title: o.title,
                     click: o.click,
                 };
             });
-            ipcSend("detachSetOperates", {operates: cleanOperates});
+            ipcSend("detachSetOperates", { operates: cleanOperates });
         },
-        setPosition(position: "center" | "right-bottom" | "left-top" | "right-top" | "left-bottom") {
-            ipcSend("detachSetPosition", {position});
+        setPosition(
+            position:
+                | "center"
+                | "right-bottom"
+                | "left-top"
+                | "right-top"
+                | "left-bottom",
+        ) {
+            ipcSend("detachSetPosition", { position });
         },
         setAlwaysOnTop(alwaysOnTop: boolean) {
-            ipcSend("detachSetAlwaysOnTop", {alwaysOnTop});
+            ipcSend("detachSetAlwaysOnTop", { alwaysOnTop });
         },
         setSize(width: number, height: number) {
-            ipcSend("detachSetSize", {width, height});
+            ipcSend("detachSetSize", { width, height });
         },
     },
 
@@ -834,7 +914,7 @@ export const FocusAny = {
             data: string | Uint8Array,
             option?: {
                 isBase64?: boolean;
-            }
+            },
         ): boolean {
             const path = FocusAny.showSaveDialog({
                 defaultPath: filename,

@@ -1,9 +1,9 @@
-import {ActionRecord, PluginRecord} from "../../../../src/types/Manager";
-import {ManagerSystem} from "../system";
+import { ActionRecord, PluginRecord } from "../../../../src/types/Manager";
+import { ManagerSystem } from "../system";
 import fs from "node:fs";
-import {ImportUtil} from "../../../lib/util";
-import {PluginSdkCreate} from "../plugin/sdk";
-import {PluginLog} from "../plugin/log";
+import { ImportUtil } from "../../../lib/util";
+import { PluginSdkCreate } from "../plugin/sdk";
+import { PluginLog } from "../plugin/log";
 
 export const ManagerBackend = {
     async run(
@@ -13,13 +13,13 @@ export const ManagerBackend = {
         data: any,
         option?: {
             rejectIfError: boolean;
-        }
+        },
     ) {
         option = Object.assign(
             {
                 rejectIfError: false,
             },
-            option
+            option,
         );
         try {
             if (!plugin.runtime?.root) {
@@ -52,7 +52,7 @@ export const ManagerBackend = {
             });
         } catch (e) {
             PluginLog.error(plugin.name, `Backend.Run.Error-${type}-${key}`, {
-                error: e + '',
+                error: e + "",
                 data,
                 option,
             });
@@ -63,7 +63,10 @@ export const ManagerBackend = {
         codeData["actionName"] = action.name;
         codeData["actionMatch"] = action.runtime?.match;
         try {
-            const callback = ManagerSystem.getActionBackendFunc(plugin.name, action.name);
+            const callback = ManagerSystem.getActionBackendFunc(
+                plugin.name,
+                action.name,
+            );
             if (callback) {
                 return await callback(codeData);
             }
@@ -71,7 +74,11 @@ export const ManagerBackend = {
                 rejectIfError: true,
             });
         } catch (e) {
-            PluginLog.error(plugin.name, `Backend.RunAction.Error:${action.name}`, e + '');
+            PluginLog.error(
+                plugin.name,
+                `Backend.RunAction.Error:${action.name}`,
+                e + "",
+            );
         }
     },
 };

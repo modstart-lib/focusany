@@ -1,5 +1,9 @@
-import {ipcRenderer} from "electron";
-import {ActionRecord, ConfigRecord, PluginRecord} from "../../../src/types/Manager";
+import { ipcRenderer } from "electron";
+import {
+    ActionRecord,
+    ConfigRecord,
+    PluginRecord,
+} from "../../../src/types/Manager";
 
 const getConfig = async () => {
     return ipcRenderer.invoke("manager:getConfig");
@@ -11,11 +15,11 @@ const setConfig = async (config: ConfigRecord) => {
 
 const getMcpServer = async () => {
     return ipcRenderer.invoke("manager:getMcpServer");
-}
+};
 
 const getMcpInfo = async () => {
     return ipcRenderer.invoke("manager:getMcpInfo");
-}
+};
 
 const isShown = async () => {
     return ipcRenderer.invoke("manager:isShown");
@@ -50,7 +54,11 @@ const installPlugin = async (fileOrPath: string, option?: {}) => {
 };
 
 const refreshInstallPlugin = async (pluginName: string, option?: {}) => {
-    return ipcRenderer.invoke("manager:refreshInstallPlugin", pluginName, option);
+    return ipcRenderer.invoke(
+        "manager:refreshInstallPlugin",
+        pluginName,
+        option,
+    );
 };
 
 const uninstallPlugin = async (pluginName: string, option?: {}) => {
@@ -58,28 +66,52 @@ const uninstallPlugin = async (pluginName: string, option?: {}) => {
 };
 
 const getPluginInstalledVersion = async (pluginName: string, option?: {}) => {
-    return ipcRenderer.invoke("manager:getPluginInstalledVersion", pluginName, option);
+    return ipcRenderer.invoke(
+        "manager:getPluginInstalledVersion",
+        pluginName,
+        option,
+    );
 };
 
 const listDisabledActionMatch = async (option?: {}) => {
     return ipcRenderer.invoke("manager:listDisabledActionMatch", option);
 };
 
-const toggleDisabledActionMatch = async (pluginName: string, actionName: string, matchName: string, option?: {}) => {
-    return ipcRenderer.invoke("manager:toggleDisabledActionMatch", pluginName, actionName, matchName, option);
+const toggleDisabledActionMatch = async (
+    pluginName: string,
+    actionName: string,
+    matchName: string,
+    option?: {},
+) => {
+    return ipcRenderer.invoke(
+        "manager:toggleDisabledActionMatch",
+        pluginName,
+        actionName,
+        matchName,
+        option,
+    );
 };
 
 const listPinAction = async (option?: {}) => {
     return ipcRenderer.invoke("manager:listPinAction", option);
 };
 
-const togglePinAction = async (pluginName: string, actionName: string, option?: {}) => {
-    return ipcRenderer.invoke("manager:togglePinAction", pluginName, actionName, option);
+const togglePinAction = async (
+    pluginName: string,
+    actionName: string,
+    option?: {},
+) => {
+    return ipcRenderer.invoke(
+        "manager:togglePinAction",
+        pluginName,
+        actionName,
+        option,
+    );
 };
 
 const showLog = async (pluginName: string, option?: {}) => {
     return ipcRenderer.invoke("manager:showLog", pluginName, option);
-}
+};
 
 const clearCache = async (option?: {}) => {
     return ipcRenderer.invoke("manager:clearCache", option);
@@ -98,7 +130,7 @@ const searchFastPanelAction = async (
         currentFiles: any[];
         currentImage: string;
     },
-    option?: {}
+    option?: {},
 ) => {
     return ipcRenderer.invoke("manager:searchFastPanelAction", query, option);
 };
@@ -109,7 +141,7 @@ const searchAction = async (
         currentFiles: any[];
         currentImage: string;
     },
-    option?: {}
+    option?: {},
 ) => {
     return ipcRenderer.invoke("manager:searchAction", query, option);
 };
@@ -132,13 +164,16 @@ const openAction = async (action: ActionRecord) => {
 
 const openActionCode = async (id: string) => {
     return ipcRenderer.invoke("manager:openActionCode", id);
-}
+};
 
 const searchActionCode = async (keywords: string) => {
     return ipcRenderer.invoke("manager:searchActionCode", keywords);
-}
+};
 
-const openActionWindow = async (type: "open" | "close", action: ActionRecord) => {
+const openActionWindow = async (
+    type: "open" | "close",
+    action: ActionRecord,
+) => {
     return ipcRenderer.invoke("manager:openActionWindow", type, action);
 };
 
@@ -158,8 +193,15 @@ const detachPlugin = async (option?: {}) => {
     return ipcRenderer.invoke("manager:detachPlugin", option);
 };
 
-const toggleDetachPluginAlwaysOnTop = async (alwaysOnTop: boolean, option?: {}) => {
-    return ipcRenderer.invoke("manager:toggleDetachPluginAlwaysOnTop", alwaysOnTop, option);
+const toggleDetachPluginAlwaysOnTop = async (
+    alwaysOnTop: boolean,
+    option?: {},
+) => {
+    return ipcRenderer.invoke(
+        "manager:toggleDetachPluginAlwaysOnTop",
+        alwaysOnTop,
+        option,
+    );
 };
 
 const setDetachPluginZoom = async (zoom: number, option?: {}) => {
@@ -187,7 +229,11 @@ const openDetachPluginLog = async (option?: {}) => {
 };
 
 const setPluginAutoDetach = async (autoDetach: boolean, option?: {}) => {
-    return ipcRenderer.invoke("manager:setPluginAutoDetach", autoDetach, option);
+    return ipcRenderer.invoke(
+        "manager:setPluginAutoDetach",
+        autoDetach,
+        option,
+    );
 };
 
 const getPluginConfig = async (pluginName: string, option?: {}) => {
@@ -198,8 +244,15 @@ const listFilePluginRecords = async (option?: {}) => {
     return ipcRenderer.invoke("manager:listFilePluginRecords", option);
 };
 
-const updateFilePluginRecords = async (records: PluginRecord[], option?: {}) => {
-    return ipcRenderer.invoke("manager:updateFilePluginRecords", records, option);
+const updateFilePluginRecords = async (
+    records: PluginRecord[],
+    option?: {},
+) => {
+    return ipcRenderer.invoke(
+        "manager:updateFilePluginRecords",
+        records,
+        option,
+    );
 };
 
 const listLaunchRecords = async (option?: {}) => {
@@ -223,7 +276,11 @@ const storePublishInfo = async (pluginName: string, option?: {}) => {
 };
 
 const storeInstallingInfo = async (pluginName: string, option?: {}) => {
-    return ipcRenderer.invoke("manager:storeInstallingInfo", pluginName, option);
+    return ipcRenderer.invoke(
+        "manager:storeInstallingInfo",
+        pluginName,
+        option,
+    );
 };
 
 const clipboardList = async (option?: {}) => {
@@ -242,8 +299,17 @@ const historyClear = async (option?: {}) => {
     return ipcRenderer.invoke("manager:historyClear", option);
 };
 
-const historyDelete = async (pluginName: string, actionName: string, option?: {}) => {
-    return ipcRenderer.invoke("manager:historyDelete", pluginName, actionName, option);
+const historyDelete = async (
+    pluginName: string,
+    actionName: string,
+    option?: {},
+) => {
+    return ipcRenderer.invoke(
+        "manager:historyDelete",
+        pluginName,
+        actionName,
+        option,
+    );
 };
 
 export default {

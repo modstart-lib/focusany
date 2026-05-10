@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import {computed} from "vue";
-import {useRouter} from "vue-router";
-import {AppConfig} from "../config";
-import {useUserStore} from "../store/modules/user";
-import {t} from "../lang";
-import {useSettingStore} from "../store/modules/setting";
+import { computed } from "vue";
+import { useRouter } from "vue-router";
+import IconAccount from "~icons/mdi/account";
+import IconServer from "~icons/mdi/server";
+import { t } from "../lang";
+import { useSettingStore } from "../store/modules/setting";
+import { useUserStore } from "../store/modules/user";
 
 const route = useRouter();
 const user = useUserStore();
@@ -26,7 +27,7 @@ const activeTab = computed(() => {
 });
 
 const userTip = computed(() => {
-    return user.user.id ? user.user.name : t("未登录");
+    return user.user.id ? user.user.name : t("common.notLoggedIn");
 });
 
 const doUser = async () => {
@@ -39,8 +40,17 @@ const doUser = async () => {
 
 <template>
     <div class="flex flex-col h-full border-r border-default">
-        <div class="py-4 px-3" :class="setting.basic.userEnable ? 'cursor-pointer' : ''" @click="doUser">
-            <a-tooltip v-if="setting.basic.userEnable" :content="userTip as string" position="right" mini>
+        <div
+            class="py-4 px-3"
+            :class="setting.basic.userEnable ? 'cursor-pointer' : ''"
+            @click="doUser"
+        >
+            <a-tooltip
+                v-if="setting.basic.userEnable"
+                :content="userTip as string"
+                position="right"
+                mini
+            >
                 <img
                     v-if="!user.isInit || !user.user.id"
                     class="rounded-full border border-solid border-gray-200"
@@ -73,9 +83,9 @@ const doUser = async () => {
                 href="javascript:;"
             >
                 <div>
-                    <i class="iconfont icon-human text-xl"></i>
+                    <IconAccount class="text-xl" />
                 </div>
-                <div class="text-sm">{{ $t("数字人") }}</div>
+                <div class="text-sm">{{ $t("avatar.digitalHuman") }}</div>
             </a>
             <!--            <a class="page-nav-item block text-center py-3"-->
             <!--               :class="activeTab==='sound'?'active':''"-->
@@ -93,9 +103,9 @@ const doUser = async () => {
                 href="javascript:;"
             >
                 <div>
-                    <i class="iconfont icon-server text-xl"></i>
+                    <IconServer class="text-xl" />
                 </div>
-                <div class="text-sm">{{ $t("模型") }}</div>
+                <div class="text-sm">{{ $t("model.model") }}</div>
             </a>
             <a
                 class="page-nav-item block text-center py-3"
@@ -106,7 +116,7 @@ const doUser = async () => {
                 <div>
                     <icon-settings class="text-xl" />
                 </div>
-                <div class="text-sm">{{ $t("设置") }}</div>
+                <div class="text-sm">{{ $t("common.setting") }}</div>
             </a>
         </div>
         <div></div>

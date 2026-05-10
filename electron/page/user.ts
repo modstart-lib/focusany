@@ -1,14 +1,17 @@
-import {BrowserWindow} from "electron";
-import {t} from "../config/lang";
-import {preloadDefault} from "../lib/env-main";
-import {Page} from "./index";
+import { BrowserWindow } from "electron";
+import { t } from "../config/lang";
+import { preloadDefault } from "../lib/env-main";
+import { Page } from "./index";
 
 export const PageUser = {
     NAME: "user",
     open: async (option: { parent?: BrowserWindow }) => {
-        option = Object.assign({
-            parent: null
-        }, option)
+        option = Object.assign(
+            {
+                parent: null,
+            },
+            option,
+        );
         let alwaysOnTop = !option.parent;
         const win = new BrowserWindow({
             title: t("page.user.title"),

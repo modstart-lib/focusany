@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {ref} from "vue";
+import { ref } from "vue";
 
 const tab = ref("list");
 
@@ -15,20 +15,22 @@ const doModelClose = () => {
 
 <template>
     <div class="h-dvh flex flex-col border-t border-gray-200">
-        <div class="flex items-center p-4 border-b border-solid border-gray-200">
-            <div class="flex-grow text-2xl">{{ $t("工作流") }}</div>
+        <div
+            class="flex items-center p-4 border-b border-solid border-gray-200"
+        >
+            <div class="flex-grow text-2xl">{{ $t("workflow.workflow") }}</div>
             <div>
                 <a-button @click="tab = 'edit'" class="ml-1">
                     <template #icon>
                         <icon-plus />
                     </template>
-                    {{ $t("创建工作流") }}
+                    {{ $t("workflow.create") }}
                 </a-button>
                 <a-button @click="tab = 'list'" class="ml-1">
                     <template #icon>
                         <icon-save />
                     </template>
-                    {{ $t("保存") }}
+                    {{ $t("common.save") }}
                 </a-button>
             </div>
         </div>

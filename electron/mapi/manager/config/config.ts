@@ -7,13 +7,13 @@ import {
     PluginRecord,
 } from "../../../../src/types/Manager";
 
-import {KVDBMain} from "../../kvdb/main";
-import {CommonConfig} from "../../../config/common";
-import {ManagerHotkey} from "../hotkey";
-import {MemoryCacheUtil} from "../../../lib/util";
-import {ManagerPlugin} from "../plugin";
-import {ManagerSystem} from "../system";
-import {isLinux, isMac, isWin} from "../../../lib/env";
+import { KVDBMain } from "../../kvdb/main";
+import { CommonConfig } from "../../../config/common";
+import { ManagerHotkey } from "../hotkey";
+import { MemoryCacheUtil } from "../../../lib/util";
+import { ManagerPlugin } from "../plugin";
+import { ManagerSystem } from "../system";
+import { isLinux, isMac, isWin } from "../../../lib/env";
 
 const defaultConfig: ConfigRecord = {
     mainTrigger: {
@@ -57,7 +57,10 @@ export const ManagerConfig = {
         return MemoryCacheUtil.remember("Config", async () => {
             // reset config
             // await this.save(defaultConfig)
-            const config = await KVDBMain.getData(CommonConfig.dbSystem, CommonConfig.dbConfigId);
+            const config = await KVDBMain.getData(
+                CommonConfig.dbSystem,
+                CommonConfig.dbConfigId,
+            );
             if (!config) {
                 await this.save(defaultConfig);
                 this.configOld = defaultConfig;
@@ -70,7 +73,8 @@ export const ManagerConfig = {
                         for (const subKey in defaultConfig[key]) {
                             if (subKey in config[key]) {
                             } else {
-                                config[key][subKey] = defaultConfig[key][subKey];
+                                config[key][subKey] =
+                                    defaultConfig[key][subKey];
                                 changed = true;
                             }
                         }
@@ -97,7 +101,10 @@ export const ManagerConfig = {
         let hotkeyChanged = false;
         if (this.configOld) {
             for (const k of ["mainTrigger", "fastPanelTrigger"]) {
-                if (JSON.stringify(this.configOld[k]) !== JSON.stringify(config[k])) {
+                if (
+                    JSON.stringify(this.configOld[k]) !==
+                    JSON.stringify(config[k])
+                ) {
                     hotkeyChanged = true;
                     break;
                 }
@@ -110,10 +117,19 @@ export const ManagerConfig = {
     },
     async listDisabledActionMatch() {
         return MemoryCacheUtil.remember("DisabledActionMatches", async () => {
-            return (await KVDBMain.getData(CommonConfig.dbSystem, CommonConfig.dbDisabledActionMatchId)) || {};
+            return (
+                (await KVDBMain.getData(
+                    CommonConfig.dbSystem,
+                    CommonConfig.dbDisabledActionMatchId,
+                )) || {}
+            );
         });
     },
-    async toggleDisabledActionMatch(pluginName: string, actionName: string, matchName: string) {
+    async toggleDisabledActionMatch(
+        pluginName: string,
+        actionName: string,
+        matchName: string,
+    ) {
         let matches = await this.listDisabledActionMatch();
         if (!matches) {
             matches = {};
@@ -126,7 +142,9 @@ export const ManagerConfig = {
         }
         let disabled = false;
         if (matches[pluginName][actionName].includes(matchName)) {
-            matches[pluginName][actionName] = matches[pluginName][actionName].filter(v => v !== matchName);
+            matches[pluginName][actionName] = matches[pluginName][
+                actionName
+            ].filter((v) => v !== matchName);
             if (!matches[pluginName][actionName].length) {
                 delete matches[pluginName][actionName];
             }
@@ -146,7 +164,10 @@ export const ManagerConfig = {
     },
     async listPinAction(): Promise<PluginActionRecord[]> {
         return MemoryCacheUtil.remember("PinActions", async () => {
-            const res = await KVDBMain.getData(CommonConfig.dbSystem, CommonConfig.dbPinActionId);
+            const res = await KVDBMain.getData(
+                CommonConfig.dbSystem,
+                CommonConfig.dbPinActionId,
+            );
             if (!res) {
                 return [];
             }
@@ -168,11 +189,15 @@ export const ManagerConfig = {
             actionName: actionName,
         } as PluginActionRecord;
         const exists = pinActions.find(
-            v => v.pluginName === saveAction.pluginName && v.actionName === saveAction.actionName
+            (v) =>
+                v.pluginName === saveAction.pluginName &&
+                v.actionName === saveAction.actionName,
         );
         if (exists) {
             pinActions = pinActions.filter(
-                v => v.pluginName !== saveAction.pluginName || v.actionName !== saveAction.actionName
+                (v) =>
+                    v.pluginName !== saveAction.pluginName ||
+                    v.actionName !== saveAction.actionName,
             );
         } else {
             pinActions.unshift(saveAction);
@@ -185,7 +210,10 @@ export const ManagerConfig = {
     },
     async listLaunch(): Promise<LaunchRecord[]> {
         return MemoryCacheUtil.remember("Launches", async () => {
-            const res = await KVDBMain.getData(CommonConfig.dbSystem, CommonConfig.dbLaunchId);
+            const res = await KVDBMain.getData(
+                CommonConfig.dbSystem,
+                CommonConfig.dbLaunchId,
+            );
             if (!res) {
                 return [];
             }
@@ -194,16 +222,16 @@ export const ManagerConfig = {
     },
     async updateLaunch(records: LaunchRecord[]) {
         // normalize records
-        records.forEach(record => {
+        records.forEach((record) => {
             if (!("type" in record)) {
                 // @ts-ignore
-                record.type = "custom"
+                record.type = "custom";
             }
             if (!("name" in record)) {
                 // @ts-ignore
                 record.name = "";
             }
-        })
+        });
         // sort records by type(custom,plugin) and name(a-z)
         records.sort((a, b) => {
             if (a.type === b.type) {
@@ -216,14 +244,22 @@ export const ManagerConfig = {
             records: records,
         });
         MemoryCacheUtil.forget("Launches");
-        ManagerHotkey.configInit().then()
+        ManagerHotkey.configInit().then();
     },
     async getCustomAction(): Promise<Record<string, ActionRecord[]>> {
         return MemoryCacheUtil.remember("CustomActions", async () => {
-            return (await KVDBMain.getData(CommonConfig.dbSystem, CommonConfig.dbCustomActionId)) || {};
+            return (
+                (await KVDBMain.getData(
+                    CommonConfig.dbSystem,
+                    CommonConfig.dbCustomActionId,
+                )) || {}
+            );
         });
     },
-    async addCustomAction(plugin: PluginRecord, action: ActionRecord | ActionRecord[]) {
+    async addCustomAction(
+        plugin: PluginRecord,
+        action: ActionRecord | ActionRecord[],
+    ) {
         const customAction = await this.getCustomAction();
         if (!(plugin.name in customAction)) {
             customAction[plugin.name] = [];
@@ -259,7 +295,9 @@ export const ManagerConfig = {
         if (!(plugin.name in customAction)) {
             return;
         }
-        customAction[plugin.name] = customAction[plugin.name].filter(v => v.name !== name);
+        customAction[plugin.name] = customAction[plugin.name].filter(
+            (v) => v.name !== name,
+        );
         await this.updateCustomAction(customAction);
     },
     async clearCustomAction(pluginName: string) {
@@ -272,7 +310,10 @@ export const ManagerConfig = {
     },
     async getHistoryAction(): Promise<PluginActionRecord[]> {
         return MemoryCacheUtil.remember("HistoryActions", async () => {
-            const res = await KVDBMain.getData(CommonConfig.dbSystem, CommonConfig.dbHistoryActionId);
+            const res = await KVDBMain.getData(
+                CommonConfig.dbSystem,
+                CommonConfig.dbHistoryActionId,
+            );
             if (!res) {
                 return [];
             }
@@ -289,7 +330,9 @@ export const ManagerConfig = {
     async deleteHistoryAction(pluginName: string, actionName: string) {
         // console.log('deleteHistoryAction', fullName)
         let historyActions = await this.getHistoryAction();
-        historyActions = historyActions.filter(v => v.pluginName !== pluginName || v.actionName !== actionName);
+        historyActions = historyActions.filter(
+            (v) => v.pluginName !== pluginName || v.actionName !== actionName,
+        );
         await KVDBMain.putForce(CommonConfig.dbSystem, {
             _id: CommonConfig.dbHistoryActionId,
             records: historyActions,
@@ -304,7 +347,9 @@ export const ManagerConfig = {
         } as PluginActionRecord;
         // remove duplicate
         historyActions = historyActions.filter(
-            v => v.pluginName !== saveAction.pluginName || v.actionName !== saveAction.actionName
+            (v) =>
+                v.pluginName !== saveAction.pluginName ||
+                v.actionName !== saveAction.actionName,
         );
         historyActions.unshift(saveAction);
         if (historyActions.length > 100) {
@@ -318,7 +363,10 @@ export const ManagerConfig = {
     },
     async getPluginConfigAll(): Promise<Record<string, PluginConfig>> {
         return MemoryCacheUtil.remember("PluginConfig", async () => {
-            const res = await KVDBMain.getData(CommonConfig.dbSystem, CommonConfig.dbPluginConfigId);
+            const res = await KVDBMain.getData(
+                CommonConfig.dbSystem,
+                CommonConfig.dbPluginConfigId,
+            );
             if (!res) {
                 return {};
             }

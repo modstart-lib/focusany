@@ -3,11 +3,11 @@ type DomListener = {
     callback: (width: number, height: number) => void;
 };
 let domListeners: DomListener[] = [];
-const resizeObserver = new ResizeObserver(entries => {
-    entries.forEach(entry => {
-        domListeners.forEach(item => {
+const resizeObserver = new ResizeObserver((entries) => {
+    entries.forEach((entry) => {
+        domListeners.forEach((item) => {
             if (item.dom === entry.target) {
-                const {width, height} = entry.contentRect;
+                const { width, height } = entry.contentRect;
                 item.callback(width, height);
             }
         });
@@ -19,32 +19,37 @@ type WindowListener = {
 };
 let windowListeners: WindowListener[] = [];
 window.addEventListener("resize", () => {
-    windowListeners.forEach(item => {
+    windowListeners.forEach((item) => {
         item.callback(window.innerWidth, window.innerHeight);
     });
 });
 
 export const UI = {
     onWindowResize(callback: (width: number, height: number) => void) {
-        windowListeners.push({callback});
+        windowListeners.push({ callback });
     },
     offWindowResize(callback: (width: number, height: number) => void) {
-        windowListeners = windowListeners.filter(item => item.callback !== callback);
+        windowListeners = windowListeners.filter(
+            (item) => item.callback !== callback,
+        );
     },
-    onResize(dom: HTMLElement | null, callback: (width: number, height: number) => void) {
+    onResize(
+        dom: HTMLElement | null,
+        callback: (width: number, height: number) => void,
+    ) {
         if (!dom) return;
-        domListeners.push({dom, callback});
+        domListeners.push({ dom, callback });
         resizeObserver.observe(dom);
     },
     offResize(dom: HTMLElement | null) {
         if (!dom) return;
-        domListeners = domListeners.filter(item => item.dom !== dom);
+        domListeners = domListeners.filter((item) => item.dom !== dom);
         resizeObserver.unobserve(dom);
     },
     fireResize(dom: HTMLElement) {
-        domListeners.forEach(item => {
+        domListeners.forEach((item) => {
             if (item.dom === dom) {
-                const {width, height} = dom.getBoundingClientRect();
+                const { width, height } = dom.getBoundingClientRect();
                 item.callback(width, height);
             }
         });
@@ -56,19 +61,20 @@ export const UI = {
             const startTime = performance.now();
             const animate = (now) => {
                 const progress = Math.min((now - startTime) / duration, 1);
-                const eased = progress < 0.5
-                    ? 4 * progress * progress * progress
-                    : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+                const eased =
+                    progress < 0.5
+                        ? 4 * progress * progress * progress
+                        : 1 - Math.pow(-2 * progress + 2, 3) / 2;
                 element.scrollTop = start + change * eased;
                 if (progress < 1) {
                     requestAnimationFrame(animate);
                 } else {
                     resolve(undefined);
                 }
-            }
+            };
             requestAnimationFrame(animate);
         });
-    }
+    },
 };
 
 export class TabContentScroller {
@@ -81,13 +87,17 @@ export class TabContentScroller {
     private scrollEndTimer: any | null = null;
     private scrollEndCallback: (() => void) | null = null;
 
-    constructor(tabContainer: HTMLElement, contentContainer: HTMLElement, option: {} = {}) {
+    constructor(
+        tabContainer: HTMLElement,
+        contentContainer: HTMLElement,
+        option: {} = {},
+    ) {
         this.option =
             Object.assign(
                 {
                     activeClass: "active",
                 },
-                option
+                option,
             ) || {};
         this.tabContainer = tabContainer;
         this.contentContainer = contentContainer;
@@ -95,17 +105,31 @@ export class TabContentScroller {
     }
 
     init() {
-        this.tabContainer.addEventListener("click", this.onTabClickEvent.bind(this));
-        this.contentContainer.addEventListener("scroll", this.onContentScrollEvent.bind(this));
+        this.tabContainer.addEventListener(
+            "click",
+            this.onTabClickEvent.bind(this),
+        );
+        this.contentContainer.addEventListener(
+            "scroll",
+            this.onContentScrollEvent.bind(this),
+        );
     }
 
     destroy() {
-        this.tabContainer.removeEventListener("click", this.onTabClickEvent.bind(this));
-        this.contentContainer.removeEventListener("scroll", this.onContentScrollEvent.bind(this));
+        this.tabContainer.removeEventListener(
+            "click",
+            this.onTabClickEvent.bind(this),
+        );
+        this.contentContainer.removeEventListener(
+            "scroll",
+            this.onContentScrollEvent.bind(this),
+        );
     }
 
     onTabClickEvent(e: MouseEvent) {
-        const parentSection = (e.target as HTMLElement).closest("[data-section]");
+        const parentSection = (e.target as HTMLElement).closest(
+            "[data-section]",
+        );
         const name = parentSection?.getAttribute("data-section");
         if (name) {
             this.scrollTo(name);
@@ -133,13 +157,16 @@ export class TabContentScroller {
             const tab = tabs[i];
             tab.classList.remove(this.option.activeClass);
         }
-        const sections = this.contentContainer.querySelectorAll("[data-section]");
+        const sections =
+            this.contentContainer.querySelectorAll("[data-section]");
         for (let i = 0; i < sections.length; i++) {
             const section = sections[i];
             const rect = section.getBoundingClientRect();
             if (rect.top < 100 && rect.bottom > 100) {
                 const name = section.getAttribute("data-section") || "";
-                const tab = this.tabContainer.querySelector(`[data-section="${name}"]`);
+                const tab = this.tabContainer.querySelector(
+                    `[data-section="${name}"]`,
+                );
                 if (tab) {
                     tab.classList.add(this.option.activeClass);
                 }
@@ -166,7 +193,9 @@ export class TabContentScroller {
         if (!tab) {
             return;
         }
-        const content = this.contentContainer.querySelector(`[data-section="${name}"]`);
+        const content = this.contentContainer.querySelector(
+            `[data-section="${name}"]`,
+        );
         if (!content) {
             return;
         }

@@ -1,4 +1,7 @@
-import {HotkeyKeyItem, HotkeyKeySimpleItem} from "../../electron/mapi/keys/type";
+import {
+    HotkeyKeyItem,
+    HotkeyKeySimpleItem,
+} from "../../electron/mapi/keys/type";
 
 export type ConfigRecord = {
     mainTrigger: HotkeyKeyItem;
@@ -35,8 +38,8 @@ export type PluginRecord = {
     mainView?: string;
     actions: ActionRecord[];
     mcp?: {
-        tools?: MCPToolsRecord[],
-    },
+        tools?: MCPToolsRecord[];
+    };
     description?: string;
     preload?: string;
     platform?: PlatformType[];
@@ -46,14 +49,19 @@ export type PluginRecord = {
     homepage?: string;
     setting?: {
         autoDetach?: boolean;
-        detachPosition?: "center" | "left-top" | "right-top" | "left-bottom" | "right-bottom";
+        detachPosition?:
+            | "center"
+            | "left-top"
+            | "right-top"
+            | "left-bottom"
+            | "right-bottom";
         detachAlwaysOnTop?: boolean;
         width?: string;
         height?: string;
         singleton?: boolean;
         zoom?: number;
         darkModeSupport?: boolean;
-        httpEntry?: boolean,
+        httpEntry?: boolean;
         remoteWebCacheEnable?: boolean;
         moreMenu?: {
             name: string;
@@ -233,11 +241,14 @@ export type MCPToolsRecord = {
     name: string;
     description: string;
     inputSchema: {
-        type: "object",
-        properties: Record<string, { type: string, description?: string, default?: any }>,
-        required?: keyof MCPToolsRecord["inputSchema"]["properties"][],
-    }
-}
+        type: "object";
+        properties: Record<
+            string,
+            { type: string; description?: string; default?: any }
+        >;
+        required?: keyof MCPToolsRecord["inputSchema"]["properties"][];
+    };
+};
 
 export type PluginActionRecord = {
     pluginName: string;
@@ -263,7 +274,7 @@ export type FilePluginRecord = {
 };
 
 export type LaunchRecord = {
-    type: 'plugin' | 'custom';
+    type: "plugin" | "custom";
     pluginName: string;
     name: string;
     hotkey: HotkeyKeyItem;

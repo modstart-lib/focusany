@@ -1,7 +1,7 @@
 import MemoryStream from "memorystream";
 
-import {AuthType, createClient} from "webdav";
-import {WebDAVClient} from "webdav/dist/node/types";
+import { AuthType, createClient } from "webdav";
+import { WebDAVClient } from "webdav/dist/node/types";
 import KVDB from "./kvdb";
 
 type WebDavOptions = {
@@ -13,7 +13,7 @@ type WebDavOptions = {
 export class WebDav {
     public client: WebDAVClient;
 
-    constructor({username, password, url}: WebDavOptions) {
+    constructor({ username, password, url }: WebDavOptions) {
         // console.log('WebDavOptions', {username, password, url})
         this.client = createClient(url, {
             authType: AuthType.Auto,
@@ -29,7 +29,7 @@ export class WebDav {
     async listDir(dir: string): Promise<string[]> {
         dir = dir.endsWith("/") ? dir : dir + "/";
         const result = await this.client.getDirectoryContents(dir);
-        return (result as any[]).map(item => item.basename);
+        return (result as any[]).map((item) => item.basename);
     }
 
     async dump(kvdb: KVDB, file: string): Promise<void> {
@@ -48,7 +48,7 @@ export class WebDav {
             ws.pipe(
                 this.client.createWriteStream(file, {}, () => {
                     resolve();
-                })
+                }),
             );
         });
     }

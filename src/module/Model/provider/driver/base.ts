@@ -1,5 +1,5 @@
-import {ChatParam, ProviderType} from "../../types";
-import {ModelChatResult} from "../provider";
+import { ChatParam, ProviderType } from "../../types";
+import { ModelChatResult } from "../provider";
 
 export class AbstractModelProvider {
     config: {
@@ -22,10 +22,7 @@ export class AbstractModelProvider {
         this.config = config;
     }
 
-    async chat(
-        prompt: string,
-        chatParam: ChatParam
-    ): Promise<ModelChatResult> {
+    async chat(prompt: string, chatParam: ChatParam): Promise<ModelChatResult> {
         return Promise.reject(new Error("Method not implemented."));
     }
 }

@@ -1,8 +1,8 @@
 import iconv from "iconv-lite";
-import {exec as _exec, spawn} from "node:child_process";
+import { exec as _exec, spawn } from "node:child_process";
 import net from "node:net";
 import util from "node:util";
-import {AppConfig} from "../../../src/config";
+import { AppConfig } from "../../../src/config";
 import {
     extraResolveBin,
     isLinux,
@@ -13,8 +13,8 @@ import {
     platformUUID,
     platformVersion,
 } from "../../lib/env";
-import {IconvUtil, ShellUtil, StrUtil} from "../../lib/util";
-import {Log} from "../log/index";
+import { IconvUtil, ShellUtil, StrUtil } from "../../lib/util";
+import { Log } from "../log/index";
 
 const exec = util.promisify(_exec);
 
@@ -44,7 +44,7 @@ const shell = async (
         cwd?: string;
         outputEncoding?: string;
         shell?: boolean;
-    }
+    },
 ) => {
     option = Object.assign(
         {
@@ -52,17 +52,23 @@ const shell = async (
             outputEncoding: isWin ? "cp936" : "utf8",
             shell: true,
         },
-        option
+        option,
     );
     const result = await exec(command, {
-        env: {...process.env},
+        env: { ...process.env },
         shell: option.shell,
         encoding: "binary",
         cwd: option["cwd"],
     } as any);
     return {
-        stdout: outputStringConvert(option.outputEncoding as any, result.stdout),
-        stderr: outputStringConvert(option.outputEncoding as any, result.stderr),
+        stdout: outputStringConvert(
+            option.outputEncoding as any,
+            result.stdout,
+        ),
+        stderr: outputStringConvert(
+            option.outputEncoding as any,
+            result.stderr,
+        ),
     };
 };
 
@@ -77,7 +83,7 @@ const spawnShell = async (
         outputEncoding?: string;
         env?: Record<string, any>;
         shell?: boolean;
-    } | null = null
+    } | null = null,
 ): Promise<{
     stop: () => void;
     send: (data: any) => void;
@@ -90,7 +96,7 @@ const spawnShell = async (
             env: {},
             shell: true,
         },
-        option
+        option,
     );
     let commandEntry = "",
         args = [];
@@ -110,7 +116,7 @@ const spawnShell = async (
         },
     });
     const spawnProcess = spawn(commandEntry, args, {
-        env: {...process.env, ...option.env},
+        env: { ...process.env, ...option.env },
         cwd: option["cwd"],
         shell: option.shell,
         encoding: "binary",
@@ -120,23 +126,29 @@ const spawnShell = async (
     let exitCode = -1;
     const stdoutList: string[] = [];
     const stderrList: string[] = [];
-    spawnProcess.stdout?.on("data", data => {
+    spawnProcess.stdout?.on("data", (data) => {
         // console.log('App.spawnShell.stdout', data)
-        let dataString = outputStringConvert(option.outputEncoding as any, data);
+        let dataString = outputStringConvert(
+            option.outputEncoding as any,
+            data,
+        );
         Log.info("App.spawnShell.stdout", dataString);
         stdoutList.push(dataString);
         option.stdout?.(dataString, spawnProcess);
     });
-    spawnProcess.stderr?.on("data", data => {
+    spawnProcess.stderr?.on("data", (data) => {
         // console.log('App.spawnShell.stderr', data)
-        let dataString = outputStringConvert(option.outputEncoding as any, data);
+        let dataString = outputStringConvert(
+            option.outputEncoding as any,
+            data,
+        );
         Log.info("App.spawnShell.stderr", dataString);
         stderrList.push(dataString);
         option.stderr?.(dataString, spawnProcess);
     });
     spawnProcess.on("exit", (code, signal) => {
         // console.log('App.spawnShell.exit', code)
-        Log.info("App.spawnShell.exit", {code, signal});
+        Log.info("App.spawnShell.exit", { code, signal });
         exitCode = code;
         if (isWin) {
             if (0 === code || 1 === code) {
@@ -150,11 +162,15 @@ const spawnShell = async (
         if (isSuccess) {
             option.success?.(spawnProcess);
         } else {
-            option.error?.(`command ${command} failed with code ${code}`, exitCode, spawnProcess);
+            option.error?.(
+                `command ${command} failed with code ${code}`,
+                exitCode,
+                spawnProcess,
+            );
         }
         end = true;
     });
-    spawnProcess.on("error", err => {
+    spawnProcess.on("error", (err) => {
         // console.log('App.spawnShell.error', err)
         Log.info("App.spawnShell.error", err);
         option.error?.(err.toString(), -1, spawnProcess);
@@ -171,19 +187,28 @@ const spawnShell = async (
                     },
                     (err, stdout, stderr) => {
                         if (stdout) {
-                            stdout = outputStringConvert(option.outputEncoding as any, stdout);
+                            stdout = outputStringConvert(
+                                option.outputEncoding as any,
+                                stdout,
+                            );
                         }
                         if (stderr) {
-                            stderr = outputStringConvert(option.outputEncoding as any, stderr);
+                            stderr = outputStringConvert(
+                                option.outputEncoding as any,
+                                stderr,
+                            );
                         }
-                        Log.info("App.spawnShell.stop.taskkill", JSON.parse(JSON.stringify({err, stdout, stderr})));
-                    }
+                        Log.info(
+                            "App.spawnShell.stop.taskkill",
+                            JSON.parse(JSON.stringify({ err, stdout, stderr })),
+                        );
+                    },
                 );
             } else {
                 spawnProcess.kill("SIGINT");
             }
         },
-        send: data => {
+        send: (data) => {
             Log.info("App.spawnShell.send", data);
             spawnProcess.stdin.write(data);
         },
@@ -206,7 +231,7 @@ const spawnShell = async (
                                     `command ${command} failed with code ${exitCode} : `,
                                     stdoutList.join(""),
                                     stderrList.join(""),
-                                ].join("")
+                                ].join(""),
                             );
                         }
                     }, 10);
@@ -229,7 +254,7 @@ const spawnBinary = async (
         outputEncoding?: string;
         env?: Record<string, any>;
         shell?: boolean;
-    } | null = null
+    } | null = null,
 ): Promise<string> => {
     args.unshift(extraResolveBin(binary));
     const res = await Apps.spawnShell(args, {
@@ -252,7 +277,11 @@ const availablePortLock: {
  * @param lockKey 锁定的key，避免其他进程获取，默认会创建一个随机的key
  * @param lockTime 锁定时间，避免在本次获取后未启动服务导致其他进程重复获取
  */
-const availablePort = async (start: number, lockKey?: string, lockTime?: number): Promise<number> => {
+const availablePort = async (
+    start: number,
+    lockKey?: string,
+    lockTime?: number,
+): Promise<number> => {
     lockKey = lockKey || StrUtil.randomString(8);
     lockTime = lockTime || 60;
     // expire lock
@@ -287,8 +316,11 @@ const availablePort = async (start: number, lockKey?: string, lockTime?: number)
     throw new Error("no available port");
 };
 
-const isPortAvailable = async (port: number, host?: string): Promise<boolean> => {
-    return new Promise(resolve => {
+const isPortAvailable = async (
+    port: number,
+    host?: string,
+): Promise<boolean> => {
+    return new Promise((resolve) => {
         const server = net.createServer();
         server.listen(port, host);
         server.on("listening", () => {
@@ -311,7 +343,9 @@ const fixExecutable = async (executable: string) => {
 const getUserAgent = () => {
     let param = [];
     param.push(`AppOpen/${AppConfig.name}/${AppConfig.version}`);
-    param.push(`Platform/${platformName()}/${platformArch()}/${platformVersion()}/${platformUUID()}`);
+    param.push(
+        `Platform/${platformName()}/${platformArch()}/${platformVersion()}/${platformUUID()}`,
+    );
     return param.join(" ");
 };
 

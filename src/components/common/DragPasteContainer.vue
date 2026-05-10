@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import {onBeforeUnmount, onMounted, ref} from "vue";
-import {UI} from "../../lib/ui";
+import { onBeforeUnmount, onMounted, ref } from "vue";
+import { UI } from "../../lib/ui";
 
 type DragPasteFile = {
     name: string;

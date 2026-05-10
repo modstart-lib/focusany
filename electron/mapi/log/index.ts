@@ -1,7 +1,7 @@
 import electron from "electron";
 import date from "date-and-time";
 import path from "node:path";
-import {AppEnv} from "../env";
+import { AppEnv } from "../env";
 import fs from "node:fs";
 import dayjs from "dayjs";
 import FileIndex from "../file";
@@ -18,13 +18,18 @@ const stringDatetime = () => {
 const jsonStringifyLogData = (data: any) => {
     return JSON.stringify(data, (key, value) => {
         if (typeof value === "string" && value.length > 200) {
-            if (value.startsWith("data:") || value.substring(0, 190).match(/^[a-zA-Z0-9+/=]+\s*$/)) {
-                return value.substring(0, 100) + "...(length=" + value.length + ")";
+            if (
+                value.startsWith("data:") ||
+                value.substring(0, 190).match(/^[a-zA-Z0-9+/=]+\s*$/)
+            ) {
+                return (
+                    value.substring(0, 100) + "...(length=" + value.length + ")"
+                );
             }
         }
         return value;
-    })
-}
+    });
+};
 
 const logsDir = () => {
     return path.join(AppEnv.userData, "logs");
@@ -76,7 +81,7 @@ const cleanOldLogs = (keepDays: number) => {
             const fileDate = new Date(
                 parseInt(date.substring(0, 4)),
                 parseInt(date.substring(4, 6)) - 1,
-                parseInt(date.substring(6, 8))
+                parseInt(date.substring(6, 8)),
             );
             const diff = Math.abs(now.getTime() - fileDate.getTime());
             const diffDays = Math.ceil(diff / (1000 * 3600 * 24));
@@ -98,7 +103,7 @@ const log = (level: "INFO" | "ERROR", label: string, data: any = null) => {
         if (fileStream) {
             fileStream.end();
         }
-        fileStream = fs.createWriteStream(fileName, {flags: "a"});
+        fileStream = fs.createWriteStream(fileName, { flags: "a" });
         cleanOldLogs(14);
     }
     let line = [];
@@ -122,7 +127,12 @@ const error = (label: string, data: any = null) => {
     return log("ERROR", label, data);
 };
 
-const appLog = (name: string, level: "INFO" | "ERROR", label: string, data: any = null) => {
+const appLog = (
+    name: string,
+    level: "INFO" | "ERROR",
+    label: string,
+    data: any = null,
+) => {
     let fileChanged = false;
     if (appFileNames[name] !== appFile(name)) {
         appFileNames[name] = appFile(name);
@@ -136,7 +146,9 @@ const appLog = (name: string, level: "INFO" | "ERROR", label: string, data: any 
         if (!fs.existsSync(logDir)) {
             fs.mkdirSync(logDir);
         }
-        appFileStreams[name] = fs.createWriteStream(appFileNames[name], {flags: "a"});
+        appFileStreams[name] = fs.createWriteStream(appFileNames[name], {
+            flags: "a",
+        });
     }
     let line = [];
     line.push(date.format(new Date(), "YYYY-MM-DD HH:mm:ss"));
@@ -192,7 +204,11 @@ const appInfoRenderOrMain = (name: string, label: string, data: any = null) => {
     }
 };
 
-const appErrorRenderOrMain = (name: string, label: string, data: any = null) => {
+const appErrorRenderOrMain = (
+    name: string,
+    label: string,
+    data: any = null,
+) => {
     if (electron.ipcRenderer) {
         console.error("Log.appError", name, label, data);
         return electron.ipcRenderer.invoke("log:appError", name, label, data);
@@ -201,14 +217,18 @@ const appErrorRenderOrMain = (name: string, label: string, data: any = null) => 
     }
 };
 
-const collectRenderOrMain = async (option?: { startTime?: string; endTime?: string; limit?: number }) => {
+const collectRenderOrMain = async (option?: {
+    startTime?: string;
+    endTime?: string;
+    limit?: number;
+}) => {
     option = Object.assign(
         {
             startTime: dayjs().subtract(1, "day").format("YYYY-MM-DD HH:mm:ss"),
             endTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
             limit: 10 * 10000,
         },
-        option
+        option,
     );
     let startMs = dayjs(option.startTime).valueOf();
     let endMs = dayjs(option.endTime).valueOf();
@@ -216,10 +236,14 @@ const collectRenderOrMain = async (option?: { startTime?: string; endTime?: stri
     let endDayMs = dayjs(option.endTime).endOf("day").valueOf();
     let resultLines = [];
     let logFiles = [];
-    logFiles = logFiles.concat(await FileIndex.list(logsDir(), {isDataPath: false}));
-    logFiles = logFiles.concat(await FileIndex.list(appLogsDir(), {isDataPath: false}));
+    logFiles = logFiles.concat(
+        await FileIndex.list(logsDir(), { isDataPath: false }),
+    );
+    logFiles = logFiles.concat(
+        await FileIndex.list(appLogsDir(), { isDataPath: false }),
+    );
     // console.log('logFiles', logFiles)
-    logFiles = logFiles.filter(logFile => {
+    logFiles = logFiles.filter((logFile) => {
         if (logFile.isDirectory) {
             return false;
         }
@@ -237,7 +261,7 @@ const collectRenderOrMain = async (option?: { startTime?: string; endTime?: stri
         const fileDate = new Date(
             parseInt(date.substring(0, 4)),
             parseInt(date.substring(4, 6)) - 1,
-            parseInt(date.substring(6, 8))
+            parseInt(date.substring(6, 8)),
         );
         if (fileDate.getTime() < startDayMs || fileDate.getTime() > endDayMs) {
             return false;
@@ -251,7 +275,7 @@ const collectRenderOrMain = async (option?: { startTime?: string; endTime?: stri
     for (const logFile of logFiles) {
         await FileIndex.readLine(
             logFile.pathname,
-            line => {
+            (line) => {
                 const lineParts = line.split(" - ");
                 const lineTime = dayjs(lineParts[0]);
                 // console.log('lineTime', lineParts[0], lineTime.isBefore(startMs) || lineTime.isAfter(endMs))
@@ -260,7 +284,7 @@ const collectRenderOrMain = async (option?: { startTime?: string; endTime?: stri
                 }
                 resultLines.push(line);
             },
-            {isDataPath: false}
+            { isDataPath: false },
         );
     }
     return {

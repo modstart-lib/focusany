@@ -1,11 +1,11 @@
-import sqlite3, {Database} from "better-sqlite3";
+import sqlite3, { Database } from "better-sqlite3";
 import path from "node:path";
 import migration from "./migration";
-import {AppEnv} from "../env";
-import {Log} from "../log/main";
-import {ipcMain} from "electron";
+import { AppEnv } from "../env";
+import { Log } from "../log/main";
+import { ipcMain } from "electron";
 import fs from "node:fs";
-import {Files} from "../file/main";
+import { Files } from "../file/main";
 
 let dbPath: string | null = null;
 let dbConn: Database | null = null;
@@ -125,15 +125,15 @@ const migrate = async () => {
             `SELECT *
              FROM migrate
              WHERE version = ?`,
-            [version.version]
+            [version.version],
         );
         if (!result) {
-            Log.info(`DB.Migrate`, {version: version.version});
+            Log.info(`DB.Migrate`, { version: version.version });
             await version.up(db);
             await db.execute(
                 `INSERT INTO migrate (version)
                  VALUES (?)`,
-                [version.version]
+                [version.version],
             );
         }
     }

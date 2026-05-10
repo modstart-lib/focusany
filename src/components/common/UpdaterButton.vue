@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import {onMounted, ref} from "vue";
-import {AppConfig} from "../../config";
-import {doCheckForUpdate} from "./util";
+import { onMounted, ref } from "vue";
+import { AppConfig } from "../../config";
+import { doCheckForUpdate } from "./util";
 
 const updaterCheckLoading = ref(false);
 const checkAtLaunch = ref<"yes" | "no">("no");
@@ -37,7 +37,10 @@ const doVersionCheck = async () => {
         >
             {{ $t("update.check") }}
         </a-button>
-        <a-checkbox :model-value="checkAtLaunch === 'yes'" @change="onCheckAtLaunchChange as any">
+        <a-checkbox
+            :model-value="checkAtLaunch === 'yes'"
+            @change="onCheckAtLaunchChange as any"
+        >
             {{ $t("setting.autoUpdate") }}
         </a-checkbox>
     </div>

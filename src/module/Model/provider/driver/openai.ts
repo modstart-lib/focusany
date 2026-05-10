@@ -1,6 +1,6 @@
-import {ModelChatResult} from "../provider";
-import {ChatParam, ProviderType} from "../../types";
-import {AbstractModelProvider} from "./base";
+import { ModelChatResult } from "../provider";
+import { ChatParam, ProviderType } from "../../types";
+import { AbstractModelProvider } from "./base";
 
 export class OpenAiModelProvider extends AbstractModelProvider {
     constructor(config: {
@@ -14,20 +14,20 @@ export class OpenAiModelProvider extends AbstractModelProvider {
         super(config);
     }
 
-    async chat(
-        prompt: string,
-        chatParam: ChatParam
-    ): Promise<ModelChatResult> {
+    async chat(prompt: string, chatParam: ChatParam): Promise<ModelChatResult> {
         // this.config.url =  'http://localhost:3000/v1/chat/completions';
         // this.config.apiKey = '';
-        chatParam = Object.assign({
-            systemPrompt: null
-        }, chatParam)
-        const messages: any[] = []
+        chatParam = Object.assign(
+            {
+                systemPrompt: null,
+            },
+            chatParam,
+        );
+        const messages: any[] = [];
         if (chatParam.systemPrompt) {
-            messages.push({role: "system", content: chatParam.systemPrompt})
+            messages.push({ role: "system", content: chatParam.systemPrompt });
         }
-        messages.push({role: "user", content: prompt})
+        messages.push({ role: "user", content: prompt });
         const response = await fetch(this.config.url, {
             method: "POST",
             headers: {
@@ -44,7 +44,9 @@ export class OpenAiModelProvider extends AbstractModelProvider {
             throw `Request failed: ${response.status}\n${error}`;
         }
         // check if is json
-        if (!response.headers.get("content-type")?.includes("application/json")) {
+        if (
+            !response.headers.get("content-type")?.includes("application/json")
+        ) {
             const error = await response.text();
             throw `Response is not json: ${response.status}\n${error}`;
         }

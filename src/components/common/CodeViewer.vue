@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import {PropType, ref, watch} from "vue";
-import {EditorView, keymap, lineNumbers} from "@codemirror/view";
-import {dracula} from "@uiw/codemirror-theme-dracula";
-import {quietlight} from "@uiw/codemirror-theme-quietlight";
-import {python} from "@codemirror/lang-python";
-import {json} from "@codemirror/lang-json";
-import {defaultKeymap} from "@codemirror/commands";
-import {EditorState} from "@codemirror/state";
+import { PropType, ref, watch } from "vue";
+import { EditorView, keymap, lineNumbers } from "@codemirror/view";
+import { dracula } from "@uiw/codemirror-theme-dracula";
+import { quietlight } from "@uiw/codemirror-theme-quietlight";
+import { python } from "@codemirror/lang-python";
+import { json } from "@codemirror/lang-json";
+import { defaultKeymap } from "@codemirror/commands";
+import { EditorState } from "@codemirror/state";
 import debounce from "lodash/debounce";
 
 const props = defineProps({
@@ -45,7 +45,11 @@ const showDebounce = debounce(async () => {
     }
     if (editor) {
         editor.dispatch({
-            changes: {from: 0, to: editor.state.doc.length, insert: props.code},
+            changes: {
+                from: 0,
+                to: editor.state.doc.length,
+                insert: props.code,
+            },
         });
     } else {
         editor = new EditorView({

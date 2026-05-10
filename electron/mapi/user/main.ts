@@ -1,13 +1,13 @@
-import {ipcMain, shell} from "electron";
-import {AppConfig} from "../../../src/config";
-import {ResultType} from "../../lib/api";
-import {Events} from "../event/main";
-import {platformUUID} from "../../lib/env";
-import {AppsMain} from "../app/main";
+import { ipcMain, shell } from "electron";
+import { AppConfig } from "../../../src/config";
+import { ResultType } from "../../lib/api";
+import { Events } from "../event/main";
+import { platformUUID } from "../../lib/env";
+import { AppsMain } from "../app/main";
 import Apps from "../app";
 import StorageMain from "../storage/main";
-import {Log} from "../log/main";
-import {ManagerPluginEvent} from "../manager/plugin/event";
+import { Log } from "../log/main";
+import { ManagerPluginEvent } from "../manager/plugin/event";
 
 const init = async () => {
     setTimeout(() => {
@@ -70,27 +70,33 @@ ipcMain.handle(
                 page?: string;
                 [key: string]: any;
             };
-        }
+        },
     ) => {
         option = Object.assign(
             {
                 readyParam: null,
             },
-            option || {}
+            option || {},
         );
         await AppsMain.windowOpen("user", option);
         if (option.readyParam) {
             await Events.callPage("user", "ready", option.readyParam);
         }
-    }
+    },
 );
 
-ipcMain.handle("user:get", async event => {
+ipcMain.handle("user:get", async (event) => {
     return get();
 });
 
-const save = async (data: {apiToken: string; user: any; data: any; basic: {}}) => {
-    const userChanged = JSON.stringify(userData.user) !== JSON.stringify(data.user);
+const save = async (data: {
+    apiToken: string;
+    user: any;
+    data: any;
+    basic: {};
+}) => {
+    const userChanged =
+        JSON.stringify(userData.user) !== JSON.stringify(data.user);
     userData.apiToken = data.apiToken || "";
     userData.user = data.user || {};
     userData.data = data.data || {};
@@ -122,7 +128,7 @@ const refresh = async () => {
     });
 };
 
-ipcMain.handle("user:refresh", async event => {
+ipcMain.handle("user:refresh", async (event) => {
     return refresh();
 });
 
@@ -131,7 +137,7 @@ const getApiToken = async (): Promise<string> => {
     return userData.apiToken;
 };
 
-ipcMain.handle("user:getApiToken", async event => {
+ipcMain.handle("user:getApiToken", async (event) => {
     return getApiToken();
 });
 
@@ -167,7 +173,7 @@ const apiPost = async (
     data: Record<string, any>,
     option?: {
         throwException?: boolean;
-    }
+    },
 ) => {
     return post(url, data, option);
 };
@@ -195,7 +201,7 @@ const post = async <T>(
         retry?: number;
         retryTimes?: number;
         retryInterval?: number;
-    }
+    },
 ): Promise<ResultType<T>> => {
     option = Object.assign(
         {
@@ -204,7 +210,7 @@ const post = async <T>(
             retryTimes: 0,
             retryInterval: 5,
         },
-        option
+        option,
     );
     let url = api;
     if (!api.startsWith("http:") && !api.startsWith("https:")) {
@@ -226,11 +232,18 @@ const post = async <T>(
         if (res.status !== 200) {
             if (option.retry > 0 && option.retryTimes < option.retry) {
                 option.retryTimes++;
-                Log.info("user.post.retry", {api, data, res, retryTimes: option.retryTimes});
-                await new Promise(resolve => setTimeout(resolve, option.retryInterval * 1000));
+                Log.info("user.post.retry", {
+                    api,
+                    data,
+                    res,
+                    retryTimes: option.retryTimes,
+                });
+                await new Promise((resolve) =>
+                    setTimeout(resolve, option.retryInterval * 1000),
+                );
                 return await post(api, data, option);
             }
-            Log.error("user.post.error", {api, data, res});
+            Log.error("user.post.error", { api, data, res });
             if (option.throwException) {
                 throw `RequestError(code:${res.status},text:${res.statusText})`;
             }
@@ -247,15 +260,22 @@ const post = async <T>(
     if (!json || !("code" in json)) {
         if (option.retry > 0 && option.retryTimes < option.retry) {
             option.retryTimes++;
-            Log.info("user.post.retry", {api, data, res, retryTimes: option.retryTimes});
-            await new Promise(resolve => setTimeout(resolve, option.retryInterval * 1000));
+            Log.info("user.post.retry", {
+                api,
+                data,
+                res,
+                retryTimes: option.retryTimes,
+            });
+            await new Promise((resolve) =>
+                setTimeout(resolve, option.retryInterval * 1000),
+            );
             return await post(api, data, option);
         }
-        Log.error("user.post.error", {api, data, res});
+        Log.error("user.post.error", { api, data, res });
         if (option.throwException) {
             throw "ResponseError";
         }
-        return {code: 10000, msg: "ResponseError"};
+        return { code: 10000, msg: "ResponseError" };
     }
     if (json.code) {
         // login required

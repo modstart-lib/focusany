@@ -1,15 +1,15 @@
-import {Files} from "../../file/main";
 import nodePath from "node:path";
-import {Log} from "../../log/main";
-import {Manager} from "../manager";
-import {SearchQuery} from "../type";
-import {AppsMain} from "../../app/main";
+import { t } from "../../../config/lang";
+import { AppsMain } from "../../app/main";
+import { Files } from "../../file/main";
+import { Log } from "../../log/main";
+import { Manager } from "../manager";
+import { SearchQuery } from "../type";
 
 export const ManagerEditor = {
     filePath: null,
     isReady: false,
-    async init() {
-    },
+    async init() {},
     async ready() {
         this.isReady = true;
     },
@@ -55,18 +55,26 @@ export const ManagerEditor = {
         await this.openFileEditor();
     },
     async openFileEditor() {
-        return new Promise<any>(async resolve => {
+        return new Promise<any>(async (resolve) => {
             const run = async () => {
                 if (!this.isReady) {
                     setTimeout(run, 100);
                     return;
                 }
                 if (!this.filePath) {
-                    Log.info("ManagerEditor.openFileEditor.Empty", this.filePath);
+                    Log.info(
+                        "ManagerEditor.openFileEditor.Empty",
+                        this.filePath,
+                    );
                     return;
                 }
-                if (!(await Files.exists(this.filePath, {isDataPath: false}))) {
-                    Log.info("ManagerEditor.openFileEditor.NotFound", this.filePath);
+                if (
+                    !(await Files.exists(this.filePath, { isDataPath: false }))
+                ) {
+                    Log.info(
+                        "ManagerEditor.openFileEditor.NotFound",
+                        this.filePath,
+                    );
                     return;
                 }
                 const fileExt = nodePath.extname(this.filePath).toLowerCase();
@@ -83,9 +91,11 @@ export const ManagerEditor = {
                 } as SearchQuery);
                 // Log.info('ManagerEditor.openFileEditor.Actions', JSON.stringify(actions, null, 2))
                 if (actions.length > 0) {
-                    Manager.openAction(JSON.parse(JSON.stringify(actions[0]))).then();
+                    Manager.openAction(
+                        JSON.parse(JSON.stringify(actions[0])),
+                    ).then();
                 } else {
-                    AppsMain.toast("没有找到可以打开文件的插件", {
+                    AppsMain.toast(t("editor.noPluginForFile"), {
                         status: "error",
                     });
                 }

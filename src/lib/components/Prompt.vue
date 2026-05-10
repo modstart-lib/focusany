@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import {ref, watch} from "vue";
-import {Input as AInput} from "@arco-design/web-vue";
+import { ref, watch } from "vue";
+import { Input as AInput } from "@arco-design/web-vue";
 
 const props = defineProps<{
     value: string;
@@ -10,9 +10,9 @@ const props = defineProps<{
 const value = ref(props.value);
 watch(
     () => value.value,
-    newVal => {
+    (newVal) => {
         props.onChange(newVal);
-    }
+    },
 );
 </script>
 

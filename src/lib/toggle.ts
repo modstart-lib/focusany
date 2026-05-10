@@ -1,10 +1,10 @@
-import {computed, ref, type Ref, type ComputedRef} from "vue";
+import { computed, ref, type Ref, type ComputedRef } from "vue";
 
 export const ToggleUtil = {
-    cachePool: new Map<string, { expire: number, value: Ref<boolean> }>(),
+    cachePool: new Map<string, { expire: number; value: Ref<boolean> }>(),
     gc() {
         const now = Date.now();
-        for (const [key, {expire}] of this.cachePool) {
+        for (const [key, { expire }] of this.cachePool) {
             if (expire < now) {
                 this.cachePool.delete(key);
             }
@@ -14,7 +14,10 @@ export const ToggleUtil = {
         const key = `Toggle:${biz}:${bizId}`;
         if (!this.cachePool.has(key)) {
             const refValue = ref(defaultValue);
-            this.cachePool.set(key, {expire: Date.now() + 3600 * 1000, value: refValue});
+            this.cachePool.set(key, {
+                expire: Date.now() + 3600 * 1000,
+                value: refValue,
+            });
             return refValue;
         }
         const cached = this.cachePool.get(key)!;
@@ -27,5 +30,5 @@ export const ToggleUtil = {
         const refValue = this.get(biz, bizId);
         refValue.value = !refValue.value;
         return refValue.value;
-    }
+    },
 };

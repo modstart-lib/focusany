@@ -1,32 +1,33 @@
-import {app, BrowserWindow, desktopCapturer, session, shell} from "electron";
-import {optimizer} from "@electron-toolkit/utils";
+import { app, BrowserWindow, desktopCapturer, session, shell } from "electron";
+import { optimizer } from "@electron-toolkit/utils";
 import path from "node:path";
 import fs from "node:fs";
 /** process.js 必须位于非依赖项的顶部 */
-import {isDummy} from "../lib/process";
+import { isDummy } from "../lib/process";
 import * as remoteMain from "@electron/remote/main";
 
-import {AppEnv, AppRuntime} from "../mapi/env";
-import {MAPI} from "../mapi/main";
+import { AppEnv, AppRuntime } from "../mapi/env";
+import { MAPI } from "../mapi/main";
 
-import {WindowConfig} from "../config/window";
-import {AppConfig} from "../../src/config";
+import { WindowConfig } from "../config/window";
+import { AppConfig } from "../../src/config";
 import Log from "../mapi/log/main";
-import {ConfigMenu} from "../config/menu";
-import {ConfigLang} from "../config/lang";
-import {ConfigContextMenu} from "../config/contextMenu";
-import {preloadDefault, rendererLoadPath} from "../lib/env-main";
-import {Page} from "../page";
-import {ConfigTray} from "../config/tray";
-import {icnsLogoPath, icoLogoPath, logoPath} from "../config/icon";
-import {isMac, isPackaged} from "../lib/env";
-import {FastPanelMain} from "./fastPanel";
-import {executeHooks} from "../mapi/manager/lib/hooks";
-import {AppPosition} from "../mapi/app/lib/position";
-import {DevToolsManager} from "../lib/devtools";
-import {AppsMain} from "../mapi/app/main";
-import {ManagerEditor} from "../mapi/manager/editor";
-import {ProtocolMain} from "../mapi/protocol/main";
+import { ConfigMenu } from "../config/menu";
+import { ConfigLang } from "../config/lang";
+import { ConfigContextMenu } from "../config/contextMenu";
+import { preloadDefault, rendererLoadPath } from "../lib/env-main";
+import { Page } from "../page";
+import { ConfigTray } from "../config/tray";
+import { icnsLogoPath, icoLogoPath, logoPath } from "../config/icon";
+import { isMac, isPackaged } from "../lib/env";
+import { FastPanelMain } from "./fastPanel";
+import { executeHooks } from "../mapi/manager/lib/hooks";
+import { AppPosition } from "../mapi/app/lib/position";
+import { DevToolsManager } from "../lib/devtools";
+import { reportError } from "../mapi/log/beacon";
+import { AppsMain } from "../mapi/app/main";
+import { ManagerEditor } from "../mapi/manager/editor";
+import { ProtocolMain } from "../mapi/protocol/main";
 
 app.commandLine.appendSwitch("enable-experimental-web-platform-features");
 
@@ -43,20 +44,28 @@ const logDebugContent = (label: string, content: any) => {
     fs.appendFileSync(filePath, msg + "\n");
 };
 
-process.on("uncaughtException", reason => {
+process.on("uncaughtException", (reason) => {
     let error: any = reason;
     if (error instanceof Error) {
         error = [error.message, error.stack].join("\n");
     }
     Log.error("UncaughtException", error);
+    reportError(
+        reason instanceof Error ? reason.message : String(reason),
+        reason instanceof Error ? reason.stack : undefined,
+    );
 });
 
-process.on("unhandledRejection", reason => {
+process.on("unhandledRejection", (reason) => {
     let error: any = reason;
     if (error instanceof Error) {
         error = [error.message, error.stack].join("\n");
     }
     Log.error("UnhandledRejection", error);
+    reportError(
+        reason instanceof Error ? (reason as Error).message : String(reason),
+        reason instanceof Error ? (reason as Error).stack : undefined,
+    );
 });
 
 // Set application name for Windows 10+ notifications
@@ -76,11 +85,11 @@ AppEnv.userData = app.getPath("userData");
 AppEnv.dataRoot = path.join(AppEnv.userData, "data");
 
 if (!fs.existsSync(AppEnv.dataRoot)) {
-    fs.mkdirSync(AppEnv.dataRoot, {recursive: true});
+    fs.mkdirSync(AppEnv.dataRoot, { recursive: true });
 }
 for (const dir of ["logs", "storage"]) {
     if (!fs.existsSync(path.join(AppEnv.dataRoot, dir))) {
-        fs.mkdirSync(path.join(AppEnv.dataRoot, dir), {recursive: true});
+        fs.mkdirSync(path.join(AppEnv.dataRoot, dir), { recursive: true });
     }
 }
 
@@ -105,17 +114,20 @@ async function createWindow() {
     } else if (process.platform === "darwin") {
         icon = icnsLogoPath;
     }
-    const {x: wx, y: wy} = AppPosition.get("main", (screenX, screenY, screenWidth, screenHeight) => {
-        // console.log('calculator', {screenX, screenY, screenWidth, screenHeight});
-        return {
-            x: screenX + screenWidth / 2 - WindowConfig.mainWidth / 2,
-            y: screenY + screenHeight / 8,
-        };
-    });
+    const { x: wx, y: wy } = AppPosition.get(
+        "main",
+        (screenX, screenY, screenWidth, screenHeight) => {
+            // console.log('calculator', {screenX, screenY, screenWidth, screenHeight});
+            return {
+                x: screenX + screenWidth / 2 - WindowConfig.mainWidth / 2,
+                y: screenY + screenHeight / 8,
+            };
+        },
+    );
     AppRuntime.mainWindow = new BrowserWindow({
         show: true,
         title: AppConfig.title,
-        ...(!isPackaged ? {icon} : {}),
+        ...(!isPackaged ? { icon } : {}),
         frame: false,
         transparent: true,
         hasShadow: true,
@@ -161,11 +173,11 @@ async function createWindow() {
         Page.ready("main");
         DevToolsManager.autoShow(AppRuntime.mainWindow);
     });
-    AppRuntime.mainWindow.webContents.setWindowOpenHandler(({url}) => {
+    AppRuntime.mainWindow.webContents.setWindowOpenHandler(({ url }) => {
         if (url.startsWith("https://") || url.startsWith("http://")) {
             shell.openExternal(url);
         }
-        return {action: "deny"};
+        return { action: "deny" };
     });
     DevToolsManager.register("Main", AppRuntime.mainWindow);
 
@@ -213,12 +225,16 @@ app.whenReady()
         const isRegistered = app.setAsDefaultProtocolClient("focusany");
         Log.info("ProtocolRegistered", isRegistered);
         remoteMain.initialize();
-        session.defaultSession.setDisplayMediaRequestHandler((request, callback) => {
-            desktopCapturer.getSources({types: ["screen"]}).then(sources => {
-                // Grant access to the first screen found.
-                callback({video: sources[0], audio: "loopback"});
-            });
-        });
+        session.defaultSession.setDisplayMediaRequestHandler(
+            (request, callback) => {
+                desktopCapturer
+                    .getSources({ types: ["screen"] })
+                    .then((sources) => {
+                        // Grant access to the first screen found.
+                        callback({ video: sources[0], audio: "loopback" });
+                    });
+            },
+        );
     })
     .then(ConfigLang.readyAsync)
     .then(() => {
@@ -235,7 +251,7 @@ app.whenReady()
         handleArgsForApp(process.argv);
     });
 
-app.on("before-quit", event => {
+app.on("before-quit", (event) => {
     if (!(app as any).forceQuit && isPackaged) {
         event.preventDefault();
     }

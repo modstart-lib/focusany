@@ -1,15 +1,16 @@
-import {UserApi} from "../../../../user/main";
-import {Files} from "../../../../file/main";
-import {Manager} from "../../../manager";
-import {PluginType} from "../../../../../../src/types/Manager";
-import {ManagerPlugin} from "../../../plugin";
+import { PluginType } from "../../../../../../src/types/Manager";
+import { Files } from "../../../../file/main";
+import { UserApi } from "../../../../user/main";
+import { Manager } from "../../../manager";
+import { ManagerPlugin } from "../../../plugin";
 // @ts-ignore
-import {mapError} from "../../../../../../src/lib/error";
-import {Misc} from "../../../../misc";
 import fs from "node:fs";
-import {resolve} from "node:path";
-import {MarkdownUtil} from "../../../../../lib/util";
-import {AppsMain} from "../../../../app/main";
+import { resolve } from "node:path";
+import { mapError } from "../../../../../../src/lib/error";
+import { t } from "../../../../../config/lang";
+import { MarkdownUtil } from "../../../../../lib/util";
+import { AppsMain } from "../../../../app/main";
+import { Misc } from "../../../../misc";
 
 export const ManagerPluginStore = {
     installingMap: {} as {
@@ -17,24 +18,24 @@ export const ManagerPluginStore = {
             name: string;
             percent: number;
             startTime: number;
-        }
+        };
     },
     async install(
         pluginName: string,
         option?: {
             version?: string;
-        }
+        },
     ) {
         this.installingMap[pluginName] = {
             name: pluginName,
             percent: 0,
             startTime: Date.now(),
-        }
+        };
         option = Object.assign(
             {
                 version: null,
             },
-            option
+            option,
         );
         const payload = {
             plugin: pluginName,
@@ -49,10 +50,16 @@ export const ManagerPluginStore = {
             if (isUpgrade) {
                 await ManagerPlugin.uninstall(pluginName);
             }
-            const infoRes = await UserApi.post("store/plugin_info_guest", payload);
+            const infoRes = await UserApi.post(
+                "store/plugin_info_guest",
+                payload,
+            );
             await ManagerPlugin.configCheck(infoRes.data["config"]);
             // console.log('ManagerPluginStore.install', JSON.stringify({pluginName, option, data: infoRes.data}, null, 2));
-            const packageRes = await UserApi.post("store/plugin_package_guest", payload);
+            const packageRes = await UserApi.post(
+                "store/plugin_package_guest",
+                payload,
+            );
             const packageUrl = packageRes.data["package"];
             const packageMd5 = packageRes.data["packageMd5"];
             // console.log('ManagerPluginStore.install', JSON.stringify({pluginName, option, packageRes}, null, 2));
@@ -67,26 +74,40 @@ export const ManagerPluginStore = {
                     if (lastPercent != p) {
                         lastPercent = p;
                         // console.log('ManagerPluginStore.install.downloadProgress', {p, total});
-                        Manager.sendBroadcast("store", "PluginInstallProgress", {
-                            pluginName: pluginName,
-                            percent: p,
-                            end: false,
-                        });
+                        Manager.sendBroadcast(
+                            "store",
+                            "PluginInstallProgress",
+                            {
+                                pluginName: pluginName,
+                                percent: p,
+                                end: false,
+                            },
+                        );
                         if (ManagerPluginStore.installingMap[pluginName]) {
-                            ManagerPluginStore.installingMap[pluginName].percent = p;
+                            ManagerPluginStore.installingMap[
+                                pluginName
+                            ].percent = p;
                         }
                     }
                 },
             });
             // sleep 500
-            await new Promise(resolve => setTimeout(resolve, 500));
+            await new Promise((resolve) => setTimeout(resolve, 500));
             // console.log('ManagerPluginStore.install.downloadEnd');
             // console.log('ManagerPluginStore.install.start');
-            await ManagerPlugin.installFromFileOrDir(tempFile, PluginType.STORE);
+            await ManagerPlugin.installFromFileOrDir(
+                tempFile,
+                PluginType.STORE,
+            );
             // console.log('ManagerPluginStore.install.end');
-            AppsMain.toast(`插件 ${infoRes.data["config"]["title"]} 安装完成`, {
-                status: "success",
-            });
+            AppsMain.toast(
+                t("plugin.installComplete", {
+                    title: infoRes.data["config"]["title"],
+                }),
+                {
+                    status: "success",
+                },
+            );
             Manager.sendBroadcast("store", "PluginInstallProgress", {
                 pluginName: pluginName,
                 percent: 100,
@@ -102,13 +123,13 @@ export const ManagerPluginStore = {
         pluginName: string,
         option?: {
             version?: string;
-        }
+        },
     ) {
         option = Object.assign(
             {
                 version: null,
             },
-            option
+            option,
         );
         const plugin = await Manager.getPlugin(pluginName);
         if (!plugin) {
@@ -133,8 +154,7 @@ export const ManagerPluginStore = {
         let configJson = null;
         try {
             configJson = JSON.parse(config);
-        } catch (e) {
-        }
+        } catch (e) {}
         if (!configJson) {
             throw "PluginFormatError:-10";
         }
@@ -152,8 +172,12 @@ export const ManagerPluginStore = {
         if (configJson["development"]["env"] === "dev") {
             throw "PluginEnvError";
         }
-        configJson["development"]["releaseDoc"] = configJson["development"]["releaseDoc"] || "release.md";
-        const releaseDocPath = resolve(root, configJson["development"]["releaseDoc"]);
+        configJson["development"]["releaseDoc"] =
+            configJson["development"]["releaseDoc"] || "release.md";
+        const releaseDocPath = resolve(
+            root,
+            configJson["development"]["releaseDoc"],
+        );
         // console.log('releaseDocPath', releaseDocPath)
         const releaseDoc = await Files.read(releaseDocPath, {
             isDataPath: false,
@@ -170,7 +194,9 @@ export const ManagerPluginStore = {
                         if (parts.length === 3) {
                             if (parts[1] === payload.version) {
                                 payload.feature = parts[2];
-                                payload.content = MarkdownUtil.toHtml(lines.join("\n").trim());
+                                payload.content = MarkdownUtil.toHtml(
+                                    lines.join("\n").trim(),
+                                );
                                 break;
                             }
                         }
@@ -198,7 +224,9 @@ export const ManagerPluginStore = {
                     if (["node_modules", ".git"].includes(entry.name)) {
                         return false;
                     }
-                    if (await Files.exists(resolve(entry.fullPath, ".faignore"))) {
+                    if (
+                        await Files.exists(resolve(entry.fullPath, ".faignore"))
+                    ) {
                         return false;
                     }
                 }
@@ -232,13 +260,13 @@ export const ManagerPluginStore = {
         pluginName: string,
         option?: {
             version?: string;
-        }
+        },
     ) {
         option = Object.assign(
             {
                 version: null,
             },
-            option
+            option,
         );
         const plugin = await Manager.getPlugin(pluginName);
         if (!plugin) {
@@ -263,8 +291,7 @@ export const ManagerPluginStore = {
         let configJson = null;
         try {
             configJson = JSON.parse(config);
-        } catch (e) {
-        }
+        } catch (e) {}
         if (!configJson) {
             throw "PluginFormatError:-13";
         }
@@ -282,7 +309,7 @@ export const ManagerPluginStore = {
         const result = {
             isInstalling: false,
             percent: 0,
-        }
+        };
         if (this.installingMap[pluginName]) {
             result.isInstalling = true;
             result.percent = this.installingMap[pluginName].percent;
@@ -295,16 +322,24 @@ export const ManagerPluginStore = {
             pluginPreview: null,
         };
         configJson["development"] = configJson["development"] || {};
-        configJson["development"]["contentDoc"] = configJson["development"]["contentDoc"] || "content.md";
-        const contentDocPath = resolve(root, configJson["development"]["contentDoc"]);
+        configJson["development"]["contentDoc"] =
+            configJson["development"]["contentDoc"] || "content.md";
+        const contentDocPath = resolve(
+            root,
+            configJson["development"]["contentDoc"],
+        );
         const contentDoc = await Files.read(contentDocPath, {
             isDataPath: false,
         });
         if (contentDoc) {
             result.pluginContent = MarkdownUtil.toHtml(contentDoc);
         }
-        configJson["development"]["previewDoc"] = configJson["development"]["previewDoc"] || "preview.md";
-        const previewDocPath = resolve(root, configJson["development"]["previewDoc"]);
+        configJson["development"]["previewDoc"] =
+            configJson["development"]["previewDoc"] || "preview.md";
+        const previewDocPath = resolve(
+            root,
+            configJson["development"]["previewDoc"],
+        );
         const previewDoc = await Files.read(previewDocPath, {
             isDataPath: false,
         });
@@ -320,7 +355,9 @@ export const ManagerPluginStore = {
                     images.push(line.trim());
                 }
             });
-            result.pluginPreview = JSON.stringify(images.filter(url => !!url));
+            result.pluginPreview = JSON.stringify(
+                images.filter((url) => !!url),
+            );
         }
         return result;
     },

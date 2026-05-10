@@ -1,4 +1,4 @@
-import {defineStore} from "pinia";
+import { defineStore } from "pinia";
 import store from "../index";
 
 export const appStore = defineStore("app", {

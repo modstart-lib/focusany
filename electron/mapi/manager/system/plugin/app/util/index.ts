@@ -1,7 +1,7 @@
-import {Files} from "../../../../../file/main";
+import { Files } from "../../../../../file/main";
 
 export const listFiles = async (
-    paths: string[]
+    paths: string[],
 ): Promise<
     {
         name: string;

@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import {nextTick, onMounted, ref} from "vue";
-import {EditorView, keymap, lineNumbers} from "@codemirror/view";
-import {dracula} from "@uiw/codemirror-theme-dracula";
-import {quietlight} from "@uiw/codemirror-theme-quietlight";
-import {python} from "@codemirror/lang-python";
-import {defaultKeymap} from "@codemirror/commands";
-import {EditorState} from "@codemirror/state";
+import { nextTick, onMounted, ref } from "vue";
+import { EditorView, keymap, lineNumbers } from "@codemirror/view";
+import { dracula } from "@uiw/codemirror-theme-dracula";
+import { quietlight } from "@uiw/codemirror-theme-quietlight";
+import { python } from "@codemirror/lang-python";
+import { defaultKeymap } from "@codemirror/commands";
+import { EditorState } from "@codemirror/state";
 
 const visible = ref(false);
 const codeEditorDom = ref<HTMLElement>();
@@ -44,7 +44,7 @@ const setEditorContent = (code: string) => {
         return;
     }
     const transaction = editor.state.update({
-        changes: {from: 0, to: editor.state.doc.length, insert: code},
+        changes: { from: 0, to: editor.state.doc.length, insert: code },
     });
     editor.dispatch(transaction);
 };

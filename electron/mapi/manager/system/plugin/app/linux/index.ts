@@ -1,8 +1,8 @@
-import {listFiles} from "../util";
+import { listFiles } from "../util";
 import path from "path";
-import {ConfigLang} from "../../../../../../config/lang";
-import {getIcon} from "./icon";
-import {getAppTitle} from "./title";
+import { ConfigLang } from "../../../../../../config/lang";
+import { getIcon } from "./icon";
+import { getAppTitle } from "./title";
 import fs from "node:fs";
 
 export const ManagerAppLinux = {
@@ -40,7 +40,12 @@ const lists = async () => {
         };
         const desktopInfo = await parseDesktopFile(app.pathname);
         app.icon = await getIcon(desktopInfo, app.pathname, app.name);
-        app.title = await getAppTitle(desktopInfo, locale, app.pathname, app.name);
+        app.title = await getAppTitle(
+            desktopInfo,
+            locale,
+            app.pathname,
+            app.name,
+        );
         if (!app.icon) {
             continue;
         }
@@ -60,7 +65,9 @@ const lists = async () => {
     return apps;
 };
 
-const parseDesktopFile = async (pathname: string): Promise<Record<string, string>> => {
+const parseDesktopFile = async (
+    pathname: string,
+): Promise<Record<string, string>> => {
     const content = fs.readFileSync(pathname, "utf-8");
     const desktop = {};
     for (const line of content.split("\n")) {

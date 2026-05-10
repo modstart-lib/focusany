@@ -1,4 +1,4 @@
-import {contextBridge} from "electron";
+import { contextBridge } from "electron";
 
 export function exposeContext(key, value) {
     if (process.contextIsolated) {

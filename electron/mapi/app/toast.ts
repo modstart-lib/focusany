@@ -1,29 +1,33 @@
-import {BrowserWindow} from "electron";
-import {icons} from "./icons";
-import {AppsMain} from "./main";
+import { BrowserWindow } from "electron";
+import { icons } from "./icons";
+import { AppsMain } from "./main";
 
 let win = null;
 let winCloseTimer = null;
 let winShowTime = null;
-const toastMsgQueue: { msg: string, options: any }[] = [];
+const toastMsgQueue: { msg: string; options: any }[] = [];
 
 export const makeToast = async (
     msg: string,
     options?: {
         duration?: number;
         status?: "success" | "error" | "info";
-    }
+    },
 ) => {
     if (win) {
         if (winShowTime && Date.now() - winShowTime < 1000) {
             // make previous toast last at least 1 second
             if (toastMsgQueue.length > 0) {
-                toastMsgQueue.forEach(item => {
-                    item.options = Object.assign({}, item.options, {duration: 1000});
-                })
+                toastMsgQueue.forEach((item) => {
+                    item.options = Object.assign({}, item.options, {
+                        duration: 1000,
+                    });
+                });
             }
-            toastMsgQueue.push({msg, options});
-            await new Promise(resolve => setTimeout(resolve, 1000 - (Date.now() - winShowTime)));
+            toastMsgQueue.push({ msg, options });
+            await new Promise((resolve) =>
+                setTimeout(resolve, 1000 - (Date.now() - winShowTime)),
+            );
             if (win) {
                 win.close();
             }
@@ -38,7 +42,7 @@ export const makeToast = async (
             status: "info",
             duration: 0,
         },
-        options
+        options,
     );
 
     if (options.duration === 0) {
@@ -135,7 +139,10 @@ export const makeToast = async (
         const containerWidth = containerSize.width + 20;
         const containerHeight = containerSize.height + 20;
         win.setSize(containerWidth, containerHeight);
-        const x = display.workArea.x + display.workArea.width / 2 - containerWidth / 2;
+        const x =
+            display.workArea.x +
+            display.workArea.width / 2 -
+            containerWidth / 2;
         const y = display.workArea.y + (display.workArea.height * 1) / 4;
         win.setPosition(Math.floor(x), Math.floor(y));
         win.showInactive();
@@ -154,7 +161,7 @@ export const makeToast = async (
                 makeToast(item.msg, item.options);
             }
         }, 0);
-    })
+    });
     winCloseTimer = setTimeout(() => {
         winCloseTimer = null;
         if (!win) return;

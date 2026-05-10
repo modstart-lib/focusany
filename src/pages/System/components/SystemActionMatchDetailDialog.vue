@@ -1,16 +1,15 @@
 <script setup lang="ts">
-import {ref} from "vue";
+import { ref } from "vue";
+import { SystemIcons } from "../../../../electron/mapi/manager/system/asset/icon";
 import {
     ActionMatch,
     ActionMatchFile,
-    ActionMatchImage,
     ActionMatchKey,
     ActionMatchRegex,
     ActionMatchText,
     ActionMatchTypeEnum,
     ActionRecord,
 } from "../../../types/Manager";
-import {SystemIcons} from "../../../../electron/mapi/manager/system/asset/icon";
 
 const visible = ref(false);
 const action = ref<ActionRecord | null>(null);
@@ -32,13 +31,22 @@ defineExpose({
 <template>
     <a-modal v-model:visible="visible" title-align="start">
         <template #title>
-            <div v-if="['text','key'].includes(match?.type as string)" class="flex items-center">
-                <img class="w-6 h-6 object-contain mr-2" :src="SystemIcons.searchKeyword" />
-                {{$t('搜索动作')}}
+            <div
+                v-if="['text', 'key'].includes(match?.type as string)"
+                class="flex items-center"
+            >
+                <img
+                    class="w-6 h-6 object-contain mr-2"
+                    :src="SystemIcons.searchKeyword"
+                />
+                {{ $t("action.searchAction") }}
             </div>
             <div v-else class="flex items-center">
-                <img class="w-6 h-6 object-contain mr-2" :src="SystemIcons.searchMatch" />
-                {{$t('匹配动作')}}
+                <img
+                    class="w-6 h-6 object-contain mr-2"
+                    :src="SystemIcons.searchMatch"
+                />
+                {{ $t("action.matchAction") }}
             </div>
         </template>
         <template #footer>
@@ -49,82 +57,129 @@ defineExpose({
                 v-if="!match?.['_disable']"
                 @click="emit('disable', action, match?.name)"
             >
-                {{$t('禁用')}}
+                {{ $t("common.disable") }}
             </a-button>
-            <a-button type="primary" size="small" v-else @click="emit('disable', action, match?.name)"> {{$t('启用')}} </a-button>
-            <a-button size="small" @click="visible = false"> {{$t('关闭')}} </a-button>
+            <a-button
+                type="primary"
+                size="small"
+                v-else
+                @click="emit('disable', action, match?.name)"
+            >
+                {{ $t("common.enable") }}
+            </a-button>
+            <a-button size="small" @click="visible = false">
+                {{ $t("common.close") }}
+            </a-button>
         </template>
         <div class="h-64">
             <div v-if="match?.type === ActionMatchTypeEnum.TEXT">
                 <div class="mb-3">
                     <icon-info-circle />
-                    {{$t('输入匹配以下关键词，包含全拼、首字母简写')}}
+                    {{ $t("action.matchKeywordHint") }}
                 </div>
-                <div class="text-center text-lg bg-gray-100 dark:bg-gray-700 rounded-lg p-3 font-weight">
+                <div
+                    class="text-center text-lg bg-gray-100 dark:bg-gray-700 rounded-lg p-3 font-weight"
+                >
                     {{ (match as ActionMatchText).text }}
                 </div>
             </div>
             <div v-else-if="match?.type === ActionMatchTypeEnum.KEY">
                 <div class="mb-3">
                     <icon-info-circle />
-                    {{$t('输入完全等于以下关键词')}}
+                    {{ $t("action.matchExactKeyHint") }}
                 </div>
-                <div class="text-center text-lg bg-gray-100 dark:bg-gray-700 rounded-lg p-3 font-weight">
+                <div
+                    class="text-center text-lg bg-gray-100 dark:bg-gray-700 rounded-lg p-3 font-weight"
+                >
                     {{ (match as ActionMatchKey).key }}
                 </div>
             </div>
             <div v-else-if="match?.type === ActionMatchTypeEnum.REGEX">
                 <div class="mb-3">
                     <icon-info-circle />
-                    {{$t('输入匹配以下正则表达式')}}
+                    {{ $t("action.matchRegexHint") }}
                 </div>
-                <div class="text-center text-lg bg-gray-100 dark:bg-gray-700 rounded-lg p-3 font-weight">
+                <div
+                    class="text-center text-lg bg-gray-100 dark:bg-gray-700 rounded-lg p-3 font-weight"
+                >
                     {{ (match as ActionMatchRegex).regex }}
                 </div>
             </div>
             <div v-else-if="match?.type === ActionMatchTypeEnum.IMAGE">
                 <div class="mb-3">
                     <icon-info-circle />
-                    {{$t('当匹配到图片时')}}
+                    {{ $t("action.matchImageHint") }}
                 </div>
             </div>
             <div v-else-if="match?.type === ActionMatchTypeEnum.FILE">
                 <div class="mb-3">
                     <icon-info-circle />
-                    {{$t('当使用以下规则匹配成功时')}}
+                    {{ $t("action.matchFileHint") }}
                 </div>
                 <div class="bg-gray-100 dark:bg-gray-700 rounded-lg p-3">
-                    <div v-if="'minCount' in match">{{$t('最小数量')}}: {{ (match as ActionMatchFile).minCount }}</div>
-                    <div v-if="'maxCount' in match">{{$t('最大数量')}}: {{ (match as ActionMatchFile).maxCount }}</div>
+                    <div v-if="'minCount' in match">
+                        {{ $t("action.minCount") }}:
+                        {{ (match as ActionMatchFile).minCount }}
+                    </div>
+                    <div v-if="'maxCount' in match">
+                        {{ $t("action.maxCount") }}:
+                        {{ (match as ActionMatchFile).maxCount }}
+                    </div>
                     <div v-if="'filterExtensions' in match">
-                        {{$t('文件后缀')}}: {{ (match as ActionMatchFile).filterExtensions.join(",") }}
+                        {{ $t("action.fileExtensions") }}:
+                        {{
+                            (match as ActionMatchFile).filterExtensions.join(
+                                ",",
+                            )
+                        }}
                     </div>
                     <div v-if="'filterFileType' in match">
-                        {{$t('文件类型')}}: {{ (match as ActionMatchFile).filterFileType === "file" ? "文件" : "文件夹" }}
+                        {{ $t("action.fileType") }}:
+                        {{
+                            (match as ActionMatchFile).filterFileType === "file"
+                                ? $t("common.file")
+                                : $t("common.folder")
+                        }}
                     </div>
                 </div>
             </div>
             <div v-else-if="match?.type === ActionMatchTypeEnum.WINDOW">
                 <div class="mb-3">
                     <icon-info-circle />
-                    {{$t('当激活窗口匹配以下条件成功时')}}
+                    {{ $t("action.matchWindowHint") }}
                 </div>
                 <div class="bg-gray-100 dark:bg-gray-700 rounded-lg p-3">
-                    <div v-if="'nameRegex' in match">{{$t('名称匹配')}}：{{ (match as ActionMatchWindow).nameRegex }}</div>
-                    <div v-if="'titleRegex' in match">{{$t('标题匹配')}}: {{ (match as ActionMatchWindow).titleRegex }}</div>
-                    <div v-if="'attrRegex' in match">{{$t('属性匹配')}}: {{ (match as ActionMatchWindow).attrRegex }}</div>
+                    <div v-if="'nameRegex' in match">
+                        {{ $t("action.nameMatch") }}：{{
+                            (match as ActionMatchWindow).nameRegex
+                        }}
+                    </div>
+                    <div v-if="'titleRegex' in match">
+                        {{ $t("action.titleMatch") }}:
+                        {{ (match as ActionMatchWindow).titleRegex }}
+                    </div>
+                    <div v-if="'attrRegex' in match">
+                        {{ $t("action.attrMatch") }}:
+                        {{ (match as ActionMatchWindow).attrRegex }}
+                    </div>
                 </div>
             </div>
             <div v-else-if="match?.type === ActionMatchTypeEnum.EDITOR">
                 <div class="mb-3">
                     <icon-info-circle />
-                    {{$t('当文件匹配到以下后缀和类型时')}}
+                    {{ $t("action.matchEditorHint") }}
                 </div>
                 <div class="bg-gray-100 dark:bg-gray-700 rounded-lg p-3">
                     <div v-if="'extensions' in match">
-                        {{$t('后缀')}}：{{ (match as ActionMatchEditor).extensions.join(",") }}
+                        {{ $t("action.suffix") }}：{{
+                            (match as ActionMatchEditor).extensions.join(",")
+                        }}
                     </div>
-                    <div v-if="'fadTypes' in match">{{$t('类型')}}：{{ (match as ActionMatchEditor).fadTypes.join(",") }}</div>
+                    <div v-if="'fadTypes' in match">
+                        {{ $t("common.type") }}：{{
+                            (match as ActionMatchEditor).fadTypes.join(",")
+                        }}
+                    </div>
                 </div>
             </div>
         </div>

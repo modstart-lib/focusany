@@ -1,4 +1,4 @@
-import {PluginRecord} from "../../../types/Manager";
+import { PluginRecord } from "../../../types/Manager";
 
 export type SystemDataRecord = {
     plugin: PluginRecord;

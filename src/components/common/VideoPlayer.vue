@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {onBeforeUnmount, onMounted, ref, watch} from "vue";
+import { onBeforeUnmount, onMounted, ref, watch } from "vue";
 import Player from "xgplayer";
 import "xgplayer/dist/index.min.css";
 
@@ -23,7 +23,7 @@ const props = withDefaults(
         autoplayMuted: false,
         loop: false,
         controls: true,
-    }
+    },
 );
 
 let player: Player | null = null;
@@ -34,11 +34,15 @@ const initPlayer = () => {
         player = null;
     }
     if (videoContainer.value && props.url) {
-        let url = props.url
-        if (url.startsWith('http:') || url.startsWith('https:') || url.startsWith('file:')) {
+        let url = props.url;
+        if (
+            url.startsWith("http:") ||
+            url.startsWith("https:") ||
+            url.startsWith("file:")
+        ) {
             // do nothing
         } else {
-            url = 'file://' + url;
+            url = "file://" + url;
         }
         player = new Player({
             el: videoContainer.value,
@@ -56,9 +60,9 @@ const initPlayer = () => {
 
 watch(
     () => props.url,
-    newUrl => {
+    (newUrl) => {
         initPlayer();
-    }
+    },
 );
 
 onMounted(() => {
@@ -73,7 +77,10 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-    <div ref="videoContainer" :style="{ width: props.width, height: props.height }"></div>
+    <div
+        ref="videoContainer"
+        :style="{ width: props.width, height: props.height }"
+    ></div>
 </template>
 
 <style scoped></style>

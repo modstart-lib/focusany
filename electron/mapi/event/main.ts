@@ -1,10 +1,9 @@
-import {AppRuntime} from "../env";
-import {ipcMain, WebContents} from "electron";
-import {StrUtil} from "../../lib/util";
-import {ManagerWindow} from "../manager/window";
+import { AppRuntime } from "../env";
+import { ipcMain, WebContents } from "electron";
+import { StrUtil } from "../../lib/util";
+import { ManagerWindow } from "../manager/window";
 
-const init = async () => {
-};
+const init = async () => {};
 
 type NameType = "main" | "fastPanel" | string | WebContents;
 type EventType = "APP_READY" | "CALL_PAGE" | "CHANNEL" | "BROADCAST";
@@ -24,7 +23,7 @@ const broadcast = (
         limit?: boolean;
         scopes?: string[];
         pages?: string[];
-    }
+    },
 ) => {
     data = data || {};
     option = Object.assign(
@@ -33,31 +32,31 @@ const broadcast = (
             scopes: [],
             pages: [],
         },
-        option
+        option,
     );
     if (option.pages.length > 0) {
         for (const p of option.pages) {
-            send(p, "BROADCAST", {type, data});
+            send(p, "BROADCAST", { type, data });
         }
     } else {
         if (!option.limit || option.scopes.includes("main")) {
-            send("main", "BROADCAST", {type, data});
+            send("main", "BROADCAST", { type, data });
         }
         if (!option.limit || option.scopes.includes("pages")) {
             for (let name in AppRuntime.windows) {
-                send(name, "BROADCAST", {type, data});
+                send(name, "BROADCAST", { type, data });
             }
         }
     }
     if (!option.limit || option.scopes.includes("fastPanel")) {
-        send("fastPanel", "BROADCAST", {type, data});
+        send("fastPanel", "BROADCAST", { type, data });
     }
     if (!option.limit || option.scopes.includes("views")) {
         for (const view of ManagerWindow.listBrowserViews()) {
             view.webContents.send("MAIN_PROCESS_MESSAGE", {
                 id: StrUtil.randomString(32),
                 type: "BROADCAST",
-                data: {type, data},
+                data: { type, data },
             });
         }
     }
@@ -66,23 +65,33 @@ const broadcast = (
             win.webContents.send("MAIN_PROCESS_MESSAGE", {
                 id: StrUtil.randomString(32),
                 type: "BROADCAST",
-                data: {type, data},
+                data: { type, data },
             });
         }
     }
 };
 
-const sendRaw = (webContents: any, type: EventType, data: any = {}, id?: string): boolean => {
+const sendRaw = (
+    webContents: any,
+    type: EventType,
+    data: any = {},
+    id?: string,
+): boolean => {
     id = id || StrUtil.randomString(32);
-    const payload = {id, type, data};
+    const payload = { id, type, data };
     webContents.send("MAIN_PROCESS_MESSAGE", payload);
     return true;
 };
 
-const send = (name: NameType, type: EventType, data: any = {}, id?: string): boolean => {
+const send = (
+    name: NameType,
+    type: EventType,
+    data: any = {},
+    id?: string,
+): boolean => {
     id = id || StrUtil.randomString(32);
-    const payload = {id, type, data};
-    if (typeof name !== 'string') {
+    const payload = { id, type, data };
+    if (typeof name !== "string") {
         (name as WebContents).send("MAIN_PROCESS_MESSAGE", payload);
         return true;
     }
@@ -91,24 +100,36 @@ const send = (name: NameType, type: EventType, data: any = {}, id?: string): boo
             return false;
         }
         // console.log('send', payload)
-        AppRuntime.mainWindow?.webContents.send("MAIN_PROCESS_MESSAGE", payload);
+        AppRuntime.mainWindow?.webContents.send(
+            "MAIN_PROCESS_MESSAGE",
+            payload,
+        );
     } else if (name === "fastPanel") {
         if (!AppRuntime.fastPanelWindow) {
             return false;
         }
-        AppRuntime.fastPanelWindow?.webContents.send("MAIN_PROCESS_MESSAGE", payload);
+        AppRuntime.fastPanelWindow?.webContents.send(
+            "MAIN_PROCESS_MESSAGE",
+            payload,
+        );
     } else {
         if (!AppRuntime.windows[name]) {
             return false;
         }
-        AppRuntime.windows[name]?.webContents.send("MAIN_PROCESS_MESSAGE", payload);
+        AppRuntime.windows[name]?.webContents.send(
+            "MAIN_PROCESS_MESSAGE",
+            payload,
+        );
     }
     return true;
 };
 
-ipcMain.handle("event:send", async (_, name: NameType, type: EventType, data: any) => {
-    send(name, type, data);
-});
+ipcMain.handle(
+    "event:send",
+    async (_, name: NameType, type: EventType, data: any) => {
+        send(name, type, data);
+    },
+);
 
 const callPage = async (
     name: NameType,
@@ -117,7 +138,7 @@ const callPage = async (
     option?: {
         waitReadyTimeout?: number;
         timeout?: number;
-    }
+    },
 ): Promise<{
     code: number;
     msg: string;
@@ -128,13 +149,13 @@ const callPage = async (
             waitReadyTimeout: 10 * 1000,
             timeout: 60 * 1000,
         },
-        option
+        option,
     );
     return new Promise((resolve, reject) => {
         const id = StrUtil.randomString(32);
         const timer = setTimeout(() => {
             ipcMain.removeListener(listenerKey, listener);
-            resolve({code: -1, msg: "timeout"});
+            resolve({ code: -1, msg: "timeout" });
         }, option.timeout);
         const listener = (_, result) => {
             clearTimeout(timer);
@@ -153,20 +174,23 @@ const callPage = async (
         if (!send(name, "CALL_PAGE", payload, id)) {
             clearTimeout(timer);
             ipcMain.removeListener(listenerKey, listener);
-            resolve({code: -1, msg: "send failed"});
+            resolve({ code: -1, msg: "send failed" });
         }
     });
 };
 
-ipcMain.handle("event:callPage", async (_, name: string, type: string, data: any, option?: {}) => {
-    return callPage(name, type, data, option);
-});
+ipcMain.handle(
+    "event:callPage",
+    async (_, name: string, type: string, data: any, option?: {}) => {
+        return callPage(name, type, data, option);
+    },
+);
 
 let onChannelIsListen = false;
 let channelOnCallback = {};
 
 const sendChannel = (channel: string, data: any) => {
-    send("main", "CHANNEL", {channel, data});
+    send("main", "CHANNEL", { channel, data });
 };
 
 const onChannel = (channel: string, callback: (data: any) => void) => {
@@ -178,9 +202,11 @@ const onChannel = (channel: string, callback: (data: any) => void) => {
         onChannelIsListen = true;
         ipcMain.handle("event:channelSend", (event, channel_, data) => {
             if (channelOnCallback[channel_]) {
-                channelOnCallback[channel_].forEach((callback: (data: any) => void) => {
-                    callback(data);
-                });
+                channelOnCallback[channel_].forEach(
+                    (callback: (data: any) => void) => {
+                        callback(data);
+                    },
+                );
             }
         });
     }
@@ -188,9 +214,11 @@ const onChannel = (channel: string, callback: (data: any) => void) => {
 
 const offChannel = (channel: string, callback: (data: any) => void) => {
     if (channelOnCallback[channel]) {
-        channelOnCallback[channel] = channelOnCallback[channel].filter((item: (data: any) => void) => {
-            return item !== callback;
-        });
+        channelOnCallback[channel] = channelOnCallback[channel].filter(
+            (item: (data: any) => void) => {
+                return item !== callback;
+            },
+        );
     }
     if (channelOnCallback[channel].length === 0) {
         delete channelOnCallback[channel];

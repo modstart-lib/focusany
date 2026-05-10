@@ -1,14 +1,17 @@
-import path from "path";
 import fs from "fs";
+import path from "path";
 
 import extractFileIcon from "extract-file-icon";
-import os from "os";
+import { AppEnv, waitAppEnvReady } from "../../../../../env";
 
-const iconTempDir = path.join(os.tmpdir(), "focusany-app-icon");
+const getIconTempDir = async () => {
+    await waitAppEnvReady();
+    return path.join(AppEnv.dataRoot, "cache", "app-icons");
+};
 
 export const getIcon = async (appPath: string, appName: string) => {
     try {
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        const iconTempDir = await getIconTempDir();
         const iconPath = path.join(iconTempDir, `${appName}.png`);
         const iconPathUrl = `file://${iconPath}`;
         // console.log('iconPath', iconPath, appName, appPath);
@@ -21,7 +24,7 @@ export const getIcon = async (appPath: string, appName: string) => {
             return iconNoneUrl;
         }
         if (!fs.existsSync(iconTempDir)) {
-            fs.mkdirSync(iconTempDir, {recursive: true});
+            fs.mkdirSync(iconTempDir, { recursive: true });
         }
         const buffer = extractFileIcon(appPath, 32);
         fs.writeFileSync(iconPath, buffer, "base64");

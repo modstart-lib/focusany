@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {ref} from "vue";
+import { ref } from "vue";
 
 type StatusType = "success" | "fail" | "loading";
 const status = ref<StatusType>("loading");
@@ -13,7 +13,10 @@ defineExpose({
 </script>
 
 <template>
-    <div v-if="'loading' === status" class="absolute inset-0 flex bg-default text-default">
+    <div
+        v-if="'loading' === status"
+        class="absolute inset-0 flex bg-default text-default"
+    >
         <div class="m-auto text-center text-gray-400">
             <div>
                 <icon-loading class="text-3xl" />
@@ -21,7 +24,10 @@ defineExpose({
             <div class="text-sm pt-2">{{ $t("common.loadingDots") }}</div>
         </div>
     </div>
-    <div v-else-if="'fail' === status" class="absolute inset-0 flex bg-default text-default bg-opacity-50">
+    <div
+        v-else-if="'fail' === status"
+        class="absolute inset-0 flex bg-default text-default bg-opacity-50"
+    >
         <div class="m-auto text-center text-red-400">
             <div>
                 <icon-info-circle class="text-3xl" />

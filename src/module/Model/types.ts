@@ -35,4 +35,4 @@ export type Provider = {
 
 export type ChatParam = {
     systemPrompt: string | null;
-}
+};

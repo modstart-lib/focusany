@@ -1,5 +1,5 @@
-import {ManagerPluginEvent} from "../plugin/event";
-import {ManagerConfig} from "../config/config";
+import { ManagerPluginEvent } from "../plugin/event";
+import { ManagerConfig } from "../config/config";
 import ConfigMain from "../../config/main";
 
 export const ManagerHotkeyHandle = {

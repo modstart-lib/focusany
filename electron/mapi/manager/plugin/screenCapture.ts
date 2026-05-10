@@ -1,11 +1,12 @@
-import {clipboard, Notification} from "electron";
-import {exec, execFile} from "child_process";
-import {extraResolve, isMac, isWin} from "../../../lib/env";
+import { exec, execFile } from "child_process";
+import { clipboard, Notification } from "electron";
+import { t } from "../../../config/lang";
+import { extraResolve, isMac, isWin } from "../../../lib/env";
 
 const forWindows = (cb: (image: string) => void) => {
     const screenCaptureUrl = extraResolve("win/ScreenCapture.exe");
     const screen_window = execFile(screenCaptureUrl);
-    screen_window.on("exit", code => {
+    screen_window.on("exit", (code) => {
         if (code) {
             const image = clipboard.readImage();
             cb && cb(image.isEmpty() ? "" : image.toDataURL());
@@ -22,8 +23,8 @@ const forMac = (cb: (image: string) => void) => {
 
 const forLinux = (cb: (image: string) => void) => {
     const notify = new Notification({
-        title: "截图",
-        body: "请使用截图工具截图",
+        title: t("system.screenshot"),
+        body: t("plugin.screenshotHint"),
     });
     notify.show();
 };

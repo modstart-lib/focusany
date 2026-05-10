@@ -1,16 +1,16 @@
-import {Events} from "../mapi/event/main";
-import {AppEnv, AppRuntime} from "../mapi/env";
-import {PageUser} from "./user";
-import {BrowserWindow, shell} from "electron";
-import {rendererLoadPath} from "../lib/env-main";
-import {PageGuide} from "./guide";
-import {PageSetup} from "./setup";
-import {PageAbout} from "./about";
-import {DevToolsManager} from "../lib/devtools";
-import {PageFeedback} from "./feedback";
-import {PagePayment} from "./payment";
-import {PageMonitor} from "./monitor";
-import {PageLog} from "./log";
+import { Events } from "../mapi/event/main";
+import { AppEnv, AppRuntime } from "../mapi/env";
+import { PageUser } from "./user";
+import { BrowserWindow, shell } from "electron";
+import { rendererLoadPath } from "../lib/env-main";
+import { PageGuide } from "./guide";
+import { PageSetup } from "./setup";
+import { PageAbout } from "./about";
+import { DevToolsManager } from "../lib/devtools";
+import { PageFeedback } from "./feedback";
+import { PagePayment } from "./payment";
+import { PageMonitor } from "./monitor";
+import { PageLog } from "./log";
 
 const Pages = {
     user: PageUser,
@@ -31,17 +31,17 @@ export const Page = {
         });
     },
     openWindow: (name: string, win: BrowserWindow, fileName: string) => {
-        win.webContents.on("will-navigate", event => {
+        win.webContents.on("will-navigate", (event) => {
             event.preventDefault();
         });
         win.webContents.setWindowOpenHandler(() => {
-            return {action: "deny"};
+            return { action: "deny" };
         });
-        win.webContents.setWindowOpenHandler(({url}) => {
+        win.webContents.setWindowOpenHandler(({ url }) => {
             if (url.startsWith("https:") || url.startsWith("http:")) {
                 shell.openExternal(url).then();
             }
-            return {action: "deny"};
+            return { action: "deny" };
         });
         win.on("close", () => {
             delete AppRuntime.windows[name];
@@ -65,14 +65,14 @@ export const Page = {
             singleton?: boolean;
             parent?: BrowserWindow;
             [key: string]: any;
-        }
+        },
     ) => {
         option = Object.assign(
             {
                 singleton: true,
                 parent: null,
             },
-            option
+            option,
         );
         if (!option.parent) {
             option.parent = AppRuntime.mainWindow;

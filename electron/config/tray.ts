@@ -1,10 +1,10 @@
-import {app, Menu, shell, Tray} from "electron";
-import {trayPath} from "./icon";
-import {AppRuntime} from "../mapi/env";
-import {AppConfig} from "../../src/config";
-import {t} from "./lang";
-import {isMac, isWin} from "../lib/env";
-import {AppsMain} from "../mapi/app/main";
+import { app, Menu, shell, Tray } from "electron";
+import { trayPath } from "./icon";
+import { AppRuntime } from "../mapi/env";
+import { AppConfig } from "../../src/config";
+import { t } from "./lang";
+import { isMac, isWin } from "../lib/env";
+import { AppsMain } from "../mapi/app/main";
 
 let tray = null;
 
@@ -34,18 +34,18 @@ const ready = () => {
             },
         },
         {
-            label: t("新手指引"),
+            label: t("nav.guide"),
             click: () => {
                 AppsMain.windowOpen("guide").then();
             },
         },
         {
-            label: t("访问官网"),
+            label: t("tray.visitWebsite"),
             click: () => {
                 shell.openExternal(AppConfig.website);
             },
         },
-        {type: "separator"},
+        { type: "separator" },
         {
             label: t("tray.restart"),
             click: () => {
@@ -59,9 +59,9 @@ const ready = () => {
                 quitApp();
             },
         },
-        {type: "separator"},
+        { type: "separator" },
         {
-            label: t("关于"),
+            label: t("about.title"),
             click: () => {
                 AppsMain.windowOpen("about").then();
             },

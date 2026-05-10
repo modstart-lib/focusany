@@ -1,6 +1,6 @@
-import {BrowserView, BrowserWindow, screen} from "electron";
-import {isDev} from "./env";
-import {WindowConfig} from "../config/window";
+import { BrowserView, BrowserWindow, screen } from "electron";
+import { isDev } from "./env";
+import { WindowConfig } from "../config/window";
 
 export const DevToolsManager = {
     enable: true,
@@ -17,7 +17,7 @@ export const DevToolsManager = {
         if (this.windows.has(win)) {
             return this.windows.get(win);
         }
-        const {x, y, width, height} = this.getDisplayPosition();
+        const { x, y, width, height } = this.getDisplayPosition();
         // console.log('DevToolsManager', name, {x, y, width, height})
         const devtools = new BrowserWindow({
             show: true,
@@ -30,7 +30,7 @@ export const DevToolsManager = {
         devtools.on("closed", (e) => {
             // console.log('DevToolsManager', 'close', name)
             this.windows.delete(win);
-        })
+        });
         // console.log('DevToolsManager', name, {x, y})
         win.webContents.setDevToolsWebContents(devtools.webContents);
         win.webContents.on("destroyed", () => {
@@ -50,7 +50,7 @@ export const DevToolsManager = {
     getLargestDisplay(): Electron.Display {
         const displays = screen.getAllDisplays();
         return displays.reduce((max, display) => {
-            const {width, height} = display.size;
+            const { width, height } = display.size;
             const maxResolution = max.size.width * max.size.height;
             const currentResolution = width * height;
             return currentResolution > maxResolution ? display : max;
@@ -63,7 +63,7 @@ export const DevToolsManager = {
         height: number;
     } {
         const display = this.getLargestDisplay();
-        const {x, y, width, height} = display.workArea;
+        const { x, y, width, height } = display.workArea;
         // console.log('DevToolsManager', 'getDisplayPosition', {x, y, width, height})
         if (width < 1300) {
             this.rowCount = 3;

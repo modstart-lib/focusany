@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import {ref, toRaw} from "vue";
-import {Dialog} from "../../../../lib/dialog";
-import {t} from "../../../../lang";
+import { ref, toRaw } from "vue";
+import { t } from "../../../../lang";
+import { Dialog } from "../../../../lib/dialog";
 
 const visible = ref(false);
 const formData = ref({
@@ -17,7 +17,9 @@ const show = async () => {
     formData.value.username = backupWebdav["username"] || "";
     formData.value.password = backupWebdav["password"] || "";
     formData.value.root = backupWebdav["root"] || "/FocusAnyBackup/";
-    formData.value.filePattern = backupWebdav["filePattern"] || "Backup-{year}{month}{day}{hour}{minute}{second}";
+    formData.value.filePattern =
+        backupWebdav["filePattern"] ||
+        "Backup-{year}{month}{day}{hour}{minute}{second}";
     visible.value = true;
 };
 
@@ -26,7 +28,7 @@ const doSubmit = async () => {
         await window.$mapi.kvdb.testWebdav(toRaw(formData.value));
     } catch (e) {
         // console.error('testWebdav', e)
-        Dialog.tipError(t("连接失败"));
+        Dialog.tipError(t("backup.connectFailed"));
         return;
     }
     await window.$mapi.config.set("backupWebdav", {
@@ -49,29 +51,42 @@ defineExpose({
 
 <template>
     <a-modal v-model:visible="visible" title-align="start">
-        <template #title> {{$t('WebDav配置')}} </template>
+        <template #title> {{ $t("backup.webdavSettings") }} </template>
         <template #footer>
-            <a-button type="primary" size="small" @click="doSubmit"> {{$t('保存')}} </a-button>
-            <a-button size="small" @click="visible = false"> {{$t('关闭')}} </a-button>
+            <a-button type="primary" size="small" @click="doSubmit">
+                {{ $t("common.save") }}
+            </a-button>
+            <a-button size="small" @click="visible = false">
+                {{ $t("common.close") }}
+            </a-button>
         </template>
         <div class="h-64">
             <a-form :model="{}">
                 <a-form-item label="URL">
-                    <a-input v-model:model-value="formData.url" placeholder="https://" />
+                    <a-input
+                        v-model:model-value="formData.url"
+                        placeholder="https://"
+                    />
                 </a-form-item>
-                <a-form-item :label="$t('用户名')">
+                <a-form-item :label="$t('backup.username')">
                     <a-input v-model:model-value="formData.username" />
                 </a-form-item>
-                <a-form-item :label="$t('密码')">
-                    <a-input v-model:model-value="formData.password" type="password" />
+                <a-form-item :label="$t('backup.password')">
+                    <a-input
+                        v-model:model-value="formData.password"
+                        type="password"
+                    />
                 </a-form-item>
-                <a-form-item :label="$t('根目录')">
+                <a-form-item :label="$t('backup.rootDir')">
                     <a-input v-model:model-value="formData.root" />
                 </a-form-item>
-                <a-form-item :label="$t('文件格式')">
+                <a-form-item :label="$t('backup.fileFormat')">
                     <a-input v-model:model-value="formData.filePattern" />
                     <template #help>
-                        <div class="text-gray-400">{{$t('占位符支持')}} {year} {month} {day} {hour} {minute} {second}</div>
+                        <div class="text-gray-400">
+                            {{ $t("backup.placeholderSupport") }} {year} {month}
+                            {day} {hour} {minute} {second}
+                        </div>
                     </template>
                 </a-form-item>
             </a-form>

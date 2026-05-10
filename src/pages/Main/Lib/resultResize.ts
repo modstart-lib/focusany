@@ -1,14 +1,14 @@
-import {onBeforeUnmount, onMounted} from "vue";
-import {UI} from "../../../lib/ui";
-import {useManagerStore} from "../../../store/modules/manager";
-import {WindowConfig} from "../../../../electron/config/window";
+import { onBeforeUnmount, onMounted } from "vue";
+import { UI } from "../../../lib/ui";
+import { useManagerStore } from "../../../store/modules/manager";
+import { WindowConfig } from "../../../../electron/config/window";
 
 const manager = useManagerStore();
 
 let ignoreNextResize = false;
 export const ignoreNextResultResize = () => {
     ignoreNextResize = true;
-}
+};
 
 export const useResultResize = (groupContainer: any) => {
     onMounted(() => {
@@ -16,7 +16,10 @@ export const useResultResize = (groupContainer: any) => {
             // console.log('resize', width, height, manager.activePlugin)
             if (!manager.activePlugin && !ignoreNextResize) {
                 manager.resize(width, height + WindowConfig.mainHeight).then();
-            } else if (manager.activePlugin && manager.activePluginType === 'code') {
+            } else if (
+                manager.activePlugin &&
+                manager.activePluginType === "code"
+            ) {
                 manager.resize(width, height + WindowConfig.mainHeight).then();
             }
         });

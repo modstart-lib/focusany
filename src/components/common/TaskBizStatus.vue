@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import {computed} from "vue";
-import {t} from "../../lang";
+import { computed } from "vue";
+import { t } from "../../lang";
 
 interface Props {
     status: string | undefined;
@@ -33,9 +33,17 @@ const statusText = computed(() => {
 </script>
 
 <template>
-    <div class="text-white px-2 py-1 rounded-full text-sm inline-flex items-center" :class="statusColor">
+    <div
+        class="text-white px-2 py-1 rounded-full text-sm inline-flex items-center"
+        :class="statusColor"
+    >
         <div class="w-2 h-2 rounded-full bg-white mr-2"></div>
-        <a-tooltip v-if="!!statusMsg && statusMsg.length < 20" :content="statusMsg" position="left" mini>
+        <a-tooltip
+            v-if="!!statusMsg && statusMsg.length < 20"
+            :content="statusMsg"
+            position="left"
+            mini
+        >
             <div>
                 {{ statusText }}
                 <icon-info-circle />

@@ -1,24 +1,27 @@
 <template>
     <a-config-provider :locale="locale" :global="true">
-        <div ref="main" id="main"
-             :class="{'no-active-plugin': !manager.activePlugin}">
-            <MainSearch ref="mainSearch" @onClose="onClose"/>
-            <MainResult ref="mainResult"/>
+        <div
+            ref="main"
+            id="main"
+            :class="{ 'no-active-plugin': !manager.activePlugin }"
+        >
+            <MainSearch ref="mainSearch" @onClose="onClose" />
+            <MainResult ref="mainResult" />
         </div>
     </a-config-provider>
 </template>
 
 <script setup lang="ts">
-import {onMounted, ref} from "vue";
+import { onMounted, ref } from "vue";
 
-import MainSearch from "./pages/Main/MainSearch.vue";
+import { useLocale } from "./app/locale";
+import { doCheckForUpdate } from "./components/common/util";
+import { useMainOperate } from "./pages/Main/Lib/mainOperate";
+import { ignoreNextResultResize } from "./pages/Main/Lib/resultResize";
 import MainResult from "./pages/Main/MainResult.vue";
-import {useManagerStore} from "./store/modules/manager";
-import {PluginRecord} from "./types/Manager";
-import {useLocale} from "./app/locale";
-import {doCheckForUpdate} from "./components/common/util";
-import {useMainOperate} from "./pages/Main/Lib/mainOperate";
-import {ignoreNextResultResize} from "./pages/Main/Lib/resultResize";
+import MainSearch from "./pages/Main/MainSearch.vue";
+import { useManagerStore } from "./store/modules/manager";
+import { PluginRecord } from "./types/Manager";
 
 const manager = useManagerStore();
 
@@ -26,9 +29,9 @@ const main = ref<HTMLElement | null>(null);
 const mainSearch = ref<InstanceType<typeof MainSearch> | null>(null);
 const mainResult = ref<InstanceType<typeof MainResult> | null>(null);
 
-const {locale} = useLocale();
+const { locale } = useLocale();
 
-const {onKeyDown} = useMainOperate();
+const { onKeyDown } = useMainOperate();
 
 const onClose = () => {
     mainResult.value?.onClose();
@@ -56,7 +59,7 @@ window.__page.onPluginInit(
         });
         manager.setSubInputValue("");
         mainSearch.value?.focus(true);
-    }
+    },
 );
 window.__page.onPluginInitReady(() => {
     // console.log('main.onPluginInitReady')
@@ -99,79 +102,82 @@ window.__page.onPluginState(() => {
         placeholder: manager.searchSubPlaceholder,
     };
 });
-window.__page.onPluginCodeInit((data: {
-    plugin: PluginRecord;
-    type: 'list' | never,
-    placeholder: string;
-}) => {
-    // console.log('main.onPluginCodeInit', data);
-    manager.setActivePlugin(data.plugin, "code");
-    manager.setActivePluginLoading(false);
-    manager.setSubInput({
-        placeholder: data.placeholder,
-        isFocus: true,
-        isVisible: true,
-    });
-    manager.actionCodeType = data.type;
-    setTimeout(() => {
-        mainSearch.value?.focus(false);
-    }, 1000);
-})
-window.__page.onPluginCodeSetting((data: {
-    loading?: boolean;
-    error?: string;
-    placeholder?: string;
-}) => {
-    // console.log('main.onPluginCodeData', data);
-    if ('loading' in data) {
-        manager.actionCodeLoading = data.loading || false;
-    }
-    if ('error' in data) {
-        manager.actionCodeError = data.error || '';
-    }
-    if ('placeholder' in data) {
+window.__page.onPluginCodeInit(
+    (data: {
+        plugin: PluginRecord;
+        type: "list" | never;
+        placeholder: string;
+    }) => {
+        // console.log('main.onPluginCodeInit', data);
+        manager.setActivePlugin(data.plugin, "code");
+        manager.setActivePluginLoading(false);
         manager.setSubInput({
-            placeholder: data.placeholder as string,
+            placeholder: data.placeholder,
             isFocus: true,
             isVisible: true,
         });
-    }
-});
-window.__page.onPluginCodeData((data: {
-    items: any[],
-}) => {
-    // console.log('main.onPluginCodeData', data);
-    manager.actionCodeError = null;
-    manager.actionCodeLoading = false;
-    manager.actionCodeItems = data.items.map((o, oIndex) => {
-        return {
-            shortcutIndex: oIndex <= 8 ? oIndex + 1 : -1,
-            ...o
+        manager.actionCodeType = data.type;
+        setTimeout(() => {
+            mainSearch.value?.focus(false);
+        }, 1000);
+    },
+);
+window.__page.onPluginCodeSetting(
+    (data: { loading?: boolean; error?: string; placeholder?: string }) => {
+        // console.log('main.onPluginCodeData', data);
+        if ("loading" in data) {
+            manager.actionCodeLoading = data.loading || false;
         }
-    });
-    manager.actionCodeItemActiveId = data.items.length > 0 ? data.items[0].id : null;
-});
+        if ("error" in data) {
+            manager.actionCodeError = data.error || "";
+        }
+        if ("placeholder" in data) {
+            manager.setSubInput({
+                placeholder: data.placeholder as string,
+                isFocus: true,
+                isVisible: true,
+            });
+        }
+    },
+);
+window.__page.onPluginCodeData(
+    (data: { items: { id: string; [key: string]: unknown }[] }) => {
+        // console.log('main.onPluginCodeData', data);
+        manager.actionCodeError = null;
+        manager.actionCodeLoading = false;
+        manager.actionCodeItems = data.items.map((o, oIndex) => {
+            return {
+                shortcutIndex: oIndex <= 8 ? oIndex + 1 : -1,
+                ...o,
+            };
+        });
+        manager.actionCodeItemActiveId =
+            data.items.length > 0 ? data.items[0].id : null;
+    },
+);
 window.__page.onPluginCodeExit(() => {
     // console.log('main.onPluginCodeExit');
     manager.setActivePlugin(null);
     manager.search("");
     mainResult.value?.onPluginExit();
-    manager.actionCodeItems = []
+    manager.actionCodeItems = [];
     manager.actionCodeItemActiveId = null;
     manager.actionCodeType = null;
     setTimeout(() => {
         mainSearch.value?.focus(true);
     }, 1000);
 });
-window.__page.onSetSubInput((param: { placeholder: string; isFocus: boolean; isVisible: boolean }) => {
-    // console.log('main.onSetSubInput', param)
-    manager.setSubInput(param);
-    if (param.isFocus) {
-        setTimeout(() => {
-            mainSearch.value?.focus(false);
-        }, 1000);
-    }
-});
+window.__page.onSetSubInput(
+    (param: { placeholder: string; isFocus: boolean; isVisible: boolean }) => {
+        // console.log('main.onSetSubInput', param)
+        manager.setSubInput(param);
+        if (param.isFocus) {
+            setTimeout(() => {
+                mainSearch.value?.focus(false);
+            }, 1000);
+        }
+    },
+);
 window.__page.onRemoveSubInput(() => {
     // console.log('main.onRemoveSubInput')
     manager.removeSubInput();
@@ -181,13 +187,13 @@ window.__page.onSetSubInputValue((value: string) => {
     manager.setSubInputValue(value);
 });
 
-window.addEventListener("keydown", e => {
-    const {resultKey} = onKeyDown(e);
+window.addEventListener("keydown", (e) => {
+    const { resultKey } = onKeyDown(e);
     // console.log('main.onKeyDown', e, resultKey);
     if (resultKey) {
         mainResult.value?.onInputKey(resultKey);
-    } else if (manager.activePlugin && manager.activePluginType === 'code') {
-        if (['1', '2', '3', '4', '5', '6', '7', '8', '9'].includes(e.key)) {
+    } else if (manager.activePlugin && manager.activePluginType === "code") {
+        if (["1", "2", "3", "4", "5", "6", "7", "8", "9"].includes(e.key)) {
             mainResult.value?.onInputHotKey(e);
         }
     }
@@ -195,7 +201,10 @@ window.addEventListener("keydown", e => {
 
 onMounted(() => {
     setTimeout(async () => {
-        const checkAtLaunch = await window.$mapi.config.get("updaterCheckAtLaunch", "yes");
+        const checkAtLaunch = await window.$mapi.config.get(
+            "updaterCheckAtLaunch",
+            "yes",
+        );
         if ("yes" !== checkAtLaunch) {
             return;
         }
@@ -210,7 +219,7 @@ onMounted(() => {
     height: 100vh;
     overflow: hidden;
     border-radius: @mainBorderRadius;
-    background: #FFFFFF;
+    background: #ffffff;
 
     &.no-active-plugin {
         &::before {
@@ -219,10 +228,17 @@ onMounted(() => {
             inset: 0;
             padding: 4px;
             border-radius: @mainBorderRadius;
-            background-image: linear-gradient(130deg, #a8c8f4, #61c4f5, #ba59ff);
+            background-image: linear-gradient(
+                130deg,
+                #a8c8f4,
+                #61c4f5,
+                #ba59ff
+            );
             background-size: 300% 300%;
             animation: border-flow 2s linear infinite;
-            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask:
+                linear-gradient(#fff 0 0) content-box,
+                linear-gradient(#fff 0 0);
             -webkit-mask-composite: xor;
             pointer-events: none;
         }

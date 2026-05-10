@@ -1,6 +1,6 @@
-import {AppEnv, waitAppEnvReady} from "../env";
+import { AppEnv, waitAppEnvReady } from "../env";
 import fs from "node:fs";
-import {ipcMain} from "electron";
+import { ipcMain } from "electron";
 import nodePath from "node:path";
 
 let data = {};
@@ -11,7 +11,7 @@ const userDataRoot = () => {
 
 const dataRoot = () => {
     return nodePath.join(AppEnv.dataRoot, "storage");
-}
+};
 
 const filePath = (group: string) => {
     let p = nodePath.join(userDataRoot(), `${group}.json`);
@@ -42,7 +42,7 @@ const save = (group: string) => {
     const path = filePath(group);
     const dir = nodePath.dirname(path);
     if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir, {recursive: true});
+        fs.mkdirSync(dir, { recursive: true });
     }
     fs.writeFileSync(path, JSON.stringify(data[group], null, 4));
 };
@@ -91,17 +91,26 @@ ipcMain.handle("storage:all", async (event, group: string) => {
     return await all(group);
 });
 
-ipcMain.handle("storage:get", async (event, group: string, key: string, defaultValue: any) => {
-    return await get(group, key, defaultValue);
-});
+ipcMain.handle(
+    "storage:get",
+    async (event, group: string, key: string, defaultValue: any) => {
+        return await get(group, key, defaultValue);
+    },
+);
 
-ipcMain.handle("storage:set", async (event, group: string, key: string, value: any) => {
-    return await set(group, key, value);
-});
+ipcMain.handle(
+    "storage:set",
+    async (event, group: string, key: string, value: any) => {
+        return await set(group, key, value);
+    },
+);
 
-ipcMain.handle("storage:read", async (event, group: string, defaultValue: any) => {
-    return await read(group, defaultValue);
-});
+ipcMain.handle(
+    "storage:read",
+    async (event, group: string, defaultValue: any) => {
+        return await read(group, defaultValue);
+    },
+);
 
 ipcMain.handle("storage:write", async (event, group: string, value: any) => {
     return await write(group, value);

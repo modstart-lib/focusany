@@ -1,12 +1,16 @@
 <script setup lang="ts">
-import {onBeforeUnmount, onMounted, ref} from "vue";
-import {t} from "../../lang";
+import { onBeforeUnmount, onMounted, ref } from "vue";
+import { t } from "../../lang";
 import SystemDataBackupDialog from "./components/SystemDataBackupDialog.vue";
 import SystemDataViewDialog from "./components/SystemDataViewDialog.vue";
-import {SystemDataRecord} from "./components/type";
+import { SystemDataRecord } from "./components/type";
 
-const dataViewDialog = ref<InstanceType<typeof SystemDataViewDialog> | null>(null);
-const dataBackupDialog = ref<InstanceType<typeof SystemDataBackupDialog> | null>(null);
+const dataViewDialog = ref<InstanceType<typeof SystemDataViewDialog> | null>(
+    null,
+);
+const dataBackupDialog = ref<InstanceType<
+    typeof SystemDataBackupDialog
+> | null>(null);
 
 const records = ref([] as SystemDataRecord[]);
 
@@ -29,11 +33,11 @@ const doLoad = async () => {
 onMounted(async () => {
     await doLoad();
     window.focusany.setSubInput(
-        keyword => {
+        (keyword) => {
             console.log("keyword", keyword);
         },
-        t("输入关键词过滤"),
-        true
+        t("data.filterPlaceholder"),
+        true,
     );
 });
 onBeforeUnmount(() => {
@@ -44,20 +48,26 @@ onBeforeUnmount(() => {
 <template>
     <div class="p-4">
         <div class="flex items-center">
-            <div class="flex-grow text-2xl">{{ $t("数据中心") }}</div>
+            <div class="flex-grow text-2xl">{{ $t("data.title") }}</div>
             <div>
-                <a-button size="small" @click="dataBackupDialog?.open()"> {{ $t("备份/恢复") }} </a-button>
+                <a-button size="small" @click="dataBackupDialog?.open()">
+                    {{ $t("backup.title") }}
+                </a-button>
             </div>
         </div>
         <div class="mt-3">
             <div v-for="r in records">
                 <div class="flex py-3 border-t border-default">
-                    <div class="w-12 bg-gray-100 dark:bg-gray-700 rounded-lg mr-2">
+                    <div
+                        class="w-12 bg-gray-100 dark:bg-gray-700 rounded-lg mr-2"
+                    >
                         <img :src="r.plugin.logo" />
                     </div>
                     <div class="flex-grow">
                         <div class="font-bold">{{ r.plugin.title }}</div>
-                        <div class="text-gray-400">{{ r.count }} {{ $t("份文档") }}</div>
+                        <div class="text-gray-400">
+                            {{ r.count }} {{ $t("data.docCount") }}
+                        </div>
                     </div>
                     <div>
                         <div

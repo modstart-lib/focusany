@@ -1,13 +1,14 @@
-import {ActionTypeCodeData} from "../../../../../../src/types/Manager";
-import {screenCapture} from "../../../plugin/screenCapture";
-import {AppsMain} from "../../../../app/main";
-import {Page} from "../../../../../page";
-import {KeyboardKey, ManagerHotkeySimulate} from "../../../hotkey/simulate";
-import {isLinux, isMac, isWin} from "../../../../../lib/env";
 import os from "os";
-import {colorPicker} from "../../../plugin/colorPicker";
-import {screenRecord} from "../../../plugin/screenRecord";
-import {AppRuntime} from "../../../../env";
+import { ActionTypeCodeData } from "../../../../../../src/types/Manager";
+import { t } from "../../../../../config/lang";
+import { isLinux, isMac, isWin } from "../../../../../lib/env";
+import { Page } from "../../../../../page";
+import { AppsMain } from "../../../../app/main";
+import { AppRuntime } from "../../../../env";
+import { KeyboardKey, ManagerHotkeySimulate } from "../../../hotkey/simulate";
+import { colorPicker } from "../../../plugin/colorPicker";
+import { screenCapture } from "../../../plugin/screenCapture";
+import { screenRecord } from "../../../plugin/screenRecord";
 
 export const SystemActionCode = {
     screenshot: async (data: ActionTypeCodeData) => {
@@ -26,16 +27,19 @@ export const SystemActionCode = {
     },
     guide: async (data: ActionTypeCodeData) => {
         AppRuntime.mainWindow.hide();
-        await Page.open("guide", {})
+        await Page.open("guide", {});
     },
     about: async (data: ActionTypeCodeData) => {
         AppRuntime.mainWindow.hide();
-        await Page.open("about", {})
+        await Page.open("about", {});
     },
     lock: async (data: ActionTypeCodeData) => {
         AppRuntime.mainWindow.hide();
         if (isMac) {
-            ManagerHotkeySimulate.keyTap(KeyboardKey.Q, [KeyboardKey.Meta, KeyboardKey.Ctrl]);
+            ManagerHotkeySimulate.keyTap(KeyboardKey.Q, [
+                KeyboardKey.Meta,
+                KeyboardKey.Ctrl,
+            ]);
         } else if (isWin) {
             ManagerHotkeySimulate.keyTap(KeyboardKey.L, [KeyboardKey.Meta]);
         } else if (isLinux) {
@@ -46,7 +50,7 @@ export const SystemActionCode = {
         AppRuntime.mainWindow.hide();
         const ip = getLocalIPAddress();
         AppsMain.setClipboardText(ip);
-        AppsMain.toast(`IP地址 ${ip} 已复制到剪贴板`);
+        AppsMain.toast(t("system.ipCopied", { ip }));
     },
 };
 

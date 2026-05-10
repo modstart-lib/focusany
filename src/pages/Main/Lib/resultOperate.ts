@@ -1,14 +1,20 @@
-import {computed, ref, watch} from "vue";
-import {chunk} from "lodash-es";
-import {ActionRecord} from "../../../types/Manager";
-import {useManagerStore} from "../../../store/modules/manager";
-import {ComputedRef} from "@vue/reactivity";
-import {EntryListener} from "./entryListener";
-import {Dialog} from "../../../lib/dialog";
-import {t} from "../../../lang";
-import {UI} from "../../../lib/ui";
+import { ComputedRef } from "@vue/reactivity";
+import { chunk } from "lodash-es";
+import { computed, ref, watch } from "vue";
+import { t } from "../../../lang";
+import { Dialog } from "../../../lib/dialog";
+import { UI } from "../../../lib/ui";
+import { useManagerStore } from "../../../store/modules/manager";
+import { ActionRecord } from "../../../types/Manager";
+import { EntryListener } from "./entryListener";
 
-type ActionGroupType = "window" | "search" | "match" | "history" | "pin" | never;
+type ActionGroupType =
+    | "window"
+    | "search"
+    | "match"
+    | "history"
+    | "pin"
+    | never;
 
 const manager = useManagerStore();
 
@@ -37,30 +43,34 @@ export const useResultOperate = () => {
     watch(
         () => manager.searchActions,
         () => {
-            searchActionIsExtend.value = manager.searchActions.length <= lineActionCount.value;
+            searchActionIsExtend.value =
+                manager.searchActions.length <= lineActionCount.value;
             resetActive();
-        }
+        },
     );
     watch(
         () => manager.matchActions,
         () => {
-            matchActionIsExtend.value = manager.matchActions.length <= lineActionCount.value;
+            matchActionIsExtend.value =
+                manager.matchActions.length <= lineActionCount.value;
             resetActive();
-        }
+        },
     );
     watch(
         () => manager.historyActions,
         () => {
-            historyActionIsExtend.value = manager.historyActions.length <= lineActionCount.value;
+            historyActionIsExtend.value =
+                manager.historyActions.length <= lineActionCount.value;
             resetActive();
-        }
+        },
     );
     watch(
         () => manager.pinActions,
         () => {
-            pinActionIsExtend.value = manager.pinActions.length <= lineActionCount.value;
+            pinActionIsExtend.value =
+                manager.pinActions.length <= lineActionCount.value;
             resetActive();
-        }
+        },
     );
 
     const doSearchActionExtend = () => {
@@ -88,16 +98,20 @@ export const useResultOperate = () => {
         pinActionIsExtend.value = true;
     };
 
-    const showDetachWindowActions: ComputedRef<ActionRecord[]> = computed(() => {
-        return manager.detachWindowActions;
-    });
+    const showDetachWindowActions: ComputedRef<ActionRecord[]> = computed(
+        () => {
+            return manager.detachWindowActions;
+        },
+    );
     const showSearchActions: ComputedRef<ActionRecord[]> = computed(() => {
         return searchActionIsExtend.value
             ? manager.searchActions
             : manager.searchActions.slice(0, lineActionCount.value);
     });
     const showMatchActions: ComputedRef<ActionRecord[]> = computed(() => {
-        return matchActionIsExtend.value ? manager.matchActions : manager.matchActions.slice(0, lineActionCount.value);
+        return matchActionIsExtend.value
+            ? manager.matchActions
+            : manager.matchActions.slice(0, lineActionCount.value);
     });
     const showHistoryActions: ComputedRef<ActionRecord[]> = computed(() => {
         return historyActionIsExtend.value
@@ -105,7 +119,9 @@ export const useResultOperate = () => {
             : manager.historyActions.slice(0, lineActionCount.value);
     });
     const showPinActions: ComputedRef<ActionRecord[]> = computed(() => {
-        return pinActionIsExtend.value ? manager.pinActions : manager.pinActions.slice(0, lineActionCount.value);
+        return pinActionIsExtend.value
+            ? manager.pinActions
+            : manager.pinActions.slice(0, lineActionCount.value);
     });
 
     const activeActionGroup = ref<ActionGroupType>("search");
@@ -126,7 +142,9 @@ export const useResultOperate = () => {
     };
 
     const doCodeNavigate = (direction: string) => {
-        let index = manager.actionCodeItems.findIndex(item => item.id === manager.actionCodeItemActiveId);
+        let index = manager.actionCodeItems.findIndex(
+            (item) => item.id === manager.actionCodeItemActiveId,
+        );
         switch (direction) {
             case "up":
             case "left":
@@ -139,36 +157,56 @@ export const useResultOperate = () => {
         }
         manager.actionCodeItemActiveId = manager.actionCodeItems[index].id;
         setTimeout(() => {
-            const codeItemElement = document.getElementById(`MainResult_CodeItem_${manager.actionCodeItemActiveId}`);
+            const codeItemElement = document.getElementById(
+                `MainResult_CodeItem_${manager.actionCodeItemActiveId}`,
+            );
             if (codeItemElement) {
-                const container = document.getElementById('MainResult_Container');
+                const container = document.getElementById(
+                    "MainResult_Container",
+                );
                 if (container) {
                     UI.smoothScrollTop(
                         container,
-                        codeItemElement.offsetTop - container.offsetTop - container.clientHeight / 2 + codeItemElement.clientHeight / 2
+                        codeItemElement.offsetTop -
+                            container.offsetTop -
+                            container.clientHeight / 2 +
+                            codeItemElement.clientHeight / 2,
                     ).then(() => {
                         // 计算完全在可视范围内的元素，使用shortcutIndex进行编号
-                        const visibleItemIndexes = Array.from(container.querySelectorAll('.pb-main-result-code-item')).map((el, idx) => {
-                            const item = el as HTMLElement;
-                            const itemTop = item.offsetTop - container.offsetTop;
-                            const itemBottom = itemTop + item.clientHeight;
-                            if (itemTop >= container.scrollTop && itemBottom <= container.scrollTop + container.clientHeight) {
-                                return idx;
-                            }
-                            return null;
-                        }).filter(idx => idx !== null) as number[];
+                        const visibleItemIndexes = Array.from(
+                            container.querySelectorAll(
+                                ".pb-main-result-code-item",
+                            ),
+                        )
+                            .map((el, idx) => {
+                                const item = el as HTMLElement;
+                                const itemTop =
+                                    item.offsetTop - container.offsetTop;
+                                const itemBottom = itemTop + item.clientHeight;
+                                if (
+                                    itemTop >= container.scrollTop &&
+                                    itemBottom <=
+                                        container.scrollTop +
+                                            container.clientHeight
+                                ) {
+                                    return idx;
+                                }
+                                return null;
+                            })
+                            .filter((idx) => idx !== null) as number[];
                         manager.actionCodeItems.forEach((item, idx) => {
                             if (visibleItemIndexes.includes(idx)) {
-                                item.shortcutIndex = visibleItemIndexes.indexOf(idx) + 1;
+                                item.shortcutIndex =
+                                    visibleItemIndexes.indexOf(idx) + 1;
                             } else {
                                 item.shortcutIndex = -1;
                             }
                         });
-                    })
+                    });
                 }
             }
-        }, 10)
-    }
+        }, 10);
+    };
 
     const _doActionNavigate = (direction: string) => {
         const grids: any[][] = [];
@@ -178,7 +216,7 @@ export const useResultOperate = () => {
             [showMatchActions.value, "match"],
             [showHistoryActions.value, "history"],
             [showPinActions.value, "pin"],
-        ].forEach(actions => {
+        ].forEach((actions) => {
             let items = [] as any[];
             (actions[0] as ActionRecord[]).forEach((_, itemIndex) => {
                 items.push({
@@ -186,27 +224,39 @@ export const useResultOperate = () => {
                     index: itemIndex,
                 });
             });
-            chunk(items, lineActionCount.value).forEach(chunk => {
+            chunk(items, lineActionCount.value).forEach((chunk) => {
                 grids.push(chunk);
             });
         });
-        let activeGridRowIndex = grids.findIndex(gridLine =>
-            gridLine.find(grid => grid.group === activeActionGroup.value && grid.index === actionActionIndex.value)
+        let activeGridRowIndex = grids.findIndex((gridLine) =>
+            gridLine.find(
+                (grid) =>
+                    grid.group === activeActionGroup.value &&
+                    grid.index === actionActionIndex.value,
+            ),
         );
         let activeGridColIndex = grids[activeGridRowIndex].findIndex(
-            grid => grid.group === activeActionGroup.value && grid.index === actionActionIndex.value
+            (grid) =>
+                grid.group === activeActionGroup.value &&
+                grid.index === actionActionIndex.value,
         );
         switch (direction) {
             case "up":
                 if (activeGridRowIndex > 0) {
                     activeGridRowIndex--;
-                    activeGridColIndex = Math.min(activeGridColIndex, grids[activeGridRowIndex].length - 1);
+                    activeGridColIndex = Math.min(
+                        activeGridColIndex,
+                        grids[activeGridRowIndex].length - 1,
+                    );
                 }
                 break;
             case "down":
                 if (activeGridRowIndex < grids.length - 1) {
                     activeGridRowIndex++;
-                    activeGridColIndex = Math.min(activeGridColIndex, grids[activeGridRowIndex].length - 1);
+                    activeGridColIndex = Math.min(
+                        activeGridColIndex,
+                        grids[activeGridRowIndex].length - 1,
+                    );
                 }
                 break;
             case "left":
@@ -214,7 +264,8 @@ export const useResultOperate = () => {
                 if (activeGridColIndex < 0) {
                     if (activeGridRowIndex > 0) {
                         activeGridRowIndex--;
-                        activeGridColIndex = grids[activeGridRowIndex].length - 1;
+                        activeGridColIndex =
+                            grids[activeGridRowIndex].length - 1;
                     } else {
                         activeGridColIndex = 0;
                     }
@@ -227,13 +278,16 @@ export const useResultOperate = () => {
                         activeGridRowIndex++;
                         activeGridColIndex = 0;
                     } else {
-                        activeGridColIndex = grids[activeGridRowIndex].length - 1;
+                        activeGridColIndex =
+                            grids[activeGridRowIndex].length - 1;
                     }
                 }
                 break;
         }
-        activeActionGroup.value = grids[activeGridRowIndex][activeGridColIndex].group;
-        actionActionIndex.value = grids[activeGridRowIndex][activeGridColIndex].index;
+        activeActionGroup.value =
+            grids[activeGridRowIndex][activeGridColIndex].group;
+        actionActionIndex.value =
+            grids[activeGridRowIndex][activeGridColIndex].index;
         manager.setSelectedAction(_getActiveAction() as ActionRecord);
     };
 
@@ -241,7 +295,8 @@ export const useResultOperate = () => {
         let activeAction: any = null;
         switch (activeActionGroup.value) {
             case "window":
-                activeAction = showDetachWindowActions.value[actionActionIndex.value];
+                activeAction =
+                    showDetachWindowActions.value[actionActionIndex.value];
                 break;
             case "search":
                 activeAction = showSearchActions.value[actionActionIndex.value];
@@ -250,7 +305,8 @@ export const useResultOperate = () => {
                 activeAction = showMatchActions.value[actionActionIndex.value];
                 break;
             case "history":
-                activeAction = showHistoryActions.value[actionActionIndex.value];
+                activeAction =
+                    showHistoryActions.value[actionActionIndex.value];
                 break;
             case "pin":
                 activeAction = showPinActions.value[actionActionIndex.value];
@@ -261,13 +317,13 @@ export const useResultOperate = () => {
 
     const onInputKey = (key: string) => {
         if (["up", "down", "left", "right"].includes(key)) {
-            if (manager.activePlugin && manager.activePluginType === 'code') {
+            if (manager.activePlugin && manager.activePluginType === "code") {
                 doCodeNavigate(key);
             } else {
                 _doActionNavigate(key);
             }
         } else if ("enter" === key) {
-            if (manager.activePlugin && manager.activePluginType === 'code') {
+            if (manager.activePlugin && manager.activePluginType === "code") {
                 if (manager.actionCodeItemActiveId) {
                     doOpenActionCode(manager.actionCodeItemActiveId).then();
                 }
@@ -290,7 +346,7 @@ export const useResultOperate = () => {
             }
         } else if ("paste" === key) {
             if (!manager.activePlugin) {
-                EntryListener.prepareSearch({isPaste: true}).then();
+                EntryListener.prepareSearch({ isPaste: true }).then();
             }
         }
     };
@@ -316,26 +372,32 @@ export const useResultOperate = () => {
 
     const doOpenActionCode = async (id: string) => {
         await manager.openActionCode(id);
-    }
+    };
 
     const openActionWindow = async (type: "open", action: ActionRecord) => {
         await manager.openActionWindow(type, action);
     };
 
     const doHistoryClear = async () => {
-        Dialog.confirm(t("确认清除全部？")).then(() => {
+        Dialog.confirm(t("main.clearAllConfirm")).then(() => {
             window.$mapi.manager.historyClear();
             manager.searchRefresh().then();
         });
     };
 
     const doHistoryDelete = async (action: ActionRecord) => {
-        await window.$mapi.manager.historyDelete(action.pluginName as string, action.name);
+        await window.$mapi.manager.historyDelete(
+            action.pluginName as string,
+            action.name,
+        );
         await manager.searchRefresh();
     };
 
     const doPinToggle = async (action: ActionRecord) => {
-        await window.$mapi.manager.togglePinAction(action.pluginName as string, action.name);
+        await window.$mapi.manager.togglePinAction(
+            action.pluginName as string,
+            action.name,
+        );
         await manager.searchRefresh();
     };
 

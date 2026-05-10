@@ -1,5 +1,5 @@
-import {useTaskStore} from "../store/modules/task";
-import {nextTick} from "vue";
+import { useTaskStore } from "../store/modules/task";
+import { nextTick } from "vue";
 
 const taskStore = useTaskStore();
 

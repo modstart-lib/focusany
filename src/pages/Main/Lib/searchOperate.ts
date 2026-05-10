@@ -1,45 +1,50 @@
-import {useManagerStore} from "../../../store/modules/manager";
-import {computed} from "vue";
-import {t} from "../../../lang";
+import { computed } from "vue";
+import { t } from "../../../lang";
+import { useManagerStore } from "../../../store/modules/manager";
 
-const {Menu} = require("@electron/remote");
+const { Menu } = require("@electron/remote");
 
 const manager = useManagerStore();
 
-export const useSearchOperate = emit => {
+export const useSearchOperate = (emit) => {
     const doShowMenu = () => {
         const menuTemplate: any[] = [];
         if (manager.activePlugin) {
-            if (manager.activePluginType === 'code') {
+            if (manager.activePluginType === "code") {
                 // do nothing
             } else {
                 menuTemplate.push({
-                    label: t("独立窗口显示"),
+                    label: t("plugin.detachWindow"),
                     click: () => {
                         doDetachPlugin().then();
                     },
                 });
             }
             menuTemplate.push({
-                label: t("插件调试窗口"),
+                label: t("plugin.debugWindow"),
                 click: async () => {
-                    manager.openMainPluginDevTools().then()
+                    manager.openMainPluginDevTools().then();
                 },
             });
             menuTemplate.push({
-                label: t("插件后端日志"),
+                label: t("plugin.backendLog"),
                 click: async () => {
                     manager.openMainPluginLog().then();
                 },
             });
             if (manager.activePlugin.setting) {
-                if (manager.activePlugin.setting.moreMenu && manager.activePlugin.setting.moreMenu.length > 0) {
+                if (
+                    manager.activePlugin.setting.moreMenu &&
+                    manager.activePlugin.setting.moreMenu.length > 0
+                ) {
                     for (const item of manager.activePlugin.setting.moreMenu) {
-                        (item => {
+                        ((item) => {
                             menuTemplate.push({
                                 label: item.title,
                                 click: async () => {
-                                    await window.$mapi.manager.firePluginMoreMenuClick(item.name);
+                                    await window.$mapi.manager.firePluginMoreMenuClick(
+                                        item.name,
+                                    );
                                 },
                             });
                         })(item);
@@ -62,7 +67,7 @@ export const useSearchOperate = emit => {
         extName: string;
     }>(() => {
         const result = {
-            name: t("多个文件"),
+            name: t("main.multipleFiles"),
             extName: "ext.unknown",
         };
         if (manager.currentFiles.length <= 0) {
@@ -82,22 +87,26 @@ export const useSearchOperate = emit => {
             return result;
         }
         // 如果全部是目录
-        const directoryCount = manager.currentFiles.filter(f => f.isDirectory).length;
+        const directoryCount = manager.currentFiles.filter(
+            (f) => f.isDirectory,
+        ).length;
         if (directoryCount === manager.currentFiles.length) {
-            result.name = t("多个文件夹");
+            result.name = t("main.multipleFolders");
             result.extName = "ext.folder";
             return result;
         }
         // 如果全部是文件
-        const fileCount = manager.currentFiles.filter(f => f.isFile).length;
+        const fileCount = manager.currentFiles.filter((f) => f.isFile).length;
         if (fileCount === manager.currentFiles.length) {
             // 如果全部是图片
-            const imageCount = manager.currentFiles.filter(f => {
+            const imageCount = manager.currentFiles.filter((f) => {
                 const ext = f.name.split(".").pop()?.toLowerCase();
-                return ["jpg", "jpeg", "png", "gif", "bmp", "webp"].includes(ext || "");
+                return ["jpg", "jpeg", "png", "gif", "bmp", "webp"].includes(
+                    ext || "",
+                );
             }).length;
             if (imageCount === manager.currentFiles.length) {
-                result.name = t("多个图片");
+                result.name = t("main.multipleImages");
                 result.extName = "ext.png";
                 return result;
             }

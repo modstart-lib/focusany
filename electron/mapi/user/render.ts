@@ -1,4 +1,4 @@
-import {ipcRenderer} from "electron";
+import { ipcRenderer } from "electron";
 
 const open = async (option: any) => {
     return ipcRenderer.invoke("user:open", option);
@@ -29,7 +29,7 @@ const apiPost = async (
     data: Record<string, any>,
     option?: {
         throwException?: boolean;
-    }
+    },
 ) => {
     return ipcRenderer.invoke("user:apiPost", url, data, option);
 };

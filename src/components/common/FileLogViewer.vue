@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import LogViewer from "./LogViewer.vue";
-import {onBeforeUnmount, onMounted, ref} from "vue";
+import { onBeforeUnmount, onMounted, ref } from "vue";
 
 const props = withDefaults(
     defineProps<{
@@ -16,7 +16,7 @@ const props = withDefaults(
         height: "100%",
         autoScroll: true,
         isDataPath: true,
-    }
+    },
 );
 
 interface LogItem {
@@ -38,7 +38,7 @@ onMounted(async () => {
         {
             isDataPath: props.isDataPath,
             limit: props.maxLines,
-        }
+        },
     );
 });
 onBeforeUnmount(() => {
@@ -49,8 +49,12 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-    <div :style="{height:props.height}">
-        <LogViewer :height="props.height" :logs="logs" :auto-scroll="autoScroll"/>
+    <div :style="{ height: props.height }">
+        <LogViewer
+            :height="props.height"
+            :logs="logs"
+            :auto-scroll="autoScroll"
+        />
     </div>
 </template>
 

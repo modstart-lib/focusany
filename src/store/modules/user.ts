@@ -1,7 +1,7 @@
-import {defineStore} from "pinia";
+import { defineStore } from "pinia";
 import store from "../index";
-import {AppConfig} from "../../config";
-import {useSettingStore} from "./setting";
+import { AppConfig } from "../../config";
+import { useSettingStore } from "./setting";
 
 const setting = useSettingStore();
 
@@ -38,7 +38,8 @@ export const userStore = defineStore("user", {
             await this.load();
         },
         async load() {
-            const {apiToken, user, data, basic} = await window.$mapi.user.get();
+            const { apiToken, user, data, basic } =
+                await window.$mapi.user.get();
             this.apiToken = apiToken;
             this.user = Object.assign(this.user, user);
             this.data = data as any;
@@ -53,7 +54,7 @@ export const userStore = defineStore("user", {
             if (this.isInit) {
                 return;
             }
-            await new Promise(resolve => {
+            await new Promise((resolve) => {
                 const timer = setInterval(() => {
                     if (this.isInit) {
                         clearInterval(timer);
@@ -71,7 +72,9 @@ export const userStore = defineStore("user", {
             if (setting.shouldDarkMode()) {
                 param.push("is_dark=1");
             }
-            return `${AppConfig.apiBaseUrl}/app_manager/user_web?${param.join("&")}`;
+            return `${AppConfig.apiBaseUrl}/app_manager/user_web?${param.join(
+                "&",
+            )}`;
         },
     },
 });

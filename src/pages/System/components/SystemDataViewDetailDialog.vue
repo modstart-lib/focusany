@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import {ref} from "vue";
-import {SystemDataRecord} from "./type";
+import { ref } from "vue";
 import CodeViewer from "../../../components/common/CodeViewer.vue";
-import {Dialog} from "../../../lib/dialog";
-import {t} from "../../../lang";
+import { t } from "../../../lang";
+import { Dialog } from "../../../lib/dialog";
+import { SystemDataRecord } from "./type";
 
 const visible = ref(false);
 const record = ref<SystemDataRecord | null>(null);
@@ -18,15 +18,21 @@ const show = async (r: SystemDataRecord, k: string) => {
 };
 
 const doLoad = async () => {
-    recordDetail.value = await window.$mapi.kvdb.get(record.value?.plugin.name as string, key.value);
+    recordDetail.value = await window.$mapi.kvdb.get(
+        record.value?.plugin.name as string,
+        key.value,
+    );
 };
 
 const doDelete = async () => {
-    Dialog.confirm(t("确定要删除吗？")).then(async () => {
+    Dialog.confirm(t("data.deleteConfirm")).then(async () => {
         Dialog.loadingOn();
-        await window.$mapi.kvdb.remove(record.value?.plugin.name as string, key.value);
+        await window.$mapi.kvdb.remove(
+            record.value?.plugin.name as string,
+            key.value,
+        );
         Dialog.loadingOff();
-        Dialog.tipSuccess(t("删除成功"));
+        Dialog.tipSuccess(t("data.deleteSuccess"));
         visible.value = false;
         emit("update");
     });
@@ -47,11 +53,23 @@ defineExpose({
             </div>
         </template>
         <template #footer>
-            <a-button type="primary" size="small" status="danger" @click="doDelete"> {{$t('删除')}} </a-button>
-            <a-button size="small" @click="visible = false"> {{$t('关闭')}} </a-button>
+            <a-button
+                type="primary"
+                size="small"
+                status="danger"
+                @click="doDelete"
+            >
+                {{ $t("common.delete") }}
+            </a-button>
+            <a-button size="small" @click="visible = false">
+                {{ $t("common.close") }}
+            </a-button>
         </template>
         <div class="h-64" style="margin: -24px -20px">
-            <CodeViewer lang="json" :code="JSON.stringify(recordDetail, null, 2)" />
+            <CodeViewer
+                lang="json"
+                :code="JSON.stringify(recordDetail, null, 2)"
+            />
         </div>
     </a-modal>
 </template>

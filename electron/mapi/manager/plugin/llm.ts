@@ -1,13 +1,17 @@
 // @ts-ignore
-import {Model, Provider} from "../../../../src/module/Model/types";
+import { Model, Provider } from "../../../../src/module/Model/types";
 // @ts-ignore
-import {getProviderLogo, getProviderTitle, SystemProviders} from "../../../../src/module/Model/providers";
+import {
+    getProviderLogo,
+    getProviderTitle,
+    SystemProviders,
+} from "../../../../src/module/Model/providers";
 // @ts-ignore
-import {SystemModels} from "../../../../src/module/Model/models";
+import { SystemModels } from "../../../../src/module/Model/models";
 import StorageMain from "../../storage/main";
 import User from "../../user/main";
-import {AppConfig} from "../../../../src/config";
-import {ModelProvider} from "../../../../src/module/Model/provider/provider";
+import { AppConfig } from "../../../../src/config";
+import { ModelProvider } from "../../../../src/module/Model/provider/provider";
 
 const listProviders = async (): Promise<Provider[]> => {
     const results: Provider[] = [];
@@ -28,7 +32,7 @@ const listProviders = async (): Promise<Provider[]> => {
             data: {
                 apiKey: "",
                 apiHost: "",
-                models: (SystemModels[providerId] || []).map(m => {
+                models: (SystemModels[providerId] || []).map((m) => {
                     return {
                         id: m.id,
                         provider: providerId,
@@ -46,7 +50,7 @@ const listProviders = async (): Promise<Provider[]> => {
     let buildInProviderData: any = null;
     if (storageData) {
         if (storageData.userProviders) {
-            storageData.userProviders.forEach(provider => {
+            storageData.userProviders.forEach((provider) => {
                 results.unshift({
                     id: provider.id,
                     type: provider.type,
@@ -71,35 +75,42 @@ const listProviders = async (): Promise<Provider[]> => {
         if (storageData.providerData) {
             buildInProviderData = storageData.providerData["buildIn"] || null;
             for (const providerId in storageData.providerData) {
-                const provider = results.find(p => p.id === providerId);
+                const provider = results.find((p) => p.id === providerId);
                 if (provider) {
-                    provider.data.apiKey = storageData.providerData[providerId].apiKey || "";
-                    provider.data.apiHost = storageData.providerData[providerId].apiHost;
-                    (storageData.providerData[providerId].models || []).forEach(model => {
-                        const existingModel = provider.data.models.find(m => m.id === model.id);
-                        if (existingModel) {
-                            existingModel.name = model.name;
-                            existingModel.group = model.group;
-                            existingModel.types = model.types;
-                            existingModel.enabled = model.enabled || false;
-                        } else {
-                            provider.data.models.push({
-                                id: model.id,
-                                provider: providerId,
-                                name: model.name,
-                                group: model.group,
-                                types: ["text"],
-                                enabled: model.enabled || false,
-                                editable: true,
-                            });
-                        }
-                    });
-                    provider.data.enabled = storageData.providerData[providerId].enabled || false;
+                    provider.data.apiKey =
+                        storageData.providerData[providerId].apiKey || "";
+                    provider.data.apiHost =
+                        storageData.providerData[providerId].apiHost;
+                    (storageData.providerData[providerId].models || []).forEach(
+                        (model) => {
+                            const existingModel = provider.data.models.find(
+                                (m) => m.id === model.id,
+                            );
+                            if (existingModel) {
+                                existingModel.name = model.name;
+                                existingModel.group = model.group;
+                                existingModel.types = model.types;
+                                existingModel.enabled = model.enabled || false;
+                            } else {
+                                provider.data.models.push({
+                                    id: model.id,
+                                    provider: providerId,
+                                    name: model.name,
+                                    group: model.group,
+                                    types: ["text"],
+                                    enabled: model.enabled || false,
+                                    editable: true,
+                                });
+                            }
+                        },
+                    );
+                    provider.data.enabled =
+                        storageData.providerData[providerId].enabled || false;
                 }
             }
         }
     }
-    const user = await User.get()
+    const user = await User.get();
     if (user.data && user.data.lmApi && user.data.lmApi.models) {
         const lmApi = user.data.lmApi;
         const models: Model[] = [];
@@ -115,7 +126,7 @@ const listProviders = async (): Promise<Provider[]> => {
             });
         }
         let enabled = true;
-        if (buildInProviderData && 'enabled' in buildInProviderData) {
+        if (buildInProviderData && "enabled" in buildInProviderData) {
             enabled = buildInProviderData.enabled;
         }
         results.unshift({
@@ -139,7 +150,7 @@ const listProviders = async (): Promise<Provider[]> => {
         });
     }
     return results;
-}
+};
 
 export const listModels = async () => {
     const providers = await listProviders();
@@ -167,12 +178,12 @@ export const listModels = async () => {
         }
     }
     return results;
-}
+};
 
 export const modelChat = async (
     providerId: string,
     modelId: string,
-    message: string
+    message: string,
 ): Promise<{
     code: number;
     msg: string;
@@ -181,11 +192,11 @@ export const modelChat = async (
     };
 }> => {
     const providers = await listProviders();
-    const provider = providers.find(p => p.id === providerId);
+    const provider = providers.find((p) => p.id === providerId);
     if (!provider) {
         throw new Error(`Provider not found: ${providerId}`);
     }
-    const model = provider.data.models.find(m => m.id === modelId);
+    const model = provider.data.models.find((m) => m.id === modelId);
     if (!model || !model.enabled) {
         throw new Error(`Model not found or not enabled: ${modelId}`);
     }
@@ -200,13 +211,13 @@ export const modelChat = async (
         return {
             code: -1,
             msg: res.msg,
-        }
+        };
     }
     return {
         code: 0,
-        msg: 'ok',
+        msg: "ok",
         data: {
             message: res.data.content,
-        }
-    }
-}
+        },
+    };
+};

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, onMounted, ref, watch} from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import PageWebviewStatus from "../components/common/PageWebviewStatus.vue";
 
 const status = ref<InstanceType<typeof PageWebviewStatus> | null>(null);
@@ -31,16 +31,16 @@ const pageStatusColor = computed(() => {
 });
 
 window.__page.registerCallPage("MonitorData", (resolve, reject, payload) => {
-    const {type, data} = payload;
+    const { type, data } = payload;
     if ("SetTitle" == type) {
         pageTitle.value = data.title;
-        emit("event", "SetTitle", {title: pageTitle.value});
+        emit("event", "SetTitle", { title: pageTitle.value });
     } else if ("LoadUrl" == type) {
         status.value?.setStatus("loading");
         pageOpenDevTools.value = data.openDevTools;
         pageScript.value = data.script;
         webUrl.value = data.url;
-        emit("event", "SetTitle", {title: pageTitle.value + " " + data.url});
+        emit("event", "SetTitle", { title: pageTitle.value + " " + data.url });
     }
     return resolve(undefined);
 });
@@ -55,7 +55,7 @@ const doOpenWebDevTools = () => {
     }
 };
 
-const doRefresh = e => {
+const doRefresh = (e) => {
     if (e.shiftKey) {
         pageDebugToolsShow.value = !pageDebugToolsShow.value;
         return;
@@ -65,7 +65,7 @@ const doRefresh = e => {
     }
 };
 
-watch(web, newVal => {
+watch(web, (newVal) => {
     if (!newVal) {
         return;
     }
@@ -81,28 +81,32 @@ watch(web, newVal => {
             web.value.closeDevTools();
         }
     });
-    web.value.addEventListener("dom-ready", e => {
+    web.value.addEventListener("dom-ready", (e) => {
         if (pageOpenDevTools.value) {
             web.value.openDevTools();
         }
         if (pageScript.value) {
-            window.$mapi.user.apiPost(pageScript.value, {}, {throwException: false}).then(res => {
-                if (res.code) {
-                    pageStatusMsg.value = `ERROR: ${res.msg}`;
-                } else {
-                    if (res.data.script) {
-                        // console.log('monitor script', res.data.script)
-                        web.value.executeJavaScript(`console.log('monitor script run');${res.data.script};`);
+            window.$mapi.user
+                .apiPost(pageScript.value, {}, { throwException: false })
+                .then((res) => {
+                    if (res.code) {
+                        pageStatusMsg.value = `ERROR: ${res.msg}`;
+                    } else {
+                        if (res.data.script) {
+                            // console.log('monitor script', res.data.script)
+                            web.value.executeJavaScript(
+                                `console.log('monitor script run');${res.data.script};`,
+                            );
+                        }
                     }
-                }
-            });
+                });
         }
         status.value?.setStatus("success");
     });
-    web.value.addEventListener("ipc-message", event => {
+    web.value.addEventListener("ipc-message", (event) => {
         if ("data" === event.channel) {
-            const {type, data} = event.args[0];
-            console.log("message", {type, data});
+            const { type, data } = event.args[0];
+            console.log("message", { type, data });
             if ("status" === type) {
                 pageStatusType.value = data.type;
                 pageStatusMsg.value = data.msg;
@@ -133,9 +137,11 @@ onMounted(async () => {
             >
                 {{ $t("monitor.debug") }}
             </a-button>
-            <a-button shape="round" type="primary" @click="doRefresh"> {{ $t("monitor.refresh") }} </a-button>
+            <a-button shape="round" type="primary" @click="doRefresh">
+                {{ $t("monitor.refresh") }}
+            </a-button>
             <div class="ml-2">
-                <div :style="{color: pageStatusColor}">
+                <div :style="{ color: pageStatusColor }">
                     {{ pageStatusMsg }}
                 </div>
             </div>

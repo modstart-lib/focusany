@@ -1,8 +1,8 @@
-import {execSync} from "child_process";
-import {resolve} from "node:path";
+import { execSync } from "child_process";
+import { resolve } from "node:path";
 import fs from "node:fs";
 import os from "os";
-import {Log} from "../mapi/log";
+import { Log } from "../mapi/log";
 import FileIndex from "../mapi/file";
 
 export const isPackaged = ["true"].includes(process.env.IS_PACKAGED);
@@ -37,8 +37,7 @@ const tryFirst = (functionList: (() => any)[]) => {
     for (const fun of functionList) {
         try {
             return fun();
-        } catch (e) {
-        }
+        } catch (e) {}
     }
     return null;
 };
@@ -48,19 +47,30 @@ export const platformVersion = () => {
     if (null === platformVersionCache) {
         const functionList: any[] = [];
         if (isWin) {
-            functionList.push(() => execSync("wmic os get Version").toString().split("\n")[1].trim());
+            functionList.push(() =>
+                execSync("wmic os get Version")
+                    .toString()
+                    .split("\n")[1]
+                    .trim(),
+            );
             functionList.push(() =>
                 execSync(
-                    "powershell -command \"(Get-ItemProperty 'HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion').ReleaseId\""
+                    "powershell -command \"(Get-ItemProperty 'HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion').ReleaseId\"",
                 )
                     .toString()
-                    .trim()
+                    .trim(),
             );
         } else if (isMac) {
-            functionList.push(() => execSync("sw_vers -productVersion").toString().trim());
+            functionList.push(() =>
+                execSync("sw_vers -productVersion").toString().trim(),
+            );
         } else if (isLinux) {
             functionList.push(() =>
-                execSync("cat /etc/os-release | grep VERSION_ID").toString().split("=")[1].trim().replace(/"/g, "")
+                execSync("cat /etc/os-release | grep VERSION_ID")
+                    .toString()
+                    .split("=")[1]
+                    .trim()
+                    .replace(/"/g, ""),
             );
         }
         platformVersionCache = tryFirst(functionList);
@@ -87,16 +97,33 @@ export const platformUUID = () => {
     if (null === platformUUIDCache) {
         const functionList: any[] = [];
         if (isWin) {
-            functionList.push(() => execSync("wmic csproduct get UUID").toString().split("\n")[1].trim());
             functionList.push(() =>
-                execSync('powershell -command "(Get-WmiObject Win32_ComputerSystemProduct).UUID"').toString().trim()
+                execSync("wmic csproduct get UUID")
+                    .toString()
+                    .split("\n")[1]
+                    .trim(),
+            );
+            functionList.push(() =>
+                execSync(
+                    'powershell -command "(Get-WmiObject Win32_ComputerSystemProduct).UUID"',
+                )
+                    .toString()
+                    .trim(),
             );
         } else if (isMac) {
             functionList.push(() =>
-                execSync("system_profiler SPHardwareDataType | grep UUID").toString().split(": ")[1].trim()
+                execSync("system_profiler SPHardwareDataType | grep UUID")
+                    .toString()
+                    .split(": ")[1]
+                    .trim(),
             );
         } else if (isLinux) {
-            functionList.push(() => execSync("cat /var/lib/dbus/machine-id").toString().trim().toUpperCase());
+            functionList.push(() =>
+                execSync("cat /var/lib/dbus/machine-id")
+                    .toString()
+                    .trim()
+                    .toUpperCase(),
+            );
         }
         platformUUIDCache = tryFirst(functionList);
         if (!platformUUIDCache) {
@@ -124,7 +151,7 @@ export const extraResolveWithPlatform = (filePath: string): string => {
     const dir = [platformName(), platformArch()].join("-");
     const p = [dir, filePath].join("/");
     return extraResolve(p);
-}
+};
 
 export const extraResolveBin = (filePath: string): string => {
     if (isWin) {

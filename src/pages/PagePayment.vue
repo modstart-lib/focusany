@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import {onBeforeUnmount, onMounted, ref} from "vue";
+import { ipcRenderer } from "electron";
 import QRCode from "qrcode";
-import {ipcRenderer} from "electron";
+import { onBeforeUnmount, onMounted, ref } from "vue";
 
 const payUrl = ref<string>("");
 const qrcodeExpireTime = ref<number>(0);
-const status = ref<"" | "WaitPay" | "Scanned" | "Payed" | "Expired" | "Error">("");
+const status = ref<"" | "WaitPay" | "Scanned" | "Payed" | "Expired" | "Error">(
+    "",
+);
 const qrcodeExpireLeft = ref<number>(0);
 const qrcodeUrl = ref<string>("");
 const body = ref<string>("");
@@ -40,7 +42,8 @@ const doRefresh = async () => {
     const result = await ipcRenderer.invoke("Payment.Event", "refresh");
     status.value = "WaitPay";
     body.value = result.body;
-    qrcodeExpireTime.value = (Date.now() + 1000 * result.payExpireSeconds) / 1000;
+    qrcodeExpireTime.value =
+        (Date.now() + 1000 * result.payExpireSeconds) / 1000;
     qrcodeExpireLeft.value = 0;
     payUrl.value = result.payUrl;
     qrcodeUrl.value = await QRCode.toDataURL(payUrl.value, {
@@ -73,19 +76,26 @@ const doStartWatch = async () => {
             <div
                 class="h-36 w-36 mx-auto rounded shadow-lg overflow-hidden border border-solid border-gray-200 relative"
             >
-                <img class="h-36 w-36 rounded" v-if="qrcodeUrl" :src="qrcodeUrl" />
-                <div v-if="status === 'Expired'" class="inset-0 bg-gray-900 absolute rounded bg-opacity-50 flex">
+                <img
+                    class="h-36 w-36 rounded"
+                    v-if="qrcodeUrl"
+                    :src="qrcodeUrl"
+                />
+                <div
+                    v-if="status === 'Expired'"
+                    class="inset-0 bg-gray-900 absolute rounded bg-opacity-50 flex"
+                >
                     <div class="m-auto">
                         <div class="text-white pb-3">
                             <icon-info-circle />
-                            二维码已过期
+                            {{ $t("payment.qrcodeExpired") }}
                         </div>
                         <div>
                             <a-button size="mini">
                                 <template #icon>
                                     <icon-refresh />
                                 </template>
-                                刷新
+                                {{ $t("common.refresh") }}
                             </a-button>
                         </div>
                     </div>
@@ -96,16 +106,33 @@ const doStartWatch = async () => {
             </div>
             <div class="pt-5 w-48 mx-auto h-14">
                 <div v-if="status">
-                    <div v-if="status === 'WaitPay' && qrcodeExpireLeft">{{ qrcodeExpireLeft }}秒内支付</div>
-                    <div v-else-if="status === 'Scanned'" class="text-green-500"><icon-check /> 已扫码</div>
-                    <div v-else-if="status === 'Payed'" class="text-green-500"><icon-check /> 已支付，即将关闭</div>
-                    <div v-else-if="status === 'Error'" class="text-red-500">出错了</div>
-                    <div v-else-if="status === 'Expired'" class="text-red-500">已过期</div>
+                    <div v-if="status === 'WaitPay' && qrcodeExpireLeft">
+                        {{
+                            $t("payment.payWithinSeconds", {
+                                seconds: qrcodeExpireLeft,
+                            })
+                        }}
+                    </div>
+                    <div
+                        v-else-if="status === 'Scanned'"
+                        class="text-green-500"
+                    >
+                        <icon-check /> {{ $t("payment.scanned") }}
+                    </div>
+                    <div v-else-if="status === 'Payed'" class="text-green-500">
+                        <icon-check /> {{ $t("payment.paidClosing") }}
+                    </div>
+                    <div v-else-if="status === 'Error'" class="text-red-500">
+                        {{ $t("payment.error") }}
+                    </div>
+                    <div v-else-if="status === 'Expired'" class="text-red-500">
+                        {{ $t("payment.expired") }}
+                    </div>
                 </div>
             </div>
             <div class="pt-5">
                 <icon-qrcode />
-                微信 / 支付宝 扫一扫
+                {{ $t("payment.scanQRCode") }}
             </div>
         </div>
     </div>

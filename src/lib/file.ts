@@ -18,7 +18,7 @@ export const FileUtil = {
         if (!type.indexOf("/")) {
             type = this.extensionToType(type);
         }
-        return new Blob([buffer], {type: type});
+        return new Blob([buffer], { type: type });
     },
     base64ToBuffer(base64: string) {
         const binaryString = window.atob(base64);
@@ -33,7 +33,7 @@ export const FileUtil = {
         return new File([blob], name);
     },
     urlToBlob(url: string): Promise<Blob> {
-        return fetch(url).then(res => res.blob());
+        return fetch(url).then((res) => res.blob());
     },
     blobToBase64Url(blob: Blob): Promise<string> {
         return new Promise((resolve, reject) => {
@@ -41,7 +41,7 @@ export const FileUtil = {
             reader.onloadend = () => {
                 resolve(reader.result as string);
             };
-            reader.onerror = e => {
+            reader.onerror = (e) => {
                 reject(e);
             };
             reader.readAsDataURL(blob);
@@ -105,7 +105,10 @@ export const FileUtil = {
 
             function loadNext() {
                 const start = currentChunk * chunkSize;
-                const end = start + chunkSize >= file.size ? file.size : start + chunkSize;
+                const end =
+                    start + chunkSize >= file.size
+                        ? file.size
+                        : start + chunkSize;
                 fileReader.readAsArrayBuffer(file.slice(start, end));
             }
 
@@ -123,7 +126,7 @@ export const FileUtil = {
             function processChunk() {
                 reader
                     .read()
-                    .then(({done, value}) => {
+                    .then(({ done, value }) => {
                         if (done) {
                             const md5 = spark.end();
                             resolve(md5);
@@ -134,7 +137,7 @@ export const FileUtil = {
                         }
                         processChunk();
                     })
-                    .catch(err => {
+                    .catch((err) => {
                         reject(err);
                     });
             }
@@ -143,10 +146,10 @@ export const FileUtil = {
         });
     },
     formatSize: (bytes: number) => {
-        if (bytes === 0) return '0 Bytes';
+        if (bytes === 0) return "0 Bytes";
         const k = 1024;
-        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const sizes = ["Bytes", "KB", "MB", "GB"];
         const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
     },
 };

@@ -1,34 +1,49 @@
 <script setup lang="ts">
-import {computed} from "vue";
+import { computed } from "vue";
+import IconCodeBraces from "~icons/mdi/code-braces";
+import IconCodeTags from "~icons/mdi/code-tags";
+import IconConsole from "~icons/mdi/console";
+import IconEyeOutline from "~icons/mdi/eye-outline";
+import { t } from "../../../lang";
+import { ActionTypeEnum } from "../../../types/Manager";
 
 const props = defineProps<{
     type: ActionTypeEnum | undefined;
 }>();
-import {ActionTypeEnum} from "../../../types/Manager";
-import {t} from "../../../lang";
 
 const typeTitle = computed(() => {
     switch (props.type) {
         case ActionTypeEnum.WEB:
-            return t("网页");
+            return t("action.webpage");
         case ActionTypeEnum.COMMAND:
-            return t("命令");
+            return t("action.command");
         case ActionTypeEnum.VIEW:
-            return t("智能区域");
+            return t("action.smartArea");
         case ActionTypeEnum.CODE:
-            return t("代码");
+            return t("action.code");
         case ActionTypeEnum.BACKEND:
-            return t("后端代码");
+            return t("action.backendCode");
         default:
             return "";
     }
 });
+
+const iconMap: Record<string, any> = {
+    [ActionTypeEnum.BACKEND]: IconCodeBraces,
+    [ActionTypeEnum.COMMAND]: IconConsole,
+    [ActionTypeEnum.VIEW]: IconEyeOutline,
+    [ActionTypeEnum.CODE]: IconCodeTags,
+};
+
+const currentIcon = computed(() =>
+    props.type ? (iconMap[props.type] ?? null) : null,
+);
 </script>
 
 <template>
-    <div v-if="type !== ActionTypeEnum.WEB">
+    <div v-if="type !== ActionTypeEnum.WEB && currentIcon">
         <a-tooltip :content="typeTitle">
-            <i class="iconfont" :class="`icon-${type}`"></i>
+            <component :is="currentIcon" />
         </a-tooltip>
     </div>
 </template>

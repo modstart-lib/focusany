@@ -1,6 +1,12 @@
-import {AppConfig} from "../../../src/config";
-import {memoryInfo, platformArch, platformName, platformUUID, platformVersion} from "../../lib/env";
-import {post} from "../../lib/api";
+import { AppConfig } from "../../../src/config";
+import {
+    memoryInfo,
+    platformArch,
+    platformName,
+    platformUUID,
+    platformVersion,
+} from "../../lib/env";
+import { post } from "../../lib/api";
 
 let tickDataList = [];
 
@@ -32,10 +38,10 @@ const tickSendAsync = () => {
                 mem: memoryInfo(),
             },
         })
-            .then(res => {
+            .then((res) => {
                 // console.log('tickSend', tickDataList, res)
             })
-            .catch(err => {
+            .catch((err) => {
                 // console.error('tickSend', tickDataList, err)
             });
         tickDataList = [];

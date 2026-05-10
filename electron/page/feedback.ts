@@ -1,8 +1,8 @@
-import {BrowserWindow} from "electron";
-import {t} from "../config/lang";
-import {WindowConfig} from "../config/window";
-import {preloadDefault} from "../lib/env-main";
-import {Page} from "./index";
+import { BrowserWindow } from "electron";
+import { t } from "../config/lang";
+import { WindowConfig } from "../config/window";
+import { preloadDefault } from "../lib/env-main";
+import { Page } from "./index";
 
 export const PageFeedback = {
     NAME: "feedback",

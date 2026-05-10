@@ -1,15 +1,13 @@
-import {BrowserWindow} from "electron";
-import {t} from "../config/lang";
-import {WindowConfig} from "../config/window";
-import {preloadDefault} from "../lib/env-main";
-import {AppRuntime} from "../mapi/env";
-import {Page} from "./index";
+import { BrowserWindow } from "electron";
+import { t } from "../config/lang";
+import { WindowConfig } from "../config/window";
+import { preloadDefault } from "../lib/env-main";
+import { AppRuntime } from "../mapi/env";
+import { Page } from "./index";
 
 export const PageLog = {
     NAME: "log",
-    open: async (option: {
-        log: string,
-    }) => {
+    open: async (option: { log: string }) => {
         if (AppRuntime.windows[PageLog.NAME]) {
             AppRuntime.windows[PageLog.NAME].close();
         }
@@ -37,7 +35,7 @@ export const PageLog = {
         await Page.openWindow(PageLog.NAME, win, "page/log.html");
         const logInit = {
             log: option.log,
-        }
+        };
         win.webContents.executeJavaScript(`
         const logInit = ()=>{
             if(!window.__logInit){

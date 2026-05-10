@@ -1,5 +1,5 @@
-import {useManagerStore} from "../../../store/modules/manager";
-import {ActionRecord} from "../../../types/Manager";
+import { useManagerStore } from "../../../store/modules/manager";
+import { ActionRecord } from "../../../types/Manager";
 
 const manager = useManagerStore();
 

@@ -1,5 +1,5 @@
 import updaterIndex from "./index";
-import {ipcRenderer} from "electron";
+import { ipcRenderer } from "electron";
 
 const getCheckAtLaunch = async (): Promise<"yes" | "no"> => {
     return ipcRenderer.invoke("updater:getCheckAtLaunch");

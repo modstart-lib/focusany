@@ -6,48 +6,52 @@ import {
     FilePluginRecord,
     PluginRecord,
 } from "../../../../../src/types/Manager";
-import {MemoryCacheUtil, ShellUtil} from "../../../../lib/util";
-import {SystemIcons} from "../asset/icon";
-import {KVDBMain} from "../../../kvdb/main";
-import {CommonConfig} from "../../../../config/common";
-import {ManagerSystem} from "../index";
+import { CommonConfig } from "../../../../config/common";
+import { t } from "../../../../config/lang";
+import { MemoryCacheUtil, ShellUtil } from "../../../../lib/util";
+import { KVDBMain } from "../../../kvdb/main";
+import { SystemIcons } from "../asset/icon";
+import { ManagerSystem } from "../index";
 
 export const FilePlugin: PluginRecord = {
     name: "file",
-    title: "文件启动",
+    title: t("system.fileLaunch"),
     version: "1.0.0",
     logo: SystemIcons.folder,
-    description: "提供文件一键启动功能",
+    description: t("system.fileLaunchDesc"),
     main: null,
     preload: null,
     actions: [],
 };
 
 const listActions = async () => {
-    return await MemoryCacheUtil.remember<ActionRecord[]>("FileActions", async () => {
-        const actions: ActionRecord[] = [];
-        const records = await ManagerSystemPluginFile.list();
-        records.forEach((record, recordIndex) => {
-            actions.push({
-                fullName: `${FilePlugin.name}/${record.title}`,
-                pluginName: FilePlugin.name,
-                name: record.title,
-                title: record.title,
-                icon: record.icon,
-                type: ActionTypeEnum.COMMAND,
-                matches: [
-                    {
-                        type: ActionMatchTypeEnum.TEXT,
-                        text: record.title,
-                    } as ActionMatch,
-                ],
-                data: {
-                    command: "open " + ShellUtil.quotaPath(record.path),
-                },
+    return await MemoryCacheUtil.remember<ActionRecord[]>(
+        "FileActions",
+        async () => {
+            const actions: ActionRecord[] = [];
+            const records = await ManagerSystemPluginFile.list();
+            records.forEach((record, recordIndex) => {
+                actions.push({
+                    fullName: `${FilePlugin.name}/${record.title}`,
+                    pluginName: FilePlugin.name,
+                    name: record.title,
+                    title: record.title,
+                    icon: record.icon,
+                    type: ActionTypeEnum.COMMAND,
+                    matches: [
+                        {
+                            type: ActionMatchTypeEnum.TEXT,
+                            text: record.title,
+                        } as ActionMatch,
+                    ],
+                    data: {
+                        command: "open " + ShellUtil.quotaPath(record.path),
+                    },
+                });
             });
-        });
-        return actions;
-    });
+            return actions;
+        },
+    );
 };
 
 export const getFilePlugin = async () => {
@@ -58,7 +62,10 @@ export const getFilePlugin = async () => {
 export const ManagerSystemPluginFile = {
     async list(): Promise<FilePluginRecord[]> {
         return MemoryCacheUtil.remember("Files", async () => {
-            const res = await KVDBMain.getData(CommonConfig.dbSystem, CommonConfig.dbFileId);
+            const res = await KVDBMain.getData(
+                CommonConfig.dbSystem,
+                CommonConfig.dbFileId,
+            );
             if (res) {
                 return res["records"] || [];
             }

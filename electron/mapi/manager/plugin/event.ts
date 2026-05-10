@@ -1,35 +1,56 @@
-import {AppRuntime} from "../../env";
-import {app, BrowserView, BrowserWindow, clipboard, dialog, nativeImage, Notification, screen, shell} from "electron";
-import {WindowConfig} from "../../../config/window";
-import {ManagerWindow} from "../window";
-import {DBError} from "../../kvdb/types";
-import {screenCapture} from "./screenCapture";
-import {executeHooks, executePluginHooks} from "../lib/hooks";
-import {AppPosition} from "../../app/lib/position";
-import {Log} from "../../log/main";
-import {AppsMain} from "../../app/main";
-import {CommonConfig} from "../../../config/common";
-import {KVDBMain} from "../../kvdb/main";
-import {ManagerConfig} from "../config/config";
-import {PluginContext} from "../type";
-import {Manager} from "../manager";
-import {ManagerPlugin} from "./index";
-import {isLinux, isMac, isWin, platformArch, platformName, platformUUID} from "../../../lib/env";
-import {EncodeUtil} from "../../../lib/util";
-import {getClipboardFiles, setClipboardFiles} from "../clipboard/clipboardFiles";
-import {ManagerHotkeySimulate} from "../hotkey/simulate";
-import {ManagerClipboard} from "../clipboard";
-import {ManagerAutomation} from "../automation";
-import {AppConfig} from "../../../../src/config";
-import {ManagerPluginPermission} from "./permission";
-import User, {UserApi} from "../../user/main";
-import {PagePayment} from "../../../page/payment";
-import {PageUser} from "../../../page/user";
-import {Files} from "../../file/main";
-import {listModels, modelChat} from "./llm";
-import {Page} from "../../../page";
-import {PluginLog} from "./log";
+import {
+    app,
+    BrowserView,
+    BrowserWindow,
+    clipboard,
+    dialog,
+    nativeImage,
+    Notification,
+    screen,
+    shell,
+} from "electron";
 import fs from "fs";
+import { AppConfig } from "../../../../src/config";
+import { CommonConfig } from "../../../config/common";
+import { t } from "../../../config/lang";
+import { WindowConfig } from "../../../config/window";
+import {
+    isLinux,
+    isMac,
+    isWin,
+    platformArch,
+    platformName,
+    platformUUID,
+} from "../../../lib/env";
+import { EncodeUtil } from "../../../lib/util";
+import { Page } from "../../../page";
+import { PagePayment } from "../../../page/payment";
+import { PageUser } from "../../../page/user";
+import { AppPosition } from "../../app/lib/position";
+import { AppsMain } from "../../app/main";
+import { AppRuntime } from "../../env";
+import { Files } from "../../file/main";
+import { KVDBMain } from "../../kvdb/main";
+import { DBError } from "../../kvdb/types";
+import { Log } from "../../log/main";
+import User, { UserApi } from "../../user/main";
+import { ManagerAutomation } from "../automation";
+import { ManagerClipboard } from "../clipboard";
+import {
+    getClipboardFiles,
+    setClipboardFiles,
+} from "../clipboard/clipboardFiles";
+import { ManagerConfig } from "../config/config";
+import { ManagerHotkeySimulate } from "../hotkey/simulate";
+import { executeHooks, executePluginHooks } from "../lib/hooks";
+import { Manager } from "../manager";
+import { PluginContext } from "../type";
+import { ManagerWindow } from "../window";
+import { ManagerPlugin } from "./index";
+import { listModels, modelChat } from "./llm";
+import { PluginLog } from "./log";
+import { ManagerPluginPermission } from "./permission";
+import { screenCapture } from "./screenCapture";
 
 const getHeadHeight = (win: BrowserWindow) => {
     if (win === AppRuntime.mainWindow) {
@@ -46,13 +67,17 @@ export const ManagerPluginEvent = {
     firePluginEvent: async (event: PluginEvent, data: any) => {
         if (event in ManagerPluginEvent.pluginEvents) {
             for (const context of ManagerPluginEvent.pluginEvents[event]) {
-                await executePluginHooks(context as BrowserView, "PluginEvent", {event, data});
+                await executePluginHooks(
+                    context as BrowserView,
+                    "PluginEvent",
+                    { event, data },
+                );
             }
         }
     },
     registerPluginEvent: async (context: PluginContext, data: any) => {
         // console.log('registerPluginEvent', context._plugin)
-        const {event} = data;
+        const { event } = data;
         if (!(event in ManagerPluginEvent.pluginEvents)) {
             ManagerPluginEvent.pluginEvents[event] = [];
         }
@@ -61,20 +86,22 @@ export const ManagerPluginEvent = {
         }
         ManagerPluginEvent.pluginEvents[event].push(context);
         for (const e in ManagerPluginEvent.pluginEvents) {
-            ManagerPluginEvent.pluginEvents[e] = ManagerPluginEvent.pluginEvents[e].filter(c => {
-                return !!(c as BrowserView).webContents;
-            });
+            ManagerPluginEvent.pluginEvents[e] =
+                ManagerPluginEvent.pluginEvents[e].filter((c) => {
+                    return !!(c as BrowserView).webContents;
+                });
             if (ManagerPluginEvent.pluginEvents[e].length === 0) {
                 delete ManagerPluginEvent.pluginEvents[e];
             }
         }
     },
     unregisterPluginEvent: async (context: PluginContext, data: any) => {
-        const {event} = data;
+        const { event } = data;
         if (!(event in ManagerPluginEvent.pluginEvents)) {
             return;
         }
-        ManagerPluginEvent.pluginEvents[event] = ManagerPluginEvent.pluginEvents[event].filter(c => c !== context);
+        ManagerPluginEvent.pluginEvents[event] =
+            ManagerPluginEvent.pluginEvents[event].filter((c) => c !== context);
     },
     registerHotkey: async (context: PluginContext, data: any) => {
         if (!context._event) {
@@ -83,7 +110,7 @@ export const ManagerPluginEvent = {
         if (!context._event["Hotkey"]) {
             context._event["Hotkey"] = [];
         }
-        const {id, hotkeys} = data;
+        const { id, hotkeys } = data;
         context._event["Hotkey"].push({
             id,
             hotkeys,
@@ -122,16 +149,19 @@ export const ManagerPluginEvent = {
         Manager.selectedContent = null;
         // Manager.selectedContent = await ManagerClipboard.getSelectedContent()
         Manager.activeWindow = await ManagerAutomation.getActiveWindow();
-        const {x: wx, y: wy} = AppPosition.get("main", (screenX, screenY, screenWidth, screenHeight) => {
-            // console.log('calculator', {screenX, screenY, screenWidth, screenHeight});
-            return {
-                x: screenX + screenWidth / 2 - WindowConfig.mainWidth / 2,
-                y: screenY + screenHeight / 8,
-            };
-        });
+        const { x: wx, y: wy } = AppPosition.get(
+            "main",
+            (screenX, screenY, screenWidth, screenHeight) => {
+                // console.log('calculator', {screenX, screenY, screenWidth, screenHeight});
+                return {
+                    x: screenX + screenWidth / 2 - WindowConfig.mainWidth / 2,
+                    y: screenY + screenHeight / 8,
+                };
+            },
+        );
         const win = AppRuntime.mainWindow;
         win.setAlwaysOnTop(false);
-        win.setVisibleOnAllWorkspaces(true, {visibleOnFullScreen: true});
+        win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
         win.focus();
         win.setVisibleOnAllWorkspaces(false, {
             visibleOnFullScreen: true,
@@ -147,9 +177,12 @@ export const ManagerPluginEvent = {
         Manager.selectedContent = await ManagerClipboard.getSelectedContent();
         Manager.activeWindow = await ManagerAutomation.getActiveWindow();
         const win = AppRuntime.fastPanelWindow;
-        const {x, y} = AppPosition.getContextMenuPosition(WindowConfig.fastPanelWidth, WindowConfig.fastPanelHeight);
+        const { x, y } = AppPosition.getContextMenuPosition(
+            WindowConfig.fastPanelWidth,
+            WindowConfig.fastPanelHeight,
+        );
         win.setAlwaysOnTop(false);
-        win.setVisibleOnAllWorkspaces(true, {visibleOnFullScreen: true});
+        win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
         win.focus();
         win.setVisibleOnAllWorkspaces(false, {
             visibleOnFullScreen: true,
@@ -174,7 +207,9 @@ export const ManagerPluginEvent = {
         const screenPoint = screen.getCursorScreenPoint();
         const display = screen.getDisplayNearestPoint(screenPoint);
         const position =
-            win.getPosition()[1] + targetHeight > display.bounds.height ? targetHeight - getHeadHeight(win) : 0;
+            win.getPosition()[1] + targetHeight > display.bounds.height
+                ? targetHeight - getHeadHeight(win)
+                : 0;
         // originWindow.webContents.executeJavaScript(
         //     `window.setPosition && typeof window.setPosition === "function" && window.setPosition(${position})`
         // );
@@ -195,7 +230,7 @@ export const ManagerPluginEvent = {
         await executeHooks(context._window, "RemoveSubInput");
     },
     setSubInputValue: async (context: PluginContext, data: any) => {
-        const {text} = data;
+        const { text } = data;
         await executeHooks(context._window, "SetSubInputValue", text);
         // this.sendSubInputChangeEvent({ data });
     },
@@ -228,8 +263,11 @@ export const ManagerPluginEvent = {
         }
         return "prod";
     },
-    getQuery: async (context: PluginContext, data: any): Promise<SearchQuery> => {
-        const {requestId} = data;
+    getQuery: async (
+        context: PluginContext,
+        data: any,
+    ): Promise<SearchQuery> => {
+        const { requestId } = data;
         return (
             Manager.getSearchRequestQuery(requestId) || {
                 keywords: "",
@@ -244,20 +282,22 @@ export const ManagerPluginEvent = {
         return app.getPath(data.name);
     },
     showToast: async (context: PluginContext, data: any) => {
-        let {body, options} = data;
+        let { body, options } = data;
         options = Object.assign(
             {
                 duration: 0,
                 status: "success",
             },
-            options
+            options,
         );
         AppsMain.toast(body, options);
     },
     showNotification: async (context: PluginContext, data: any) => {
-        let {body, clickActionName} = data;
+        let { body, clickActionName } = data;
         if (!Notification.isSupported()) {
-            Log.error("ManagerEvent.showNotification.Notification is not supported");
+            Log.error(
+                "ManagerEvent.showNotification.Notification is not supported",
+            );
             return;
         }
         if ("string" != typeof body) {
@@ -276,7 +316,7 @@ export const ManagerPluginEvent = {
         notify.show();
     },
     showMessageBox: async (context: PluginContext, data: any) => {
-        const {title, message, yes, no} = data;
+        const { title, message, yes, no } = data;
         const buttons = [];
         if (yes) {
             buttons.push(yes);
@@ -286,7 +326,7 @@ export const ManagerPluginEvent = {
         }
         const result = await dialog.showMessageBox({
             type: "info",
-            title: title || "提示",
+            title: title || t("common.tip"),
             message: message,
             buttons: buttons,
             defaultId: 0,
@@ -298,7 +338,7 @@ export const ManagerPluginEvent = {
         return false;
     },
     copyImage: async (context: PluginContext, data: any) => {
-        const {image} = data;
+        const { image } = data;
         let imageData;
         if (image.startsWith("data:image/")) {
             imageData = nativeImage.createFromDataURL(image);
@@ -311,7 +351,7 @@ export const ManagerPluginEvent = {
         clipboard.writeText(String(data.text));
     },
     copyFile: async (context: PluginContext, data: any) => {
-        let {file} = data;
+        let { file } = data;
         if (file) {
             if (!Array.isArray(file)) {
                 file = [file];
@@ -331,27 +371,45 @@ export const ManagerPluginEvent = {
         return getClipboardFiles();
     },
     listClipboardItems: async (context: PluginContext, data: any) => {
-        if (!ManagerPluginPermission.checkPermit(context._plugin, "ClipboardManage")) {
+        if (
+            !ManagerPluginPermission.checkPermit(
+                context._plugin,
+                "ClipboardManage",
+            )
+        ) {
             throw new Error("Missing permission: ClipboardManage");
         }
-        let {option} = data;
-        option = Object.assign({
-            limit: -1,
-        }, option);
+        let { option } = data;
+        option = Object.assign(
+            {
+                limit: -1,
+            },
+            option,
+        );
         return await ManagerClipboard.list(option.limit);
     },
     deleteClipboardItem: async (context: PluginContext, data: any) => {
-        if (!ManagerPluginPermission.checkPermit(context._plugin, "ClipboardManage")) {
+        if (
+            !ManagerPluginPermission.checkPermit(
+                context._plugin,
+                "ClipboardManage",
+            )
+        ) {
             throw new Error("Missing permission: ClipboardManage");
         }
-        const {timestamp} = data;
+        const { timestamp } = data;
         if (!timestamp) {
             throw new Error("Timestamp is required to delete clipboard item.");
         }
         return await ManagerClipboard.delete(timestamp);
     },
     clearClipboardItems: async (context: PluginContext, data: any) => {
-        if (!ManagerPluginPermission.checkPermit(context._plugin, "ClipboardManage")) {
+        if (
+            !ManagerPluginPermission.checkPermit(
+                context._plugin,
+                "ClipboardManage",
+            )
+        ) {
             throw new Error("Missing permission: ClipboardManage");
         }
         return await ManagerClipboard.clear();
@@ -369,9 +427,9 @@ export const ManagerPluginEvent = {
         shell.showItemInFolder(data.path);
     },
     simulateKeyboardTap: async (context: PluginContext, data: any) => {
-        const {key, modifiers} = data;
+        const { key, modifiers } = data;
         // 'ctrl' | 'shift' | 'command' | 'option' | 'alt'
-        const modifiersNumber = modifiers.map(m => {
+        const modifiersNumber = modifiers.map((m) => {
             switch (m) {
                 case "ctrl":
                     return ManagerHotkeySimulate.toCode("Ctrl");
@@ -384,28 +442,31 @@ export const ManagerPluginEvent = {
                     return ManagerHotkeySimulate.toCode("Alt");
             }
         });
-        ManagerHotkeySimulate.keyTap(ManagerHotkeySimulate.toCode(key), modifiersNumber);
+        ManagerHotkeySimulate.keyTap(
+            ManagerHotkeySimulate.toCode(key),
+            modifiersNumber,
+        );
     },
     simulateTypeString: async (context: PluginContext, data: any) => {
-        const {text} = data;
+        const { text } = data;
         await ManagerAutomation.typeString(text);
     },
     simulateMouseToggle: async (context: PluginContext, data: any) => {
-        const {type, button} = data;
+        const { type, button } = data;
         await ManagerAutomation.mouseToggle(type, button);
     },
     simulateMouseMove: async (context: PluginContext, data: any) => {
-        const {x, y} = data;
+        const { x, y } = data;
         await ManagerAutomation.moveMouse(x, y);
     },
     simulateMouseClick: async (context: PluginContext, data: any) => {
-        const {button, double} = data;
+        const { button, double } = data;
         await ManagerAutomation.mouseClick(button, double);
     },
     screenCapture: async (context: PluginContext, data: any) => {
         screenCapture((image: string) => {
             if (context["_screenCaptureCallback"]) {
-                context["_screenCaptureCallback"]({image});
+                context["_screenCaptureCallback"]({ image });
             } else {
                 executePluginHooks(context as BrowserView, "ScreenCapture", {
                     image: image,
@@ -436,7 +497,7 @@ export const ManagerPluginEvent = {
     },
     getUser: async (
         context: PluginContext,
-        data: any
+        data: any,
     ): Promise<{
         isLogin: boolean;
         avatar: string;
@@ -465,7 +526,7 @@ export const ManagerPluginEvent = {
                 },
                 {
                     throwException: false,
-                }
+                },
             );
             if (res.code === 0) {
                 if (res.data) {
@@ -476,7 +537,7 @@ export const ManagerPluginEvent = {
         return result;
     },
     redirect: async (context: PluginContext, data: any) => {
-        let {keywordsOrAction, query} = data;
+        let { keywordsOrAction, query } = data;
         query = Object.assign(
             {
                 keywords: "",
@@ -484,20 +545,20 @@ export const ManagerPluginEvent = {
                 currentImage: "",
                 currentText: "",
             },
-            query
+            query,
         );
         const action = await Manager.searchOneAction(keywordsOrAction, query);
         // console.log("redirect", {keywordsOrAction, query, action});
         if (!action) {
             ManagerPluginEvent.showToast(context, {
-                body: "未找到相关操作，请检查关键词或操作名称是否正确",
+                body: t("plugin.actionNotFound"),
             });
             return;
         }
         await Manager.openAction(action);
     },
     getActions: async (context: PluginContext, data: any) => {
-        let {names} = data;
+        let { names } = data;
         names = names || [];
         const customActions = await ManagerConfig.getCustomAction();
         const plugin = context._plugin;
@@ -505,29 +566,29 @@ export const ManagerPluginEvent = {
             return [];
         }
         return customActions[plugin.name]
-            .filter(m => {
+            .filter((m) => {
                 if (names.length > 0) {
                     return names.includes(m.name);
                 }
                 return true;
             })
-            .map(m => {
+            .map((m) => {
                 return m;
             });
     },
     setAction: async (context: PluginContext, data: any) => {
-        const {action} = data;
+        const { action } = data;
         const plugin = context._plugin;
         await ManagerConfig.addCustomAction(plugin, action);
     },
     removeAction: async (context: PluginContext, data: any) => {
-        const {name} = data;
+        const { name } = data;
         const plugin = context._plugin;
         await ManagerConfig.removeCustomAction(plugin, name);
     },
 
     callPage: async (context: PluginContext, data_: any) => {
-        let {type, data, option} = data_;
+        let { type, data, option } = data_;
         option = Object.assign(
             {
                 waitReadyTimeout: 10 * 1000,
@@ -535,7 +596,7 @@ export const ManagerPluginEvent = {
                 showWindow: true,
                 autoClose: true,
             },
-            option
+            option,
         ) as CallPageOption;
         const plugin = context._plugin;
         return new Promise<any>((resolve, reject) => {
@@ -552,13 +613,13 @@ export const ManagerPluginEvent = {
                             reject(new Error(result.msg || "Error"));
                         }
                     },
-                }
-            })
-        })
+                },
+            });
+        });
     },
 
     setRemoteWebRuntime: async (context: PluginContext, data: any) => {
-        const {info} = data;
+        const { info } = data;
         const plugin = context._plugin;
         plugin.runtime.remoteWeb = {
             userAgent: info.userAgent || "",
@@ -570,13 +631,17 @@ export const ManagerPluginEvent = {
     },
 
     llmListModels: async (context: PluginContext, data: any) => {
-        return listModels()
+        return listModels();
     },
 
     llmChat: async (context: PluginContext, data: any) => {
-        const {callInfo} = data
+        const { callInfo } = data;
         try {
-            return modelChat(callInfo.providerId, callInfo.modelId, callInfo.message)
+            return modelChat(
+                callInfo.providerId,
+                callInfo.modelId,
+                callInfo.message,
+            );
         } catch (e) {
             return {
                 code: -1,
@@ -586,11 +651,11 @@ export const ManagerPluginEvent = {
     },
 
     logInfo: async (context: PluginContext, data: any) => {
-        const {label, logData} = data;
+        const { label, logData } = data;
         PluginLog.info(context._plugin.name, label, logData);
     },
     logError: async (context: PluginContext, data: any) => {
-        const {label, logData} = data;
+        const { label, logData } = data;
         PluginLog.error(context._plugin.name, label, logData);
     },
     logPath: async (context: PluginContext, data: any) => {
@@ -600,11 +665,11 @@ export const ManagerPluginEvent = {
         const p = Log.appPath(PluginLog.name(context._plugin.name));
         Page.open("log", {
             log: p,
-        })
+        });
     },
 
     addLaunch: async (context: PluginContext, data: any) => {
-        const {keyword, name, hotkey} = data;
+        const { keyword, name, hotkey } = data;
         if (!keyword || !name || !hotkey) {
             throw new Error("Keyword, name and hotkey are required.");
         }
@@ -628,21 +693,29 @@ export const ManagerPluginEvent = {
         if (modifiers.includes("Option") || modifiers.includes("Alt")) {
             hotkeyConvert.altKey = true;
         }
-        if (modifiers.includes("Command") || modifiers.includes("Win") || modifiers.includes("Meta")) {
+        if (
+            modifiers.includes("Command") ||
+            modifiers.includes("Win") ||
+            modifiers.includes("Meta")
+        ) {
             hotkeyConvert.metaKey = true;
         }
         if (modifiers.includes("Shift")) {
             hotkeyConvert.shiftKey = true;
         }
         const records = await ManagerConfig.listLaunch();
-        const exists = records.find(m => {
-            return m.type === 'plugin' && m.pluginName === context._plugin.name && m.keyword === keyword;
+        const exists = records.find((m) => {
+            return (
+                m.type === "plugin" &&
+                m.pluginName === context._plugin.name &&
+                m.keyword === keyword
+            );
         });
         if (exists) {
             throw new Error(`Launch with keyword "${keyword}" already exists.`);
         } else {
             records.push({
-                type: 'plugin',
+                type: "plugin",
                 pluginName: context._plugin.name,
                 keyword,
                 name,
@@ -652,10 +725,14 @@ export const ManagerPluginEvent = {
         await ManagerConfig.updateLaunch(records);
     },
     removeLaunch: async (context: PluginContext, data: any) => {
-        const {keyword} = data;
+        const { keyword } = data;
         const records = await ManagerConfig.listLaunch();
-        const index = records.findIndex(m => {
-            return m.type === 'plugin' && m.pluginName === context._plugin.name && m.keyword === keyword;
+        const index = records.findIndex((m) => {
+            return (
+                m.type === "plugin" &&
+                m.pluginName === context._plugin.name &&
+                m.keyword === keyword
+            );
         });
         if (index >= 0) {
             records.splice(index, 1);
@@ -683,7 +760,7 @@ export const ManagerPluginEvent = {
     },
 
     listGoods: async (context: PluginContext, data: any) => {
-        const {query} = data;
+        const { query } = data;
         const res = await UserApi.post<{
             total: number;
             records: {
@@ -702,7 +779,7 @@ export const ManagerPluginEvent = {
     },
 
     openGoodsPayment: async (context: PluginContext, data: any) => {
-        const {options} = data as {
+        const { options } = data as {
             options: {
                 goodsId: string;
                 price?: string;
@@ -739,7 +816,12 @@ export const ManagerPluginEvent = {
                 },
                 onWatch: async () => {
                     // console.log('onWatch')
-                    let status = "Error" as "WaitPay" | "Scanned" | "Payed" | "Expired" | "Error";
+                    let status = "Error" as
+                        | "WaitPay"
+                        | "Scanned"
+                        | "Payed"
+                        | "Expired"
+                        | "Error";
                     const res = await UserApi.post<{
                         status: "unknown" | "WaitPay" | "Payed";
                         scanStatus: null | "Scanned";
@@ -769,14 +851,14 @@ export const ManagerPluginEvent = {
                 onClose: async () => {
                     resolve(payResult);
                 },
-            }).then(c => {
+            }).then((c) => {
                 controller = c;
             });
         });
     },
 
     queryGoodsOrders: async (context: PluginContext, data: any) => {
-        const {options} = data as {
+        const { options } = data as {
             options: {
                 goodsId?: string;
                 page?: number;
@@ -806,7 +888,7 @@ export const ManagerPluginEvent = {
         if (!ManagerPluginPermission.check(context._plugin, "basic", "Api")) {
             return;
         }
-        const {url, body, option} = data;
+        const { url, body, option } = data;
         const res = await UserApi.post(url, body || {}, {
             throwException: false,
         });
@@ -818,7 +900,7 @@ export const ManagerPluginEvent = {
         if (!ManagerPluginPermission.check(context._plugin, "basic", "File")) {
             return false;
         }
-        const {path} = data;
+        const { path } = data;
         return await Files.exists(path, {
             isDataPath: false,
         });
@@ -827,13 +909,13 @@ export const ManagerPluginEvent = {
         if (!ManagerPluginPermission.check(context._plugin, "basic", "File")) {
             return;
         }
-        const {path, format} = data;
-        if ('buffer' === format) {
-            return await Files.readBuffer(path)
+        const { path, format } = data;
+        if ("buffer" === format) {
+            return await Files.readBuffer(path);
         }
-        if ('base64' === format) {
-            const content = await Files.readBuffer(path)
-            return content.toString('base64')
+        if ("base64" === format) {
+            const content = await Files.readBuffer(path);
+            return content.toString("base64");
         }
         return await Files.read(path, {
             isDataPath: false,
@@ -844,11 +926,14 @@ export const ManagerPluginEvent = {
         if (!ManagerPluginPermission.check(context._plugin, "basic", "File")) {
             return;
         }
-        let {path, data: content, option} = data;
-        option = Object.assign({
-            isBase64: false,
-        }, option)
-        if (typeof content === 'string') {
+        let { path, data: content, option } = data;
+        option = Object.assign(
+            {
+                isBase64: false,
+            },
+            option,
+        );
+        if (typeof content === "string") {
             if (option.isBase64) {
                 if (content.startsWith("data:")) {
                     content = content.split(",")[1];
@@ -864,13 +949,13 @@ export const ManagerPluginEvent = {
         if (!ManagerPluginPermission.check(context._plugin, "basic", "File")) {
             return;
         }
-        const {path} = data;
+        const { path } = data;
         return await Files.deletes(path, {
             isDataPath: false,
         });
     },
     fileExt: async (context: PluginContext, data: any) => {
-        const {path} = data;
+        const { path } = data;
         const ext = Files.ext(path);
         return ext ? ext : "";
     },
@@ -878,10 +963,13 @@ export const ManagerPluginEvent = {
         if (!ManagerPluginPermission.check(context._plugin, "basic", "File")) {
             return;
         }
-        let {ext, data, option} = data_;
-        option = Object.assign({
-            isBase64: false,
-        }, option);
+        let { ext, data, option } = data_;
+        option = Object.assign(
+            {
+                isBase64: false,
+            },
+            option,
+        );
         const tempPath = await Files.temp(ext);
         if (option?.isBase64) {
             // remove prefix data:image/svg+xml;base64,
@@ -916,7 +1004,12 @@ export const ManagerPluginEvent = {
     },
     dbPostAttachment: async (context: PluginContext, data: any) => {
         // const plugin = ManagerWindow.getPluginByWindow(win);
-        return await KVDBMain.postAttachment(context._plugin.name, data.docId, data.attachment, data.type);
+        return await KVDBMain.postAttachment(
+            context._plugin.name,
+            data.docId,
+            data.attachment,
+            data.type,
+        );
     },
     dbGetAttachment: async (context: PluginContext, data: any) => {
         // const plugin = ManagerWindow.getPluginByWindow(win);
@@ -924,16 +1017,19 @@ export const ManagerPluginEvent = {
     },
     dbGetAttachmentType: async (context: PluginContext, data: any) => {
         // const plugin = ManagerWindow.getPluginByWindow(win);
-        return await KVDBMain.getAttachmentType(context._plugin.name, data.docId);
+        return await KVDBMain.getAttachmentType(
+            context._plugin.name,
+            data.docId,
+        );
     },
 
     // dbStorage
     dbStorageSetItem: async (context: PluginContext, data: any) => {
         // const plugin = ManagerWindow.getPluginByWindow(win);
         const plugin = context._plugin;
-        const {key, value} = data;
+        const { key, value } = data;
         const id = `${CommonConfig.dbPluginStorageIdPrefix}/${key}`;
-        const doc = {_id: id, data: value, _rev: undefined};
+        const doc = { _id: id, data: value, _rev: undefined };
         const result = await KVDBMain.get(plugin.name, id);
         if (result) {
             doc._rev = result._rev;
@@ -943,40 +1039,44 @@ export const ManagerPluginEvent = {
     },
     dbStorageGetItem: async (context: PluginContext, data: any) => {
         const plugin = context._plugin;
-        const {key} = data;
+        const { key } = data;
         const id = `${CommonConfig.dbPluginStorageIdPrefix}/${key}`;
         const result = await KVDBMain.get(plugin.name, id);
         return result ? result.data : null;
     },
     dbStorageRemoveItem: async (context: PluginContext, data: any) => {
         const plugin = context._plugin;
-        const {key} = data;
+        const { key } = data;
         const id = `${CommonConfig.dbPluginStorageIdPrefix}/${key}`;
         const result = await KVDBMain.get(plugin.name, id);
         if (!result) return;
         await KVDBMain.remove(plugin.name, result);
     },
     detachSetTitle: async (context: PluginContext, data: any) => {
-        const {title} = data;
+        const { title } = data;
         await executeHooks(context._window, "DetachSet", {
             title,
         });
     },
     detachSetOperates: async (context: PluginContext, data: any) => {
-        const {operates} = data;
+        const { operates } = data;
         await executeHooks(context._window, "DetachSet", {
             operates,
         });
     },
     detachSetPosition: async (context: PluginContext, data: any) => {
-        const {position} = data;
+        const { position } = data;
         const win = context._window;
         const winSize = win.getSize();
-        const {x, y} = AppsMain.calcPositionInCurrentDisplay(position, winSize[0], winSize[1]);
+        const { x, y } = AppsMain.calcPositionInCurrentDisplay(
+            position,
+            winSize[0],
+            winSize[1],
+        );
         win.setPosition(x, y);
     },
     detachSetAlwaysOnTop: async (context: PluginContext, data: any) => {
-        const {alwaysOnTop} = data;
+        const { alwaysOnTop } = data;
         const win = context._window;
         win.setAlwaysOnTop(alwaysOnTop);
         await executeHooks(context._window, "DetachSet", {
@@ -984,7 +1084,7 @@ export const ManagerPluginEvent = {
         });
     },
     detachSetSize: async (context: PluginContext, data: any) => {
-        const {width, height} = data;
+        const { width, height } = data;
         const win = context._window;
         win.setSize(width, height);
     },

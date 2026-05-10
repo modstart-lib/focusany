@@ -5,16 +5,17 @@ import {
     ActionTypeEnum,
     PluginRecord,
 } from "../../../../../src/types/Manager";
-import {isLinux, isMac, isWin} from "../../../../lib/env";
-import {ManagerAppMac} from "./app/mac";
-import {MemoryCacheUtil} from "../../../../lib/util";
-import {AppRecord} from "./app/type";
-import {SystemIcons} from "../asset/icon";
-import {ManagerAppWin} from "./app/win";
-import {ManagerAppLinux} from "./app/linux";
-import {ManagerSystem} from "../index";
-import {ManagerFileCacheUtil} from "../../lib/cache";
-import {Manager} from "../../manager";
+import { t } from "../../../../config/lang";
+import { isLinux, isMac, isWin } from "../../../../lib/env";
+import { MemoryCacheUtil } from "../../../../lib/util";
+import { ManagerFileCacheUtil } from "../../lib/cache";
+import { Manager } from "../../manager";
+import { SystemIcons } from "../asset/icon";
+import { ManagerSystem } from "../index";
+import { ManagerAppLinux } from "./app/linux";
+import { ManagerAppMac } from "./app/mac";
+import { AppRecord } from "./app/type";
+import { ManagerAppWin } from "./app/win";
 
 let logo = SystemIcons.windows;
 if (isMac) {
@@ -25,10 +26,10 @@ if (isMac) {
 
 export const AppPlugin: PluginRecord = {
     name: "app",
-    title: "应用软件",
+    title: t("system.apps"),
     version: "1.0.0",
     logo: logo,
-    description: "提供系统应用软件的搜索和打开",
+    description: t("system.appsDesc"),
     main: null,
     preload: null,
     actions: [],
@@ -51,7 +52,7 @@ const listActions = async () => {
     return await MemoryCacheUtil.remember("AppActions", async () => {
         const actions: ActionRecord[] = [];
         const apps = await list();
-        apps.forEach(app => {
+        apps.forEach((app) => {
             const matches: ActionMatch[] = [];
             matches.push({
                 type: ActionMatchTypeEnum.TEXT,
@@ -91,7 +92,10 @@ let listActionFirstRunning = true;
 export const getAppPlugin = async () => {
     AppPlugin.actions = [];
     let toastTimer = null;
-    const cacheInfo = await ManagerFileCacheUtil.getIgnoreExpire("AppActions", []);
+    const cacheInfo = await ManagerFileCacheUtil.getIgnoreExpire(
+        "AppActions",
+        [],
+    );
     AppPlugin.actions = cacheInfo.value;
     let shouldNotice = false;
     if (!cacheInfo.isCache || cacheInfo.expire < Date.now()) {
@@ -101,7 +105,7 @@ export const getAppPlugin = async () => {
                 listActionFirstRunning = false;
                 shouldNotice = true;
             }
-            listActions().then(actions => {
+            listActions().then((actions) => {
                 // console.log('find.actions', actions)
                 AppPlugin.actions = actions;
                 ManagerFileCacheUtil.set("AppActions", actions, 1000 * 3600);
@@ -109,7 +113,7 @@ export const getAppPlugin = async () => {
                     clearTimeout(toastTimer);
                 } else if (shouldNotice) {
                     Manager.setNotice({
-                        text: "应用软件索引完成",
+                        text: t("system.appsIndexed"),
                         type: "success",
                         duration: 5000,
                     }).then();
@@ -121,7 +125,7 @@ export const getAppPlugin = async () => {
     }
     if (!AppPlugin.actions.length && shouldNotice) {
         toastTimer = setTimeout(() => {
-            Manager.setNotice("正在分析应用软件，稍后才可以搜索到应用软件哦~").then();
+            Manager.setNotice(t("system.appsIndexing")).then();
             toastTimer = null;
         }, 3000);
     }

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {AppConfig} from "../../config";
+import { AppConfig } from "../../config";
 
 const doShow = () => {
     window.$mapi.app.windowOpen("feedback");

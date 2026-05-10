@@ -1,9 +1,9 @@
-import {listFiles} from "../util";
+import { listFiles } from "../util";
 import path from "node:path";
-import {AppRecord} from "../type";
-import {getIcon} from "./icon";
-import {ConfigLang} from "../../../../../../config/lang";
-import {getAppTitle} from "./title";
+import { AppRecord } from "../type";
+import { getIcon } from "./icon";
+import { ConfigLang } from "../../../../../../config/lang";
+import { getAppTitle } from "./title";
 
 const appSet = new Set<string>();
 

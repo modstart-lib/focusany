@@ -1,6 +1,6 @@
-import {ChatParam, ProviderType} from "../types";
-import {OpenAiModelProvider} from "./driver/openai";
-import {mapError} from "../../../lib/error";
+import { ChatParam, ProviderType } from "../types";
+import { OpenAiModelProvider } from "./driver/openai";
+import { mapError } from "../../../lib/error";
 
 const ModelProviderMap = {
     openai: OpenAiModelProvider,
@@ -29,10 +29,10 @@ export const ModelProvider = {
                  * - 如果 以 `/` 结尾，则不加
                  * - 要加：其余情况。
                  */
-                if (url.endsWith('/')) {
+                if (url.endsWith("/")) {
                     return `${url}chat/completions`;
                 }
-                if (url.endsWith('/chat/completions')) {
+                if (url.endsWith("/chat/completions")) {
                     return url;
                 }
                 return `${url}/v1/chat/completions`;
@@ -48,7 +48,7 @@ export const ModelProvider = {
             apiUrl: string;
             apiHost: string;
             apiKey: string;
-        }
+        },
     ): Promise<ModelChatResult> {
         let url = this.apiUrl(config.type, config.apiUrl, config.apiHost);
         if (!(config.type in ModelProviderMap)) {

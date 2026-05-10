@@ -1,6 +1,6 @@
-import {ipcRenderer, webFrame} from "electron";
-import {MAPI} from "../mapi/render";
-import {FocusAny} from "./focusany";
+import { ipcRenderer, webFrame } from "electron";
+import { MAPI } from "../mapi/render";
+import { FocusAny } from "./focusany";
 
 webFrame.setZoomLevel(1);
 webFrame.setVisualZoomLevelLimits(1, 1);
@@ -42,12 +42,18 @@ window["__page"] = {
         if (!(type in window["__page"].broadcastListeners)) {
             return;
         }
-        window["__page"].broadcastListeners[type] = window["__page"].broadcastListeners[type].filter(c => c !== cb);
+        window["__page"].broadcastListeners[type] = window[
+            "__page"
+        ].broadcastListeners[type].filter((c) => c !== cb);
     },
     callPage: {},
     registerCallPage: (
         name: string,
-        cb: (resolve: (data: any) => void, reject: (error: string) => void, data: any) => void
+        cb: (
+            resolve: (data: any) => void,
+            reject: (error: string) => void,
+            data: any,
+        ) => void,
     ) => {
         window["__page"].callPage[name] = cb;
     },
@@ -126,17 +132,17 @@ ipcRenderer.on("MAIN_PROCESS_MESSAGE", (_event: any, payload: any) => {
     if ("APP_READY" === payload.type) {
         MAPI.init(payload.data.AppEnv);
     } else if ("CALL_PAGE" === payload.type) {
-        let {type, data, option} = payload.data;
+        let { type, data, option } = payload.data;
         option = Object.assign(
             {
                 waitReadyTimeout: 10 * 1000,
             },
-            option
+            option,
         );
         // console.log('CALL_PAGE', type, {type, data, option})
         const resultEventName = `event:callPage:${payload.id}`;
         const send = (code: number, msg: string, data?: any) => {
-            ipcRenderer.send(resultEventName, {code, msg, data});
+            ipcRenderer.send(resultEventName, { code, msg, data });
         };
         if (!window["__page"].callPage) {
             console.warn("CALL_PAGE.Failed", JSON.stringify(payload));
@@ -147,22 +153,29 @@ ipcRenderer.on("MAIN_PROCESS_MESSAGE", (_event: any, payload: any) => {
             try {
                 const maybePromise = window["__page"].callPage[type](
                     (resultData: any) => {
-                        send(0, "ok", resultData)
+                        send(0, "ok", resultData);
                     },
                     (error: string) => {
-                        send(-1, error)
+                        send(-1, error);
                     },
-                    data
+                    data,
                 );
                 if (maybePromise && typeof maybePromise.then === "function") {
                     maybePromise.catch((e: any) => {
-                        console.error('CallPage.Error', e);
-                        send(-1, "CallPageExecuteError: " + (e?.message || e.toString()));
+                        console.error("CallPage.Error", e);
+                        send(
+                            -1,
+                            "CallPageExecuteError: " +
+                                (e?.message || e.toString()),
+                        );
                     });
                 }
             } catch (e) {
-                console.error('CallPage.Error', e);
-                send(-1, 'CallPageExecuteError: ' + (e?.message || e.toString()));
+                console.error("CallPage.Error", e);
+                send(
+                    -1,
+                    "CallPageExecuteError: " + (e?.message || e.toString()),
+                );
             }
         };
         if (!window["__page"].callPage[type]) {
@@ -172,7 +185,11 @@ ipcRenderer.on("MAIN_PROCESS_MESSAGE", (_event: any, payload: any) => {
                     setTimeout(() => {
                         if (!window["__page"].callPage[type]) {
                             if (Date.now() - start > option.waitReadyTimeout) {
-                                console.warn("CALL_PAGE.Timeout", type, {type, data, option});
+                                console.warn("CALL_PAGE.Timeout", type, {
+                                    type,
+                                    data,
+                                    option,
+                                });
                                 send(-1, "timeout");
                                 return;
                             } else {
@@ -187,23 +204,25 @@ ipcRenderer.on("MAIN_PROCESS_MESSAGE", (_event: any, payload: any) => {
                 monitor();
                 return;
             }
-            console.warn("CALL_PAGE.NotFound", type, {type, data, option});
+            console.warn("CALL_PAGE.NotFound", type, { type, data, option });
             send(-1, "event not found");
             return;
         }
         callPageExecute();
     } else if ("CHANNEL" === payload.type) {
-        const {channel, data} = payload.data;
+        const { channel, data } = payload.data;
         if (!window["__page"].channel || !window["__page"].channel[channel]) {
             return;
         }
         window["__page"].channel[channel](data);
     } else if ("BROADCAST" === payload.type) {
-        const {type, data} = payload.data;
+        const { type, data } = payload.data;
         if (window["__page"].broadcastListeners[type]) {
-            window["__page"].broadcastListeners[type].forEach((cb: Function) => {
-                cb(data);
-            });
+            window["__page"].broadcastListeners[type].forEach(
+                (cb: Function) => {
+                    cb(data);
+                },
+            );
         }
     } else {
         console.warn("UnknownMainProcessMessage", JSON.stringify(payload));

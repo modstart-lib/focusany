@@ -1,4 +1,4 @@
-import {ipcRenderer} from "electron";
+import { ipcRenderer } from "electron";
 
 const all = async () => {
     return ipcRenderer.invoke("config:all");

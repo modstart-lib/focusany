@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import {onBeforeUnmount, onMounted, ref} from "vue";
+import { onBeforeUnmount, onMounted, ref } from "vue";
 import PageWebviewStatus from "../components/common/PageWebviewStatus.vue";
-import {useSettingStore} from "../store/modules/setting";
-import {useUserStore} from "../store/modules/user";
-import {t} from "../lang";
+import { t } from "../lang";
+import { useSettingStore } from "../store/modules/setting";
+import { useUserStore } from "../store/modules/user";
 
 const setting = useSettingStore();
 const user = useUserStore();
@@ -14,10 +14,12 @@ const webPreload = ref("");
 const webUrl = ref("");
 const webUserAgent = window.$mapi.app.getUserAgent();
 
-const installProgressCallback = data => {
+const installProgressCallback = (data) => {
     // console.log('PluginInstallProgress', data)
     web.value.executeJavaScript(
-        `window.__storePluginInstallProgress && window.__storePluginInstallProgress(${JSON.stringify(data)})`
+        `window.__storePluginInstallProgress && window.__storePluginInstallProgress(${JSON.stringify(
+            data,
+        )})`,
     );
 };
 
@@ -25,7 +27,7 @@ onMounted(async () => {
     web.value.addEventListener("did-fail-load", (event: any) => {
         status.value?.setStatus("fail");
     });
-    web.value.addEventListener("dom-ready", e => {
+    web.value.addEventListener("dom-ready", (e) => {
         // web.value.openDevTools()
         window.$mapi.user.refresh();
         web.value.executeJavaScript(`
@@ -48,13 +50,24 @@ document.addEventListener('click', (event) => {
 });
 
 onBeforeUnmount(() => {
-    window.__page.offBroadcast("PluginInstallProgress", installProgressCallback);
+    window.__page.offBroadcast(
+        "PluginInstallProgress",
+        installProgressCallback,
+    );
 });
 
-focusany.setSubInput((keywords) => {
-    web.value.executeJavaScript(`window.__storePluginSearch && window.__storePluginSearch(${JSON.stringify(keywords)});`);
-}, t('输入关键词搜索'), true, true);
-
+focusany.setSubInput(
+    (keywords) => {
+        web.value.executeJavaScript(
+            `window.__storePluginSearch && window.__storePluginSearch(${JSON.stringify(
+                keywords,
+            )});`,
+        );
+    },
+    t("store.searchPlaceholder"),
+    true,
+    true,
+);
 </script>
 
 <template>
@@ -67,7 +80,7 @@ focusany.setSubInput((keywords) => {
             nodeintegration
             :preload="webPreload"
         ></webview>
-        <PageWebviewStatus ref="status"/>
+        <PageWebviewStatus ref="status" />
     </div>
 </template>
 

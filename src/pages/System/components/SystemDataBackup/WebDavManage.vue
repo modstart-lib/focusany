@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import {onMounted, ref, watch} from "vue";
+import { onMounted, ref, watch } from "vue";
+import { t } from "../../../../lang";
+import { Dialog } from "../../../../lib/dialog";
+import { TimeUtil } from "../../../../lib/util";
 import WebDavManageSettingDialog from "./WebDavManageSettingDialog.vue";
-import {Dialog} from "../../../../lib/dialog";
-import {TimeUtil} from "../../../../lib/util";
-import {t} from "../../../../lang";
 
 const type = ref("backup");
-const settingDialog = ref<InstanceType<typeof WebDavManageSettingDialog> | null>(null);
+const settingDialog = ref<InstanceType<
+    typeof WebDavManageSettingDialog
+> | null>(null);
 const backupWebDavHasConfig = ref(false);
 const loading = ref(false);
 const restoreRecords = ref<string[]>([]);
@@ -22,7 +24,7 @@ watch(
         if (type.value === "restore") {
             doLoadRestoreRecords();
         }
-    }
+    },
 );
 
 const doLoad = async () => {
@@ -44,18 +46,20 @@ const doBackup = async () => {
         return;
     }
     const backupWebdav = await window.$mapi.config.get("backupWebdav", {});
-    let file = backupWebdav.filePattern || "Backup-{year}{month}{day}{hour}{minute}{second}";
+    let file =
+        backupWebdav.filePattern ||
+        "Backup-{year}{month}{day}{hour}{minute}{second}";
     let root = backupWebdav.root || "/FocusAnyBackup/";
     file = TimeUtil.replacePattern(file);
     root = root.replace(/\/$/, "");
     file = `${root}/${file}.backup`;
-    Dialog.loadingOn(t("正在备份..."));
+    Dialog.loadingOn(t("backup.backingUp"));
     loading.value = true;
     try {
         await window.$mapi.kvdb.dumpToWebDav(file, backupWebdav);
-        Dialog.tipSuccess(t("备份成功"));
+        Dialog.tipSuccess(t("backup.backupSuccess"));
     } catch (e) {
-        Dialog.tipError(t("备份失败"));
+        Dialog.tipError(t("backup.backupFailed"));
     } finally {
         loading.value = false;
         Dialog.loadingOff();
@@ -67,7 +71,7 @@ const doRestore = async () => {
         return;
     }
     if (!restoreRecordSelect.value) {
-        Dialog.tipError(t("请选择需要恢复的文件"));
+        Dialog.tipError(t("backup.selectRestoreFile"));
         return;
     }
     const backupWebdav = await window.$mapi.config.get("backupWebdav", {});
@@ -75,13 +79,13 @@ const doRestore = async () => {
     root = root.replace(/\/$/, "") + "/";
     let file = restoreRecordSelect.value;
     file = root + file;
-    Dialog.loadingOn(t("正在恢复..."));
+    Dialog.loadingOn(t("backup.restoring"));
     loading.value = true;
     try {
         await window.$mapi.kvdb.importFromWebDav(file, backupWebdav);
-        Dialog.tipSuccess(t("恢复成功"));
+        Dialog.tipSuccess(t("backup.restoreSuccess"));
     } catch (e) {
-        Dialog.tipError(t("恢复失败"));
+        Dialog.tipError(t("backup.restoreFailed"));
     } finally {
         loading.value = false;
         Dialog.loadingOff();
@@ -95,16 +99,24 @@ const emit = defineEmits(["update"]);
     <div class="flex">
         <div class="flex-grow">
             <a-radio-group v-model:model-value="type">
-                <a-radio value="backup">{{$t('上传到云端')}}</a-radio>
-                <a-radio value="restore">{{$t('从云端恢复')}}</a-radio>
+                <a-radio value="backup">{{
+                    $t("backup.uploadToCloud")
+                }}</a-radio>
+                <a-radio value="restore">{{
+                    $t("backup.restoreFromCloud")
+                }}</a-radio>
             </a-radio-group>
         </div>
         <div>
-            <a-button v-if="backupWebDavHasConfig" size="small" @click="settingDialog?.show()">
+            <a-button
+                v-if="backupWebDavHasConfig"
+                size="small"
+                @click="settingDialog?.show()"
+            >
                 <template #icon>
                     <icon-settings />
                 </template>
-                {{$t('配置')}}
+                {{ $t("backup.webdavConfig") }}
             </a-button>
         </div>
     </div>
@@ -116,7 +128,7 @@ const emit = defineEmits(["update"]);
             <div>
                 <icon-cloud class="text-2xl" />
             </div>
-            <div>{{$t('未配置WebDav服务，点击配置')}}</div>
+            <div>{{ $t("backup.notConfigured") }}</div>
         </div>
     </div>
     <div class="py-3" v-if="backupWebDavHasConfig && type === 'backup'">
@@ -127,20 +139,27 @@ const emit = defineEmits(["update"]);
             <div>
                 <icon-cloud class="text-2xl" />
             </div>
-            <div>{{$t('开始备份')}}</div>
+            <div>{{ $t("backup.startBackup") }}</div>
         </div>
     </div>
     <div class="py-3" v-if="backupWebDavHasConfig && type === 'restore'">
         <a-form :model="{}" layout="vertical">
             <a-form-item>
-                <a-select v-model="restoreRecordSelect as any" style="width: 100%">
-                    <a-option v-for="item in restoreRecords" :key="item" :value="item">
+                <a-select
+                    v-model="restoreRecordSelect as any"
+                    style="width: 100%"
+                >
+                    <a-option
+                        v-for="item in restoreRecords"
+                        :key="item"
+                        :value="item"
+                    >
                         {{ item }}
                     </a-option>
                 </a-select>
                 <template #label>
                     <div class="flex items-center">
-                        <div class="mr-2">{{$t('选择需要恢复的文件')}}</div>
+                        <div class="mr-2">{{ $t("backup.selectFile") }}</div>
                         <a-button size="small" @click="doLoadRestoreRecords">
                             <template #icon>
                                 <icon-refresh />
@@ -150,7 +169,9 @@ const emit = defineEmits(["update"]);
                 </template>
             </a-form-item>
             <a-form-item>
-                <a-button type="primary" @click="doRestore"> {{$t('开始恢复')}} </a-button>
+                <a-button type="primary" @click="doRestore">
+                    {{ $t("backup.startRestore") }}
+                </a-button>
             </a-form-item>
         </a-form>
     </div>

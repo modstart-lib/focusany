@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import {defineConfig} from "vite";
 import vue from "@vitejs/plugin-vue";
+import Icons from "unplugin-icons/vite";
 import electron from "vite-plugin-electron";
 import renderer from "vite-plugin-electron-renderer";
 import pkg from "./package.json";
@@ -41,6 +42,10 @@ export default defineConfig(({command}) => {
                         },
                     },
                 },
+            }),
+            Icons({
+                compiler: "vue3",
+                autoInstall: false,
             }),
             {
                 name: "add-build-time",

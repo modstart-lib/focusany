@@ -1,9 +1,10 @@
 /// <reference types="vite/client" />
-import type {Dialog} from "./lib/dialog";
-import type {Router} from 'vue-router';
+/// <reference types="unplugin-icons/types/vue" />
+import type { Dialog } from "./lib/dialog";
+import type { Router } from "vue-router";
 
 declare module "*.vue" {
-    import type {DefineComponent} from "vue";
+    import type { DefineComponent } from "vue";
     const component: DefineComponent<{}, {}, any>;
     export default component;
 }

@@ -3,8 +3,10 @@ const init = () => {
 };
 
 const initLoaders = () => {
-    function domReady(condition: DocumentReadyState[] = ["complete", "interactive"]) {
-        return new Promise(resolve => {
+    function domReady(
+        condition: DocumentReadyState[] = ["complete", "interactive"],
+    ) {
+        return new Promise((resolve) => {
             if (condition.includes(document.readyState)) {
                 resolve(true);
             } else {
@@ -19,12 +21,12 @@ const initLoaders = () => {
 
     const safeDOM = {
         append(parent: HTMLElement, child: HTMLElement) {
-            if (!Array.from(parent.children).find(e => e === child)) {
+            if (!Array.from(parent.children).find((e) => e === child)) {
                 return parent.appendChild(child);
             }
         },
         remove(parent: HTMLElement, child: HTMLElement) {
-            if (Array.from(parent.children).find(e => e === child)) {
+            if (Array.from(parent.children).find((e) => e === child)) {
                 return parent.removeChild(child);
             }
         },
@@ -103,7 +105,7 @@ const initLoaders = () => {
         };
     }
 
-    const {appendLoading, removeLoading} = useLoading();
+    const { appendLoading, removeLoading } = useLoading();
 
     const isMain = () => {
         return true;
@@ -119,7 +121,7 @@ const initLoaders = () => {
 
     if (isMain()) {
         domReady().then(appendLoading);
-        window.onmessage = ev => {
+        window.onmessage = (ev) => {
             ev.data.payload === "removeLoading" && removeLoading();
         };
     }

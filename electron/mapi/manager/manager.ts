@@ -11,19 +11,19 @@ import {
     PluginRecord,
     SelectedContent,
 } from "../../../src/types/Manager";
-import {ManagerSystem} from "./system";
-import {ManagerPlugin} from "./plugin";
-import {ManagerConfig} from "./config/config";
-import {SearchQuery} from "./type";
-import {PinyinUtil} from "../../lib/pinyin-util";
-import {exec} from "child_process";
-import {ManagerWindow} from "./window";
-import {ManagerCode} from "./code";
-import {ManagerBackend} from "./backend";
-import {ReUtil, StrUtil} from "../../lib/util";
-import {Events} from "../event/main";
-import {ManagerEditor} from "./editor";
-import {cloneDeep} from "lodash";
+import { ManagerSystem } from "./system";
+import { ManagerPlugin } from "./plugin";
+import { ManagerConfig } from "./config/config";
+import { SearchQuery } from "./type";
+import { PinyinUtil } from "../../lib/pinyin-util";
+import { exec } from "child_process";
+import { ManagerWindow } from "./window";
+import { ManagerCode } from "./code";
+import { ManagerBackend } from "./backend";
+import { ReUtil, StrUtil } from "../../lib/util";
+import { Events } from "../event/main";
+import { ManagerEditor } from "./editor";
+import { cloneDeep } from "lodash";
 
 type SearchRequest = {
     id: string;
@@ -91,17 +91,17 @@ export const Manager = {
                 exec(action.data.command);
                 break;
             case ActionTypeEnum.WEB:
-                await ManagerWindow.open(plugin, action)
+                await ManagerWindow.open(plugin, action);
                 break;
             case ActionTypeEnum.CODE:
-                await ManagerCode.execute(plugin, action)
+                await ManagerCode.execute(plugin, action);
                 break;
             case ActionTypeEnum.BACKEND:
-                await ManagerBackend.runAction(plugin, action)
+                await ManagerBackend.runAction(plugin, action);
                 break;
         }
         if (action.trackHistory) {
-            await ManagerConfig.addHistoryAction(plugin, action)
+            await ManagerConfig.addHistoryAction(plugin, action);
         }
     },
     async getPlugin(name: string) {
@@ -121,7 +121,10 @@ export const Manager = {
         return null;
     },
     async listPlugin() {
-        plugins = [...(await ManagerSystem.list()), ...(await ManagerPlugin.list())];
+        plugins = [
+            ...(await ManagerSystem.list()),
+            ...(await ManagerPlugin.list()),
+        ];
         const customActions = await ManagerConfig.getCustomAction();
         for (const p of plugins) {
             if (!(p.name in customActions)) {
@@ -132,7 +135,10 @@ export const Manager = {
         return plugins;
     },
     async listAction(request?: SearchRequest) {
-        let actions: ActionRecord[] = [...(await ManagerSystem.listAction()), ...(await ManagerPlugin.listAction())];
+        let actions: ActionRecord[] = [
+            ...(await ManagerSystem.listAction()),
+            ...(await ManagerPlugin.listAction()),
+        ];
         const customActions = await ManagerConfig.getCustomAction();
         for (const customAction of Object.values(customActions)) {
             actions = actions.concat(customAction);
@@ -147,7 +153,10 @@ export const Manager = {
         }
         return actions;
     },
-    async searchOneAction(keywordsOrAction: string | string[], query: SearchQuery) {
+    async searchOneAction(
+        keywordsOrAction: string | string[],
+        query: SearchQuery,
+    ) {
         const request = this.createSearchRequest(query);
         query = Object.assign(
             {
@@ -156,7 +165,7 @@ export const Manager = {
                 currentImage: "",
                 currentText: "",
             },
-            query
+            query,
         );
         const actions = await this.listAction(request);
         let action: ActionRecord = null;
@@ -190,7 +199,7 @@ export const Manager = {
                 currentText: "",
                 activeWindow: this.activeWindow,
             },
-            query
+            query,
         );
         const actions = await this.listAction(request);
         const uniqueRemover = new Set<string>();
@@ -199,7 +208,7 @@ export const Manager = {
     async searchActions(
         uniqueRemover: Set<string>,
         actions: ActionRecord[],
-        query: SearchQuery
+        query: SearchQuery,
     ): Promise<ActionRecord[]> {
         let results = [];
         if (!query.keywords) {
@@ -214,14 +223,26 @@ export const Manager = {
             let runtimeMatch = null;
             for (const m of a.matches) {
                 if (m.type === ActionMatchTypeEnum.TEXT) {
-                    if ("minLength" in m && query.keywords.length < m.minLength) {
+                    if (
+                        "minLength" in m &&
+                        query.keywords.length < m.minLength
+                    ) {
                         continue;
                     }
-                    if ("maxLength" in m && query.keywords.length > m.maxLength) {
+                    if (
+                        "maxLength" in m &&
+                        query.keywords.length > m.maxLength
+                    ) {
                         continue;
                     }
-                    const textMatch = PinyinUtil.match((m as ActionMatchText).text, query.keywords);
-                    if (textMatch.matched && textMatch.similarity > searchScoreMax) {
+                    const textMatch = PinyinUtil.match(
+                        (m as ActionMatchText).text,
+                        query.keywords,
+                    );
+                    if (
+                        textMatch.matched &&
+                        textMatch.similarity > searchScoreMax
+                    ) {
                         searchScoreMax = textMatch.similarity;
                         runtimeSearchTitleMatched = textMatch.inputMark;
                         runtimeMatch = m;
@@ -229,7 +250,9 @@ export const Manager = {
                 } else if (m.type === ActionMatchTypeEnum.KEY) {
                     if ((m as ActionMatchKey).key === query.keywords) {
                         searchScoreMax = 1;
-                        runtimeSearchTitleMatched = PinyinUtil.mark(query.keywords);
+                        runtimeSearchTitleMatched = PinyinUtil.mark(
+                            query.keywords,
+                        );
                         runtimeMatch = m;
                     }
                 }
@@ -252,7 +275,7 @@ export const Manager = {
     async matchActions(
         uniqueRemover: Set<string>,
         actions: ActionRecord[],
-        query: SearchQuery
+        query: SearchQuery,
     ): Promise<ActionRecord[]> {
         let results = [];
         if (
@@ -286,7 +309,8 @@ export const Manager = {
                     }
                     if (ReUtil.match((m as ActionMatchRegex).regex, keywords)) {
                         searchScoreMax = 1;
-                        runtimeSearchTitleMatched = (m as ActionMatchRegex).title || a.title;
+                        runtimeSearchTitleMatched =
+                            (m as ActionMatchRegex).title || a.title;
                         runtimeMatch = m;
                         break;
                     }
@@ -298,14 +322,18 @@ export const Manager = {
                     // console.log('file', JSON.stringify({m, files}, null, 2))
                     if ("filterFileType" in m) {
                         if (m.filterFileType === "file") {
-                            files = files.filter(f => f.isFile);
+                            files = files.filter((f) => f.isFile);
                         } else if (m.filterFileType === "directory") {
-                            files = files.filter(f => f.isDirectory);
+                            files = files.filter((f) => f.isDirectory);
                         }
                     }
                     if ("filterExtensions" in m) {
                         files = files.filter(
-                            f => f.isFile && (m as ActionMatchFile).filterExtensions.includes(f.fileExt)
+                            (f) =>
+                                f.isFile &&
+                                (
+                                    m as ActionMatchFile
+                                ).filterExtensions.includes(f.fileExt),
                         );
                     }
                     if ("minCount" in m && files.length < m.minCount) {
@@ -318,7 +346,8 @@ export const Manager = {
                         continue;
                     }
                     searchScoreMax = 1;
-                    runtimeSearchTitleMatched = (m as ActionMatchFile).title || a.title;
+                    runtimeSearchTitleMatched =
+                        (m as ActionMatchFile).title || a.title;
                     runtimeMatch = m;
                     matchFiles = files;
                     break;
@@ -328,7 +357,8 @@ export const Manager = {
                         continue;
                     }
                     searchScoreMax = 1;
-                    runtimeSearchTitleMatched = (m as ActionMatchFile).title || a.title;
+                    runtimeSearchTitleMatched =
+                        (m as ActionMatchFile).title || a.title;
                     runtimeMatch = m;
                 } else if (m.type === ActionMatchTypeEnum.WINDOW) {
                     const activeWindow = query.activeWindow;
@@ -337,20 +367,31 @@ export const Manager = {
                     }
                     if (
                         (m as ActionMatchWindow).nameRegex &&
-                        !ReUtil.match((m as ActionMatchWindow).nameRegex, activeWindow.name)
+                        !ReUtil.match(
+                            (m as ActionMatchWindow).nameRegex,
+                            activeWindow.name,
+                        )
                     ) {
                         continue;
                     }
                     if (
                         (m as ActionMatchWindow).titleRegex &&
-                        !ReUtil.match((m as ActionMatchWindow).titleRegex, activeWindow.title)
+                        !ReUtil.match(
+                            (m as ActionMatchWindow).titleRegex,
+                            activeWindow.title,
+                        )
                     ) {
                         continue;
                     }
                     if ((m as ActionMatchWindow).attrRegex) {
                         let pass = true;
                         for (const key in (m as ActionMatchWindow).attrRegex) {
-                            if (!ReUtil.match((m as ActionMatchWindow).attrRegex[key], activeWindow.attr[key])) {
+                            if (
+                                !ReUtil.match(
+                                    (m as ActionMatchWindow).attrRegex[key],
+                                    activeWindow.attr[key],
+                                )
+                            ) {
                                 pass = false;
                                 break;
                             }
@@ -370,10 +411,19 @@ export const Manager = {
                     }
                     // console.log('file', JSON.stringify({m, files}, null, 2))
                     if ("extensions" in m) {
-                        files = files.filter(f => f.isFile && (m as ActionMatchEditor).extensions.includes(f.fileExt));
+                        files = files.filter(
+                            (f) =>
+                                f.isFile &&
+                                (m as ActionMatchEditor).extensions.includes(
+                                    f.fileExt,
+                                ),
+                        );
                     }
                     if ("fadTypes" in m) {
-                        files = await ManagerEditor.filterFadType(files, (m as ActionMatchEditor).fadTypes);
+                        files = await ManagerEditor.filterFadType(
+                            files,
+                            (m as ActionMatchEditor).fadTypes,
+                        );
                     }
                     if (files.length <= 0) {
                         continue;
@@ -401,7 +451,10 @@ export const Manager = {
         });
         return results;
     },
-    async detachWindowActions(uniqueRemover: Set<string>, actionFullNameMap: Map<string, ActionRecord>) {
+    async detachWindowActions(
+        uniqueRemover: Set<string>,
+        actionFullNameMap: Map<string, ActionRecord>,
+    ) {
         const results = [];
         const pluginCount = {};
         for (const win of ManagerWindow.listDetachWindows()) {
@@ -428,17 +481,24 @@ export const Manager = {
                 } else {
                     pluginCount[actionWeb.pluginName] = 1;
                 }
-                actionClone.runtime.windowIndex = pluginCount[actionWeb.pluginName];
+                actionClone.runtime.windowIndex =
+                    pluginCount[actionWeb.pluginName];
                 results.push(actionClone);
                 uniqueRemover.add(fullName);
             }
         }
         for (const r of results) {
-            r.runtime.windowCount = results.filter(a => a.pluginName === r.pluginName).length;
+            r.runtime.windowCount = results.filter(
+                (a) => a.pluginName === r.pluginName,
+            ).length;
         }
         return results;
     },
-    async historyActions(uniqueRemover: Set<string>, actionFullNameMap: Map<string, ActionRecord>, query: SearchQuery) {
+    async historyActions(
+        uniqueRemover: Set<string>,
+        actionFullNameMap: Map<string, ActionRecord>,
+        query: SearchQuery,
+    ) {
         const historyActions = await ManagerConfig.getHistoryAction();
         const results = [];
         for (const h of historyActions) {
@@ -453,7 +513,11 @@ export const Manager = {
         }
         return results;
     },
-    async pinActions(uniqueRemover: Set<string>, actionFullNameMap: Map<string, ActionRecord>, query: SearchQuery) {
+    async pinActions(
+        uniqueRemover: Set<string>,
+        actionFullNameMap: Map<string, ActionRecord>,
+        query: SearchQuery,
+    ) {
         const pinActions = await ManagerConfig.listPinAction();
         const results: ActionRecord[] = [];
         for (const p of pinActions) {
@@ -481,14 +545,14 @@ export const Manager = {
     async setNotice(
         notice:
             | {
-            text: string;
-            type?: "info" | "error" | "success";
-            duration?: number;
-        }
-            | string
+                  text: string;
+                  type?: "info" | "error" | "success";
+                  duration?: number;
+              }
+            | string,
     ) {
         if (typeof notice === "string") {
-            notice = {text: notice};
+            notice = { text: notice };
         }
         notice = Object.assign(
             {
@@ -496,7 +560,7 @@ export const Manager = {
                 type: "info",
                 duration: 0,
             },
-            notice
+            notice,
         );
         Events.broadcast("Notice", notice, {
             limit: true,

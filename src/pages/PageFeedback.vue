@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import {nextTick, onBeforeUnmount, onMounted, ref} from "vue";
-import {AppConfig} from "../config";
-import {t} from "../lang";
+import { nextTick, onBeforeUnmount, onMounted, ref } from "vue";
+import { AppConfig } from "../config";
+import { t } from "../lang";
 import UpdaterButton from "../components/common/UpdaterButton.vue";
-import {useSettingStore} from "../store/modules/setting";
+import { useSettingStore } from "../store/modules/setting";
 import FeedbackTicketButton from "../components/common/FeedbackTicketButton.vue";
 import PageWebviewStatus from "../components/common/PageWebviewStatus.vue";
 
@@ -23,9 +23,11 @@ onMounted(async () => {
         web.value.addEventListener("did-fail-load", (event: any) => {
             status.value?.setStatus("fail");
         });
-        web.value.addEventListener("dom-ready", async e => {
+        web.value.addEventListener("dom-ready", async (e) => {
             const appEnv = await window.$mapi.app.appEnv();
-            web.value.executeJavaScript(`window.$mapi.app.setRenderAppEnv(${JSON.stringify(appEnv)})`);
+            web.value.executeJavaScript(
+                `window.$mapi.app.setRenderAppEnv(${JSON.stringify(appEnv)})`,
+            );
             // web.value.openDevTools()
             window.$mapi.user.refresh();
             web.value.executeJavaScript(`

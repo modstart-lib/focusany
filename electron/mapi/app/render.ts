@@ -1,7 +1,7 @@
-import {ipcRenderer} from "electron";
-import {resolve} from "node:path";
-import {isPackaged, platformArch, platformName} from "../../lib/env";
-import {AppEnv, waitAppEnvReady} from "../env";
+import { ipcRenderer } from "electron";
+import { resolve } from "node:path";
+import { isPackaged, platformArch, platformName } from "../../lib/env";
+import { AppEnv, waitAppEnvReady } from "../env";
 import appIndex from "./index";
 
 const isDarkMode = async () => {
@@ -35,7 +35,7 @@ const windowSetSize = (
     option?: {
         includeMinimumSize: boolean;
         center: boolean;
-    }
+    },
 ) => {
     return ipcRenderer.invoke("window:setSize", name, width, height, option);
 };
@@ -52,7 +52,10 @@ const windowClose = (name: string) => {
     return ipcRenderer.invoke("window:close", name);
 };
 
-const windowMove = (name: string | null, data: {mouseX: number; mouseY: number; width: number; height: number}) => {
+const windowMove = (
+    name: string | null,
+    data: { mouseX: number; mouseY: number; width: number; height: number },
+) => {
     return ipcRenderer.invoke("window:move", name, data);
 };
 

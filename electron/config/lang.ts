@@ -1,7 +1,7 @@
 import enUS from "./../../src/lang/en-US.json";
 import zhCN from "./../../src/lang/zh-CN.json";
-import {isDev} from "../lib/env";
-import {ConfigMain} from "../mapi/config/main";
+import { isDev } from "../lib/env";
+import { ConfigMain } from "../mapi/config/main";
 
 export const defaultLocale = "zh-CN";
 
@@ -34,9 +34,12 @@ export const t = (text: string, param: object | null = null) => {
     if (messages[locale]) {
         if (messages[locale][text]) {
             if (param) {
-                return messages[locale][text].replace(/\{(\w+)\}/g, function (match, key) {
-                    return key in param ? param[key] : match;
-                });
+                return messages[locale][text].replace(
+                    /\{(\w+)\}/g,
+                    function (match, key) {
+                        return key in param ? param[key] : match;
+                    },
+                );
             }
             return messages[locale][text];
         }

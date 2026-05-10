@@ -1,5 +1,5 @@
-import {BrowserView, BrowserWindow} from "electron";
-import {ActiveWindow, PluginRecord} from "../../../src/types/Manager";
+import { BrowserView, BrowserWindow } from "electron";
+import { ActiveWindow, PluginRecord } from "../../../src/types/Manager";
 
 export type PluginContext = (BrowserView | {}) & {
     _plugin: PluginRecord;

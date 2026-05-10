@@ -1,10 +1,10 @@
-import {ref} from "vue";
-import {useUserStore} from "../store/modules/user";
-import {useSettingStore} from "../store/modules/setting";
+import { ref } from "vue";
+import { useUserStore } from "../store/modules/user";
+import { useSettingStore } from "../store/modules/setting";
 
 const setting = useSettingStore();
 
-export const useUserPage = ({web, status}) => {
+export const useUserPage = ({ web, status }) => {
     const webPreload = ref("");
     const webUrl = ref("");
     const webUserAgent = window.$mapi.app.getUserAgent();
@@ -12,7 +12,13 @@ export const useUserPage = ({web, status}) => {
     const user = useUserStore();
     const canGoBack = ref(false);
 
-    const whiteUrl = ["/app_manager/user", "/member_vip", "/login", "/register", "/logout"];
+    const whiteUrl = [
+        "/app_manager/user",
+        "/member_vip",
+        "/login",
+        "/register",
+        "/logout",
+    ];
     const urlMap = {
         "/app_manager/user": "/member",
     };
@@ -38,7 +44,9 @@ export const useUserPage = ({web, status}) => {
         });
         web.value.addEventListener("did-finish-load", (event: any) => {
             if (setting.shouldDarkMode()) {
-                web.value.executeJavaScript(`document.body.setAttribute('data-theme', 'dark');`);
+                web.value.executeJavaScript(
+                    `document.body.setAttribute('data-theme', 'dark');`,
+                );
             }
         });
         web.value.addEventListener("close", (event: any) => {
@@ -46,7 +54,7 @@ export const useUserPage = ({web, status}) => {
                 web.value.closeDevTools();
             }
         });
-        web.value.addEventListener("dom-ready", e => {
+        web.value.addEventListener("dom-ready", (e) => {
             // web.value.openDevTools();
             window.$mapi.user.refresh();
             canGoBack.value = getCanGoBack();
@@ -72,18 +80,23 @@ document.addEventListener('click', (event) => {
 `);
             status.value?.setStatus("success");
             if (window.__page) {
-                window.__page.registerCallPage("ready", (resolve, reject, data) => {
-                    web.value.executeJavaScript(
-                        `var call = function(){
+                window.__page.registerCallPage(
+                    "ready",
+                    (resolve, reject, data) => {
+                        web.value.executeJavaScript(
+                            `var call = function(){
                             if(!window.__appManagerUserReady){
                                 setTimeout(call,10);
                                 return;
                             };
-                            window.__appManagerUserReady(${JSON.stringify(data)});
-                         };call();`
-                    );
-                    resolve(undefined);
-                });
+                            window.__appManagerUserReady(${JSON.stringify(
+                                data,
+                            )});
+                         };call();`,
+                        );
+                        resolve(undefined);
+                    },
+                );
             }
         });
         status.value?.setStatus("loading");

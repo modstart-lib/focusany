@@ -1,12 +1,16 @@
-import {ActionRecord, PluginRecord, PluginType} from "../../../../src/types/Manager";
-import {SystemPlugin} from "./plugin/system";
-import {SystemActionCode} from "./plugin/system/action";
-import {StorePlugin} from "./plugin/store";
-import {StoreActionCode} from "./plugin/store/action";
-import {MemoryCacheUtil} from "../../../lib/util";
-import {ManagerPlugin} from "../plugin";
-import {getAppPlugin} from "./plugin/app";
-import {getFilePlugin} from "./plugin/file";
+import {
+    ActionRecord,
+    PluginRecord,
+    PluginType,
+} from "../../../../src/types/Manager";
+import { SystemPlugin } from "./plugin/system";
+import { SystemActionCode } from "./plugin/system/action";
+import { StorePlugin } from "./plugin/store";
+import { StoreActionCode } from "./plugin/store/action";
+import { MemoryCacheUtil } from "../../../lib/util";
+import { ManagerPlugin } from "../plugin";
+import { getAppPlugin } from "./plugin/app";
+import { getFilePlugin } from "./plugin/file";
 
 const pluginActionCode = {
     system: SystemActionCode,
@@ -28,7 +32,12 @@ export const ManagerSystem = {
         return systemPlugin.has(name);
     },
     async list() {
-        const plugins: (PluginRecord | any)[] = [SystemPlugin, StorePlugin, getAppPlugin, getFilePlugin];
+        const plugins: (PluginRecord | any)[] = [
+            SystemPlugin,
+            StorePlugin,
+            getAppPlugin,
+            getFilePlugin,
+        ];
         for (let i = 0; i < plugins.length; i++) {
             if (typeof plugins[i] === "function") {
                 plugins[i] = await plugins[i]();
@@ -53,13 +62,16 @@ export const ManagerSystem = {
         return pluginActionBackend[pluginName][name] || null;
     },
     async listAction() {
-        return await MemoryCacheUtil.remember<ActionRecord[]>("SystemActions", async () => {
-            let actions: ActionRecord[] = [];
-            const plugins = await this.list();
-            for (const p of plugins) {
-                actions = actions.concat(p.actions);
-            }
-            return actions;
-        });
+        return await MemoryCacheUtil.remember<ActionRecord[]>(
+            "SystemActions",
+            async () => {
+                let actions: ActionRecord[] = [];
+                const plugins = await this.list();
+                for (const p of plugins) {
+                    actions = actions.concat(p.actions);
+                }
+                return actions;
+            },
+        );
     },
 };

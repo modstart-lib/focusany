@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import {AppConfig} from "../../config";
-import {t} from "../../lang";
+import { AppConfig } from "../../config";
+import { t } from "../../lang";
 import UpdaterButton from "../../components/common/UpdaterButton.vue";
-import {useSettingStore} from "../../store/modules/setting";
+import { useSettingStore } from "../../store/modules/setting";
 import FeedbackTicketButton from "../../components/common/FeedbackTicketButton.vue";
 
 const setting = useSettingStore();
@@ -22,7 +22,10 @@ const doOpenLog = async () => {
             <div class="flex mb-3 items-start">
                 <div class="w-20">{{ t("版本") }}</div>
                 <div class="flex-grow">
-                    <div>v{{ AppConfig.version }} Build {{ setting.buildInfo.buildId }}</div>
+                    <div>
+                        v{{ AppConfig.version }} Build
+                        {{ setting.buildInfo.buildId }}
+                    </div>
                     <div class="pt-2">
                         <UpdaterButton />
                     </div>
@@ -31,7 +34,11 @@ const doOpenLog = async () => {
             <div class="flex mb-3 items-center">
                 <div class="w-20">{{ t("官网") }}</div>
                 <div class="flex-grow">
-                    <a :href="AppConfig.website" target="_blank" class="text-link">
+                    <a
+                        :href="AppConfig.website"
+                        target="_blank"
+                        class="text-link"
+                    >
                         {{ AppConfig.website }}
                     </a>
                     <div class="inline-block ml-3">
@@ -57,7 +64,10 @@ const doOpenLog = async () => {
                     target="_blank"
                     class="bg-gray-100 dark:bg-gray-700 w-48 mr-1 rounded-lg py-2 px-8 inline-flex items-center mb-3 hover:shadow-lg"
                 >
-                    <img src="./../../assets/image/github.svg" class="w-12 h-12 mr-2" />
+                    <img
+                        src="./../../assets/image/github.svg"
+                        class="w-12 h-12 mr-2"
+                    />
                     <div class="flex-grow">Github</div>
                 </a>
                 <a
@@ -65,11 +75,16 @@ const doOpenLog = async () => {
                     target="_blank"
                     class="bg-gray-100 dark:bg-gray-700 w-48 mr-1 rounded-lg py-2 px-8 inline-flex items-center hover:shadow-lg"
                 >
-                    <img src="./../../assets/image/gitee.svg" class="w-12 h-12 mr-2" />
+                    <img
+                        src="./../../assets/image/gitee.svg"
+                        class="w-12 h-12 mr-2"
+                    />
                     <div class="flex-grow">Gitee</div>
                 </a>
             </div>
-            <div class="text-gray-400">&copy; {{ licenseYear }} {{ AppConfig.name }}</div>
+            <div class="text-gray-400">
+                &copy; {{ licenseYear }} {{ AppConfig.name }}
+            </div>
         </div>
     </div>
 </template>

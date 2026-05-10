@@ -1,3 +1,5 @@
+import { t } from "../../lang";
+import BuildInProviderLogo from "./../../assets/image/logo.svg";
 import ZhinaoProviderLogo from "./assets/image/models/360.png";
 import HunyuanProviderLogo from "./assets/image/models/hunyuan.png";
 import AzureProviderLogo from "./assets/image/models/microsoft.png";
@@ -42,9 +44,8 @@ import VoyageAIProviderLogo from "./assets/image/providers/voyageai.png";
 import XirangProviderLogo from "./assets/image/providers/xirang.png";
 import ZeroOneProviderLogo from "./assets/image/providers/zero-one.png";
 import ZhipuProviderLogo from "./assets/image/providers/zhipu.png";
-import BuildInProviderLogo from "./../../assets/image/logo.svg";
-import {Provider} from "./types";
-import {ModelProvider} from "./provider/provider";
+import { ModelProvider } from "./provider/provider";
+import { Provider } from "./types";
 
 const ProviderLogoMap = {
     buildIn: BuildInProviderLogo,
@@ -100,23 +101,27 @@ export function getProviderLogo(providerId: string) {
 }
 
 export function getProviderUrl(provider: Provider) {
-    return ModelProvider.apiUrl(provider.type, provider.apiUrl, provider.data.apiHost);
+    return ModelProvider.apiUrl(
+        provider.type,
+        provider.apiUrl,
+        provider.data.apiHost,
+    );
 }
 
 export const getProviderTitle = (providerId: string) => {
     const map = {
-        buildIn: "大模型",
+        buildIn: "provider.buildIn",
         aihubmix: "AiHubMix",
         alayanew: "Alaya NeW",
         anthropic: "Anthropic",
         "azure-openai": "Azure OpenAI",
-        baichuan: "百川",
-        "baidu-cloud": "百度云千帆",
+        baichuan: "provider.baichuan",
+        "baidu-cloud": "provider.baiduCloud",
         copilot: "GitHub Copilot",
-        dashscope: "阿里云百炼",
-        deepseek: "深度求索",
+        dashscope: "provider.dashscope",
+        deepseek: "provider.deepseek",
         dmxapi: "DMXAPI",
-        doubao: "火山引擎",
+        doubao: "provider.doubao",
         fireworks: "Fireworks",
         gemini: "Gemini",
         "gitee-ai": "Gitee AI",
@@ -125,35 +130,39 @@ export const getProviderTitle = (providerId: string) => {
         "graphrag-kylin-mountain": "GraphRAG",
         grok: "Grok",
         groq: "Groq",
-        hunyuan: "腾讯混元",
+        hunyuan: "provider.hunyuan",
         hyperbolic: "Hyperbolic",
-        infini: "无问芯穹",
+        infini: "provider.infini",
         jina: "Jina",
         lmstudio: "LM Studio",
         minimax: "MiniMax",
         mistral: "Mistral",
-        modelscope: "ModelScope 魔搭",
-        moonshot: "月之暗面",
-        nvidia: "英伟达",
+        modelscope: "provider.modelscope",
+        moonshot: "provider.moonshot",
+        nvidia: "provider.nvidia",
         o3: "O3",
         ocoolai: "ocoolAI",
         ollama: "Ollama",
         openai: "OpenAI",
         openrouter: "OpenRouter",
         perplexity: "Perplexity",
-        ppio: "PPIO 派欧云",
+        ppio: "provider.ppio",
         qwenlm: "QwenLM",
-        silicon: "硅基流动",
-        stepfun: "阶跃星辰",
-        "tencent-cloud-ti": "腾讯云TI",
+        silicon: "provider.silicon",
+        stepfun: "provider.stepfun",
+        "tencent-cloud-ti": "provider.tencentCloudTi",
         together: "Together",
-        xirang: "天翼云息壤",
-        yi: "零一万物",
-        zhinao: "360智脑",
-        zhipu: "智谱AI",
+        xirang: "provider.xirang",
+        yi: "provider.yi",
+        zhinao: "provider.zhinao",
+        zhipu: "provider.zhipu",
         voyageai: "Voyage AI",
     };
-    return map[providerId as keyof typeof map] || providerId;
+    const key = map[providerId as keyof typeof map];
+    if (!key) return providerId;
+    // Non-i18n entries (plain strings, not keys) start with capital/non-dot pattern
+    if (!key.includes(".")) return key;
+    return t(key) || key;
 };
 
 export const SystemProviders = {
@@ -421,7 +430,8 @@ export const SystemProviders = {
             url: "https://deepseek.alayanew.com",
         },
         websites: {
-            official: "https://www.alayanew.com/backend/register?id=cherrystudio",
+            official:
+                "https://www.alayanew.com/backend/register?id=cherrystudio",
             apiKey: " https://www.alayanew.com/backend/register?id=cherrystudio",
             docs: "https://docs.alayanew.com/docs/modelService/interview?utm_source=cherrystudio",
             models: "https://www.alayanew.com/product/deepseek?id=cherrystudio",
@@ -583,7 +593,8 @@ export const SystemProviders = {
             url: "",
         },
         websites: {
-            official: "https://azure.microsoft.com/en-us/products/ai-services/openai-service",
+            official:
+                "https://azure.microsoft.com/en-us/products/ai-services/openai-service",
             apiKey: "https://portal.azure.com/#view/Microsoft_Azure_ProjectOxford/CognitiveServicesHub/~/OpenAI",
             docs: "https://learn.microsoft.com/en-us/azure/ai-services/openai/",
             models: "https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/models",

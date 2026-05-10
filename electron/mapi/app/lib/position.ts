@@ -1,4 +1,4 @@
-import {screen} from "electron";
+import { screen } from "electron";
 
 type PositionCache = {
     x: 0;
@@ -28,24 +28,29 @@ export const AppPosition = {
             screenX: number,
             screenY: number,
             screenWidth: number,
-            screenHeight: number
+            screenHeight: number,
         ) => {
             x: number;
             y: number;
-        }
+        },
     ): {
         x: number;
         y: number;
     } {
         const cache = this.getCache(name);
-        const {x, y} = screen.getCursorScreenPoint();
-        const currentDisplay = screen.getDisplayNearestPoint({x, y});
+        const { x, y } = screen.getCursorScreenPoint();
+        const currentDisplay = screen.getDisplayNearestPoint({ x, y });
         if (cache.id !== currentDisplay.id) {
             cache.id = currentDisplay.id;
             cache.screenWidth = currentDisplay.workArea.width;
             cache.screenHeight = currentDisplay.workArea.height;
             if (!calculator) {
-                calculator = (screenX: number, screenY: number, screenWidth: number, screenHeight: number) => {
+                calculator = (
+                    screenX: number,
+                    screenY: number,
+                    screenWidth: number,
+                    screenHeight: number,
+                ) => {
                     // console.log('calculator', {screenX, screenY, screenWidth, screenHeight});
                     return {
                         x: screenX + screenWidth / 10,
@@ -57,7 +62,7 @@ export const AppPosition = {
                 currentDisplay.workArea.x,
                 currentDisplay.workArea.y,
                 cache.screenWidth,
-                cache.screenHeight
+                cache.screenHeight,
             );
             cache.x = parseInt(String(res.x));
             cache.y = parseInt(String(res.y));
@@ -74,13 +79,13 @@ export const AppPosition = {
     },
     getContextMenuPosition(
         boxWidth: number,
-        boxHeight: number
+        boxHeight: number,
     ): {
         x: number;
         y: number;
     } {
-        const {x, y} = screen.getCursorScreenPoint();
-        const currentDisplay = screen.getDisplayNearestPoint({x, y});
+        const { x, y } = screen.getCursorScreenPoint();
+        const currentDisplay = screen.getDisplayNearestPoint({ x, y });
         let resultX = x;
         let resultY = y;
         if (currentDisplay.workArea.width - x < boxWidth) {

@@ -1,7 +1,11 @@
 import path from "node:path";
 import fs from "node:fs";
 
-export const getIcon = async (desktopInfo: Record<string, string>, pathname: string, name: string) => {
+export const getIcon = async (
+    desktopInfo: Record<string, string>,
+    pathname: string,
+    name: string,
+) => {
     if (!desktopInfo.Icon) {
         return null;
     }
@@ -13,7 +17,13 @@ export const getIcon = async (desktopInfo: Record<string, string>, pathname: str
         for (const size of sizes) {
             for (const type of types) {
                 for (const ext of exts) {
-                    let iconPath = path.join("/usr/share/icons", theme, size, type, desktopInfo.Icon + ext);
+                    let iconPath = path.join(
+                        "/usr/share/icons",
+                        theme,
+                        size,
+                        type,
+                        desktopInfo.Icon + ext,
+                    );
                     if (fs.existsSync(iconPath)) {
                         return "file://" + iconPath;
                     }

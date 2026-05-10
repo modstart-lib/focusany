@@ -28,7 +28,7 @@ import xls from "./FileExtAssets/xls.svg";
 import xlsx from "./FileExtAssets/xlsx.svg";
 import zip from "./FileExtAssets/zip.svg";
 import fad from "./FileExtAssets/fad.svg";
-import {computed} from "vue";
+import { computed } from "vue";
 
 const images = {
     ai,
@@ -71,7 +71,7 @@ const props = withDefaults(
     {
         isFolder: false,
         size: "100%",
-    }
+    },
 );
 
 const extSrc = computed(() => {
@@ -91,7 +91,14 @@ const extSrcUrl = computed(() => {
 </script>
 
 <template>
-    <div class="pb-file-ext rounded" :style="{width: props.size, height: props.size, backgroundImage: extSrcUrl}"></div>
+    <div
+        class="pb-file-ext rounded"
+        :style="{
+            width: props.size,
+            height: props.size,
+            backgroundImage: extSrcUrl,
+        }"
+    ></div>
 </template>
 
 <style scoped>
