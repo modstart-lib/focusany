@@ -89,9 +89,7 @@ document.addEventListener('click', (event) => {
                                 setTimeout(call,10);
                                 return;
                             };
-                            window.__appManagerUserReady(${JSON.stringify(
-                                data,
-                            )});
+                            window.__appManagerUserReady(${JSON.stringify(data)});
                          };call();`,
                         );
                         resolve(undefined);

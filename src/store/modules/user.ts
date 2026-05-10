@@ -72,9 +72,7 @@ export const userStore = defineStore("user", {
             if (setting.shouldDarkMode()) {
                 param.push("is_dark=1");
             }
-            return `${AppConfig.apiBaseUrl}/app_manager/user_web?${param.join(
-                "&",
-            )}`;
+            return `${AppConfig.apiBaseUrl}/app_manager/user_web?${param.join("&")}`;
         },
     },
 });

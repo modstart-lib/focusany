@@ -1,9 +1,9 @@
-import { defineStore } from "pinia";
-import store from "../index";
-import { AppConfig } from "../../config";
-import { computed } from "vue";
 import { cloneDeep } from "lodash-es";
+import { defineStore } from "pinia";
+import { computed } from "vue";
+import { AppConfig } from "../../config";
 import { applyLocale } from "../../lang";
+import store from "../index";
 
 export const settingStore = defineStore("setting", {
     state() {

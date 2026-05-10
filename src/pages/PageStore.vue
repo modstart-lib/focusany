@@ -17,9 +17,7 @@ const webUserAgent = window.$mapi.app.getUserAgent();
 const installProgressCallback = (data) => {
     // console.log('PluginInstallProgress', data)
     web.value.executeJavaScript(
-        `window.__storePluginInstallProgress && window.__storePluginInstallProgress(${JSON.stringify(
-            data,
-        )})`,
+        `window.__storePluginInstallProgress && window.__storePluginInstallProgress(${JSON.stringify(data)})`,
     );
 };
 
@@ -59,9 +57,7 @@ onBeforeUnmount(() => {
 focusany.setSubInput(
     (keywords) => {
         web.value.executeJavaScript(
-            `window.__storePluginSearch && window.__storePluginSearch(${JSON.stringify(
-                keywords,
-            )});`,
+            `window.__storePluginSearch && window.__storePluginSearch(${JSON.stringify(keywords)});`,
         );
     },
     t("store.searchPlaceholder"),

@@ -1,6 +1,5 @@
 import { createI18n } from "vue-i18n";
 
-import { isDev } from "../lib/env";
 import enUS from "./en-US.json";
 import zhCN from "./zh-CN.json";
 
