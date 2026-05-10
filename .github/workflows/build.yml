@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - v*.*.*
+  workflow_dispatch:
 
 jobs:
   build:
@@ -49,6 +50,12 @@ jobs:
         with:
           node-version: 20
 
+      - name: Build Prepare (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential pkg-config
+
       - name: Build Prepare (macOS)
         if: runner.os == 'macOS'
         run: |
@@ -81,8 +88,15 @@ jobs:
           echo "find-identity"
           security find-identity -p codesigning
 
-      - name: Install Dependencies
+      - name: Install Dependencies (Linux/macOS)
+        if: runner.os == 'Linux' || runner.os == 'macOS'
         working-directory: code
+        run: npm install
+
+      - name: Install Dependencies (Windows)
+        if: runner.os == 'Windows'
+        working-directory: code
+        shell: pwsh
         run: npm install
 
       - name: init ( Windows )
@@ -130,6 +144,28 @@ jobs:
         run: |
             find code/dist-release/ -type f -name 'FocusAnyPro-*' -exec bash -c 'f="{}"; mv "$f" "${f/FocusAnyPro-/FocusAny-}"' \;
 
+      - name: Upload Sourcemaps
+        if: runner.os == 'Linux'
+        working-directory: code
+        env:
+          GROW_URL: ${{ secrets.GROW_URL }}
+          GROW_APP_NAME: ${{ secrets.GROW_APP_NAME }}
+          GROW_ADMIN_API_TOKEN: ${{ secrets.GROW_ADMIN_API_TOKEN }}
+        run: |
+          BUILD_ID=$(node -p "require('./dist/build.json').buildId")
+          echo "Uploading sourcemaps for buildId=${BUILD_ID} ..."
+          find dist dist-electron/main -name "*.map" | while read f; do
+            echo "  uploading $f"
+            RESP=$(curl -s -X POST "${GROW_URL}/api/admin/grow/buildUpload" \
+              -H "Authorization: Bearer ${GROW_ADMIN_API_TOKEN}" \
+              -F "appName=${GROW_APP_NAME}" \
+              -F "buildId=${BUILD_ID}" \
+              -F "file=@${f}" \
+              -F "name=${f}")
+            echo "  response: ${RESP}"
+          done
+          echo "Sourcemap upload done."
+
       - name: Rename output files (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
@@ -137,7 +173,25 @@ jobs:
             Get-ChildItem code\dist-release\FocusAnyPro-* | Rename-Item -NewName { $_.Name -replace 'FocusAnyPro-','FocusAny-' }
 
 
+      - name: Upload
+        if: github.event_name == 'workflow_dispatch'
+        uses: modstart/github-oss-action@master
+        with:
+          title: ${{ github.event.head_commit.message }}
+          key-id: ${{ secrets.OSS_2_KEY_ID }}
+          key-secret: ${{ secrets.OSS_2_KEY_SECRET }}
+          region: ${{ secrets.OSS_2_REGION }}
+          bucket: ${{ secrets.OSS_2_BUCKET }}
+          callbackTitle: ✅FocusAny-${{ runner.os }}-打包成功
+          callback: ${{ secrets.OSS_2_CALLBACK }}
+          assets: |
+            code/dist-release/*.exe:apps/focusany-${{ env.DIST_FILE_NAME }}/
+            code/dist-release/*.dmg:apps/focusany-${{ env.DIST_FILE_NAME }}/
+            code/dist-release/*.AppImage:apps/focusany-${{ env.DIST_FILE_NAME }}/
+            code/dist-release/*.deb:apps/focusany-${{ env.DIST_FILE_NAME }}/
+
       - name: Release Assets
+        if: github.event_name == 'push'
         uses: softprops/action-gh-release@v2
         with:
           draft: true

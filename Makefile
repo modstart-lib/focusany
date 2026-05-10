@@ -34,7 +34,7 @@ dev-seed:
 	npx tsx test/dev-seed.ts
 
 dev:
-	npm run dev
+	npm run dev:mac
 
 publish:
 	ss-publish publish ../focusany

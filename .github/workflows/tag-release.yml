@@ -28,6 +28,12 @@ jobs:
         with:
           node-version: 20
 
+      - name: Build Prepare (Linux)
+        if: runner.os == 'Linux'
+        run: |
+            sudo apt-get update
+            sudo apt-get install -y build-essential pkg-config
+
       - name: Build Prepare (macOS)
         if: runner.os == 'macOS'
         run: |
@@ -53,15 +59,27 @@ jobs:
             security find-identity -p codesigning
             echo "set-key-partition-list"
             security set-key-partition-list -S apple-tool:,apple: -s -k "" -l "Mac Developer ID Application: Xi'an Yanyi Information Technology Co., Ltd" -t private build.keychain
-            echo "find-certificate"
+            echo "export"
             security export -k build.keychain -t certs -f x509 -p -o certificate.cer
             echo "add-trusted-cert"
             sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain certificate.cer
             echo "find-identity"
             security find-identity -p codesigning
 
-      - name: Install Dependencies
-        run: npm install
+      - name: Install Dependencies (Linux/macOS)
+        if: runner.os == 'Linux' || runner.os == 'macOS'
+        run: |
+            npm install --ignore-scripts
+            rm -rf node_modules/canvas
+            npx electron-builder install-app-deps
+
+      - name: Install Dependencies (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+            npm install --ignore-scripts
+            if (Test-Path node_modules\canvas) { Remove-Item -Recurse -Force node_modules\canvas }
+            npx electron-builder install-app-deps
 
       - name: init ( Windows )
         if: runner.os == 'Windows'
@@ -97,34 +115,4 @@ jobs:
             $DIST_FILE_NAME = "Windows-X64-v$(Get-Date -Format 'yyyyMMdd_HHmmss')-$randomNumber"
             Write-Host "::add-mask::$DIST_FILE_NAME"
             echo "DIST_FILE_NAME=$DIST_FILE_NAME" >> $env:GITHUB_ENV
-
-#      - name: Upload
-#        uses: modstart/github-oss-action@master
-#        with:
-#            title: ${{ github.event.head_commit.message }}
-#            key-id: ${{ secrets.OSS_2_KEY_ID }}
-#            key-secret: ${{ secrets.OSS_2_KEY_SECRET }}
-#            region: ${{ secrets.OSS_2_REGION }}
-#            bucket: ${{ secrets.OSS_2_BUCKET }}
-#            callbackUrlSign: ${{ secrets.OSS_2_CALLBACK_URL_SIGN }}
-#            callback: ${{ secrets.OSS_2_CALLBACK }}
-#            assets: |
-#                dist-release/*.exe:apps/focusany-${{ env.DIST_FILE_NAME }}/
-#                dist-release/*.dmg:apps/focusany-${{ env.DIST_FILE_NAME }}/
-#                dist-release/*.AppImage:apps/focusany-${{ env.DIST_FILE_NAME }}/
-#                dist-release/*.deb:apps/focusany-${{ env.DIST_FILE_NAME }}/
-#
-#      - name: Release Assets
-#        uses: softprops/action-gh-release@v2
-#        with:
-#            draft: false
-#            prerelease: false
-#            fail_on_unmatched_files: false
-#            files: |
-#                dist-release/*.exe
-#                dist-release/*.dmg
-#                dist-release/*.AppImage
-#                dist-release/*.deb
-#        env:
-#            GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
