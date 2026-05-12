@@ -111,10 +111,10 @@ const listProviders = async (): Promise<Provider[]> => {
         }
     }
     const user = await User.get();
-    if (user.data && user.data.lmApi && user.data.lmApi.models) {
-        const lmApi = user.data.lmApi;
+    if (user.data && user.data.llmpx && user.data.llmpx.models) {
+        const llmpx = user.data.llmpx;
         const models: Model[] = [];
-        for (const m of lmApi.models) {
+        for (const m of llmpx.models) {
             models.push({
                 id: m,
                 provider: "buildIn",
@@ -135,14 +135,14 @@ const listProviders = async (): Promise<Provider[]> => {
             title: getProviderTitle("buildIn"),
             logo: getProviderLogo("buildIn"),
             isSystem: true,
-            apiUrl: lmApi.apiUrl,
+            apiUrl: llmpx.apiUrl,
             websites: {
                 official: AppConfig.website,
                 docs: AppConfig.website,
                 models: AppConfig.website,
             },
             data: {
-                apiKey: lmApi.apiKey,
+                apiKey: llmpx.apiKey,
                 apiHost: "",
                 models: models,
                 enabled: enabled,

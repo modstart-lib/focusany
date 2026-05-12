@@ -25,7 +25,7 @@ const doUser = async () => {
     }
     await window.$mapi.user.open({
         readyParam: {
-            page: "ChargeLmApi",
+            page: "ChargeLLMPX",
         },
     });
 };
@@ -239,7 +239,7 @@ watch(
                         <span class="font-bold"
                             >{{
                                 (
-                                    (userStore.data.lmApi?.quota || 0) / 1000
+                                    (userStore.data.llmpx?.quota || 0) / 1000
                                 ).toFixed(2)
                             }}K</span
                         >
