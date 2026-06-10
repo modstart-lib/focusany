@@ -100,6 +100,38 @@ jobs:
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
 
+      - name: Upload Sourcemaps
+        if: runner.os == 'Linux'
+        env:
+          GROW_URL: ${{ secrets.GROW_URL }}
+          GROW_APP_NAME: ${{ secrets.GROW_APP_NAME }}
+          GROW_ADMIN_API_TOKEN: ${{ secrets.GROW_ADMIN_API_TOKEN }}
+        run: |
+          BUILD_ID=$(node -p "require('./dist/build.json').buildId")
+          echo "Uploading sourcemaps for buildId=${BUILD_ID} ..."
+          find dist dist-electron/main -name "*.map" | while read f; do
+            echo "  uploading $f"
+            RESP=$(curl -s -X POST "${GROW_URL}/api/admin/grow/buildUpload" \
+              -H "Authorization: Bearer ${GROW_ADMIN_API_TOKEN}" \
+              -F "appName=${GROW_APP_NAME}" \
+              -F "buildId=${BUILD_ID}" \
+              -F "file=@${f}" \
+              -F "name=${f}")
+            echo "  response: ${RESP}"
+          done
+          echo "Sourcemap upload done."
+
+      - name: Rename output files (Linux/macOS)
+        if: runner.os == 'Linux' || runner.os == 'macOS'
+        run: |
+            find dist-release/ -type f -name 'FocusAnyPro-*' -exec bash -c 'f="{}"; mv "$f" "${f/FocusAnyPro-/FocusAny-}"' \;
+
+      - name: Rename output files (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+            Get-ChildItem dist-release\FocusAnyPro-* | Rename-Item -NewName { $_.Name -replace 'FocusAnyPro-','FocusAny-' }
+
       - name: Set Build Name ( Linux / macOS )
         if: runner.os == 'Linux' || runner.os == 'macOS'
         run: |
@@ -115,4 +147,36 @@ jobs:
             $DIST_FILE_NAME = "Windows-X64-v$(Get-Date -Format 'yyyyMMdd_HHmmss')-$randomNumber"
             Write-Host "::add-mask::$DIST_FILE_NAME"
             echo "DIST_FILE_NAME=$DIST_FILE_NAME" >> $env:GITHUB_ENV
+
+      - name: Release Assets
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          prerelease: false
+          fail_on_unmatched_files: false
+          overwrite_files: true
+          files: |
+            dist-release/*.exe
+            dist-release/*.dmg
+            dist-release/*.AppImage
+            dist-release/*.deb
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+
+  # ── Notify ────────────────────────────────────────────────────────────────────
+  notify:
+    name: Notify
+    needs: [build]
+    runs-on: ubuntu-latest
+    if: success()
+    steps:
+      - uses: actions/checkout@v4
+      - name: Notify Webhook
+        run: |
+            NAME="${{ github.event.repository.name }}"
+            TYPE=$(echo "${{ github.workflow }}" | tr '[:upper:]' '[:lower:]')
+            VERSION=$(node -p "require('./package.json').version")
+            curl -X POST "${{ secrets.HOOK_URL }}" \
+              -H "Content-Type: application/json" \
+              -d "{\"event\":\"${NAME}\",\"param\":{\"name\":\"${NAME}\",\"type\":\"${TYPE}\",\"version\":\"${VERSION}\"},\"data\":{\"name\":\"${NAME}\",\"type\":\"${TYPE}\",\"version\":\"${VERSION}\"}}"
 
