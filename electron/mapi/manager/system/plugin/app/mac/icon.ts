@@ -1,101 +1,84 @@
-import path from "node:path";
-import fs from "fs";
-import { exec } from "child_process";
-import { Files } from "../../../../../file/main";
-import { AppEnv, waitAppEnvReady } from "../../../../../env";
+import path from 'node:path'
+import fs from 'fs'
+import { exec } from 'child_process'
+import { Files } from '../../../../../file/main'
+import { AppEnv, waitAppEnvReady } from '../../../../../env'
 
 const getIconTempDir = async () => {
-    await waitAppEnvReady();
-    return path.join(AppEnv.dataRoot, "cache", "app-icons");
-};
+    await waitAppEnvReady()
+    return path.join(AppEnv.dataRoot, 'cache', 'app-icons')
+}
 // console.log('iconTempDir', iconTempDir)
-const defaultIcon =
-    "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/GenericApplicationIcon.icns";
+const defaultIcon = '/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/GenericApplicationIcon.icns'
 
 const getIconFile = (appFileInput) => {
     return new Promise((resolve, reject) => {
-        const plistPath = path.join(appFileInput, "Contents", "Info.plist");
+        const plistPath = path.join(appFileInput, 'Contents', 'Info.plist')
         Files.read(plistPath, {
             isDataPath: false,
         })
             .then((plistContent) => {
                 if (plistContent) {
                     // parse CFBundleIconFile
-                    const mat = plistContent.match(
-                        /<key>CFBundleIconFile<\/key>\s*<string>(.*?)<\/string>/,
-                    );
+                    const mat = plistContent.match(/<key>CFBundleIconFile<\/key>\s*<string>(.*?)<\/string>/)
                     if (mat) {
-                        const CFBundleIconFile = mat[1];
-                        const iconFile = path.join(
-                            appFileInput,
-                            "Contents",
-                            "Resources",
-                            CFBundleIconFile,
-                        );
-                        const iconFiles = [
-                            iconFile,
-                            iconFile + ".icns",
-                            iconFile + ".tiff",
-                        ];
+                        const CFBundleIconFile = mat[1]
+                        const iconFile = path.join(appFileInput, 'Contents', 'Resources', CFBundleIconFile)
+                        const iconFiles = [iconFile, iconFile + '.icns', iconFile + '.tiff']
                         const existedIcon = iconFiles.find((iconFile) => {
-                            return fs.existsSync(iconFile);
-                        });
+                            return fs.existsSync(iconFile)
+                        })
                         // console.log('manager.app.mac.app2png.getIconFile', existedIcon)
-                        resolve(existedIcon || defaultIcon);
-                        return;
+                        resolve(existedIcon || defaultIcon)
+                        return
                     }
                 }
-                resolve(defaultIcon);
+                resolve(defaultIcon)
             })
             .catch((e) => {
-                console.log("manager.app.mac.app2png.getIconFile.error", e);
-                resolve(defaultIcon);
-            });
-    });
-};
+                console.log('manager.app.mac.app2png.getIconFile.error', e)
+                resolve(defaultIcon)
+            })
+    })
+}
 
 const tiffToPng = (iconFile, pngFileOutput) => {
     return new Promise((resolve, reject) => {
-        exec(
-            `sips -s format png '${iconFile}' --out '${pngFileOutput}' --resampleHeightWidth 64 64`,
-            (error) => {
-                error ? reject(error) : resolve(null);
-            },
-        );
-    });
-};
+        exec(`sips -s format png '${iconFile}' --out '${pngFileOutput}' --resampleHeightWidth 64 64`, (error) => {
+            error ? reject(error) : resolve(null)
+        })
+    })
+}
 
 const app2png = (appFileInput, pngFileOutput) => {
     return getIconFile(appFileInput).then((iconFile) => {
         // console.log('manager.app.mac.app2png.app2png', iconFile, pngFileOutput)
-        return tiffToPng(iconFile, pngFileOutput);
-    });
-};
+        return tiffToPng(iconFile, pngFileOutput)
+    })
+}
 
 export const getIcon = async (appPath: string, appName: string) => {
     try {
-        const iconTempDir = await getIconTempDir();
-        const iconPathUrl =
-            "file://" +
-            path.join(iconTempDir, `${encodeURIComponent(appName)}.png`);
-        const iconPath = path.join(iconTempDir, `${appName}.png`);
+        const iconTempDir = await getIconTempDir()
+        const iconPathUrl = 'file://' + path.join(iconTempDir, `${encodeURIComponent(appName)}.png`)
+        const iconPath = path.join(iconTempDir, `${appName}.png`)
         if (await Files.exists(iconPath, { isDataPath: false })) {
-            return iconPathUrl;
+            return iconPathUrl
         }
-        const iconNone = path.join(iconTempDir, `${appName}.none`);
-        const iconNoneUrl = path.join(iconTempDir, `${appName}.none`);
+        const iconNone = path.join(iconTempDir, `${appName}.none`)
+        const iconNoneUrl = path.join(iconTempDir, `${appName}.none`)
         if (await Files.exists(iconNone, { isDataPath: false })) {
-            return iconNoneUrl;
+            return iconNoneUrl
         }
         if (!(await Files.exists(iconTempDir, { isDataPath: false }))) {
-            fs.mkdirSync(iconTempDir, { recursive: true });
+            fs.mkdirSync(iconTempDir, { recursive: true })
         }
-        await app2png(appPath, iconPath);
+        await app2png(appPath, iconPath)
         if (!(await Files.exists(iconPath, { isDataPath: false }))) {
-            fs.writeFileSync(iconNone, "");
-            throw "IconGetError";
+            fs.writeFileSync(iconNone, '')
+            throw 'IconGetError'
         }
-        return iconPathUrl;
+        return iconPathUrl
     } catch (e) {}
-    return `file://${defaultIcon}`;
-};
+    return `file://${defaultIcon}`
+}

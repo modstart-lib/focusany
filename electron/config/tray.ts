@@ -1,89 +1,89 @@
-import { app, Menu, shell, Tray } from "electron";
-import { trayPath } from "./icon";
-import { AppRuntime } from "../mapi/env";
-import { AppConfig } from "../../src/config";
-import { t } from "./lang";
-import { isMac, isWin } from "../lib/env";
-import { AppsMain } from "../mapi/app/main";
+import { app, Menu, shell, Tray } from 'electron'
+import { trayPath } from './icon'
+import { AppRuntime } from '../mapi/env'
+import { AppConfig } from '../../src/config'
+import { t } from './lang'
+import { isMac, isWin } from '../lib/env'
+import { AppsMain } from '../mapi/app/main'
 
-let tray = null;
+let tray = null
 
 const showApp = () => {
-    AppRuntime.mainWindow.show();
-    AppRuntime.mainWindow.focus();
-};
+    AppRuntime.mainWindow.show()
+    AppRuntime.mainWindow.focus()
+}
 
 const hideApp = () => {
     if (isMac) {
-        app.dock.hide();
+        app.dock.hide()
     }
-    AppRuntime.mainWindow.hide();
-};
+    AppRuntime.mainWindow.hide()
+}
 
 const quitApp = () => {
-    (app as any).forceQuit = true;
-    app.quit();
-};
+    ;(app as any).forceQuit = true
+    app.quit()
+}
 
 const ready = () => {
     const contextMenu = Menu.buildFromTemplate([
         {
-            label: t("tray.showMain"),
+            label: t('tray.showMain'),
             click: () => {
-                showApp();
+                showApp()
             },
         },
         {
-            label: t("nav.guide"),
+            label: t('nav.guide'),
             click: () => {
-                AppsMain.windowOpen("guide").then();
+                AppsMain.windowOpen('guide').then()
             },
         },
         {
-            label: t("tray.visitWebsite"),
+            label: t('tray.visitWebsite'),
             click: () => {
-                shell.openExternal(AppConfig.website);
+                shell.openExternal(AppConfig.website)
             },
         },
-        { type: "separator" },
+        { type: 'separator' },
         {
-            label: t("tray.restart"),
+            label: t('tray.restart'),
             click: () => {
-                app.relaunch();
-                quitApp();
+                app.relaunch()
+                quitApp()
             },
         },
         {
-            label: t("menu.quit"),
+            label: t('menu.quit'),
             click: () => {
-                quitApp();
+                quitApp()
             },
         },
-        { type: "separator" },
+        { type: 'separator' },
         {
-            label: t("about.title"),
+            label: t('about.title'),
             click: () => {
-                AppsMain.windowOpen("about").then();
+                AppsMain.windowOpen('about').then()
             },
         },
-    ]);
-    tray = new Tray(trayPath);
-    tray.setToolTip(AppConfig.name);
-    tray.on("click", () => {
-        showApp();
-    });
-    tray.on("right-click", () => {
-        tray.popUpContextMenu(contextMenu);
-    });
-};
+    ])
+    tray = new Tray(trayPath)
+    tray.setToolTip(AppConfig.name)
+    tray.on('click', () => {
+        showApp()
+    })
+    tray.on('right-click', () => {
+        tray.popUpContextMenu(contextMenu)
+    })
+}
 
 const show = () => {
     if (tray) {
-        tray.destroy();
-        tray = null;
+        tray.destroy()
+        tray = null
     }
-};
+}
 
 export const ConfigTray = {
     ready,
-};
+}

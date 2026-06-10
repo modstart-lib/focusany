@@ -1,71 +1,67 @@
-import { clipboard } from "electron";
-import plist from "plist";
-import fs from "fs";
-import path from "path";
-import ofs from "original-fs";
-import { isLinux, isMac, isWin } from "../../../lib/env";
+import { clipboard } from 'electron'
+import plist from 'plist'
+import fs from 'fs'
+import path from 'path'
+import ofs from 'original-fs'
+import { isLinux, isMac, isWin } from '../../../lib/env'
 
-let electronClipboardEx = null;
+let electronClipboardEx = null
 if (isMac || isWin) {
-    (async () => {
+    ;(async () => {
         try {
-            electronClipboardEx = await import("electron-clipboard-ex");
-            electronClipboardEx = electronClipboardEx.default;
+            electronClipboardEx = await import('electron-clipboard-ex')
+            electronClipboardEx = electronClipboardEx.default
         } catch (e) {}
-    })();
+    })()
 }
 
 export const getClipboardFiles = (): FileItem[] => {
-    let fileInfo: any;
+    let fileInfo: any
     if (isMac) {
-        if (!clipboard.has("NSFilenamesPboardType")) {
-            return [];
+        if (!clipboard.has('NSFilenamesPboardType')) {
+            return []
         }
-        const result = clipboard.read("NSFilenamesPboardType");
+        const result = clipboard.read('NSFilenamesPboardType')
         if (!result) {
-            return [];
+            return []
         }
         try {
-            fileInfo = plist.parse(result);
+            fileInfo = plist.parse(result)
         } catch (e) {
-            return [];
+            return []
         }
     } else if (isWin) {
         try {
             /* eslint-disable */
-            fileInfo = electronClipboardEx.readFilePaths();
+            fileInfo = electronClipboardEx.readFilePaths()
         } catch (e) {
             // todo
         }
     } else if (isLinux) {
-        if (!clipboard.has("text/uri-list")) {
-            return [];
+        if (!clipboard.has('text/uri-list')) {
+            return []
         }
-        const result = clipboard
-            .read("text/uri-list")
-            .match(/^file:\/\/\/.*/gm);
+        const result = clipboard.read('text/uri-list').match(/^file:\/\/\/.*/gm)
         if (!result || !result.length) {
-            return [];
+            return []
         }
-        fileInfo = result.map((e) =>
-            decodeURIComponent(e).replace(/^file:\/\//, ""),
-        );
+        fileInfo = result.map((e) => decodeURIComponent(e).replace(/^file:\/\//, ''))
     }
     if (!Array.isArray(fileInfo)) {
-        return [];
+        return []
     }
     const target: any = fileInfo
         .map((p) => {
-            if (!fs.existsSync(p)) return false;
-            let info;
+            if (!fs.existsSync(p)) return false
+            let info
             try {
-                info = ofs.lstatSync(p);
+                info = ofs.lstatSync(p)
             } catch (e) {
-                return false;
+                return false
             }
-            let fileExt = null;
+            let fileExt = null
             if (info.isFile()) {
-                fileExt = path.extname(p).toLowerCase().replace(/^./, "");
+                fileExt = path.extname(p).toLowerCase().replace(/^./, '')
             }
             return {
                 isFile: info.isFile(),
@@ -73,28 +69,22 @@ export const getClipboardFiles = (): FileItem[] => {
                 name: path.basename(p) || p,
                 path: p,
                 fileExt: fileExt,
-            };
+            }
         })
-        .filter(Boolean);
-    return target.length ? target : [];
-};
+        .filter(Boolean)
+    return target.length ? target : []
+}
 
 export const setClipboardFiles = (files: string[]) => {
     if (!files || !files.length) {
-        return;
+        return
     }
     if (isMac) {
-        clipboard.writeBuffer(
-            "NSFilenamesPboardType",
-            Buffer.from(plist.build(files)),
-        );
+        clipboard.writeBuffer('NSFilenamesPboardType', Buffer.from(plist.build(files)))
     } else if (isWin) {
-        electronClipboardEx.writeFilePaths(files);
+        electronClipboardEx.writeFilePaths(files)
     } else if (isLinux) {
         // @ts-ignore
-        clipboard.write(
-            "text/uri-list",
-            files.map((e) => `file://${e}`).join("\n"),
-        );
+        clipboard.write('text/uri-list', files.map((e) => `file://${e}`).join('\n'))
     }
-};
+}

@@ -1,12 +1,12 @@
-declare module "electron" {
+declare module 'electron' {
     interface BrowserView {
-        _window?: any;
-        _plugin?: any;
+        _window?: any
+        _plugin?: any
     }
 
     interface BrowserWindow {
-        _name?: string;
-        _plugin?: any;
-        _type?: "action" | "callPage";
+        _name?: string
+        _plugin?: any
+        _type?: 'action' | 'callPage'
     }
 }

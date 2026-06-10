@@ -1,68 +1,65 @@
-import os from "os";
-import { ActionTypeCodeData } from "../../../../../../src/types/Manager";
-import { t } from "../../../../../config/lang";
-import { isLinux, isMac, isWin } from "../../../../../lib/env";
-import { Page } from "../../../../../page";
-import { AppsMain } from "../../../../app/main";
-import { AppRuntime } from "../../../../env";
-import { KeyboardKey, ManagerHotkeySimulate } from "../../../hotkey/simulate";
-import { colorPicker } from "../../../plugin/colorPicker";
-import { screenCapture } from "../../../plugin/screenCapture";
-import { screenRecord } from "../../../plugin/screenRecord";
+import os from 'os'
+import { ActionTypeCodeData } from '../../../../../../src/types/Manager'
+import { t } from '../../../../../config/lang'
+import { isLinux, isMac, isWin } from '../../../../../lib/env'
+import { Page } from '../../../../../page'
+import { AppsMain } from '../../../../app/main'
+import { AppRuntime } from '../../../../env'
+import { KeyboardKey, ManagerHotkeySimulate } from '../../../hotkey/simulate'
+import { colorPicker } from '../../../plugin/colorPicker'
+import { screenCapture } from '../../../plugin/screenCapture'
+import { screenRecord } from '../../../plugin/screenRecord'
 
 export const SystemActionCode = {
     screenshot: async (data: ActionTypeCodeData) => {
-        AppRuntime.mainWindow.hide();
+        AppRuntime.mainWindow.hide()
         screenCapture((image: string) => {
-            AppsMain.setClipboardImage(image);
-        });
+            AppsMain.setClipboardImage(image)
+        })
     },
     colorPicker: async (data: ActionTypeCodeData) => {
-        AppRuntime.mainWindow.hide();
-        colorPicker().then();
+        AppRuntime.mainWindow.hide()
+        colorPicker().then()
     },
     screenRecord: async (data: ActionTypeCodeData) => {
-        AppRuntime.mainWindow.hide();
-        screenRecord().then();
+        AppRuntime.mainWindow.hide()
+        screenRecord().then()
     },
     guide: async (data: ActionTypeCodeData) => {
-        AppRuntime.mainWindow.hide();
-        await Page.open("guide", {});
+        AppRuntime.mainWindow.hide()
+        await Page.open('guide', {})
     },
     about: async (data: ActionTypeCodeData) => {
-        AppRuntime.mainWindow.hide();
-        await Page.open("about", {});
+        AppRuntime.mainWindow.hide()
+        await Page.open('about', {})
     },
     lock: async (data: ActionTypeCodeData) => {
-        AppRuntime.mainWindow.hide();
+        AppRuntime.mainWindow.hide()
         if (isMac) {
-            ManagerHotkeySimulate.keyTap(KeyboardKey.Q, [
-                KeyboardKey.Meta,
-                KeyboardKey.Ctrl,
-            ]);
+            ManagerHotkeySimulate.keyTap(KeyboardKey.Q, [KeyboardKey.Meta, KeyboardKey.Ctrl])
         } else if (isWin) {
-            ManagerHotkeySimulate.keyTap(KeyboardKey.L, [KeyboardKey.Meta]);
+            ManagerHotkeySimulate.keyTap(KeyboardKey.L, [KeyboardKey.Meta])
         } else if (isLinux) {
-            ManagerHotkeySimulate.keyTap(KeyboardKey.L, [KeyboardKey.Meta]);
+            ManagerHotkeySimulate.keyTap(KeyboardKey.L, [KeyboardKey.Meta])
         }
     },
     ip: async (data: ActionTypeCodeData) => {
-        AppRuntime.mainWindow.hide();
-        const ip = getLocalIPAddress();
-        AppsMain.setClipboardText(ip);
-        AppsMain.toast(t("system.ipCopied", { ip }));
+        AppRuntime.mainWindow.hide()
+        const ip = getLocalIPAddress()
+        AppsMain.setClipboardText(ip)
+        AppsMain.toast(t('system.ipCopied', { ip }))
     },
-};
+}
 
 function getLocalIPAddress() {
-    const networkInterfaces = os.networkInterfaces();
+    const networkInterfaces = os.networkInterfaces()
     for (const interfaceName in networkInterfaces) {
-        const interfaces = networkInterfaces[interfaceName];
+        const interfaces = networkInterfaces[interfaceName]
         for (const iface of interfaces) {
-            if (iface.family === "IPv4" && !iface.internal) {
-                return iface.address;
+            if (iface.family === 'IPv4' && !iface.internal) {
+                return iface.address
             }
         }
     }
-    return "127.0.0.1";
+    return '127.0.0.1'
 }

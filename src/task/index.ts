@@ -1,7 +1,7 @@
-import { useTaskStore } from "../store/modules/task";
-import { nextTick } from "vue";
+import { useTaskStore } from '../store/modules/task'
+import { nextTick } from 'vue'
 
-const taskStore = useTaskStore();
+const taskStore = useTaskStore()
 
 export const TaskManager = {
     init() {
@@ -12,7 +12,7 @@ export const TaskManager = {
             //     await SoundTts.restore?.()
             //     await SoundClone.restore?.()
             //     await VideoGen.restore?.()
-        }).then();
+        }).then()
         // taskStore.register('TestSync', TestSync)
         // taskStore.register('TestAsync', TestAsync)
         // setInterval(async () => {
@@ -25,6 +25,6 @@ export const TaskManager = {
         // }, 10 * 1000)
     },
     count() {
-        return taskStore.records.length;
+        return taskStore.records.length
     },
-};
+}

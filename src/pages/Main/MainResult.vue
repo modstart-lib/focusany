@@ -1,27 +1,18 @@
 <template>
     <div class="pb-result" id="MainResult_Container">
         <div ref="resultContainer">
-            <ResultLoading
-                v-if="manager.activePlugin && manager.activePluginLoading"
-            />
+            <ResultLoading v-if="manager.activePlugin && manager.activePluginLoading" />
             <div
                 class="action-container"
-                :class="{
-                    'has-actions': hasActions,
-                    'has-view-actions': hasViewActions,
-                }"
+                :class="{ 'has-actions': hasActions, 'has-view-actions': hasViewActions }"
                 v-else-if="!manager.activePlugin"
             >
                 <div class="group-main">
                     <div v-if="showDetachWindowActions.length" class="group">
                         <div class="group-title">
                             <div class="title">
-                                <img
-                                    draggable="false"
-                                    class="dark:invert"
-                                    :src="SystemIcons.searchWindow"
-                                />
-                                {{ $t("main.window") }}
+                                <img draggable="false" class="dark:invert" :src="SystemIcons.searchWindow" />
+                                {{ $t('main.window') }}
                             </div>
                             <div class="more">&nbsp;</div>
                         </div>
@@ -29,16 +20,9 @@
                             <div
                                 class="item"
                                 v-for="(a, aIndex) in showDetachWindowActions"
-                                :class="{
-                                    active:
-                                        activeActionGroup === 'window' &&
-                                        actionActionIndex === aIndex,
-                                }"
+                                :class="{ active: activeActionGroup === 'window' && actionActionIndex === aIndex }"
                             >
-                                <ResultWindowItem
-                                    :action="a"
-                                    @open="openActionWindow('open', a)"
-                                />
+                                <ResultWindowItem :action="a" @open="openActionWindow('open', a)" />
                             </div>
                         </div>
                     </div>
@@ -49,28 +33,18 @@
                             :class="!searchActionIsExtend ? 'has-more' : ''"
                         >
                             <div class="title">
-                                <img
-                                    draggable="false"
-                                    class="dark:invert"
-                                    :src="SystemIcons.searchKeyword"
-                                />
-                                {{ $t("main.searchResults") }}
+                                <img draggable="false" class="dark:invert" :src="SystemIcons.searchKeyword" />
+                                {{ $t('main.searchResults') }}
                             </div>
                             <div class="more" v-if="!searchActionIsExtend">
-                                {{ $t("main.expandAll") }}({{
-                                    manager.searchActions.length
-                                }})
+                                {{ $t('main.expandAll') }}({{ manager.searchActions.length }})
                             </div>
                         </div>
                         <div class="group-items">
                             <div
                                 class="item"
                                 v-for="(a, aIndex) in showSearchActions"
-                                :class="{
-                                    active:
-                                        activeActionGroup === 'search' &&
-                                        actionActionIndex === aIndex,
-                                }"
+                                :class="{ active: activeActionGroup === 'search' && actionActionIndex === aIndex }"
                             >
                                 <ResultItem
                                     :action="a"
@@ -88,27 +62,18 @@
                             :class="!matchActionIsExtend ? 'has-more' : ''"
                         >
                             <div class="title">
-                                <img
-                                    class="dark:invert"
-                                    :src="SystemIcons.searchMatch"
-                                />
-                                {{ $t("main.matchResults") }}
+                                <img class="dark:invert" :src="SystemIcons.searchMatch" />
+                                {{ $t('main.matchResults') }}
                             </div>
                             <div class="more" v-if="!matchActionIsExtend">
-                                {{ $t("main.expandAll") }}({{
-                                    manager.matchActions.length
-                                }})
+                                {{ $t('main.expandAll') }}({{ manager.matchActions.length }})
                             </div>
                         </div>
                         <div class="group-items">
                             <div
                                 class="item"
                                 v-for="(a, aIndex) in showMatchActions"
-                                :class="{
-                                    active:
-                                        activeActionGroup === 'match' &&
-                                        actionActionIndex === aIndex,
-                                }"
+                                :class="{ active: activeActionGroup === 'match' && actionActionIndex === aIndex }"
                             >
                                 <ResultItem
                                     :action="a"
@@ -120,30 +85,17 @@
                         </div>
                     </div>
                     <div v-if="showHistoryActions.length" class="group">
-                        <div
-                            class="group-title"
-                            :class="!historyActionIsExtend ? 'has-more' : ''"
-                        >
+                        <div class="group-title" :class="!historyActionIsExtend ? 'has-more' : ''">
                             <div class="title">
                                 <icon-history />
-                                {{ $t("main.recentlyUsed") }}
+                                {{ $t('main.recentlyUsed') }}
                             </div>
                             <div class="more">
-                                <a
-                                    href="javascript:;"
-                                    class="auto-hide"
-                                    @click="doHistoryClear"
-                                >
+                                <a href="javascript:;" class="auto-hide" @click="doHistoryClear">
                                     <icon-delete />
                                 </a>
-                                <a
-                                    href="javascript:;"
-                                    v-if="!historyActionIsExtend"
-                                    @click="doHistoryActionExtend"
-                                >
-                                    {{ $t("main.expandAll") }}({{
-                                        manager.historyActions.length
-                                    }})
+                                <a href="javascript:;" v-if="!historyActionIsExtend" @click="doHistoryActionExtend">
+                                    {{ $t('main.expandAll') }}({{ manager.historyActions.length }})
                                 </a>
                             </div>
                         </div>
@@ -151,11 +103,7 @@
                             <div
                                 class="item"
                                 v-for="(a, aIndex) in showHistoryActions"
-                                :class="{
-                                    active:
-                                        activeActionGroup === 'history' &&
-                                        actionActionIndex === aIndex,
-                                }"
+                                :class="{ active: activeActionGroup === 'history' && actionActionIndex === aIndex }"
                             >
                                 <ResultItem
                                     :action="a"
@@ -169,23 +117,14 @@
                         </div>
                     </div>
                     <div v-if="showPinActions.length" class="group">
-                        <div
-                            class="group-title"
-                            :class="!pinActionIsExtend ? 'has-more' : ''"
-                        >
+                        <div class="group-title" :class="!pinActionIsExtend ? 'has-more' : ''">
                             <div class="title">
                                 <IconPin />
-                                {{ $t("main.pinned") }}
+                                {{ $t('main.pinned') }}
                             </div>
                             <div class="more">
-                                <a
-                                    href="javascript:;"
-                                    v-if="!pinActionIsExtend"
-                                    @click="doPinActionExtend"
-                                >
-                                    {{ $t("main.expandAll") }}({{
-                                        manager.pinActions.length
-                                    }})
+                                <a href="javascript:;" v-if="!pinActionIsExtend" @click="doPinActionExtend">
+                                    {{ $t('main.expandAll') }}({{ manager.pinActions.length }})
                                 </a>
                             </div>
                         </div>
@@ -193,34 +132,20 @@
                             <div
                                 class="item"
                                 v-for="(a, aIndex) in showPinActions"
-                                :class="{
-                                    active:
-                                        activeActionGroup === 'pin' &&
-                                        actionActionIndex === aIndex,
-                                }"
+                                :class="{ active: activeActionGroup === 'pin' && actionActionIndex === aIndex }"
                             >
-                                <ResultItem
-                                    :action="a"
-                                    @open="doOpenAction(a)"
-                                    show-pin
-                                    @pin="doPinToggle(a)"
-                                />
+                                <ResultItem :action="a" @open="doOpenAction(a)" show-pin @pin="doPinToggle(a)" />
                             </div>
                         </div>
                     </div>
                     <div
-                        v-if="
-                            !manager.activePlugin &&
-                            !manager.searchLoading &&
-                            !hasActions &&
-                            manager.searchValue
-                        "
+                        v-if="!manager.activePlugin && !manager.searchLoading && !hasActions && manager.searchValue"
                         class="group"
                     >
                         <div class="group-title">
                             <div class="title">
                                 <icon-search />
-                                {{ $t("main.searchResults") }}
+                                {{ $t('main.searchResults') }}
                             </div>
                         </div>
                         <div class="text-center" style="height: 250px">
@@ -229,10 +154,7 @@
                             </div>
                         </div>
                     </div>
-                    <div
-                        v-if="!manager.activePlugin && hasActions"
-                        style="height: 10px"
-                    ></div>
+                    <div v-if="!manager.activePlugin && hasActions" style="height: 10px"></div>
                 </div>
                 <div class="group-right" v-if="viewActions.length > 0">
                     <div class="view" v-if="viewActions.length">
@@ -242,9 +164,7 @@
                                     <img
                                         :src="r.icon"
                                         :class="
-                                            r.pluginType === PluginType.SYSTEM
-                                                ? 'dark:invert'
-                                                : 'plugin-logo-filter'
+                                            r.pluginType === PluginType.SYSTEM ? 'dark:invert' : 'plugin-logo-filter'
                                         "
                                     />
                                 </div>
@@ -252,9 +172,7 @@
                                     {{ r.title }}
                                 </div>
                                 <div v-if="0" class="action">
-                                    <a href="javascript:;">
-                                        {{ $t("common.close") }}
-                                    </a>
+                                    <a href="javascript:;"> {{ $t('common.close') }} </a>
                                     <a href="javascript:;">
                                         <icon-more-vertical />
                                     </a>
@@ -268,17 +186,12 @@
                                     :id="r.fullName"
                                     :preload="r.runtime?.view?.preloadBase"
                                     :src="r.runtime?.view?.mainView"
-                                    :nodeintegration="
-                                        r.runtime?.view?.nodeIntegration
-                                    "
+                                    :nodeintegration="r.runtime?.view?.nodeIntegration"
                                     :useragent="`${webUserAgent} PluginAction/${r.fullName}`"
                                     webpreferences="contextIsolation=false,sandbox=false"
                                     disablewebsecurity
                                 ></webview>
-                                <div
-                                    class="view-item-loading"
-                                    v-if="!r['_webReady']"
-                                >
+                                <div class="view-item-loading" v-if="!r['_webReady']">
                                     <icon-loading />
                                 </div>
                             </div>
@@ -286,18 +199,9 @@
                     </div>
                 </div>
             </div>
-            <div
-                v-else-if="
-                    manager.activePlugin && manager.activePluginType === 'code'
-                "
-            >
-                <ResultActionCodeError
-                    v-if="manager.actionCodeError"
-                    :error="manager.actionCodeError"
-                />
-                <ResultActionCodeLoading
-                    v-else-if="manager.actionCodeLoading"
-                />
+            <div v-else-if="manager.activePlugin && manager.activePluginType === 'code'">
+                <ResultActionCodeError v-if="manager.actionCodeError" :error="manager.actionCodeError" />
+                <ResultActionCodeLoading v-else-if="manager.actionCodeLoading" />
                 <ResultActionCodeItemList
                     v-else-if="'list' === manager.actionCodeType"
                     :do-open-action-code="doOpenActionCode"
@@ -309,23 +213,23 @@
 </template>
 
 <script lang="ts" setup>
-import { onBeforeMount, ref } from "vue";
-import IconPin from "~icons/mdi/pin";
-import { SystemIcons } from "../../../electron/mapi/manager/system/asset/icon";
-import MEmpty from "../../components/common/MEmpty.vue";
-import { useManagerStore } from "../../store/modules/manager";
-import { PluginType } from "../../types/Manager";
-import ResultActionCodeError from "./Components/ResultActionCodeError.vue";
-import ResultActionCodeItemList from "./Components/ResultActionCodeItemList.vue";
-import ResultActionCodeLoading from "./Components/ResultActionCodeLoading.vue";
-import ResultItem from "./Components/ResultItem.vue";
-import ResultLoading from "./Components/ResultLoading.vue";
-import ResultWindowItem from "./Components/ResultWindowItem.vue";
-import { useResultOperate } from "./Lib/resultOperate";
-import { fireResultResize, useResultResize } from "./Lib/resultResize";
-import { useViewOperate } from "./Lib/viewOperate";
+import { onBeforeMount, ref } from 'vue'
+import IconPin from '~icons/mdi/pin'
+import { SystemIcons } from '../../../electron/mapi/manager/system/asset/icon'
+import MEmpty from '../../components/common/MEmpty.vue'
+import { useManagerStore } from '../../store/modules/manager'
+import { PluginType } from '../../types/Manager'
+import ResultActionCodeError from './Components/ResultActionCodeError.vue'
+import ResultActionCodeItemList from './Components/ResultActionCodeItemList.vue'
+import ResultActionCodeLoading from './Components/ResultActionCodeLoading.vue'
+import ResultItem from './Components/ResultItem.vue'
+import ResultLoading from './Components/ResultLoading.vue'
+import ResultWindowItem from './Components/ResultWindowItem.vue'
+import { useResultOperate } from './Lib/resultOperate'
+import { fireResultResize, useResultResize } from './Lib/resultResize'
+import { useViewOperate } from './Lib/viewOperate'
 
-const manager = useManagerStore();
+const manager = useManagerStore()
 
 const {
     hasActions,
@@ -353,52 +257,52 @@ const {
     doHistoryClear,
     doHistoryDelete,
     doPinToggle,
-} = useResultOperate();
+} = useResultOperate()
 
-const isOsx = ref(false);
+const isOsx = ref(false)
 
 onBeforeMount(async () => {
-    isOsx.value = window.$mapi.app.isPlatform("osx");
-});
+    isOsx.value = window.$mapi.app.isPlatform('osx')
+})
 
-const { webUserAgent, viewActions } = useViewOperate("main");
+const { webUserAgent, viewActions } = useViewOperate('main')
 
-const emit = defineEmits([]);
+const emit = defineEmits([])
 
-const resultContainer = ref<HTMLElement | null>(null);
-useResultResize(resultContainer);
+const resultContainer = ref<HTMLElement | null>(null)
+useResultResize(resultContainer)
 
 const onPluginExit = () => {
-    fireResultResize(resultContainer);
-};
+    fireResultResize(resultContainer)
+}
 
 const onPluginDetached = () => {
-    fireResultResize(resultContainer);
-};
+    fireResultResize(resultContainer)
+}
 
 const onInputHotKey = (e: KeyboardEvent) => {
-    if (["1", "2", "3", "4", "5", "6", "7", "8", "9"].includes(e.key)) {
-        let pass = false;
+    if (['1', '2', '3', '4', '5', '6', '7', '8', '9'].includes(e.key)) {
+        let pass = false
         if (isOsx.value) {
             if (e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey) {
-                pass = true;
+                pass = true
             }
         } else {
             if (e.ctrlKey && !e.metaKey && !e.shiftKey && !e.altKey) {
-                pass = true;
+                pass = true
             }
         }
         if (pass) {
-            const index = parseInt(e.key);
+            const index = parseInt(e.key)
             const item = manager.actionCodeItems.find((o) => {
-                return o.shortcutIndex === index;
-            });
+                return o.shortcutIndex === index
+            })
             if (item) {
-                doOpenActionCode(item.id);
+                doOpenActionCode(item.id)
             }
         }
     }
-};
+}
 
 defineExpose({
     onInputKey,
@@ -406,7 +310,7 @@ defineExpose({
     onClose,
     onPluginExit,
     onPluginDetached,
-});
+})
 </script>
 
 <style lang="less" scoped>
@@ -605,7 +509,7 @@ defineExpose({
     }
 }
 
-[data-theme="dark"] {
+[data-theme='dark'] {
     .pb-result {
         &::-webkit-scrollbar-track {
             background: #333;

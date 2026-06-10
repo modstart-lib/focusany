@@ -1,75 +1,69 @@
-import { listFiles } from "../util";
-import path from "path";
-import os from "os";
-import { shell } from "electron";
-import { AppRecord } from "../type";
-import { ShellUtil } from "../../../../../../lib/util";
-import { getIcon } from "./icon";
-import { getAppTitle } from "./title";
+import { listFiles } from '../util'
+import path from 'path'
+import os from 'os'
+import { shell } from 'electron'
+import { AppRecord } from '../type'
+import { ShellUtil } from '../../../../../../lib/util'
+import { getIcon } from './icon'
+import { getAppTitle } from './title'
 
 export const ManagerAppWin = {
     list: async () => {
-        return lists();
+        return lists()
     },
-};
+}
 
-const apps: AppRecord[] = [];
-const appSet = new Set<string>();
+const apps: AppRecord[] = []
+const appSet = new Set<string>()
 
-const blackList = ["msiexec.exe"];
+const blackList = ['msiexec.exe']
 
 const readDir = async (dir: string) => {
-    let files = await listFiles([dir]);
+    let files = await listFiles([dir])
     for (const f of files) {
         if (f.isDirectory) {
-            await readDir(f.pathname);
+            await readDir(f.pathname)
         } else {
-            let name = f.name.split(".")[0];
-            let appDetail: any = {};
+            let name = f.name.split('.')[0]
+            let appDetail: any = {}
             try {
-                appDetail = shell.readShortcutLink(f.pathname);
+                appDetail = shell.readShortcutLink(f.pathname)
             } catch (e) {
                 //
             }
-            const pathname = appDetail.target;
+            const pathname = appDetail.target
             if (
                 !pathname ||
                 appSet.has(pathname) ||
-                !pathname.endsWith(".exe") ||
-                pathname.endsWith("uninst.exe") ||
-                pathname.endsWith("uninstall.exe")
+                !pathname.endsWith('.exe') ||
+                pathname.endsWith('uninst.exe') ||
+                pathname.endsWith('uninstall.exe')
             ) {
-                continue;
+                continue
             }
-            appSet.add(pathname);
-            name = path.basename(appDetail.target, ".exe");
+            appSet.add(pathname)
+            name = path.basename(appDetail.target, '.exe')
             if (blackList.includes(name)) {
-                continue;
+                continue
             }
-            const title = await getAppTitle("zh-CN", pathname, name);
+            const title = await getAppTitle('zh-CN', pathname, name)
             const app = {
                 name,
                 title,
                 pathname,
                 icon: await getIcon(appDetail.target, name),
                 command: `start "dummyclient" ${ShellUtil.quotaPath(appDetail.target)}`,
-            };
+            }
             // console.log('app', app)
-            apps.push(app);
+            apps.push(app)
         }
     }
-};
+}
 
 const lists = async (): Promise<AppRecord[]> => {
-    appSet.clear();
-    await readDir("C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs");
-    await readDir(
-        path.join(
-            os.homedir(),
-            "./AppData/Roaming",
-            "Microsoft\\Windows\\Start Menu\\Programs",
-        ),
-    );
+    appSet.clear()
+    await readDir('C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs')
+    await readDir(path.join(os.homedir(), './AppData/Roaming', 'Microsoft\\Windows\\Start Menu\\Programs'))
     // console.log('apps', apps)
-    return apps;
-};
+    return apps
+}

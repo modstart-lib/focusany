@@ -1,14 +1,15 @@
-import KVDB from "./kvdb";
-import { AppEnv } from "../env";
-import { DBError, Doc } from "./types";
-import { ipcMain } from "electron";
-import { WebDav } from "./webdav";
+import KVDB from './kvdb'
+import { AppEnv } from '../env'
+import { DBError, Doc } from './types'
+import { ipcMain } from 'electron'
+import { KVDBCloudManager } from './cloud'
+import { WebDav } from './webdav'
 
-let kvdb: KVDB = null;
+let kvdb: KVDB = null
 
 const init = () => {
-    kvdb = new KVDB();
-    kvdb.init();
+    kvdb = new KVDB()
+    kvdb.init()
     // for (let i = 0; i < 1000; i++) {
     //     kvdb.putRaw({
     //         _id: `data${i}`,
@@ -21,284 +22,269 @@ const init = () => {
     //     })
     // }
     // setTimeout(sync, 1000)
-};
+}
 
 const raw = () => {
-    return kvdb;
-};
+    return kvdb
+}
 
 const put = async (name: string, data: Doc<any>) => {
-    const result = await kvdb.put(name, data);
+    const result = await kvdb.put(name, data)
     if (result && (result as DBError).error) {
-        throw (result as DBError).message;
+        throw (result as DBError).message
     }
-    return result as Doc<any>;
-};
+    return result as Doc<any>
+}
 
-const putForceLock = new Map<string, Promise<any>>();
+const putForceLock = new Map<string, Promise<any>>()
 const putForce = async (name: string, data: Doc<any>) => {
     while (putForceLock.has(name)) {
-        await putForceLock.get(name);
+        await putForceLock.get(name)
     }
-    let release!: () => void;
+    let release!: () => void
     const currentTask = new Promise<void>((resolve) => {
-        release = resolve;
-    });
-    putForceLock.set(name, currentTask);
+        release = resolve
+    })
+    putForceLock.set(name, currentTask)
     try {
-        const res = await get(name, data._id);
+        const res = await get(name, data._id)
         if (res) {
-            data._rev = res._rev;
+            data._rev = res._rev
         }
-        const result = await put(name, data);
+        const result = await put(name, data)
         if (result && (result as DBError).error) {
-            throw (result as DBError).message;
+            throw (result as DBError).message
         }
-        return result as Doc<any>;
+        return result as Doc<any>
     } finally {
-        putForceLock.delete(name);
-        release();
+        putForceLock.delete(name)
+        release()
     }
-};
+}
 
 const get = async (name: string, id: string) => {
-    return await kvdb.get(name, id);
-};
+    return await kvdb.get(name, id)
+}
 
 const getData = async (name: string, id: string, defaultValue: any = null) => {
-    const res = await get(name, id);
+    const res = await get(name, id)
     if (res) {
-        delete res._id;
-        delete res._rev;
-        delete res._attachments;
+        delete res._id
+        delete res._rev
+        delete res._attachments
     }
-    return res ? res : defaultValue;
-};
+    return res ? res : defaultValue
+}
 
 const remove = async (name: string, doc: Doc<any> | string) => {
-    return await kvdb.remove(name, doc);
-};
+    return await kvdb.remove(name, doc)
+}
 
 const bulkDocs = async (name: string, docs: any[]) => {
-    const result = await kvdb.bulkPut(name, docs);
+    const result = await kvdb.bulkPut(name, docs)
     if (result && (result as DBError).error) {
-        throw (result as DBError).message;
+        throw (result as DBError).message
     }
-    return result as Doc<any>[];
-};
+    return result as Doc<any>[]
+}
 
 const allDocs = async (name: string, key: string): Promise<Doc[]> => {
-    const result = await kvdb.all(name, key);
+    const result = await kvdb.all(name, key)
     if (result && (result as DBError).error) {
-        throw (result as DBError).message;
+        throw (result as DBError).message
     }
-    return result as Doc<any>[];
-};
+    return result as Doc<any>[]
+}
 
 const allKeys = async (name: string, key: string): Promise<string[]> => {
-    const result = await kvdb.allKeys(name, key);
+    const result = await kvdb.allKeys(name, key)
     if (result && (result as DBError).error) {
-        throw (result as DBError).message;
+        throw (result as DBError).message
     }
-    return result as string[];
-};
+    return result as string[]
+}
 
 const count = async (name: string, key: string) => {
-    const result = await kvdb.count(name, key);
+    const result = await kvdb.count(name, key)
     if (result && (result as DBError).error) {
-        throw (result as DBError).message;
+        throw (result as DBError).message
     }
-    return result as number;
-};
+    return result as number
+}
 
-const postAttachment = async (
-    name: string,
-    docId: string,
-    attachment: any,
-    type: string,
-) => {
-    return await kvdb.postAttachment(name, docId, attachment, type);
-};
+const postAttachment = async (name: string, docId: string, attachment: any, type: string) => {
+    return await kvdb.postAttachment(name, docId, attachment, type)
+}
 
 const getAttachment = async (name: string, docId: string) => {
-    return await kvdb.getAttachment(name, docId);
-};
+    return await kvdb.getAttachment(name, docId)
+}
 
 const getAttachmentType = async (name: string, docId: string) => {
-    const res = await get(name, docId);
-    if (!res || !res._attachments) return null;
-    const result = res._attachments[0];
-    return result ? result.content_type : null;
-};
+    const res = await get(name, docId)
+    if (!res || !res._attachments) return null
+    const result = res._attachments[0]
+    return result ? result.content_type : null
+}
 
 const dumpToFile = async (file: string) => {
-    return await kvdb.dumpToFile(file);
-};
+    return await kvdb.dumpToFile(file)
+}
 
 const importFromFile = async (file: string) => {
-    return await kvdb.importFromFile(file);
-};
+    return await kvdb.importFromFile(file)
+}
 
-const testWebdav = async (option: {
-    url: string;
-    username: string;
-    password: string;
-}) => {
-    const webdav = new WebDav(option);
-    await webdav.checkConnection();
-};
+const testWebdav = async (option: { url: string; username: string; password: string }) => {
+    const webdav = new WebDav(option)
+    await webdav.checkConnection()
+}
 
 const dumpToWebDav = async (
     file: string,
     option: {
-        url: string;
-        username: string;
-        password: string;
+        url: string
+        username: string
+        password: string
     },
 ) => {
-    return await kvdb.dumpToWavDav(file, option);
-};
+    return await kvdb.dumpToWavDav(file, option)
+}
 
 const importFromWebDav = async (
     file: string,
     option: {
-        url: string;
-        username: string;
-        password: string;
+        url: string
+        username: string
+        password: string
     },
 ) => {
-    return await kvdb.importFromWebDav(file, option);
-};
+    return await kvdb.importFromWebDav(file, option)
+}
 
 const listWebDav = async (
     dir: string,
     option: {
-        url: string;
-        username: string;
-        password: string;
+        url: string
+        username: string
+        password: string
     },
 ) => {
-    const webdav = new WebDav(option);
-    await webdav.checkConnection();
-    return await webdav.listDir(dir);
-};
+    const webdav = new WebDav(option)
+    await webdav.checkConnection()
+    return await webdav.listDir(dir)
+}
 
-ipcMain.handle("kvdb:put", (event, name: string, data: Doc<any>) => {
-    return put(name, data);
-});
+ipcMain.handle('kvdb:put', (event, name: string, data: Doc<any>) => {
+    return put(name, data)
+})
 
-ipcMain.handle("kvdb:putForce", (event, name: string, data: Doc<any>) => {
-    return putForce(name, data);
-});
+ipcMain.handle('kvdb:putForce', (event, name: string, data: Doc<any>) => {
+    return putForce(name, data)
+})
 
-ipcMain.handle("kvdb:get", (event, name: string, id: string) => {
-    return get(name, id);
-});
+ipcMain.handle('kvdb:get', (event, name: string, id: string) => {
+    return get(name, id)
+})
 
-ipcMain.handle("kvdb:remove", (event, name: string, doc: Doc<any> | string) => {
-    return remove(name, doc);
-});
+ipcMain.handle('kvdb:remove', (event, name: string, doc: Doc<any> | string) => {
+    return remove(name, doc)
+})
 
-ipcMain.handle("kvdb:bulkDocs", (event, name: string, docs: any[]) => {
-    return bulkDocs(name, docs);
-});
+ipcMain.handle('kvdb:bulkDocs', (event, name: string, docs: any[]) => {
+    return bulkDocs(name, docs)
+})
 
-ipcMain.handle("kvdb:allDocs", (event, name: string, key: string) => {
-    return allDocs(name, key);
-});
+ipcMain.handle('kvdb:allDocs', (event, name: string, key: string) => {
+    return allDocs(name, key)
+})
 
-ipcMain.handle("kvdb:allKeys", (event, name: string, key: string) => {
-    return allKeys(name, key);
-});
+ipcMain.handle('kvdb:allKeys', (event, name: string, key: string) => {
+    return allKeys(name, key)
+})
 
-ipcMain.handle("kvdb:count", (event, name: string, key: string) => {
-    return count(name, key);
-});
+ipcMain.handle('kvdb:count', (event, name: string, key: string) => {
+    return count(name, key)
+})
 
-ipcMain.handle(
-    "kvdb:postAttachment",
-    (event, name: string, docId: string, attachment: any, type: string) => {
-        return postAttachment(name, docId, attachment, type);
-    },
-);
+ipcMain.handle('kvdb:postAttachment', (event, name: string, docId: string, attachment: any, type: string) => {
+    return postAttachment(name, docId, attachment, type)
+})
 
-ipcMain.handle("kvdb:getAttachment", (event, name: string, docId: string) => {
-    return getAttachment(name, docId);
-});
+ipcMain.handle('kvdb:getAttachment', (event, name: string, docId: string) => {
+    return getAttachment(name, docId)
+})
 
-ipcMain.handle(
-    "kvdb:getAttachmentType",
-    (event, name: string, docId: string) => {
-        return getAttachmentType(name, docId);
-    },
-);
+ipcMain.handle('kvdb:getAttachmentType', (event, name: string, docId: string) => {
+    return getAttachmentType(name, docId)
+})
 
-ipcMain.handle("kvdb:dumpToFile", (event, file: string) => {
-    return dumpToFile(file);
-});
+ipcMain.handle('kvdb:dumpToFile', (event, file: string) => {
+    return dumpToFile(file)
+})
 
-ipcMain.handle("kvdb:importFromFile", (event, file: string) => {
-    return importFromFile(file);
-});
+ipcMain.handle('kvdb:importFromFile', (event, file: string) => {
+    return importFromFile(file)
+})
 
 ipcMain.handle(
-    "kvdb:testWebdav",
+    'kvdb:testWebdav',
     (
         event,
         option: {
-            url: string;
-            username: string;
-            password: string;
+            url: string
+            username: string
+            password: string
         },
     ) => {
-        return testWebdav(option);
+        return testWebdav(option)
     },
-);
+)
 
 ipcMain.handle(
-    "kvdb:dumpToWebDav",
+    'kvdb:dumpToWebDav',
     (
         event,
         file: string,
         option: {
-            url: string;
-            username: string;
-            password: string;
+            url: string
+            username: string
+            password: string
         },
     ) => {
-        return dumpToWebDav(file, option);
+        return dumpToWebDav(file, option)
     },
-);
+)
 
 ipcMain.handle(
-    "kvdb:importFromWebDav",
+    'kvdb:importFromWebDav',
     (
         event,
         file: string,
         option: {
-            url: string;
-            username: string;
-            password: string;
+            url: string
+            username: string
+            password: string
         },
     ) => {
-        return importFromWebDav(file, option);
+        return importFromWebDav(file, option)
     },
-);
+)
 
 ipcMain.handle(
-    "kvdb:listWebDav",
+    'kvdb:listWebDav',
     (
         event,
         dir: string,
         option: {
-            url: string;
-            username: string;
-            password: string;
+            url: string
+            username: string
+            password: string
         },
     ) => {
-        return listWebDav(dir, option);
+        return listWebDav(dir, option)
     },
-);
+)
 
 export const KVDBMain = {
     raw,
@@ -318,9 +304,9 @@ export const KVDBMain = {
     dumpToWebDav,
     importFromWebDav,
     listWebDav,
-};
+}
 
 export default {
     init,
     ...KVDBMain,
-};
+}

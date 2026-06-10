@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import ModelSetting from "./ModelSetting.vue";
+import { ref } from 'vue'
+import ModelSetting from './ModelSetting.vue'
 
-const visible = ref(false);
+const visible = ref(false)
 const show = () => {
-    visible.value = true;
-};
+    visible.value = true
+}
 
 defineExpose({
     show,
-});
+})
 </script>
 
 <template>
@@ -22,7 +22,7 @@ defineExpose({
         title-align="start"
     >
         <template #title>
-            {{ $t("setting.llm") }}
+            {{ $t('setting.llm') }}
         </template>
         <div class="-mx-5 -my-6" style="height: calc(100vh - 15rem)">
             <ModelSetting />

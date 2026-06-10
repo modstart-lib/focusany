@@ -24,4 +24,4 @@ export const WindowConfig = {
     fastPanelWidth: 260,
     fastPanelHeight: 500,
     detachWindowTitleHeight: 40,
-};
+}

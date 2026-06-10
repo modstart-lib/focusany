@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { useManagerStore } from "../../store/modules/manager";
-import { PluginType } from "../../types/Manager";
-import { useViewOperate } from "../Main/Lib/viewOperate";
-import { useResultOperate } from "./Lib/resultOperate";
+import { useManagerStore } from '../../store/modules/manager'
+import { PluginType } from '../../types/Manager'
+import { useViewOperate } from '../Main/Lib/viewOperate'
+import { useResultOperate } from './Lib/resultOperate'
 
-const manager = useManagerStore();
-const { doOpenAction } = useResultOperate();
+const manager = useManagerStore()
+const { doOpenAction } = useResultOperate()
 
-const { webUserAgent, viewActions } = useViewOperate("fastPanel");
+const { webUserAgent, viewActions } = useViewOperate('fastPanel')
 </script>
 
 <template>
@@ -19,18 +19,14 @@ const { webUserAgent, viewActions } = useViewOperate("fastPanel");
                     <div class="icon">
                         <img
                             :src="r.icon"
-                            :class="
-                                r.pluginType === PluginType.SYSTEM
-                                    ? 'dark:invert'
-                                    : 'plugin-logo-filter'
-                            "
+                            :class="r.pluginType === PluginType.SYSTEM ? 'dark:invert' : 'plugin-logo-filter'"
                         />
                     </div>
                     <div class="text">
                         {{ r.title }}
                     </div>
                     <div v-if="0" class="action">
-                        <a href="javascript:;"> {{ $t("common.close") }} </a>
+                        <a href="javascript:;"> {{ $t('common.close') }} </a>
                         <a href="javascript:;">
                             <icon-more-vertical />
                         </a>
@@ -62,11 +58,7 @@ const { webUserAgent, viewActions } = useViewOperate("fastPanel");
                         <img
                             :src="a.icon"
                             draggable="false"
-                            :class="
-                                a.pluginType === PluginType.SYSTEM
-                                    ? 'dark:invert'
-                                    : 'plugin-logo-filter'
-                            "
+                            :class="a.pluginType === PluginType.SYSTEM ? 'dark:invert' : 'plugin-logo-filter'"
                         />
                     </div>
                     <div class="text">
@@ -79,7 +71,7 @@ const { webUserAgent, viewActions } = useViewOperate("fastPanel");
 </template>
 
 <style lang="less">
-[data-theme="dark"] {
+[data-theme='dark'] {
     .pb-fastpanel-result {
         .action {
             .action-item-box {

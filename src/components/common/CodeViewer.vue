@@ -1,30 +1,30 @@
 <script setup lang="ts">
-import { PropType, ref, watch } from "vue";
-import { EditorView, keymap, lineNumbers } from "@codemirror/view";
-import { dracula } from "@uiw/codemirror-theme-dracula";
-import { quietlight } from "@uiw/codemirror-theme-quietlight";
-import { python } from "@codemirror/lang-python";
-import { json } from "@codemirror/lang-json";
-import { defaultKeymap } from "@codemirror/commands";
-import { EditorState } from "@codemirror/state";
-import debounce from "lodash/debounce";
+import { PropType, ref, watch } from 'vue'
+import { EditorView, keymap, lineNumbers } from '@codemirror/view'
+import { dracula } from '@uiw/codemirror-theme-dracula'
+import { quietlight } from '@uiw/codemirror-theme-quietlight'
+import { python } from '@codemirror/lang-python'
+import { json } from '@codemirror/lang-json'
+import { defaultKeymap } from '@codemirror/commands'
+import { EditorState } from '@codemirror/state'
+import debounce from 'lodash/debounce'
 
 const props = defineProps({
     lang: {
-        type: String as PropType<"text" | "python" | "json">,
-        default: "python",
+        type: String as PropType<'text' | 'python' | 'json'>,
+        default: 'python',
     },
     code: {
         type: String,
-        default: "",
+        default: '',
     },
     dark: {
         type: Boolean,
         default: false,
     },
-});
-const codeEditorDom = ref<HTMLElement>();
-let editor = null as EditorView | null;
+})
+const codeEditorDom = ref<HTMLElement>()
+let editor = null as EditorView | null
 
 const showDebounce = debounce(async () => {
     const extentions = [
@@ -32,25 +32,21 @@ const showDebounce = debounce(async () => {
         keymap.of(defaultKeymap),
         lineNumbers(),
         EditorState.readOnly.of(true),
-    ];
+    ]
     switch (props.lang) {
-        case "text":
-            break;
-        case "python":
-            extentions.push(python());
-            break;
-        case "json":
-            extentions.push(json());
-            break;
+        case 'text':
+            break
+        case 'python':
+            extentions.push(python())
+            break
+        case 'json':
+            extentions.push(json())
+            break
     }
     if (editor) {
         editor.dispatch({
-            changes: {
-                from: 0,
-                to: editor.state.doc.length,
-                insert: props.code,
-            },
-        });
+            changes: { from: 0, to: editor.state.doc.length, insert: props.code },
+        })
     } else {
         editor = new EditorView({
             state: EditorState.create({
@@ -58,12 +54,12 @@ const showDebounce = debounce(async () => {
                 extensions: extentions,
             }),
             parent: codeEditorDom.value,
-        });
+        })
     }
-}, 100);
+}, 100)
 
-watch(() => props.code, showDebounce);
-watch(() => props.lang, showDebounce);
+watch(() => props.code, showDebounce)
+watch(() => props.lang, showDebounce)
 </script>
 
 <template>

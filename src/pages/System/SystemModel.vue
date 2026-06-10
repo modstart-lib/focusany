@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import ModelSetting from "../../module/Model/ModelSetting.vue";
+import ModelSetting from '../../module/Model/ModelSetting.vue'
 </script>
 
 <template>

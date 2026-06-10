@@ -18,14 +18,14 @@ const versions = [
                                   version      INTEGER,
                                   isDeleted    INTEGER,
                                   name         TEXT
-                              )`);
+                              )`)
             await db.execute(`CREATE INDEX IF NOT EXISTS idx_kvdb_data_name
                 ON kvdb_data (name)
-            `);
+            `)
         },
     },
-];
+]
 
 export default {
     versions,
-};
+}

@@ -1,136 +1,135 @@
 <script setup lang="ts">
-import { computed, onBeforeMount, ref, watch } from "vue";
-import { HotkeyKeyItem } from "../../../../electron/mapi/keys/type";
-import { t } from "../../../lang";
+import { computed, onBeforeMount, ref, watch } from 'vue'
+import { HotkeyKeyItem } from '../../../../electron/mapi/keys/type'
+import { t } from '../../../lang'
 
-const focus = ref(false);
-const platformName = ref<"win" | "osx" | "linux" | null>(null);
+const focus = ref(false)
+const platformName = ref<'win' | 'osx' | 'linux' | null>(null)
 
 onBeforeMount(() => {
-    platformName.value = window.$mapi?.app?.platformName() as any;
-});
+    platformName.value = window.$mapi?.app?.platformName() as any
+})
 
 const props = defineProps({
     value: {
         type: Object,
         default: null,
     },
-});
-const currentValue = ref<HotkeyKeyItem | null>(null);
-let newValue = null as HotkeyKeyItem | null;
+})
+const currentValue = ref<HotkeyKeyItem | null>(null)
+let newValue = null as HotkeyKeyItem | null
 
-const emit = defineEmits(["change"]);
+const emit = defineEmits(['change'])
 
 watch(
     () => props.value,
     (value) => {
         if (value) {
             if (value.value) {
-                currentValue.value = value.value;
+                currentValue.value = value.value
             } else {
-                currentValue.value = value as HotkeyKeyItem;
+                currentValue.value = value as HotkeyKeyItem
             }
         } else {
-            currentValue.value = null;
+            currentValue.value = null
         }
     },
     {
         immediate: true,
     },
-);
+)
 
-let lastKeyTime = 0;
-let lastKey = "";
+let lastKeyTime = 0
+let lastKey = ''
 const showHotkey = computed(() => {
-    newValue = null;
+    newValue = null
     if (!currentValue.value) {
-        return null;
+        return null
     }
     // console.log('currentValue.value', JSON.stringify(currentValue.value, null, 2))
-    const { key, altKey, ctrlKey, metaKey, shiftKey } =
-        currentValue.value as HotkeyKeyItem;
-    const texts: string[] = [];
+    const { key, altKey, ctrlKey, metaKey, shiftKey } = currentValue.value as HotkeyKeyItem
+    const texts: string[] = []
     if (ctrlKey) {
-        if (platformName.value === "osx") {
-            texts.push("Control");
+        if (platformName.value === 'osx') {
+            texts.push('Control')
         } else {
-            texts.push("Ctrl");
+            texts.push('Ctrl')
         }
     }
     if (altKey) {
-        if (platformName.value === "osx") {
-            texts.push("Option");
+        if (platformName.value === 'osx') {
+            texts.push('Option')
         } else {
-            texts.push("Alt");
+            texts.push('Alt')
         }
     }
     if (metaKey) {
-        if (platformName.value === "osx") {
-            texts.push("Command");
-        } else if (platformName.value === "win") {
-            texts.push("Win");
+        if (platformName.value === 'osx') {
+            texts.push('Command')
+        } else if (platformName.value === 'win') {
+            texts.push('Win')
         } else {
-            texts.push("Meta");
+            texts.push('Meta')
         }
     }
     if (shiftKey) {
-        texts.push("Shift");
+        texts.push('Shift')
     }
     if (key) {
         const valid = [
-            "A",
-            "B",
-            "C",
-            "D",
-            "E",
-            "F",
-            "G",
-            "H",
-            "I",
-            "J",
-            "K",
-            "L",
-            "M",
-            "N",
-            "O",
-            "P",
-            "Q",
-            "R",
-            "S",
-            "T",
-            "U",
-            "V",
-            "W",
-            "X",
-            "Y",
-            "Z",
-            "1",
-            "2",
-            "3",
-            "4",
-            "5",
-            "6",
-            "7",
-            "8",
-            "9",
-            "0",
-            "Space",
-        ];
+            'A',
+            'B',
+            'C',
+            'D',
+            'E',
+            'F',
+            'G',
+            'H',
+            'I',
+            'J',
+            'K',
+            'L',
+            'M',
+            'N',
+            'O',
+            'P',
+            'Q',
+            'R',
+            'S',
+            'T',
+            'U',
+            'V',
+            'W',
+            'X',
+            'Y',
+            'Z',
+            '1',
+            '2',
+            '3',
+            '4',
+            '5',
+            '6',
+            '7',
+            '8',
+            '9',
+            '0',
+            'Space',
+        ]
         if (valid.includes(key)) {
-            texts.push(key);
+            texts.push(key)
         }
     }
     if (lastKeyTime > 0 && lastKeyTime < Date.now() - 500) {
-        lastKeyTime = 0;
+        lastKeyTime = 0
     }
-    let times = 1;
-    if (lastKey === texts.join("+") && lastKeyTime > 0) {
-        times = 2;
+    let times = 1
+    if (lastKey === texts.join('+') && lastKeyTime > 0) {
+        times = 2
     }
-    lastKey = texts.join("+");
-    lastKeyTime = Date.now();
+    lastKey = texts.join('+')
+    lastKeyTime = Date.now()
     if (times > 1) {
-        lastKey = "";
+        lastKey = ''
     }
     newValue = {
         key: key,
@@ -139,9 +138,9 @@ const showHotkey = computed(() => {
         metaKey: metaKey,
         shiftKey: shiftKey,
         times: times,
-    } as HotkeyKeyItem;
-    return texts.join("+") + (times > 1 ? t("hotkey.doubleClick") : "");
-});
+    } as HotkeyKeyItem
+    return texts.join('+') + (times > 1 ? t('hotkey.doubleClick') : '')
+})
 
 const onHotkey = (data: any) => {
     currentValue.value = {
@@ -151,32 +150,30 @@ const onHotkey = (data: any) => {
         metaKey: data.metaKey,
         shiftKey: data.shiftKey,
         times: data.times,
-    };
-};
+    }
+}
 
 const onFocus = async () => {
-    focus.value = true;
-    await window.$mapi.manager.hotKeyWatch();
-    window.__page.onBroadcast("HotkeyWatch", onHotkey);
-};
+    focus.value = true
+    await window.$mapi.manager.hotKeyWatch()
+    window.__page.onBroadcast('HotkeyWatch', onHotkey)
+}
 const onBlur = () => {
-    focus.value = false;
-    window.__page.offBroadcast("HotkeyWatch", onHotkey);
-    window.$mapi.manager.hotKeyUnwatch();
+    focus.value = false
+    window.__page.offBroadcast('HotkeyWatch', onHotkey)
+    window.$mapi.manager.hotKeyUnwatch()
     if (newValue) {
         // console.log('newValue', JSON.stringify(newValue))
-        emit("change", newValue);
+        emit('change', newValue)
     }
-};
+}
 const content = computed(() => {
     return [
-        t("hotkey.instructions"),
-        t("hotkey.step1"),
-        platformName.value === "osx"
-            ? t("hotkey.step2Mac")
-            : t("hotkey.step2Win"),
-    ].join("");
-});
+        t('hotkey.instructions'),
+        t('hotkey.step1'),
+        platformName.value === 'osx' ? t('hotkey.step2Mac') : t('hotkey.step2Win'),
+    ].join('')
+})
 </script>
 
 <template>

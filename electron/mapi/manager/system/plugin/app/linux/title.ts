@@ -1,6 +1,6 @@
 const langDirMap = {
-    "zh-CN": ["zh_CN"],
-};
+    'zh-CN': ['zh_CN'],
+}
 
 export const getAppTitle = async (
     desktopInfo: Record<string, string>,
@@ -10,14 +10,14 @@ export const getAppTitle = async (
 ) => {
     if (locale in langDirMap) {
         for (const k of langDirMap[locale]) {
-            const infoKey = `Name[${k}]`;
+            const infoKey = `Name[${k}]`
             if (desktopInfo[infoKey]) {
-                return desktopInfo[infoKey];
+                return desktopInfo[infoKey]
             }
         }
     }
     if (desktopInfo.Name) {
-        return desktopInfo.Name;
+        return desktopInfo.Name
     }
-    return name;
-};
+    return name
+}

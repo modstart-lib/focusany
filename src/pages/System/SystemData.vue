@@ -1,73 +1,73 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from "vue";
-import { t } from "../../lang";
-import SystemDataBackupDialog from "./components/SystemDataBackupDialog.vue";
-import SystemDataViewDialog from "./components/SystemDataViewDialog.vue";
-import { SystemDataRecord } from "./components/type";
+import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { t } from '../../lang'
+import { testActionSet, testActionUnset } from '../../utils/test'
+import SystemDataBackupDialog from './components/SystemDataBackupDialog.vue'
+import SystemDataViewDialog from './components/SystemDataViewDialog.vue'
+import { SystemDataRecord } from './components/type'
 
-const dataViewDialog = ref<InstanceType<typeof SystemDataViewDialog> | null>(
-    null,
-);
-const dataBackupDialog = ref<InstanceType<
-    typeof SystemDataBackupDialog
-> | null>(null);
+const dataViewDialog = ref<InstanceType<typeof SystemDataViewDialog> | null>(null)
+const dataBackupDialog = ref<InstanceType<typeof SystemDataBackupDialog> | null>(null)
 
-const records = ref([] as SystemDataRecord[]);
+const records = ref([] as SystemDataRecord[])
 
 const doLoad = async () => {
-    records.value = [];
-    const plugins = await window.$mapi.manager.listPlugin();
+    records.value = []
+    const plugins = await window.$mapi.manager.listPlugin()
     for (const plugin of plugins) {
-        if (["store", "workflow", "app", "file"].includes(plugin.name)) {
-            continue;
+        if (['store', 'workflow', 'app', 'file'].includes(plugin.name)) {
+            continue
         }
-        const count = await window.$mapi.kvdb.count(plugin.name, "");
+        const count = await window.$mapi.kvdb.count(plugin.name, '')
         records.value.push({
             plugin,
             count,
-        });
+        })
     }
-    return records.value;
-};
+    return records.value
+}
 
 onMounted(async () => {
-    await doLoad();
+    await doLoad()
     window.focusany.setSubInput(
         (keyword) => {
-            console.log("keyword", keyword);
+            console.log('keyword', keyword)
         },
-        t("data.filterPlaceholder"),
+        t('data.filterPlaceholder'),
         true,
-    );
-});
+    )
+    testActionSet('systemData.backup.show', () => dataBackupDialog.value?.open())
+    testActionSet('systemData.view.show', () => {
+        if (records.value.length > 0) {
+            dataViewDialog.value?.open(records.value[0])
+        } else {
+            throw new Error('[SystemData] 无数据记录可查看')
+        }
+    })
+})
 onBeforeUnmount(() => {
-    window.focusany.removeSubInput();
-});
+    window.focusany.removeSubInput()
+    testActionUnset(['systemData.backup.show', 'systemData.view.show'])
+})
 </script>
 
 <template>
     <div class="p-4">
         <div class="flex items-center">
-            <div class="flex-grow text-2xl">{{ $t("data.title") }}</div>
+            <div class="flex-grow text-2xl">{{ $t('data.title') }}</div>
             <div>
-                <a-button size="small" @click="dataBackupDialog?.open()">
-                    {{ $t("backup.title") }}
-                </a-button>
+                <a-button size="small" @click="dataBackupDialog?.open()"> {{ $t('backup.title') }} </a-button>
             </div>
         </div>
         <div class="mt-3">
             <div v-for="r in records">
                 <div class="flex py-3 border-t border-default">
-                    <div
-                        class="w-12 bg-gray-100 dark:bg-gray-700 rounded-lg mr-2"
-                    >
+                    <div class="w-12 bg-gray-100 dark:bg-gray-700 rounded-lg mr-2">
                         <img :src="r.plugin.logo" />
                     </div>
                     <div class="flex-grow">
                         <div class="font-bold">{{ r.plugin.title }}</div>
-                        <div class="text-gray-400">
-                            {{ r.count }} {{ $t("data.docCount") }}
-                        </div>
+                        <div class="text-gray-400">{{ r.count }} {{ $t('data.docCount') }}</div>
                     </div>
                     <div>
                         <div

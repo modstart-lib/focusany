@@ -1,36 +1,36 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import FeedbackTicketButton from "../components/common/FeedbackTicketButton.vue";
-import UpdaterButton from "../components/common/UpdaterButton.vue";
-import { AppConfig } from "../config";
-import { t } from "../lang";
-import { useSettingStore } from "../store/modules/setting";
+import { ref } from 'vue'
+import FeedbackTicketButton from '../components/common/FeedbackTicketButton.vue'
+import UpdaterButton from '../components/common/UpdaterButton.vue'
+import { AppConfig } from '../config'
+import { t } from '../lang'
+import { useSettingStore } from '../store/modules/setting'
 
-const setting = useSettingStore();
-const licenseYear = new Date().getFullYear();
-const devSettingVisible = ref(false);
+const setting = useSettingStore()
+const licenseYear = new Date().getFullYear()
+const devSettingVisible = ref(false)
 
 const doOpenLog = async () => {
-    await window.$mapi.app.openPath(window.$mapi.log.root());
-};
-let clickTimes = 0;
-let clickLastTime = 0;
+    await window.$mapi.app.openPath(window.$mapi.log.root())
+}
+let clickTimes = 0
+let clickLastTime = 0
 const doDevSettingTriggerClick = () => {
     // click more than 5 times in 3 seconds
-    const now = new Date().getTime();
+    const now = new Date().getTime()
     if (0 === clickLastTime) {
-        clickLastTime = now;
+        clickLastTime = now
     }
     if (now - clickLastTime < 3000) {
-        clickTimes++;
+        clickTimes++
         if (clickTimes >= 5) {
-            devSettingVisible.value = true;
-            clickTimes = 0;
+            devSettingVisible.value = true
+            clickTimes = 0
         }
     } else {
-        clickTimes = 0;
+        clickTimes = 0
     }
-};
+}
 </script>
 
 <template>
@@ -39,65 +39,44 @@ const doDevSettingTriggerClick = () => {
             <div class="flex pb-6">
                 <div class="m-auto" @click="doDevSettingTriggerClick">
                     <div>
-                        <img
-                            class="w-14 h-14 mx-auto"
-                            src="./../assets/image/logo.svg"
-                        />
+                        <img class="w-14 h-14 mx-auto" src="./../assets/image/logo.svg" />
                     </div>
                     <div class="text-xl pt-2 font-bold">
                         {{ AppConfig.title }}
                     </div>
                 </div>
             </div>
-            <div
-                v-if="devSettingVisible"
-                class="bg-gray-100 p-3 mb-3 rounded-lg"
-            >
+            <div v-if="devSettingVisible" class="bg-gray-100 p-3 mb-3 rounded-lg">
                 <div class="flex mb-4 items-center">
                     <icon-code class="mr-2" />
-                    {{ $t("开发模式设置") }}
+                    {{ $t('about.devModeSettings') }}
                 </div>
                 <div class="flex mb-4">
-                    <div class="flex-grow">{{ $t("快速面板失焦隐藏") }}</div>
+                    <div class="flex-grow">{{ $t('about.fastPanelHideOnBlur') }}</div>
                     <div>
                         <a-radio-group
-                            :model-value="
-                                setting.configEnvGet('fastPanelAutoHide', true)
-                                    .value
-                            "
-                            @change="
-                                setting.onConfigEnvChange(
-                                    'fastPanelAutoHide',
-                                    $event,
-                                )
-                            "
+                            :model-value="setting.configEnvGet('fastPanelAutoHide', true).value"
+                            @change="setting.onConfigEnvChange('fastPanelAutoHide', $event)"
                         >
-                            <a-radio :value="true">是</a-radio>
-                            <a-radio :value="false">否</a-radio>
+                            <a-radio :value="true">{{ $t('common.yes') }}</a-radio>
+                            <a-radio :value="false">{{ $t('common.no') }}</a-radio>
                         </a-radio-group>
                     </div>
                 </div>
             </div>
             <div class="flex mb-3 items-start">
-                <div class="w-20">{{ t("版本") }}</div>
+                <div class="w-20">{{ t('common.version') }}</div>
                 <div class="flex-grow">
-                    <div>
-                        v{{ AppConfig.version }} Build
-                        {{ setting.buildInfo.buildId }}
-                    </div>
+                    <div>v{{ AppConfig.version }} Build {{ setting.buildInfo.buildId }}</div>
                     <div class="pt-2">
                         <UpdaterButton />
                     </div>
                 </div>
             </div>
             <div class="flex mb-3 items-center">
-                <div class="w-20">{{ t("官网") }}</div>
+                <div class="w-20">{{ t('common.officialSite') }}</div>
                 <div class="flex-grow">
-                    <a
-                        :href="AppConfig.website"
-                        target="_blank"
-                        class="text-link"
-                    >
+                    <a :href="AppConfig.website" target="_blank" class="text-link">
                         {{ AppConfig.website }}
                     </a>
                 </div>
@@ -109,13 +88,11 @@ const doDevSettingTriggerClick = () => {
                         <template #icon>
                             <icon-file />
                         </template>
-                        {{ t("日志") }}
+                        {{ t('nav.log') }}
                     </a-button>
                 </div>
             </div>
-            <div class="text-gray-400 text-center select-none">
-                &copy; {{ licenseYear }} {{ AppConfig.name }}
-            </div>
+            <div class="text-gray-400 text-center select-none">&copy; {{ licenseYear }} {{ AppConfig.name }}</div>
         </div>
     </div>
 </template>

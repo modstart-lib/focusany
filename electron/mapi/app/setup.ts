@@ -1,56 +1,52 @@
-import { Permissions } from "../../lib/permission";
-import { rendererDistPath } from "../../lib/env-main";
+import { Permissions } from '../../lib/permission'
+import { rendererDistPath } from '../../lib/env-main'
 
 export const SetupMain = {
     async isOk() {
         if (!(await Permissions.checkAccessibilityAccess())) {
-            return false;
+            return false
         }
         if (!(await Permissions.checkScreenCaptureAccess())) {
-            return false;
+            return false
         }
-        return true;
+        return true
     },
     async list() {
         return [
             {
-                name: "accessibility",
-                title: t("setup.accessibility.title"),
-                status: (await Permissions.checkAccessibilityAccess())
-                    ? "success"
-                    : "fail",
-                desc: t("setup.accessibility.desc"),
+                name: 'accessibility',
+                title: t('setup.accessibility.title'),
+                status: (await Permissions.checkAccessibilityAccess()) ? 'success' : 'fail',
+                desc: t('setup.accessibility.desc'),
                 steps: [
                     {
-                        title: t("setup.accessibility.step"),
-                        image: rendererDistPath("setup/accessibility.png"),
+                        title: t('setup.accessibility.step'),
+                        image: rendererDistPath('setup/accessibility.png'),
                     },
                 ],
             },
             {
-                name: "screen",
-                title: t("setup.screen.title"),
-                status: (await Permissions.checkScreenCaptureAccess())
-                    ? "success"
-                    : "fail",
-                desc: t("setup.screen.desc"),
+                name: 'screen',
+                title: t('setup.screen.title'),
+                status: (await Permissions.checkScreenCaptureAccess()) ? 'success' : 'fail',
+                desc: t('setup.screen.desc'),
                 steps: [
                     {
-                        title: t("setup.screen.step"),
-                        image: rendererDistPath("setup/screen.png"),
+                        title: t('setup.screen.step'),
+                        image: rendererDistPath('setup/screen.png'),
                     },
                 ],
             },
-        ];
+        ]
     },
     async open(name: string) {
         switch (name) {
-            case "accessibility":
-                Permissions.askAccessibilityAccess().then();
-                break;
-            case "screen":
-                Permissions.askScreenCaptureAccess().then();
-                break;
+            case 'accessibility':
+                Permissions.askAccessibilityAccess().then()
+                break
+            case 'screen':
+                Permissions.askScreenCaptureAccess().then()
+                break
         }
     },
-};
+}

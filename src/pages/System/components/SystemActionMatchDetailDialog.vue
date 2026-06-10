@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import { SystemIcons } from "../../../../electron/mapi/manager/system/asset/icon";
+import { ref } from 'vue'
+import { SystemIcons } from '../../../../electron/mapi/manager/system/asset/icon'
 import {
     ActionMatch,
     ActionMatchFile,
@@ -9,44 +9,35 @@ import {
     ActionMatchText,
     ActionMatchTypeEnum,
     ActionRecord,
-} from "../../../types/Manager";
+} from '../../../types/Manager'
 
-const visible = ref(false);
-const action = ref<ActionRecord | null>(null);
-const match = ref<ActionMatch | null>(null);
+const visible = ref(false)
+const action = ref<ActionRecord | null>(null)
+const match = ref<ActionMatch | null>(null)
 
 const show = async (a: ActionRecord, m: ActionMatch) => {
-    action.value = a;
-    match.value = m;
-    visible.value = true;
-};
+    action.value = a
+    match.value = m
+    visible.value = true
+}
 
-const emit = defineEmits(["disable"]);
+const emit = defineEmits(['disable'])
 
 defineExpose({
     show,
-});
+})
 </script>
 
 <template>
     <a-modal v-model:visible="visible" title-align="start">
         <template #title>
-            <div
-                v-if="['text', 'key'].includes(match?.type as string)"
-                class="flex items-center"
-            >
-                <img
-                    class="w-6 h-6 object-contain mr-2"
-                    :src="SystemIcons.searchKeyword"
-                />
-                {{ $t("action.searchAction") }}
+            <div v-if="['text', 'key'].includes(match?.type as string)" class="flex items-center">
+                <img class="w-6 h-6 object-contain mr-2" :src="SystemIcons.searchKeyword" />
+                {{ $t('action.searchAction') }}
             </div>
             <div v-else class="flex items-center">
-                <img
-                    class="w-6 h-6 object-contain mr-2"
-                    :src="SystemIcons.searchMatch"
-                />
-                {{ $t("action.matchAction") }}
+                <img class="w-6 h-6 object-contain mr-2" :src="SystemIcons.searchMatch" />
+                {{ $t('action.matchAction') }}
             </div>
         </template>
         <template #footer>
@@ -57,88 +48,68 @@ defineExpose({
                 v-if="!match?.['_disable']"
                 @click="emit('disable', action, match?.name)"
             >
-                {{ $t("common.disable") }}
+                {{ $t('common.disable') }}
             </a-button>
-            <a-button
-                type="primary"
-                size="small"
-                v-else
-                @click="emit('disable', action, match?.name)"
-            >
-                {{ $t("common.enable") }}
+            <a-button type="primary" size="small" v-else @click="emit('disable', action, match?.name)">
+                {{ $t('common.enable') }}
             </a-button>
-            <a-button size="small" @click="visible = false">
-                {{ $t("common.close") }}
-            </a-button>
+            <a-button size="small" @click="visible = false"> {{ $t('common.close') }} </a-button>
         </template>
         <div class="h-64">
             <div v-if="match?.type === ActionMatchTypeEnum.TEXT">
                 <div class="mb-3">
                     <icon-info-circle />
-                    {{ $t("action.matchKeywordHint") }}
+                    {{ $t('action.matchKeywordHint') }}
                 </div>
-                <div
-                    class="text-center text-lg bg-gray-100 dark:bg-gray-700 rounded-lg p-3 font-weight"
-                >
+                <div class="text-center text-lg bg-gray-100 dark:bg-gray-700 rounded-lg p-3 font-weight">
                     {{ (match as ActionMatchText).text }}
                 </div>
             </div>
             <div v-else-if="match?.type === ActionMatchTypeEnum.KEY">
                 <div class="mb-3">
                     <icon-info-circle />
-                    {{ $t("action.matchExactKeyHint") }}
+                    {{ $t('action.matchExactKeyHint') }}
                 </div>
-                <div
-                    class="text-center text-lg bg-gray-100 dark:bg-gray-700 rounded-lg p-3 font-weight"
-                >
+                <div class="text-center text-lg bg-gray-100 dark:bg-gray-700 rounded-lg p-3 font-weight">
                     {{ (match as ActionMatchKey).key }}
                 </div>
             </div>
             <div v-else-if="match?.type === ActionMatchTypeEnum.REGEX">
                 <div class="mb-3">
                     <icon-info-circle />
-                    {{ $t("action.matchRegexHint") }}
+                    {{ $t('action.matchRegexHint') }}
                 </div>
-                <div
-                    class="text-center text-lg bg-gray-100 dark:bg-gray-700 rounded-lg p-3 font-weight"
-                >
+                <div class="text-center text-lg bg-gray-100 dark:bg-gray-700 rounded-lg p-3 font-weight">
                     {{ (match as ActionMatchRegex).regex }}
                 </div>
             </div>
             <div v-else-if="match?.type === ActionMatchTypeEnum.IMAGE">
                 <div class="mb-3">
                     <icon-info-circle />
-                    {{ $t("action.matchImageHint") }}
+                    {{ $t('action.matchImageHint') }}
                 </div>
             </div>
             <div v-else-if="match?.type === ActionMatchTypeEnum.FILE">
                 <div class="mb-3">
                     <icon-info-circle />
-                    {{ $t("action.matchFileHint") }}
+                    {{ $t('action.matchFileHint') }}
                 </div>
                 <div class="bg-gray-100 dark:bg-gray-700 rounded-lg p-3">
                     <div v-if="'minCount' in match">
-                        {{ $t("action.minCount") }}:
-                        {{ (match as ActionMatchFile).minCount }}
+                        {{ $t('action.minCount') }}: {{ (match as ActionMatchFile).minCount }}
                     </div>
                     <div v-if="'maxCount' in match">
-                        {{ $t("action.maxCount") }}:
-                        {{ (match as ActionMatchFile).maxCount }}
+                        {{ $t('action.maxCount') }}: {{ (match as ActionMatchFile).maxCount }}
                     </div>
                     <div v-if="'filterExtensions' in match">
-                        {{ $t("action.fileExtensions") }}:
-                        {{
-                            (match as ActionMatchFile).filterExtensions.join(
-                                ",",
-                            )
-                        }}
+                        {{ $t('action.fileExtensions') }}: {{ (match as ActionMatchFile).filterExtensions.join(',') }}
                     </div>
                     <div v-if="'filterFileType' in match">
-                        {{ $t("action.fileType") }}:
+                        {{ $t('action.fileType') }}:
                         {{
-                            (match as ActionMatchFile).filterFileType === "file"
-                                ? $t("common.file")
-                                : $t("common.folder")
+                            (match as ActionMatchFile).filterFileType === 'file'
+                                ? $t('common.file')
+                                : $t('common.folder')
                         }}
                     </div>
                 </div>
@@ -146,39 +117,31 @@ defineExpose({
             <div v-else-if="match?.type === ActionMatchTypeEnum.WINDOW">
                 <div class="mb-3">
                     <icon-info-circle />
-                    {{ $t("action.matchWindowHint") }}
+                    {{ $t('action.matchWindowHint') }}
                 </div>
                 <div class="bg-gray-100 dark:bg-gray-700 rounded-lg p-3">
                     <div v-if="'nameRegex' in match">
-                        {{ $t("action.nameMatch") }}：{{
-                            (match as ActionMatchWindow).nameRegex
-                        }}
+                        {{ $t('action.nameMatch') }}：{{ (match as ActionMatchWindow).nameRegex }}
                     </div>
                     <div v-if="'titleRegex' in match">
-                        {{ $t("action.titleMatch") }}:
-                        {{ (match as ActionMatchWindow).titleRegex }}
+                        {{ $t('action.titleMatch') }}: {{ (match as ActionMatchWindow).titleRegex }}
                     </div>
                     <div v-if="'attrRegex' in match">
-                        {{ $t("action.attrMatch") }}:
-                        {{ (match as ActionMatchWindow).attrRegex }}
+                        {{ $t('action.attrMatch') }}: {{ (match as ActionMatchWindow).attrRegex }}
                     </div>
                 </div>
             </div>
             <div v-else-if="match?.type === ActionMatchTypeEnum.EDITOR">
                 <div class="mb-3">
                     <icon-info-circle />
-                    {{ $t("action.matchEditorHint") }}
+                    {{ $t('action.matchEditorHint') }}
                 </div>
                 <div class="bg-gray-100 dark:bg-gray-700 rounded-lg p-3">
                     <div v-if="'extensions' in match">
-                        {{ $t("action.suffix") }}：{{
-                            (match as ActionMatchEditor).extensions.join(",")
-                        }}
+                        {{ $t('action.suffix') }}：{{ (match as ActionMatchEditor).extensions.join(',') }}
                     </div>
                     <div v-if="'fadTypes' in match">
-                        {{ $t("common.type") }}：{{
-                            (match as ActionMatchEditor).fadTypes.join(",")
-                        }}
+                        {{ $t('common.type') }}：{{ (match as ActionMatchEditor).fadTypes.join(',') }}
                     </div>
                 </div>
             </div>

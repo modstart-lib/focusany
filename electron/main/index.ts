@@ -1,129 +1,126 @@
-import { app, BrowserWindow, desktopCapturer, session, shell } from "electron";
-import { optimizer } from "@electron-toolkit/utils";
-import path from "node:path";
-import fs from "node:fs";
+import { optimizer } from '@electron-toolkit/utils'
+import { app, BrowserWindow, desktopCapturer, session, shell } from 'electron'
+import fs from 'node:fs'
+import path from 'node:path'
 /** process.js 必须位于非依赖项的顶部 */
-import { isDummy } from "../lib/process";
-import * as remoteMain from "@electron/remote/main";
+import * as remoteMain from '@electron/remote/main'
+import { isDummy } from '../lib/process'
 
-import { AppEnv, AppRuntime } from "../mapi/env";
-import { MAPI } from "../mapi/main";
+import { AppEnv, AppRuntime } from '../mapi/env'
+import { MAPI } from '../mapi/main'
 
-import { WindowConfig } from "../config/window";
-import { AppConfig } from "../../src/config";
-import Log from "../mapi/log/main";
-import { ConfigMenu } from "../config/menu";
-import { ConfigLang } from "../config/lang";
-import { ConfigContextMenu } from "../config/contextMenu";
-import { preloadDefault, rendererLoadPath } from "../lib/env-main";
-import { Page } from "../page";
-import { ConfigTray } from "../config/tray";
-import { icnsLogoPath, icoLogoPath, logoPath } from "../config/icon";
-import { isMac, isPackaged } from "../lib/env";
-import { FastPanelMain } from "./fastPanel";
-import { executeHooks } from "../mapi/manager/lib/hooks";
-import { AppPosition } from "../mapi/app/lib/position";
-import { DevToolsManager } from "../lib/devtools";
-import { reportError } from "../mapi/log/beacon";
-import { AppsMain } from "../mapi/app/main";
-import { ManagerEditor } from "../mapi/manager/editor";
-import { ProtocolMain } from "../mapi/protocol/main";
+import { AppConfig } from '../../src/config'
+import { ConfigContextMenu } from '../config/contextMenu'
+import { icnsLogoPath, icoLogoPath, logoPath } from '../config/icon'
+import { ConfigLang } from '../config/lang'
+import { ConfigMenu } from '../config/menu'
+import { ConfigTray } from '../config/tray'
+import { WindowConfig } from '../config/window'
+import { DevToolsManager } from '../lib/devtools'
+import { isMac, isPackaged } from '../lib/env'
+import { preloadDefault, rendererLoadPath } from '../lib/env-main'
+import { AppPosition } from '../mapi/app/lib/position'
+import { AppsMain } from '../mapi/app/main'
+import { reportError } from '../mapi/log/beacon'
+import Log from '../mapi/log/main'
+import { ManagerEditor } from '../mapi/manager/editor'
+import { executeHooks } from '../mapi/manager/lib/hooks'
+import { ProtocolMain } from '../mapi/protocol/main'
+import { Page } from '../page'
+import { FastPanelMain } from './fastPanel'
 
-app.commandLine.appendSwitch("enable-experimental-web-platform-features");
+app.commandLine.appendSwitch('enable-experimental-web-platform-features')
 
-const isDummyNew = isDummy;
+const isDummyNew = isDummy
 
-if (process.env["ELECTRON_ENV_PROD"]) {
-    DevToolsManager.setEnable(false);
+if (process.env['ELECTRON_ENV_PROD']) {
+    DevToolsManager.setEnable(false)
 }
 
 const logDebugContent = (label: string, content: any) => {
-    const filePath = AppEnv.userData + "/debug.log";
-    const msg = label + " - " + JSON.stringify(content);
-    console.log(msg);
-    fs.appendFileSync(filePath, msg + "\n");
-};
+    const filePath = AppEnv.userData + '/debug.log'
+    const msg = label + ' - ' + JSON.stringify(content)
+    console.log(msg)
+    fs.appendFileSync(filePath, msg + '\n')
+}
 
-process.on("uncaughtException", (reason) => {
-    let error: any = reason;
+process.on('uncaughtException', (reason) => {
+    let error: any = reason
     if (error instanceof Error) {
-        error = [error.message, error.stack].join("\n");
+        error = [error.message, error.stack].join('\n')
     }
-    Log.error("UncaughtException", error);
+    Log.error('UncaughtException', error)
     reportError(
         reason instanceof Error ? reason.message : String(reason),
         reason instanceof Error ? reason.stack : undefined,
-    );
-});
+    )
+})
 
-process.on("unhandledRejection", (reason) => {
-    let error: any = reason;
+process.on('unhandledRejection', (reason) => {
+    let error: any = reason
     if (error instanceof Error) {
-        error = [error.message, error.stack].join("\n");
+        error = [error.message, error.stack].join('\n')
     }
-    Log.error("UnhandledRejection", error);
+    Log.error('UnhandledRejection', error)
     reportError(
         reason instanceof Error ? (reason as Error).message : String(reason),
         reason instanceof Error ? (reason as Error).stack : undefined,
-    );
-});
+    )
+})
 
 // Set application name for Windows 10+ notifications
-if (process.platform === "win32") app.setAppUserModelId(app.getName());
+if (process.platform === 'win32') app.setAppUserModelId(app.getName())
 
 if (!app.requestSingleInstanceLock()) {
-    app.quit();
-    process.exit(0);
+    app.quit()
+    process.exit(0)
 }
 
 // app.disableHardwareAcceleration();
 // app.setAccessibilitySupportEnabled(true)
 
-AppEnv.appRoot = process.env.APP_ROOT;
-AppEnv.appData = app.getPath("appData");
-AppEnv.userData = app.getPath("userData");
-AppEnv.dataRoot = path.join(AppEnv.userData, "data");
+AppEnv.appRoot = process.env.APP_ROOT
+AppEnv.appData = app.getPath('appData')
+AppEnv.userData = app.getPath('userData')
+AppEnv.dataRoot = path.join(AppEnv.userData, 'data')
 
 if (!fs.existsSync(AppEnv.dataRoot)) {
-    fs.mkdirSync(AppEnv.dataRoot, { recursive: true });
+    fs.mkdirSync(AppEnv.dataRoot, { recursive: true })
 }
-for (const dir of ["logs", "storage"]) {
+for (const dir of ['logs', 'storage']) {
     if (!fs.existsSync(path.join(AppEnv.dataRoot, dir))) {
-        fs.mkdirSync(path.join(AppEnv.dataRoot, dir), { recursive: true });
+        fs.mkdirSync(path.join(AppEnv.dataRoot, dir), { recursive: true })
     }
 }
 
-AppEnv.isInit = true;
+AppEnv.isInit = true
 
-MAPI.init();
-ConfigContextMenu.init();
+MAPI.init()
+ConfigContextMenu.init()
 
-Log.info("Starting");
-Log.info("LaunchInfo", {
+Log.info('Starting')
+Log.info('LaunchInfo', {
     isPackaged,
     appRoot: AppEnv.appRoot,
     appData: AppEnv.appData,
     userData: AppEnv.userData,
     dataRoot: AppEnv.dataRoot,
-});
+})
 
 async function createWindow() {
-    let icon = logoPath;
-    if (process.platform === "win32") {
-        icon = icoLogoPath;
-    } else if (process.platform === "darwin") {
-        icon = icnsLogoPath;
+    let icon = logoPath
+    if (process.platform === 'win32') {
+        icon = icoLogoPath
+    } else if (process.platform === 'darwin') {
+        icon = icnsLogoPath
     }
-    const { x: wx, y: wy } = AppPosition.get(
-        "main",
-        (screenX, screenY, screenWidth, screenHeight) => {
-            // console.log('calculator', {screenX, screenY, screenWidth, screenHeight});
-            return {
-                x: screenX + screenWidth / 2 - WindowConfig.mainWidth / 2,
-                y: screenY + screenHeight / 8,
-            };
-        },
-    );
+    const { x: wx, y: wy } = AppPosition.get('main', (screenX, screenY, screenWidth, screenHeight) => {
+        // console.log('calculator', {screenX, screenY, screenWidth, screenHeight});
+        return {
+            x: screenX + screenWidth / 2 - WindowConfig.mainWidth / 2,
+            y: screenY + screenHeight / 8,
+        }
+    })
     AppRuntime.mainWindow = new BrowserWindow({
         show: true,
         title: AppConfig.title,
@@ -154,136 +151,136 @@ async function createWindow() {
             contextIsolation: false,
             // sandbox: false,
         },
-    });
+    })
 
-    AppRuntime.mainWindow.on("closed", () => {
-        AppRuntime.mainWindow = null;
-    });
-    AppRuntime.mainWindow.on("show", async () => {
-        await executeHooks(AppRuntime.mainWindow, "Show");
-    });
-    AppRuntime.mainWindow.on("hide", async () => {
-        await executeHooks(AppRuntime.mainWindow, "Hide");
-    });
+    AppRuntime.mainWindow.on('closed', () => {
+        AppRuntime.mainWindow = null
+    })
+    AppRuntime.mainWindow.on('show', async () => {
+        await executeHooks(AppRuntime.mainWindow, 'Show')
+    })
+    AppRuntime.mainWindow.on('hide', async () => {
+        await executeHooks(AppRuntime.mainWindow, 'Hide')
+    })
 
-    rendererLoadPath(AppRuntime.mainWindow, "index.html");
+    rendererLoadPath(AppRuntime.mainWindow, 'index.html')
 
-    remoteMain.enable(AppRuntime.mainWindow.webContents);
-    AppRuntime.mainWindow.webContents.on("did-finish-load", () => {
-        Page.ready("main");
-        DevToolsManager.autoShow(AppRuntime.mainWindow);
-    });
+    remoteMain.enable(AppRuntime.mainWindow.webContents)
+    AppRuntime.mainWindow.webContents.on('did-finish-load', () => {
+        Page.ready('main')
+        DevToolsManager.autoShow(AppRuntime.mainWindow)
+    })
     AppRuntime.mainWindow.webContents.setWindowOpenHandler(({ url }) => {
-        if (url.startsWith("https://") || url.startsWith("http://")) {
-            shell.openExternal(url);
+        if (url.startsWith('https://') || url.startsWith('http://')) {
+            shell.openExternal(url)
         }
-        return { action: "deny" };
-    });
-    DevToolsManager.register("Main", AppRuntime.mainWindow);
+        return { action: 'deny' }
+    })
+    DevToolsManager.register('Main', AppRuntime.mainWindow)
 
-    FastPanelMain.init();
+    FastPanelMain.init()
 }
 
 const handleArgsForApp = (argv: string[]) => {
-    let filePath = null;
-    let url = null;
+    let filePath = null
+    let url = null
     for (let i = 1; i < argv.length; i++) {
-        const arg = argv[i];
-        if (arg.startsWith("--")) {
-            continue;
+        const arg = argv[i]
+        if (arg.startsWith('--')) {
+            continue
         }
-        if (["."].includes(arg)) {
-            continue;
+        if (['.'].includes(arg)) {
+            continue
         }
-        if (arg.startsWith("focusany://")) {
-            url = arg;
-            continue;
+        // 跳过 Electron 入口脚本（.js 文件）
+        if (arg.endsWith('.js')) {
+            continue
         }
-        filePath = arg;
-        break;
+        if (arg.startsWith('focusany://')) {
+            url = arg
+            continue
+        }
+        filePath = arg
+        break
     }
     if (filePath) {
-        ManagerEditor.openQueue(filePath).then();
+        ManagerEditor.openQueue(filePath).then()
     }
     if (url) {
-        ProtocolMain.queue(url).then();
+        ProtocolMain.queue(url).then()
     }
-};
+}
 
-app.on("open-file", (event, path) => {
-    event.preventDefault();
-    ManagerEditor.openQueue(path).then();
-});
+app.on('open-file', (event, path) => {
+    event.preventDefault()
+    ManagerEditor.openQueue(path).then()
+})
 
-app.on("open-url", (event, url) => {
-    event.preventDefault();
-    ProtocolMain.queue(url).then();
-});
+app.on('open-url', (event, url) => {
+    event.preventDefault()
+    ProtocolMain.queue(url).then()
+})
 
 app.whenReady()
     .then(() => {
-        const isRegistered = app.setAsDefaultProtocolClient("focusany");
-        Log.info("ProtocolRegistered", isRegistered);
-        remoteMain.initialize();
-        session.defaultSession.setDisplayMediaRequestHandler(
-            (request, callback) => {
-                desktopCapturer
-                    .getSources({ types: ["screen"] })
-                    .then((sources) => {
-                        // Grant access to the first screen found.
-                        callback({ video: sources[0], audio: "loopback" });
-                    });
-            },
-        );
+        const isRegistered = app.setAsDefaultProtocolClient('focusany')
+        Log.info('ProtocolRegistered', isRegistered)
+        remoteMain.initialize()
+        session.defaultSession.setDisplayMediaRequestHandler((request, callback) => {
+            desktopCapturer.getSources({ types: ['screen'] }).then((sources) => {
+                // Grant access to the first screen found.
+                callback({ video: sources[0], audio: 'loopback' })
+            })
+        })
     })
     .then(ConfigLang.readyAsync)
     .then(() => {
         if (isMac) {
-            app.dock.hide();
+            app.dock.hide()
         }
-        MAPI.ready();
-        ConfigMenu.ready();
-        ConfigTray.ready();
-        app.on("browser-window-created", (_, window) => {
-            optimizer.watchWindowShortcuts(window);
-        });
-        createWindow().then();
-        handleArgsForApp(process.argv);
-    });
+        MAPI.ready()
+        ConfigMenu.ready()
+        ConfigTray.ready()
+        app.on('browser-window-created', (_, window) => {
+            optimizer.watchWindowShortcuts(window)
+        })
+        createWindow().then()
+        handleArgsForApp(process.argv)
+    })
 
-app.on("before-quit", (event) => {
+app.on('before-quit', (event) => {
     if (!(app as any).forceQuit && isPackaged) {
-        event.preventDefault();
+        event.preventDefault()
     }
-});
+})
 
-app.on("will-quit", () => {
-    MAPI.destroy();
-});
+app.on('will-quit', () => {
+    MAPI.destroy()
+})
 
-app.on("window-all-closed", () => {
-    if (process.platform !== "darwin") app.quit();
-});
+app.on('window-all-closed', () => {
+    if (process.platform !== 'darwin') app.quit()
+})
 
-app.on("second-instance", (event, argv) => {
+app.on('second-instance', (event, argv) => {
     if (AppRuntime.mainWindow) {
         if (AppRuntime.mainWindow.isMinimized()) {
-            AppRuntime.mainWindow.restore();
+            AppRuntime.mainWindow.restore()
         }
-        AppRuntime.mainWindow.show();
-        AppRuntime.mainWindow.focus();
+        AppRuntime.mainWindow.show()
+        AppRuntime.mainWindow.focus()
     }
-    handleArgsForApp(argv);
-});
+    handleArgsForApp(argv)
+})
 
-app.on("activate", () => {
-    const allWindows = BrowserWindow.getAllWindows();
+app.on('activate', () => {
+    const allWindows = BrowserWindow.getAllWindows()
     if (allWindows.length) {
         if (!AppRuntime.mainWindow.isVisible()) {
-            AppRuntime.mainWindow.show();
+            AppRuntime.mainWindow.show()
         }
-        AppRuntime.mainWindow.focus();
+        AppRuntime.mainWindow.focus()
     } else {
-        createWindow().then();
+        createWindow().then()
     }
-});
+})

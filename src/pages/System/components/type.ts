@@ -1,6 +1,6 @@
-import { PluginRecord } from "../../../types/Manager";
+import { PluginRecord } from '../../../types/Manager'
 
 export type SystemDataRecord = {
-    plugin: PluginRecord;
-    count: 0;
-};
+    plugin: PluginRecord
+    count: 0
+}

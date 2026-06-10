@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import SettingEnvHubRoot from "./components/SettingEnvHubRoot.vue";
+import SettingEnvHubRoot from './components/SettingEnvHubRoot.vue'
 </script>
 
 <template>

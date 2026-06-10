@@ -1,23 +1,23 @@
-import dayjs from "dayjs";
-import { Base64 } from "js-base64";
-import { t } from "../lang";
+import dayjs from 'dayjs'
+import { Base64 } from 'js-base64'
+import { t } from '../lang'
 
 export const sleep = (time = 1000) => {
     return new Promise((resolve) => {
-        setTimeout(() => resolve(true), time);
-    });
-};
+        setTimeout(() => resolve(true), time)
+    })
+}
 
 export const wait = (callback: () => boolean, interval = 10) => {
     return new Promise((resolve) => {
         const timer = setInterval(() => {
             if (callback()) {
-                clearInterval(timer);
-                resolve(true);
+                clearInterval(timer)
+                resolve(true)
             }
-        }, interval);
-    });
-};
+        }, interval)
+    })
+}
 
 /**
  * 精确计时器
@@ -26,128 +26,124 @@ export const wait = (callback: () => boolean, interval = 10) => {
  * @returns
  */
 export function preciseInterval(callback: () => void, interval: number) {
-    let expected = performance.now() + interval;
-    let stop = false;
+    let expected = performance.now() + interval
+    let stop = false
 
     function step(timestamp: number) {
-        if (stop) return;
+        if (stop) return
         if (timestamp >= expected) {
-            callback();
+            callback()
             // 累积期望的时间，以保持精确的间隔
-            expected += interval;
+            expected += interval
         }
-        requestAnimationFrame(step);
+        requestAnimationFrame(step)
     }
 
-    requestAnimationFrame(step);
+    requestAnimationFrame(step)
     // 返回一个对象包含取消方法
     return {
         cancel: () => {
-            stop = true;
+            stop = true
         },
-    };
+    }
 }
 
 export const StringUtil = {
     random(length: number = 16) {
-        const chars =
-            "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-        let result = "";
+        const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+        let result = ''
         for (let i = 0; i < length; i++) {
-            result += chars.charAt(Math.floor(Math.random() * chars.length));
+            result += chars.charAt(Math.floor(Math.random() * chars.length))
         }
-        return result;
+        return result
     },
     uuid: () => {
-        return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
-            /[xy]/g,
-            function (c) {
-                const r = (Math.random() * 16) | 0;
-                const v = c === "x" ? r : (r & 0x3) | 0x8;
-                return v.toString(16);
-            },
-        );
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+            const r = (Math.random() * 16) | 0
+            const v = c === 'x' ? r : (r & 0x3) | 0x8
+            return v.toString(16)
+        })
     },
     replaceParam: (str: string, param: any) => {
         return str.replace(/{(.*?)}/g, (match: string, key: string) => {
-            return param[key] || match;
-        });
+            return param[key] || match
+        })
     },
-};
+}
 
 export const TimeUtil = {
     timestamp() {
-        return Math.floor(Date.now() / 1000);
+        return Math.floor(Date.now() / 1000)
     },
     datetimeToTimestamp(datetime: string) {
-        return dayjs(datetime).unix();
+        return dayjs(datetime).unix()
     },
     timestampMS() {
-        return Date.now();
+        return Date.now()
     },
-    format(time: number, format: string = "YYYY-MM-DD HH:mm:ss") {
-        return dayjs(time).format(format);
+    format(time: number, format: string = 'YYYY-MM-DD HH:mm:ss') {
+        return dayjs(time).format(format)
     },
     formatDate(time: number) {
-        return dayjs(time).format("YYYY-MM-DD");
+        return dayjs(time).format('YYYY-MM-DD')
     },
     dateString() {
-        return dayjs().format("YYYYMMDD");
+        return dayjs().format('YYYYMMDD')
     },
     datetimeString() {
-        return dayjs().format("YYYYMMDD_HHmmss");
+        return dayjs().format('YYYYMMDD_HHmmss')
     },
     secondsToTime(seconds: number, showMs: boolean = false) {
-        const sec = Math.floor(seconds);
-        const ms = Math.floor((seconds - sec) * 1000);
-        let h: any = Math.floor(sec / 3600);
-        let m: any = Math.floor((sec % 3600) / 60);
-        let s: any = Math.floor(sec % 60);
-        if (h < 10) h = "0" + h;
-        if (m < 10) m = "0" + m;
-        if (s < 10) s = "0" + s;
-        const result = "00" == h ? `${m}:${s}` : `${h}:${m}:${s}`;
+        const sec = Math.floor(seconds)
+        const ms = Math.floor((seconds - sec) * 1000)
+        let h: any = Math.floor(sec / 3600)
+        let m: any = Math.floor((sec % 3600) / 60)
+        let s: any = Math.floor(sec % 60)
+        if (h < 10) h = '0' + h
+        if (m < 10) m = '0' + m
+        if (s < 10) s = '0' + s
+        const result = '00' == h ? `${m}:${s}` : `${h}:${m}:${s}`
         if (showMs) {
-            let f: any = ms;
-            if (f < 10) f = "00" + f;
-            else if (f < 100) f = "0" + f;
-            return `${result}.${f}`;
+            let f: any = ms
+            if (f < 10) f = '00' + f
+            else if (f < 100) f = '0' + f
+            return `${result}.${f}`
         }
-        return result;
+        return result
     },
     msToTime(ms: number) {
-        return this.secondsToTime(ms / 1000, true);
+        return this.secondsToTime(ms / 1000, true)
     },
     secondsToHuman(seconds: number) {
-        seconds = parseInt(seconds.toString());
-        let h: any = Math.floor(seconds / 3600);
-        let m: any = Math.floor((seconds % 3600) / 60);
-        let s: any = Math.floor(seconds % 60);
-        const result: string[] = [];
-        if (h > 0) result.push(`${h}${t("time.hour")}`);
-        if (m > 0) result.push(`${m}${t("time.minute")}`);
-        if (s > 0) result.push(`${s}${t("time.second")}`);
-        return result.join("");
+        seconds = parseInt(seconds.toString())
+        let h: any = Math.floor(seconds / 3600)
+        let m: any = Math.floor((seconds % 3600) / 60)
+        let s: any = Math.floor(seconds % 60)
+        const result: string[] = []
+        if (h > 0) result.push(`${h}${t('time.hour')}`)
+        if (m > 0) result.push(`${m}${t('time.minute')}`)
+        if (s > 0) result.push(`${s}${t('time.second')}`)
+        return result.join('')
     },
     replacePattern(text: string) {
         return text
-            .replaceAll("{year}", dayjs().format("YYYY"))
-            .replaceAll("{month}", dayjs().format("MM"))
-            .replaceAll("{day}", dayjs().format("DD"))
-            .replaceAll("{hour}", dayjs().format("HH"))
-            .replaceAll("{minute}", dayjs().format("mm"))
-            .replaceAll("{second}", dayjs().format("ss"));
+            .replaceAll('{year}', dayjs().format('YYYY'))
+            .replaceAll('{month}', dayjs().format('MM'))
+            .replaceAll('{day}', dayjs().format('DD'))
+            .replaceAll('{hour}', dayjs().format('HH'))
+            .replaceAll('{minute}', dayjs().format('mm'))
+            .replaceAll('{second}', dayjs().format('ss'))
     },
-};
+}
 
 export const EncodeUtil = {
     base64Encode(str: string) {
-        return Base64.encode(str);
+        return Base64.encode(str)
     },
     base64Decode(str: string) {
-        return Base64.decode(str);
+        return Base64.decode(str)
     },
-};
+}
 
 export const VersionUtil = {
     /**
@@ -156,88 +152,88 @@ export const VersionUtil = {
      * @param match string 如 * 或 >=1.0.0 或 >1.0.0 或 <1.0.0 或 <=1.0.0 或 1.0.0
      */
     match(v: string, match: string) {
-        if (match === "*") {
-            return true;
+        if (match === '*') {
+            return true
         }
-        if (match.startsWith(">=") && this.ge(v, match.substring(2))) {
-            return true;
+        if (match.startsWith('>=') && this.ge(v, match.substring(2))) {
+            return true
         }
-        if (match.startsWith(">") && this.gt(v, match.substring(1))) {
-            return true;
+        if (match.startsWith('>') && this.gt(v, match.substring(1))) {
+            return true
         }
-        if (match.startsWith("<=") && this.le(v, match.substring(2))) {
-            return true;
+        if (match.startsWith('<=') && this.le(v, match.substring(2))) {
+            return true
         }
-        if (match.startsWith("<") && this.lt(v, match.substring(1))) {
-            return true;
+        if (match.startsWith('<') && this.lt(v, match.substring(1))) {
+            return true
         }
-        return this.eq(v, match);
+        return this.eq(v, match)
     },
     compare(v1: string, v2: string) {
-        const v1Arr = v1.split(".");
-        const v2Arr = v2.split(".");
+        const v1Arr = v1.split('.')
+        const v2Arr = v2.split('.')
         for (let i = 0; i < v1Arr.length; i++) {
-            const v1Num = parseInt(v1Arr[i]);
-            const v2Num = parseInt(v2Arr[i]);
+            const v1Num = parseInt(v1Arr[i])
+            const v2Num = parseInt(v2Arr[i])
             if (v1Num > v2Num) {
-                return 1;
+                return 1
             } else if (v1Num < v2Num) {
-                return -1;
+                return -1
             }
         }
-        return 0;
+        return 0
     },
     gt(v1: string, v2: string) {
-        return VersionUtil.compare(v1, v2) > 0;
+        return VersionUtil.compare(v1, v2) > 0
     },
     ge(v1: string, v2: string) {
-        return VersionUtil.compare(v1, v2) >= 0;
+        return VersionUtil.compare(v1, v2) >= 0
     },
     lt(v1: string, v2: string) {
-        return VersionUtil.compare(v1, v2) < 0;
+        return VersionUtil.compare(v1, v2) < 0
     },
     le: (v1: string, v2: string) => {
-        return VersionUtil.compare(v1, v2) <= 0;
+        return VersionUtil.compare(v1, v2) <= 0
     },
     eq: (v1: string, v2: string) => {
-        return VersionUtil.compare(v1, v2) === 0;
+        return VersionUtil.compare(v1, v2) === 0
     },
-};
+}
 
 export const BrowserUtil = {
     isMac() {
-        return navigator.platform.toUpperCase().indexOf("MAC") >= 0;
+        return navigator.platform.toUpperCase().indexOf('MAC') >= 0
     },
     isWindows() {
-        return navigator.platform.toUpperCase().indexOf("WIN") >= 0;
+        return navigator.platform.toUpperCase().indexOf('WIN') >= 0
     },
     isLinux() {
-        return navigator.platform.toUpperCase().indexOf("LINUX") >= 0;
+        return navigator.platform.toUpperCase().indexOf('LINUX') >= 0
     },
-};
+}
 
 export const ShellUtil = {
     quotaPath(p: string) {
-        return `"${p}"`;
+        return `"${p}"`
     },
-};
+}
 
 export const ObjectUtil = {
     clone(obj: any) {
-        return JSON.parse(JSON.stringify(obj));
+        return JSON.parse(JSON.stringify(obj))
     },
-};
+}
 
 export const DownloadUtil = {
     downloadFile(content: string, filename?: string) {
-        const blob = new Blob([content], { type: "application/octet-stream" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = filename || `download_${TimeUtil.datetimeString()}.txt`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+        const blob = new Blob([content], { type: 'application/octet-stream' })
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = filename || `download_${TimeUtil.datetimeString()}.txt`
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+        URL.revokeObjectURL(url)
     },
-};
+}

@@ -1,29 +1,29 @@
 <script setup lang="ts">
-import IconFormatText from "~icons/mdi/format-text";
-import { useDragWindow } from "../../app/dragWindow";
-import FileExt from "../../components/common/FileExt.vue";
-import { useManagerStore } from "../../store/modules/manager";
-import { EntryListener } from "../Main/Lib/entryListener";
-import { useSearchOperate } from "../Main/Lib/searchOperate";
+import IconFormatText from '~icons/mdi/format-text'
+import { useDragWindow } from '../../app/dragWindow'
+import FileExt from '../../components/common/FileExt.vue'
+import { useManagerStore } from '../../store/modules/manager'
+import { EntryListener } from '../Main/Lib/entryListener'
+import { useSearchOperate } from '../Main/Lib/searchOperate'
 
-const emit = defineEmits([]);
-const manager = useManagerStore();
+const emit = defineEmits([])
+const manager = useManagerStore()
 
-const { clipboardFilesInfo } = useSearchOperate(emit);
+const { clipboardFilesInfo } = useSearchOperate(emit)
 
 const { onDragWindowMouseDown } = useDragWindow({
-    name: "fastPanel",
-});
+    name: 'fastPanel',
+})
 
 const onShow = () => {
     EntryListener.prepareSearch({
         isFastPanel: true,
-    }).then();
-};
+    }).then()
+}
 
 defineExpose({
     onShow,
-});
+})
 </script>
 
 <template>
@@ -34,9 +34,7 @@ defineExpose({
                     <FileExt :name="clipboardFilesInfo.extName" />
                 </div>
                 <div class="title">{{ clipboardFilesInfo.name }}</div>
-                <div class="count" v-if="manager.currentFiles.length > 1">
-                    x{{ manager.currentFiles.length }}
-                </div>
+                <div class="count" v-if="manager.currentFiles.length > 1">x{{ manager.currentFiles.length }}</div>
             </div>
             <div v-else-if="manager.currentImage" class="image">
                 <img :src="manager.currentImage" />
@@ -47,7 +45,7 @@ defineExpose({
                     {{ manager.currentText }}
                 </div>
             </div>
-            <div v-else>{{ $t("fastPanel.shortcuts") }}</div>
+            <div v-else>{{ $t('fastPanel.shortcuts') }}</div>
         </div>
         <div class="right">
             <div class="icon" @click="manager.showMainWindow()">

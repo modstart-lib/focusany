@@ -12,6 +12,7 @@ node_modules
 /dist-ssr
 /dist-electron
 /dist-release
+/_delete
 *.local
 
 # Editor directories and files
@@ -34,6 +35,10 @@ database.db
 /data-*
 .vscode
 .github/copilot-instructions.md
-.vscode
-.github/copilot-instructions.md
-.vscode
+/.agents
+/AGENTS.md
+dist-cli/
+test-results/
+/_temp/
+/storage/screenshot-last/
+

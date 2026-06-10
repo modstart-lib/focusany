@@ -7,9 +7,7 @@
             <div
                 v-if="
                     !manager.activePlugin &&
-                    (manager.currentFiles.length ||
-                        manager.currentImage ||
-                        manager.currentText)
+                    (manager.currentFiles.length || manager.currentImage || manager.currentText)
                 "
                 class="attachment"
             >
@@ -18,9 +16,7 @@
                         <FileExt :name="clipboardFilesInfo.extName" />
                     </div>
                     <div class="title">{{ clipboardFilesInfo.name }}</div>
-                    <div class="count" v-if="manager.currentFiles.length > 1">
-                        x{{ manager.currentFiles.length }}
-                    </div>
+                    <div class="count" v-if="manager.currentFiles.length > 1">x{{ manager.currentFiles.length }}</div>
                 </div>
                 <div v-else-if="manager.currentImage" class="image">
                     <img :src="manager.currentImage" />
@@ -38,35 +34,22 @@
                     <icon-close />
                 </div>
             </div>
-            <div
-                v-if="manager.activePlugin"
-                class="plugin bg-gray-200 dark:bg-gray-600"
-            >
+            <div v-if="manager.activePlugin" class="plugin bg-gray-200 dark:bg-gray-600">
                 <div class="icon">
                     <img
                         :src="manager.activePlugin.logo"
-                        :class="
-                            manager.activePlugin.type === PluginType.SYSTEM
-                                ? 'dark:invert'
-                                : 'plugin-logo-filter'
-                        "
+                        :class="manager.activePlugin.type === PluginType.SYSTEM ? 'dark:invert' : 'plugin-logo-filter'"
                     />
                 </div>
                 <div class="title">
                     {{ manager.activePlugin.title }}
                 </div>
-                <div
-                    class="close text-gray-500 hover:bg-gray-500 hover:text-white"
-                    @click="emit('onClose')"
-                >
+                <div class="close text-gray-500 hover:bg-gray-500 hover:text-white" @click="emit('onClose')">
                     <icon-close />
                 </div>
             </div>
         </div>
-        <div
-            v-if="!manager.activePlugin || manager.searchSubIsVisible"
-            class="main-search"
-        >
+        <div v-if="!manager.activePlugin || manager.searchSubIsVisible" class="main-search">
             <a-input
                 id="search"
                 ref="mainInput"
@@ -76,12 +59,12 @@
                 @dblclick="onSearchDoubleClick"
                 @compositionstart="
                     (e) => {
-                        manager.searchIsCompositing = true;
+                        manager.searchIsCompositing = true
                     }
                 "
                 @compositionend="
                     (e) => {
-                        manager.searchIsCompositing = false;
+                        manager.searchIsCompositing = false
                     }
                 "
                 :model-value="manager.searchValue"
@@ -89,17 +72,9 @@
             </a-input>
             <div
                 class="placeholder"
-                v-if="
-                    manager.searchValue === '' &&
-                    searchValueCompositingValue === '' &&
-                    !manager.searchIsCompositing
-                "
+                v-if="manager.searchValue === '' && searchValueCompositingValue === '' && !manager.searchIsCompositing"
             >
-                {{
-                    manager.activePlugin
-                        ? manager.searchSubPlaceholder
-                        : manager.searchPlaceholder
-                }}
+                {{ manager.activePlugin ? manager.searchSubPlaceholder : manager.searchPlaceholder }}
             </div>
         </div>
         <div v-else @dblclick="onSearchDoubleClick" class="main-search"></div>
@@ -114,12 +89,8 @@
         >
             <div class="mr-1">
                 <icon-info-circle v-if="manager.notice.type === 'info'" />
-                <icon-check-circle
-                    v-else-if="manager.notice.type === 'success'"
-                />
-                <icon-close-circle
-                    v-else-if="manager.notice.type === 'error'"
-                />
+                <icon-check-circle v-else-if="manager.notice.type === 'success'" />
+                <icon-close-circle v-else-if="manager.notice.type === 'error'" />
             </div>
             <div>
                 {{ manager.notice.text }}
@@ -129,100 +100,97 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, onMounted, ref, watch } from "vue";
-import IconFormatText from "~icons/mdi/format-text";
-import { useDragWindow } from "../../app/dragWindow";
-import FileExt from "../../components/common/FileExt.vue";
-import { useManagerStore } from "../../store/modules/manager";
-import { PluginType } from "../../types/Manager";
-import { EntryListener } from "./Lib/entryListener";
-import { useSearchOperate } from "./Lib/searchOperate";
+import { nextTick, onMounted, ref, watch } from 'vue'
+import IconFormatText from '~icons/mdi/format-text'
+import { useDragWindow } from '../../app/dragWindow'
+import FileExt from '../../components/common/FileExt.vue'
+import { useManagerStore } from '../../store/modules/manager'
+import { PluginType } from '../../types/Manager'
+import { EntryListener } from './Lib/entryListener'
+import { useSearchOperate } from './Lib/searchOperate'
 
-const mainInput = ref<any>(null);
+const mainInput = ref<any>(null)
 
-const emit = defineEmits(["onClose"]);
+const emit = defineEmits(['onClose'])
 
-const manager = useManagerStore();
+const manager = useManagerStore()
 
 const { onDragWindowMouseDown } = useDragWindow({
-    name: "main",
+    name: 'main',
     ignore: (e) => {
-        return !!(e.target && (e.target as any).tagName === "INPUT");
+        return !!(e.target && (e.target as any).tagName === 'INPUT')
     },
-});
+})
 
-const { onSearchDoubleClick, doShowMenu, clipboardFilesInfo } =
-    useSearchOperate(emit);
+const { onSearchDoubleClick, doShowMenu, clipboardFilesInfo } = useSearchOperate(emit)
 
 let input = {
     ele: null as any,
     context: null as any,
-};
-let searchValueCompositingValue = ref("");
+}
+let searchValueCompositingValue = ref('')
 
 const updateWidth = () => {
     if (!input.ele) {
-        input.ele = document.querySelector('.pb-search input[type="text"]');
-        const canvas = document.createElement("canvas");
-        input.context = canvas.getContext("2d") as any;
-        input.context.font = window.getComputedStyle(input.ele).font;
+        input.ele = document.querySelector('.pb-search input[type="text"]')
+        const canvas = document.createElement('canvas')
+        input.context = canvas.getContext('2d') as any
+        input.context.font = window.getComputedStyle(input.ele).font
         if (input.ele) {
-            input.ele.addEventListener("input", (event) => {
-                updateWidth();
-            });
+            input.ele.addEventListener('input', (event) => {
+                updateWidth()
+            })
         }
     }
-    searchValueCompositingValue.value = input.ele.value || manager.searchValue;
-    const width = input.context.measureText(
-        searchValueCompositingValue.value,
-    ).width;
+    searchValueCompositingValue.value = input.ele.value || manager.searchValue
+    const width = input.context.measureText(searchValueCompositingValue.value).width
     // console.log('width', {value: searchValueCompositingValue.value, value2: manager.searchValue, width})
-    input.ele.style.width = width + 10 + "px";
-};
+    input.ele.style.width = width + 10 + 'px'
+}
 
 watch(
     () => manager.searchValue,
     (value) => {
         nextTick(() => {
-            updateWidth();
-        });
+            updateWidth()
+        })
     },
-);
+)
 
 onMounted(() => {
-    updateWidth();
-});
+    updateWidth()
+})
 
 const onSearchValueChange = (value: string) => {
-    manager.search(value);
-};
+    manager.search(value)
+}
 
 const onShow = () => {
-    mainInput.value?.focus();
-    EntryListener.prepareSearch({}).then();
-};
+    mainInput.value?.focus()
+    EntryListener.prepareSearch({}).then()
+}
 
 const focus = (search: boolean) => {
-    mainInput.value?.focus();
+    mainInput.value?.focus()
     if (search) {
-        EntryListener.prepareSearch({}).then();
+        EntryListener.prepareSearch({}).then()
     }
-};
+}
 
 const doLogoClick = () => {
-    window.focusany.redirect(["system", "page-setting"]);
-};
+    window.focusany.redirect(['system', 'page-setting'])
+}
 
 const onBlur = () => {
     setTimeout(() => {
-        mainInput.value?.focus();
-    }, 0);
-};
+        mainInput.value?.focus()
+    }, 0)
+}
 
 defineExpose({
     onShow,
     focus,
-});
+})
 </script>
 
 <style scoped lang="less">

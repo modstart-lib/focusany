@@ -1,82 +1,72 @@
-import { Menu } from "@electron/remote";
-import { t } from "../../lang";
+import { Menu } from '@electron/remote'
+import { t } from '../../lang'
 
 export const useDetachWindowOperate = ({ plugin }) => {
     const doShowZoomMenu = () => {
-        const menuTemplate: any[] = [];
-        const zoomPercent = [
-            50, 67, 75, 80, 90, 100, 110, 125, 150, 175, 200, 250, 300,
-        ];
+        const menuTemplate: any[] = []
+        const zoomPercent = [50, 67, 75, 80, 90, 100, 110, 125, 150, 175, 200, 250, 300]
         for (let z of zoomPercent) {
             menuTemplate.push({
                 label: `${z}%`,
                 click: async () => {
-                    await window.$mapi.manager.setDetachPluginZoom(z);
-                    plugin.value.runtime.config.zoom = z;
+                    await window.$mapi.manager.setDetachPluginZoom(z)
+                    plugin.value.runtime.config.zoom = z
                 },
-            });
+            })
         }
-        Menu.buildFromTemplate(menuTemplate).popup();
-    };
+        Menu.buildFromTemplate(menuTemplate).popup()
+    }
 
     const doShowMoreMenu = () => {
-        const autoDetach = !!plugin.value.runtime.config.autoDetach;
-        const menuTemplate: any[] = [];
+        const autoDetach = !!plugin.value.runtime.config.autoDetach
+        const menuTemplate: any[] = []
         menuTemplate.push({
-            label: t("plugin.debugWindow"),
+            label: t('plugin.debugWindow'),
             click: async () => {
-                await window.$mapi.manager.openDetachPluginDevTools();
+                await window.$mapi.manager.openDetachPluginDevTools()
             },
-        });
+        })
         menuTemplate.push({
-            label: t("plugin.backendLog"),
+            label: t('plugin.backendLog'),
             click: async () => {
-                await window.$mapi.manager.openDetachPluginLog();
+                await window.$mapi.manager.openDetachPluginLog()
             },
-        });
+        })
         if (!(plugin.value.setting && plugin.value.setting.autoDetach)) {
             menuTemplate.push({
-                label: t("plugin.autoDetachWindow"),
-                type: "checkbox",
+                label: t('plugin.autoDetachWindow'),
+                type: 'checkbox',
                 checked: autoDetach,
                 click: async () => {
-                    await window.$mapi.manager.setPluginAutoDetach(!autoDetach);
-                    plugin.value.runtime.config =
-                        await window.$mapi.manager.getPluginConfig(
-                            plugin.value.name,
-                        );
+                    await window.$mapi.manager.setPluginAutoDetach(!autoDetach)
+                    plugin.value.runtime.config = await window.$mapi.manager.getPluginConfig(plugin.value.name)
                 },
-            });
+            })
         }
         if (plugin.value.setting) {
-            if (
-                plugin.value.setting.moreMenu &&
-                plugin.value.setting.moreMenu.length > 0
-            ) {
+            if (plugin.value.setting.moreMenu && plugin.value.setting.moreMenu.length > 0) {
                 for (const item of plugin.value.setting.moreMenu) {
-                    ((item) => {
+                    ;((item) => {
                         menuTemplate.push({
                             label: item.title,
                             click: async () => {
-                                await window.$mapi.manager.firePluginMoreMenuClick(
-                                    item.name,
-                                );
+                                await window.$mapi.manager.firePluginMoreMenuClick(item.name)
                             },
-                        });
-                    })(item);
+                        })
+                    })(item)
                 }
             }
         }
-        Menu.buildFromTemplate(menuTemplate).popup();
-    };
+        Menu.buildFromTemplate(menuTemplate).popup()
+    }
 
     const doClose = async () => {
-        await window.$mapi.manager.closeDetachPlugin();
-    };
+        await window.$mapi.manager.closeDetachPlugin()
+    }
 
     return {
         doShowZoomMenu,
         doShowMoreMenu,
         doClose,
-    };
-};
+    }
+}

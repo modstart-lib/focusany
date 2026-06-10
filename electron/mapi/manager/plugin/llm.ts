@@ -1,25 +1,21 @@
 // @ts-ignore
-import { Model, Provider } from "../../../../src/module/Model/types";
+import { Model, Provider } from '../../../../src/module/Model/types'
 // @ts-ignore
-import {
-    getProviderLogo,
-    getProviderTitle,
-    SystemProviders,
-} from "../../../../src/module/Model/providers";
+import { getProviderLogo, getProviderTitle, SystemProviders } from '../../../../src/module/Model/providers'
 // @ts-ignore
-import { SystemModels } from "../../../../src/module/Model/models";
-import StorageMain from "../../storage/main";
-import User from "../../user/main";
-import { AppConfig } from "../../../../src/config";
-import { ModelProvider } from "../../../../src/module/Model/provider/provider";
+import { AppConfig } from '../../../../src/config'
+import { SystemModels } from '../../../../src/module/Model/models'
+import { ModelProvider } from '../../../../src/module/Model/provider/provider'
+import StorageMain from '../../storage/main'
+import User from '../../user/main'
 
 const listProviders = async (): Promise<Provider[]> => {
-    const results: Provider[] = [];
+    const results: Provider[] = []
     for (const providerId in SystemProviders) {
-        const provider = SystemProviders[providerId];
+        const provider = SystemProviders[providerId]
         results.push({
             id: providerId,
-            type: "openai",
+            type: 'openai',
             title: getProviderTitle(providerId),
             logo: getProviderLogo(providerId),
             isSystem: true,
@@ -30,24 +26,24 @@ const listProviders = async (): Promise<Provider[]> => {
                 models: provider.websites?.models,
             },
             data: {
-                apiKey: "",
-                apiHost: "",
+                apiKey: '',
+                apiHost: '',
                 models: (SystemModels[providerId] || []).map((m) => {
                     return {
                         id: m.id,
                         provider: providerId,
                         name: m.name,
                         group: m.group,
-                        types: ["text"],
+                        types: ['text'],
                         enabled: false,
-                    } as any;
+                    } as any
                 }),
                 enabled: false,
             },
-        });
+        })
     }
-    const storageData = await StorageMain.read("models", []);
-    let buildInProviderData: any = null;
+    const storageData = await StorageMain.read('models', [])
+    let buildInProviderData: any = null
     if (storageData) {
         if (storageData.userProviders) {
             storageData.userProviders.forEach((provider) => {
@@ -57,83 +53,83 @@ const listProviders = async (): Promise<Provider[]> => {
                     title: provider.title,
                     logo: null,
                     isSystem: false,
-                    apiUrl: "",
+                    apiUrl: '',
                     websites: {
-                        official: "",
-                        docs: "",
-                        models: "",
+                        official: '',
+                        docs: '',
+                        models: '',
                     },
                     data: {
-                        apiKey: "",
-                        apiHost: "",
+                        apiKey: '',
+                        apiHost: '',
                         models: [],
                         enabled: false,
                     },
-                });
-            });
+                })
+            })
         }
         if (storageData.providerData) {
-            buildInProviderData = storageData.providerData["buildIn"] || null;
+            buildInProviderData = storageData.providerData['buildIn'] || null
             for (const providerId in storageData.providerData) {
-                const provider = results.find((p) => p.id === providerId);
+                const provider = results.find((p) => p.id === providerId)
                 if (provider) {
-                    provider.data.apiKey =
-                        storageData.providerData[providerId].apiKey || "";
-                    provider.data.apiHost =
-                        storageData.providerData[providerId].apiHost;
-                    (storageData.providerData[providerId].models || []).forEach(
-                        (model) => {
-                            const existingModel = provider.data.models.find(
-                                (m) => m.id === model.id,
-                            );
-                            if (existingModel) {
-                                existingModel.name = model.name;
-                                existingModel.group = model.group;
-                                existingModel.types = model.types;
-                                existingModel.enabled = model.enabled || false;
-                            } else {
-                                provider.data.models.push({
-                                    id: model.id,
-                                    provider: providerId,
-                                    name: model.name,
-                                    group: model.group,
-                                    types: ["text"],
-                                    enabled: model.enabled || false,
-                                    editable: true,
-                                });
-                            }
-                        },
-                    );
-                    provider.data.enabled =
-                        storageData.providerData[providerId].enabled || false;
+                    provider.data.apiKey = storageData.providerData[providerId].apiKey || ''
+                    provider.data.apiHost = storageData.providerData[providerId].apiHost
+                    ;(storageData.providerData[providerId].models || []).forEach((model) => {
+                        const existingModel = provider.data.models.find((m) => m.id === model.id)
+                        if (existingModel) {
+                            existingModel.name = model.name
+                            existingModel.group = model.group
+                            existingModel.types = model.types
+                            existingModel.enabled = model.enabled || false
+                        } else {
+                            provider.data.models.push({
+                                id: model.id,
+                                provider: providerId,
+                                name: model.name,
+                                group: model.group,
+                                types: ['text'],
+                                enabled: model.enabled || false,
+                                editable: true,
+                            })
+                        }
+                    })
+                    provider.data.enabled = storageData.providerData[providerId].enabled || false
                 }
             }
         }
     }
-    const user = await User.get();
+    const user = await User.get()
     if (user.data && user.data.llmpx && user.data.llmpx.models) {
-        const llmpx = user.data.llmpx;
-        const models: Model[] = [];
-        for (const m of llmpx.models) {
-            models.push({
-                id: m,
-                provider: "buildIn",
-                name: m,
-                group: "Default",
-                types: ["text"],
-                enabled: true,
-                editable: false,
-            });
+        const llmpx = user.data.llmpx
+        if (!llmpx.apiUrl) {
+            return results
         }
-        let enabled = true;
-        if (buildInProviderData && "enabled" in buildInProviderData) {
-            enabled = buildInProviderData.enabled;
+        const models: Model[] = []
+        for (const m of llmpx.models) {
+            const modelId = typeof m === 'string' ? m : m.name
+            const modelRate = typeof m === 'string' ? undefined : m.rate
+            const savedModel = (buildInProviderData?.models || []).find((sm) => sm.id === modelId)
+            models.push({
+                id: modelId,
+                provider: 'buildIn',
+                name: modelId,
+                group: 'Default',
+                types: ['text'],
+                enabled: savedModel ? savedModel.enabled : true,
+                editable: false,
+                rate: modelRate,
+            } as any)
+        }
+        let enabled = true
+        if (buildInProviderData && 'enabled' in buildInProviderData) {
+            enabled = buildInProviderData.enabled
         }
         results.unshift({
-            id: "buildIn",
-            type: "openai",
-            title: getProviderTitle("buildIn"),
-            logo: getProviderLogo("buildIn"),
+            id: 'buildIn',
+            type: 'openai',
+            title: getProviderTitle('buildIn'),
+            logo: getProviderLogo('buildIn'),
             isSystem: true,
             apiUrl: llmpx.apiUrl,
             websites: {
@@ -143,62 +139,62 @@ const listProviders = async (): Promise<Provider[]> => {
             },
             data: {
                 apiKey: llmpx.apiKey,
-                apiHost: "",
+                apiHost: '',
                 models: models,
                 enabled: enabled,
             },
-        });
+        })
     }
-    return results;
-};
+    return results
+}
 
 export const listModels = async () => {
-    const providers = await listProviders();
+    const providers = await listProviders()
     const results: {
-        providerId: string;
-        providerLogo: string;
-        providerTitle: string;
-        modelId: string;
-        modelName: string;
-    }[] = [];
+        providerId: string
+        providerLogo: string
+        providerTitle: string
+        modelId: string
+        modelName: string
+    }[] = []
     for (const provider of providers) {
         if (!provider.data || !provider.data.enabled || !provider.data.models) {
-            continue;
+            continue
         }
         for (const model of provider.data.models) {
             if (model.enabled) {
                 results.push({
                     providerId: provider.id,
-                    providerLogo: provider.logo || "",
+                    providerLogo: provider.logo || '',
                     providerTitle: provider.title,
                     modelId: model.id,
                     modelName: model.name,
-                });
+                })
             }
         }
     }
-    return results;
-};
+    return results
+}
 
 export const modelChat = async (
     providerId: string,
     modelId: string,
     message: string,
 ): Promise<{
-    code: number;
-    msg: string;
+    code: number
+    msg: string
     data?: {
-        message: string;
-    };
-}> => {
-    const providers = await listProviders();
-    const provider = providers.find((p) => p.id === providerId);
-    if (!provider) {
-        throw new Error(`Provider not found: ${providerId}`);
+        message: string
     }
-    const model = provider.data.models.find((m) => m.id === modelId);
+}> => {
+    const providers = await listProviders()
+    const provider = providers.find((p) => p.id === providerId)
+    if (!provider) {
+        throw new Error(`Provider not found: ${providerId}`)
+    }
+    const model = provider.data.models.find((m) => m.id === modelId)
     if (!model || !model.enabled) {
-        throw new Error(`Model not found or not enabled: ${modelId}`);
+        throw new Error(`Model not found or not enabled: ${modelId}`)
     }
     const res = await ModelProvider.chat(message, {
         type: provider.type,
@@ -206,18 +202,18 @@ export const modelChat = async (
         apiUrl: provider.apiUrl,
         apiHost: provider.data.apiHost,
         apiKey: provider.data.apiKey,
-    });
+    })
     if (res.code) {
         return {
             code: -1,
             msg: res.msg,
-        };
+        }
     }
     return {
         code: 0,
-        msg: "ok",
+        msg: 'ok',
         data: {
             message: res.data.content,
         },
-    };
-};
+    }
+}

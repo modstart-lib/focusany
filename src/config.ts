@@ -1,16 +1,16 @@
-import packageJson from "../package.json";
+import packageJson from '../package.json'
 
-const BASE_URL = "https://focusany.com";
+const BASE_URL = 'https://focusany.com'
 // const BASE_URL = 'http://focusany.demo.soft.host';
 
 export const AppConfig = {
-    name: "FocusAny",
-    title: "FocusAny",
-    slogan: "专注提效的AI工具条",
+    name: 'FocusAny',
+    title: 'FocusAny',
+    slogan: '专注提效的AI工具条',
     version: packageJson.version,
     website: `${BASE_URL}`,
-    websiteGithub: "https://github.com/modstart-lib/focusany",
-    websiteGitee: "https://gitee.com/modstart-lib/focusany",
+    websiteGithub: 'https://github.com/modstart-lib/focusany',
+    websiteGitee: 'https://gitee.com/modstart-lib/focusany',
     apiBaseUrl: `${BASE_URL}/api`,
     updaterUrl: `${BASE_URL}/app_manager/updater/open`,
     downloadUrl: `${BASE_URL}/app_manager/download`,
@@ -21,4 +21,4 @@ export const AppConfig = {
     basic: {
         userEnable: false,
     },
-};
+}

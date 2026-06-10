@@ -1,53 +1,53 @@
-import { FileType, screen as nutScreen, Region } from "@nut-tree-fork/nut-js";
-import { BrowserWindow, ipcMain, nativeImage, screen } from "electron";
-import { uIOhook, UiohookKey } from "uiohook-napi";
-import { t } from "../../../config/lang";
-import { isLinux, isMac, isWin } from "../../../lib/env";
-import { AppsMain } from "../../app/main";
-import { Files } from "../../file/main";
+import { FileType, screen as nutScreen, Region } from '@nut-tree-fork/nut-js'
+import { BrowserWindow, ipcMain, nativeImage, screen } from 'electron'
+import { uIOhook, UiohookKey } from 'uiohook-napi'
+import { t } from '../../../config/lang'
+import { isLinux, isMac, isWin } from '../../../lib/env'
+import { AppsMain } from '../../app/main'
+import { Files } from '../../file/main'
 
-let currentPromise: Promise<void> | null = null;
+let currentPromise: Promise<void> | null = null
 
 export const colorPicker = async (): Promise<void> => {
     if (currentPromise) {
-        return currentPromise;
+        return currentPromise
     }
     currentPromise = new Promise<void>((resolve) => {
-        let magnifierWindow: BrowserWindow | null = null;
-        let isPicking = true;
-        let updating = false;
-        let currentColor: string = "#FFFFFF";
+        let magnifierWindow: BrowserWindow | null = null
+        let isPicking = true
+        let updating = false
+        let currentColor: string = '#FFFFFF'
         let bitmaps: {
-            display: any;
-            bitmap: Uint8Array;
-            size: { width: number; height: number };
-            scaleFactor: number;
-            originalPhysicalX: number;
-            originalPhysicalY: number;
-            clampedPhysicalX: number;
-            clampedPhysicalY: number;
-        }[] = [];
+            display: any
+            bitmap: Uint8Array
+            size: { width: number; height: number }
+            scaleFactor: number
+            originalPhysicalX: number
+            originalPhysicalY: number
+            clampedPhysicalX: number
+            clampedPhysicalY: number
+        }[] = []
 
         const cleanup = () => {
             if (magnifierWindow) {
-                magnifierWindow.close();
-                magnifierWindow = null;
+                magnifierWindow.close()
+                magnifierWindow = null
             }
-            ipcMain.off("copy-color", copyHandler);
-        };
+            ipcMain.off('copy-color', copyHandler)
+        }
 
         const copyHandler = () => {
-            AppsMain.setClipboardText(currentColor);
-            AppsMain.toast(t("plugin.colorCopied", { color: currentColor }));
-            isPicking = false;
-            resolve();
-            cleanup();
-        };
+            AppsMain.setClipboardText(currentColor)
+            AppsMain.toast(t('plugin.colorCopied', { color: currentColor }))
+            isPicking = false
+            resolve()
+            cleanup()
+        }
 
-        ipcMain.on("copy-color", copyHandler);
+        ipcMain.on('copy-color', copyHandler)
 
         // HTML for magnifier
-        const copyShortcut = isMac ? "Cmd+Shift+C" : "Ctrl+Shift+C";
+        const copyShortcut = isMac ? 'Cmd+Shift+C' : 'Ctrl+Shift+C'
         const html = `
             <!DOCTYPE html>
             <html>
@@ -99,8 +99,8 @@ export const colorPicker = async (): Promise<void> => {
                 <canvas id="magnifier" width="100" height="100"></canvas>
                 <div class="right-panel">
                     <div class="color-preview" id="colorPreview">#FFFFFF</div>
-                    <div class="shortcut-text">${t("plugin.colorCopyShortcut", { shortcut: copyShortcut })}</div>
-                    <div class="shortcut-text">${t("plugin.exitEsc")}</div>
+                    <div class="shortcut-text">${t('plugin.colorCopyShortcut', { shortcut: copyShortcut })}</div>
+                    <div class="shortcut-text">${t('plugin.exitEsc')}</div>
                 </div>
                 <script>
                     const { ipcRenderer } = require('electron');
@@ -165,7 +165,7 @@ export const colorPicker = async (): Promise<void> => {
                 </script>
             </body>
             </html>
-        `;
+        `
 
         // Create magnifier window
         magnifierWindow = new BrowserWindow({
@@ -181,66 +181,48 @@ export const colorPicker = async (): Promise<void> => {
                 nodeIntegration: true,
                 contextIsolation: false,
             },
-        });
+        })
 
-        magnifierWindow.loadURL(
-            `data:text/html;charset=utf-8,${encodeURIComponent(html)}`,
-        );
-        magnifierWindow.once("ready-to-show", async () => {
-            magnifierWindow!.on("closed", () => {
-                uIOhook.off("mousemove", mouseMoveCallback);
-                uIOhook.off("keydown", keyDownCallback);
-            });
-            const totalWidth = await nutScreen.width();
-            const totalHeight = await nutScreen.height();
-            const displays = screen.getAllDisplays();
+        magnifierWindow.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(html)}`)
+        magnifierWindow.once('ready-to-show', async () => {
+            magnifierWindow!.on('closed', () => {
+                uIOhook.off('mousemove', mouseMoveCallback)
+                uIOhook.off('keydown', keyDownCallback)
+            })
+            const totalWidth = await nutScreen.width()
+            const totalHeight = await nutScreen.height()
+            const displays = screen.getAllDisplays()
             const screenshots = await Promise.all(
                 displays.map(async (display) => {
                     try {
-                        const scaleFactor = display.scaleFactor;
-                        const physicalX = Math.round(
-                            display.bounds.x * scaleFactor,
-                        );
-                        const physicalY = Math.round(
-                            display.bounds.y * scaleFactor,
-                        );
-                        const physicalWidth = Math.round(
-                            display.bounds.width * scaleFactor,
-                        );
-                        const physicalHeight = Math.round(
-                            display.bounds.height * scaleFactor,
-                        );
-                        const originalPhysicalX = physicalX;
-                        const originalPhysicalY = physicalY;
-                        const clampedPhysicalX = Math.max(0, physicalX);
-                        const clampedPhysicalY = Math.max(0, physicalY);
-                        const clampedPhysicalWidth = Math.min(
-                            physicalWidth,
-                            totalWidth - clampedPhysicalX,
-                        );
-                        const clampedPhysicalHeight = Math.min(
-                            physicalHeight,
-                            totalHeight - clampedPhysicalY,
-                        );
+                        const scaleFactor = display.scaleFactor
+                        const physicalX = Math.round(display.bounds.x * scaleFactor)
+                        const physicalY = Math.round(display.bounds.y * scaleFactor)
+                        const physicalWidth = Math.round(display.bounds.width * scaleFactor)
+                        const physicalHeight = Math.round(display.bounds.height * scaleFactor)
+                        const originalPhysicalX = physicalX
+                        const originalPhysicalY = physicalY
+                        const clampedPhysicalX = Math.max(0, physicalX)
+                        const clampedPhysicalY = Math.max(0, physicalY)
+                        const clampedPhysicalWidth = Math.min(physicalWidth, totalWidth - clampedPhysicalX)
+                        const clampedPhysicalHeight = Math.min(physicalHeight, totalHeight - clampedPhysicalY)
                         const region = new Region(
                             clampedPhysicalX,
                             clampedPhysicalY,
                             clampedPhysicalWidth,
                             clampedPhysicalHeight,
-                        );
-                        const capturePath = await (
-                            nutScreen.captureRegion as any
-                        )(
+                        )
+                        const capturePath = await (nutScreen.captureRegion as any)(
                             await Files.tempName(),
                             region,
                             FileType.PNG,
                             await Files.tempRoot(),
-                        );
+                        )
                         // console.log('capturePath', capturePath);
-                        const image = nativeImage.createFromPath(capturePath);
-                        Files.deletes(capturePath).then();
-                        const bitmap = image.getBitmap() as any;
-                        const size = image.getSize();
+                        const image = nativeImage.createFromPath(capturePath)
+                        Files.deletes(capturePath).then()
+                        const bitmap = image.getBitmap() as any
+                        const size = image.getSize()
                         return {
                             display,
                             bitmap,
@@ -250,41 +232,39 @@ export const colorPicker = async (): Promise<void> => {
                             originalPhysicalY,
                             clampedPhysicalX,
                             clampedPhysicalY,
-                        };
+                        }
                     } catch (error) {
-                        console.error("Error capturing display:", error);
-                        return null;
+                        console.error('Error capturing display:', error)
+                        return null
                     }
                 }),
-            );
+            )
             bitmaps = screenshots.filter(
                 (
                     item,
                 ): item is {
-                    display: any;
-                    bitmap: Uint8Array;
-                    size: { width: number; height: number };
-                    scaleFactor: number;
-                    originalPhysicalX: number;
-                    originalPhysicalY: number;
-                    clampedPhysicalX: number;
-                    clampedPhysicalY: number;
+                    display: any
+                    bitmap: Uint8Array
+                    size: { width: number; height: number }
+                    scaleFactor: number
+                    originalPhysicalX: number
+                    originalPhysicalY: number
+                    clampedPhysicalX: number
+                    clampedPhysicalY: number
                 } => Boolean(item),
-            );
-            await updateMagnifier();
-            magnifierWindow!.show();
-        });
+            )
+            await updateMagnifier()
+            magnifierWindow!.show()
+        })
 
         const updateMagnifier = async () => {
-            if (!isPicking || updating || bitmaps.length === 0) return;
-            updating = true;
+            if (!isPicking || updating || bitmaps.length === 0) return
+            updating = true
             try {
-                const mousePos = screen.getCursorScreenPoint();
-                const display = screen.getDisplayNearestPoint(mousePos);
-                const bitmapData = bitmaps.find(
-                    (b) => b.display.id === display.id,
-                );
-                if (!bitmapData) return;
+                const mousePos = screen.getCursorScreenPoint()
+                const display = screen.getDisplayNearestPoint(mousePos)
+                const bitmapData = bitmaps.find((b) => b.display.id === display.id)
+                if (!bitmapData) return
                 const {
                     bitmap,
                     size,
@@ -293,116 +273,96 @@ export const colorPicker = async (): Promise<void> => {
                     originalPhysicalY,
                     clampedPhysicalX,
                     clampedPhysicalY,
-                } = bitmapData;
+                } = bitmapData
                 const offsetX = Math.round(
-                    (mousePos.x - display.bounds.x) * scaleFactor +
-                        (originalPhysicalX - clampedPhysicalX),
-                );
+                    (mousePos.x - display.bounds.x) * scaleFactor + (originalPhysicalX - clampedPhysicalX),
+                )
                 const offsetY = Math.round(
-                    (mousePos.y - display.bounds.y) * scaleFactor +
-                        (originalPhysicalY - clampedPhysicalY),
-                );
-                const colors: number[] = [];
+                    (mousePos.y - display.bounds.y) * scaleFactor + (originalPhysicalY - clampedPhysicalY),
+                )
+                const colors: number[] = []
                 for (let dy = -9; dy <= 10; dy++) {
                     for (let dx = -9; dx <= 10; dx++) {
-                        const px = offsetX + dx;
-                        const py = offsetY + dy;
-                        if (
-                            px < 0 ||
-                            px >= size.width ||
-                            py < 0 ||
-                            py >= size.height
-                        ) {
-                            colors.push(255, 255, 255, 255); // white
+                        const px = offsetX + dx
+                        const py = offsetY + dy
+                        if (px < 0 || px >= size.width || py < 0 || py >= size.height) {
+                            colors.push(255, 255, 255, 255) // white
                         } else {
-                            const index = (py * size.width + px) * 4;
-                            const r = bitmap[index + 2];
-                            const g = bitmap[index + 1];
-                            const b = bitmap[index];
-                            const a = bitmap[index + 3];
-                            colors.push(r, g, b, a);
+                            const index = (py * size.width + px) * 4
+                            const r = bitmap[index + 2]
+                            const g = bitmap[index + 1]
+                            const b = bitmap[index]
+                            const a = bitmap[index + 3]
+                            colors.push(r, g, b, a)
                         }
                     }
                 }
-                const imageData = new Uint8ClampedArray(colors);
+                const imageData = new Uint8ClampedArray(colors)
                 magnifierWindow!.webContents.executeJavaScript(`
                     window.electronAPI.updateMagnifier(${JSON.stringify(Array.from(imageData))});
-                `);
+                `)
                 // Get current color at mouse position
-                const centerIndex = (10 * 21 + 10) * 4; // Center pixel
-                const r = colors[centerIndex];
-                const g = colors[centerIndex + 1];
-                const b = colors[centerIndex + 2];
+                const centerIndex = (10 * 21 + 10) * 4 // Center pixel
+                const r = colors[centerIndex]
+                const g = colors[centerIndex + 1]
+                const b = colors[centerIndex + 2]
                 const hex =
-                    "#" +
-                    r.toString(16).padStart(2, "0") +
-                    g.toString(16).padStart(2, "0") +
-                    b.toString(16).padStart(2, "0");
-                currentColor = hex.toUpperCase();
+                    '#' +
+                    r.toString(16).padStart(2, '0') +
+                    g.toString(16).padStart(2, '0') +
+                    b.toString(16).padStart(2, '0')
+                currentColor = hex.toUpperCase()
                 magnifierWindow!.webContents.executeJavaScript(`
                     window.electronAPI.updateColor('${hex}');
-                `);
+                `)
                 // Position window in top-right or top-left based on mouse position
-                const windowBounds = magnifierWindow!.getBounds();
+                const windowBounds = magnifierWindow!.getBounds()
                 const isMouseInTopRight =
-                    mousePos.x >
-                        display.bounds.x + display.bounds.width * 0.75 &&
-                    mousePos.y <
-                        display.bounds.y + display.bounds.height * 0.25;
-                let x, y;
+                    mousePos.x > display.bounds.x + display.bounds.width * 0.75 &&
+                    mousePos.y < display.bounds.y + display.bounds.height * 0.25
+                let x, y
                 if (isMouseInTopRight) {
-                    x = display.bounds.x;
-                    y = display.bounds.y;
+                    x = display.bounds.x
+                    y = display.bounds.y
                 } else {
-                    x =
-                        display.bounds.x +
-                        display.bounds.width -
-                        windowBounds.width;
-                    y = display.bounds.y;
+                    x = display.bounds.x + display.bounds.width - windowBounds.width
+                    y = display.bounds.y
                 }
-                magnifierWindow!.setPosition(x, y);
+                magnifierWindow!.setPosition(x, y)
             } catch (error) {
-                console.error("Error updating magnifier:", error);
+                console.error('Error updating magnifier:', error)
             } finally {
-                updating = false;
+                updating = false
             }
-        };
+        }
         // Listen to mouse events
         const mouseMoveCallback = () => {
-            updateMagnifier();
-        };
+            updateMagnifier()
+        }
         const keyDownCallback = (event: any) => {
-            if (!isPicking) return;
+            if (!isPicking) return
             if (
-                (isMac &&
-                    event.metaKey &&
-                    event.shiftKey &&
-                    event.keycode === UiohookKey.C) ||
-                ((isWin || isLinux) &&
-                    event.ctrlKey &&
-                    event.shiftKey &&
-                    event.keycode === UiohookKey.C)
+                (isMac && event.metaKey && event.shiftKey && event.keycode === UiohookKey.C) ||
+                ((isWin || isLinux) && event.ctrlKey && event.shiftKey && event.keycode === UiohookKey.C)
             ) {
-                AppsMain.setClipboardText(currentColor);
-                AppsMain.toast(
-                    t("plugin.colorCopied", { color: currentColor }),
-                );
-                isPicking = false;
-                resolve();
-                cleanup();
-                currentPromise = null;
+                AppsMain.setClipboardText(currentColor)
+                AppsMain.toast(t('plugin.colorCopied', { color: currentColor }))
+                isPicking = false
+                resolve()
+                cleanup()
+                currentPromise = null
             } else if (event.keycode === UiohookKey.Escape) {
                 // ESC to exit
-                isPicking = false;
-                resolve(); // Or currentColor, but exit without copying
-                cleanup();
-                currentPromise = null;
+                isPicking = false
+                resolve() // Or currentColor, but exit without copying
+                cleanup()
+                currentPromise = null
             }
-        };
-        uIOhook.on("mousemove", mouseMoveCallback);
-        uIOhook.on("keydown", keyDownCallback);
+        }
+        uIOhook.on('mousemove', mouseMoveCallback)
+        uIOhook.on('keydown', keyDownCallback)
 
         // Initial update
-        mouseMoveCallback();
-    });
-};
+        mouseMoveCallback()
+    })
+}

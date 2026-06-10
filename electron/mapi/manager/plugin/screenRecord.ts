@@ -1,46 +1,45 @@
-import { spawn } from "child_process";
-import { BrowserWindow, desktopCapturer, dialog, screen } from "electron";
-import { t } from "../../../config/lang";
+import { spawn } from 'child_process'
+import { BrowserWindow, desktopCapturer, dialog, screen } from 'electron'
+import { t } from '../../../config/lang'
 
-let isRecording = false;
-let ffmpegProcess: any = null;
-let recordingWindow: BrowserWindow | null = null;
+let isRecording = false
+let ffmpegProcess: any = null
+let recordingWindow: BrowserWindow | null = null
 // let tray: Tray = (global as any).tray;
 
 const screenRecord = async (): Promise<void> => {
     if (isRecording) {
-        stopRecording();
-        return;
+        stopRecording()
+        return
     }
 
     // 选择保存路径
     const result = await dialog.showSaveDialog({
-        title: t("plugin.selectSavePath"),
-        defaultPath: "screen_record.mp4",
-        filters: [{ name: "MP4", extensions: ["mp4"] }],
-    });
+        title: t('plugin.selectSavePath'),
+        defaultPath: 'screen_record.mp4',
+        filters: [{ name: 'MP4', extensions: ['mp4'] }],
+    })
 
-    if (result.canceled) return;
+    if (result.canceled) return
 
-    const savePath = result.filePath;
+    const savePath = result.filePath
 
     // 获取屏幕源
-    const sources = await desktopCapturer.getSources({ types: ["screen"] });
-    if (sources.length === 0) return;
+    const sources = await desktopCapturer.getSources({ types: ['screen'] })
+    if (sources.length === 0) return
 
     // 选择屏幕，假设第一个
-    const source = sources[0];
-    const displays = screen.getAllDisplays();
-    const display =
-        displays.find((d) => d.id === Number(source.display_id)) || displays[0];
+    const source = sources[0]
+    const displays = screen.getAllDisplays()
+    const display = displays.find((d) => d.id === Number(source.display_id)) || displays[0]
 
     // 选择区域
-    const bounds = await selectArea(display.bounds);
-    if (!bounds) return;
+    const bounds = await selectArea(display.bounds)
+    if (!bounds) return
 
     // 开始录制
-    startRecording(savePath, source.id, bounds, display);
-};
+    startRecording(savePath, source.id, bounds, display)
+}
 
 const selectArea = async (screenBounds: any): Promise<any> => {
     return new Promise((resolve) => {
@@ -56,7 +55,7 @@ const selectArea = async (screenBounds: any): Promise<any> => {
                 nodeIntegration: true,
                 contextIsolation: false,
             },
-        });
+        })
 
         win.loadURL(
             `data:text/html;charset=utf-8,${encodeURIComponent(`
@@ -101,27 +100,22 @@ window.addEventListener('message', (e) => {
 </body>
 </html>
     `)}`,
-        );
+        )
 
-        win.webContents.on("console-message", (event, level, message) => {
-            if (message.startsWith("SELECT:")) {
-                const bounds = JSON.parse(message.substring(7));
-                win.close();
-                resolve(bounds);
+        win.webContents.on('console-message', (event, level, message) => {
+            if (message.startsWith('SELECT:')) {
+                const bounds = JSON.parse(message.substring(7))
+                win.close()
+                resolve(bounds)
             }
-        });
+        })
 
-        win.on("closed", () => resolve(null));
-    });
-};
+        win.on('closed', () => resolve(null))
+    })
+}
 
-const startRecording = (
-    savePath: string,
-    sourceId: string,
-    bounds: any,
-    display: any,
-) => {
-    isRecording = true;
+const startRecording = (savePath: string, sourceId: string, bounds: any, display: any) => {
+    isRecording = true
 
     // 创建录制指示器窗口
     recordingWindow = new BrowserWindow({
@@ -136,7 +130,7 @@ const startRecording = (
             nodeIntegration: false,
             contextIsolation: true,
         },
-    });
+    })
 
     recordingWindow.loadURL(
         `data:text/html;charset=utf-8,${encodeURIComponent(`
@@ -163,7 +157,7 @@ body {
 <body></body>
 </html>
     `)}`,
-    );
+    )
 
     // 改变tray
     // if (tray) {
@@ -176,79 +170,79 @@ body {
     // }
 
     // ffmpeg命令
-    const platform = process.platform;
-    let args: string[];
-    if (platform === "darwin") {
-        const screenIndex = parseInt(sourceId.split(":")[1]) + 1;
+    const platform = process.platform
+    let args: string[]
+    if (platform === 'darwin') {
+        const screenIndex = parseInt(sourceId.split(':')[1]) + 1
         args = [
-            "-f",
-            "avfoundation",
-            "-i",
+            '-f',
+            'avfoundation',
+            '-i',
             `${screenIndex}`,
-            "-vf",
+            '-vf',
             `crop=${bounds.width}:${bounds.height}:${bounds.x}:${bounds.y}`,
-            "-c:v",
-            "libx264",
-            "-preset",
-            "fast",
-            "-crf",
-            "22",
-            "-c:a",
-            "aac",
+            '-c:v',
+            'libx264',
+            '-preset',
+            'fast',
+            '-crf',
+            '22',
+            '-c:a',
+            'aac',
             savePath,
-        ];
-    } else if (platform === "win32") {
+        ]
+    } else if (platform === 'win32') {
         args = [
-            "-f",
-            "gdigrab",
-            "-i",
-            "desktop",
-            "-vf",
+            '-f',
+            'gdigrab',
+            '-i',
+            'desktop',
+            '-vf',
             `crop=${bounds.width}:${bounds.height}:${bounds.x}:${bounds.y}`,
-            "-c:v",
-            "libx264",
-            "-preset",
-            "fast",
-            "-crf",
-            "22",
+            '-c:v',
+            'libx264',
+            '-preset',
+            'fast',
+            '-crf',
+            '22',
             savePath,
-        ];
+        ]
     } else {
         args = [
-            "-f",
-            "x11grab",
-            "-i",
-            ":0.0",
-            "-vf",
+            '-f',
+            'x11grab',
+            '-i',
+            ':0.0',
+            '-vf',
             `crop=${bounds.width}:${bounds.height}:${bounds.x}:${bounds.y}`,
-            "-c:v",
-            "libx264",
-            "-preset",
-            "fast",
-            "-crf",
-            "22",
+            '-c:v',
+            'libx264',
+            '-preset',
+            'fast',
+            '-crf',
+            '22',
             savePath,
-        ];
+        ]
     }
 
-    ffmpegProcess = spawn("ffmpeg", args);
-    ffmpegProcess.on("close", () => {
-        stopRecording();
-    });
-};
+    ffmpegProcess = spawn('ffmpeg', args)
+    ffmpegProcess.on('close', () => {
+        stopRecording()
+    })
+}
 
 const stopRecording = () => {
-    if (!isRecording) return;
-    isRecording = false;
+    if (!isRecording) return
+    isRecording = false
     if (ffmpegProcess) {
-        ffmpegProcess.kill("SIGINT");
-        ffmpegProcess = null;
+        ffmpegProcess.kill('SIGINT')
+        ffmpegProcess = null
     }
 
     // 关闭录制指示器窗口
     if (recordingWindow) {
-        recordingWindow.close();
-        recordingWindow = null;
+        recordingWindow.close()
+        recordingWindow = null
     }
 
     // 恢复tray
@@ -262,6 +256,6 @@ const stopRecording = () => {
     //         // 假设显示主界面
     //     });
     // }
-};
+}
 
-export { screenRecord };
+export { screenRecord }

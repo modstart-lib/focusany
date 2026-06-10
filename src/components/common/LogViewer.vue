@@ -1,84 +1,75 @@
 <script setup lang="ts">
-import { nextTick, ref, watch } from "vue";
-import IconInboxOutline from "~icons/mdi/inbox-outline";
+import { nextTick, ref, watch } from 'vue'
+import IconInboxOutline from '~icons/mdi/inbox-outline'
 
-const logContainer = ref<HTMLElement | null>(null);
+const logContainer = ref<HTMLElement | null>(null)
 
 interface LogItem {
-    num: number;
-    text: string;
+    num: number
+    text: string
 }
 
 const props = withDefaults(
     defineProps<{
-        logs: LogItem[];
-        autoScroll?: boolean;
-        height?: string;
+        logs: LogItem[]
+        autoScroll?: boolean
+        height?: string
     }>(),
     {
         logs: [] as any,
         autoScroll: true,
-        height: "100%",
+        height: '100%',
     },
-);
+)
 
 const scrollToBottom = () => {
     nextTick(() => {
         logContainer.value?.scrollTo({
             top: logContainer.value?.scrollHeight,
-            behavior: "smooth",
-        });
-    });
-};
+            behavior: 'smooth',
+        })
+    })
+}
 
 watch(
     () => {
-        return props.logs;
+        return props.logs
     },
     () => {
         if (props.autoScroll) {
-            scrollToBottom();
+            scrollToBottom()
         }
     },
     {
         immediate: true,
         deep: true,
     },
-);
+)
 
 watch(
     () => {
-        return props.autoScroll;
+        return props.autoScroll
     },
     () => {
         if (props.autoScroll) {
-            scrollToBottom();
+            scrollToBottom()
         }
     },
-);
+)
 </script>
 
 <template>
-    <div
-        :style="{ height: props.height }"
-        ref="logContainer"
-        class="bg-black p-3 overflow-auto"
-    >
+    <div :style="{ height: props.height }" ref="logContainer" class="bg-black p-3 overflow-auto">
         <div v-if="!logs.length" class="text-center text-white py-10">
             <div>
                 <IconInboxOutline class="text-4xl" />
             </div>
             <div class="text-xs mt-3">
-                {{ $t("empty.noLog") }}
+                {{ $t('empty.noLog') }}
             </div>
         </div>
-        <div
-            v-for="log in logs"
-            class="text-white text-sm font-mono leading-6 whitespace-nowrap"
-        >
-            <div class="inline-block text-right min-w-10 pr-3 text-gray-400">
-                {{ log.num }}
-            </div>
+        <div v-for="log in logs" class="text-white text-sm font-mono leading-6 whitespace-nowrap">
+            <div class="inline-block text-right min-w-10 pr-3 text-gray-400">{{ log.num }}</div>
             <div class="inline-block">{{ log.text }}</div>
         </div>
     </div>

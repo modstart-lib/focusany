@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { PropType } from "vue";
-import IconPin from "~icons/mdi/pin";
-import { ActionRecord, PluginType } from "../../../types/Manager";
+import { PropType } from 'vue'
+import IconPin from '~icons/mdi/pin'
+import { ActionRecord, PluginType } from '../../../types/Manager'
 
-const emit = defineEmits(["open", "delete", "pin"]);
+const emit = defineEmits(['open', 'delete', 'pin'])
 const props = defineProps({
     action: {
         type: Object as PropType<ActionRecord>,
@@ -17,38 +17,23 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
-});
+})
 </script>
 
 <template>
-    <div
-        class="item-window-box hover:bg-gray-100 dark:hover:bg-gray-700"
-        :data-action="action.fullName"
-    >
+    <div class="item-window-box hover:bg-gray-100 dark:hover:bg-gray-700" :data-action="action.fullName">
         <div class="icon" @click="emit('open')">
             <img
                 draggable="false"
-                :class="
-                    action.pluginType === PluginType.SYSTEM
-                        ? 'dark:invert'
-                        : 'plugin-logo-filter'
-                "
+                :class="action.pluginType === PluginType.SYSTEM ? 'dark:invert' : 'plugin-logo-filter'"
                 :src="action.icon"
             />
         </div>
         <div class="title" @click="emit('open')">
-            <span
-                v-if="action.runtime?.searchTitleMatched"
-                v-html="action.runtime?.searchTitleMatched"
-            ></span>
+            <span v-if="action.runtime?.searchTitleMatched" v-html="action.runtime?.searchTitleMatched"></span>
             <span v-else>{{ action.title }}</span>
         </div>
-        <div
-            class="index"
-            v-if="
-                action.runtime?.windowCount && action.runtime?.windowCount > 1
-            "
-        >
+        <div class="index" v-if="action.runtime?.windowCount && action.runtime?.windowCount > 1">
             {{ action.runtime?.windowIndex }}
         </div>
         <div class="action" v-if="showDelete || showPin">

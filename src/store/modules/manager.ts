@@ -1,45 +1,40 @@
-import debounce from "lodash/debounce";
-import { defineStore } from "pinia";
-import { computed, toRaw } from "vue";
-import { WindowConfig } from "../../../electron/config/window";
-import { t } from "../../lang";
-import {
-    ActionRecord,
-    ActionTypeEnum,
-    ConfigRecord,
-    PluginRecord,
-} from "../../types/Manager";
-import store from "../index";
+import debounce from 'lodash/debounce'
+import { defineStore } from 'pinia'
+import { computed, toRaw } from 'vue'
+import { WindowConfig } from '../../../electron/config/window'
+import { t } from '../../lang'
+import { ActionRecord, ActionTypeEnum, ConfigRecord, PluginRecord } from '../../types/Manager'
+import store from '../index'
 
 const searchFastPanelActionDebounce = debounce((query, cb) => {
     window.$mapi.manager.searchFastPanelAction(query).then((result) => {
-        cb(result);
-    });
-});
+        cb(result)
+    })
+})
 
 const searchDebounce = debounce((query, cb) => {
     window.$mapi.manager.searchAction(query).then((result) => {
-        cb(result);
-    });
-}, 300);
+        cb(result)
+    })
+}, 300)
 
 const subInputChangeDebounce = debounce((keywords) => {
-    window.$mapi.manager.subInputChange(keywords);
-}, 300);
+    window.$mapi.manager.subInputChange(keywords)
+}, 300)
 
 const searchActionCodeDebounce = debounce((keywords) => {
-    window.$mapi.manager.searchActionCode(keywords).then();
-}, 300);
+    window.$mapi.manager.searchActionCode(keywords).then()
+}, 300)
 
-export const managerStore = defineStore("manager", {
+export const managerStore = defineStore('manager', {
     state: () => ({
         config: {} as ConfigRecord,
         showFirstRun: false,
         searchLoading: false,
-        searchLastKeywords: "",
-        searchValue: "",
-        searchPlaceholder: t("main.placeholder"),
-        searchSubPlaceholder: "",
+        searchLastKeywords: '',
+        searchValue: '',
+        searchPlaceholder: t('main.placeholder'),
+        searchSubPlaceholder: '',
         searchSubIsVisible: false,
         searchIsCompositing: false,
 
@@ -52,95 +47,90 @@ export const managerStore = defineStore("manager", {
 
         selectedAction: null as ActionRecord | null,
         activePlugin: null as PluginRecord | null,
-        activePluginType: null as "code" | null,
+        activePluginType: null as 'code' | null,
         activePluginLoading: false,
 
         actionCodeLoading: false,
         actionCodeError: null as string | null,
-        actionCodeType: null as "list" | null,
+        actionCodeType: null as 'list' | null,
         actionCodeItemActiveId: null as string | null,
         actionCodeItems: [] as {
-            id: string;
-            shortcutIndex: number;
-            [key: string]: any;
+            id: string
+            shortcutIndex: number
+            [key: string]: any
         }[],
 
         currentFiles: [] as FileItem[],
-        currentImage: "",
-        currentText: "",
+        currentImage: '',
+        currentText: '',
 
         fastPanelActionLoading: false,
         fastPanelMatchActions: [] as ActionRecord[],
         fastPanelViewActions: [] as ActionRecord[],
 
         notice: null as {
-            text: string;
-            type: "info" | "error" | "success";
-            duration: number;
+            text: string
+            type: 'info' | 'error' | 'success'
+            duration: number
         } | null,
         noticeCleanTimer: null as any,
     }),
     actions: {
         async init() {
-            this.config = await window.$mapi.manager.getConfig();
+            this.config = await window.$mapi.manager.getConfig()
         },
 
         async setConfig(key: string, value: any) {
             // console.log('setConfig', key, value, toRaw(this.config))
-            this.config[key] = value;
-            await window.$mapi.manager.setConfig(toRaw(this.config));
+            this.config[key] = value
+            await window.$mapi.manager.setConfig(toRaw(this.config))
         },
         async onConfigChange(key: string, value: any) {
-            return await this.setConfig(key, toRaw(value));
+            return await this.setConfig(key, toRaw(value))
         },
         configGet(key: string, defaultValue: any = null) {
             return computed(() => {
                 if (key in this.config) {
-                    return this.config[key];
+                    return this.config[key]
                 }
-                return defaultValue;
-            });
+                return defaultValue
+            })
         },
         setActivePluginLoading(loading: boolean) {
-            this.activePluginLoading = loading;
+            this.activePluginLoading = loading
         },
-        setActivePlugin(
-            plugin: PluginRecord | null,
-            type: "code" | null = null,
-        ) {
-            this.activePlugin = plugin;
-            this.activePluginType = plugin ? type : null;
+        setActivePlugin(plugin: PluginRecord | null, type: 'code' | null = null) {
+            this.activePlugin = plugin
+            this.activePluginType = plugin ? type : null
         },
         setSearchValue(value: string) {
             if (this.activePlugin) {
-                return;
+                return
             }
-            this.searchValue = value;
+            this.searchValue = value
         },
         setSelectedAction(action: ActionRecord) {
-            this.selectedAction = action;
-            document
-                .querySelector(`[data-action="${action.fullName}"]`)
-                ?.scrollIntoView({
-                    behavior: "smooth",
-                    block: "center",
-                    inline: "center",
-                });
+            this.selectedAction = action
+            document.querySelector(`[data-action="${action.fullName}"]`)?.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center',
+                inline: 'center',
+            })
         },
         setCurrentFiles(files: FileItem[]) {
-            this.currentFiles = files;
+            this.currentFiles = files
         },
         setCurrentImage(image: string) {
-            this.currentImage = image;
+            this.currentImage = image
         },
         setCurrentText(text: string) {
-            this.currentText = text;
+            this.currentText = text
         },
 
         async searchFastPanel(keywords: string) {
-            this.fastPanelMatchActions = [];
-            this.fastPanelViewActions = [];
-            this.fastPanelActionLoading = true;
+            this.fastPanelMatchActions = []
+            this.fastPanelViewActions = []
+            this.fastPanelActionLoading = true
             searchFastPanelActionDebounce(
                 {
                     keywords: keywords,
@@ -148,35 +138,32 @@ export const managerStore = defineStore("manager", {
                     currentImage: this.currentImage,
                     currentText: this.currentText,
                 },
-                (result: {
-                    matchActions: ActionRecord[];
-                    viewActions: ActionRecord[];
-                }) => {
-                    this.fastPanelMatchActions = result.matchActions;
-                    this.fastPanelViewActions = result.viewActions;
-                    this.fastPanelActionLoading = false;
+                (result: { matchActions: ActionRecord[]; viewActions: ActionRecord[] }) => {
+                    this.fastPanelMatchActions = result.matchActions
+                    this.fastPanelViewActions = result.viewActions
+                    this.fastPanelActionLoading = false
                 },
-            );
+            )
         },
 
         async searchRefresh() {
-            await this.search(this.searchLastKeywords);
+            await this.search(this.searchLastKeywords)
         },
 
         async search(keywords: string) {
             if (this.activePlugin) {
-                if (this.activePluginType === "code") {
-                    this.searchValue = keywords;
-                    searchActionCodeDebounce(keywords);
-                    return;
+                if (this.activePluginType === 'code') {
+                    this.searchValue = keywords
+                    searchActionCodeDebounce(keywords)
+                    return
                 }
-                subInputChangeDebounce(keywords);
-                this.searchValue = keywords;
-                return;
+                subInputChangeDebounce(keywords)
+                this.searchValue = keywords
+                return
             }
-            this.searchLoading = true;
-            this.searchValue = keywords;
-            this.viewActions = [];
+            this.searchLoading = true
+            this.searchValue = keywords
+            this.viewActions = []
             searchDebounce(
                 {
                     keywords,
@@ -185,60 +172,48 @@ export const managerStore = defineStore("manager", {
                     currentText: this.currentText,
                 },
                 (result: {
-                    detachWindowActions: ActionRecord[];
-                    searchActions: ActionRecord[];
-                    matchActions: ActionRecord[];
-                    viewActions: ActionRecord[];
-                    historyActions: ActionRecord[];
-                    pinActions: ActionRecord[];
+                    detachWindowActions: ActionRecord[]
+                    searchActions: ActionRecord[]
+                    matchActions: ActionRecord[]
+                    viewActions: ActionRecord[]
+                    historyActions: ActionRecord[]
+                    pinActions: ActionRecord[]
                 }) => {
-                    this.searchLastKeywords = keywords;
-                    this.detachWindowActions = result.detachWindowActions;
-                    this.searchActions = result.searchActions;
-                    this.matchActions = result.matchActions;
-                    this.viewActions = result.viewActions;
-                    this.historyActions = result.historyActions;
-                    this.pinActions = result.pinActions;
-                    this.searchLoading = false;
+                    this.searchLastKeywords = keywords
+                    this.detachWindowActions = result.detachWindowActions
+                    this.searchActions = result.searchActions
+                    this.matchActions = result.matchActions
+                    this.viewActions = result.viewActions
+                    this.historyActions = result.historyActions
+                    this.pinActions = result.pinActions
+                    this.searchLoading = false
                 },
-            );
+            )
         },
         async detachWindowActionsRefresh() {
-            this.detachWindowActions =
-                await window.$mapi.manager.listDetachWindowActions();
+            this.detachWindowActions = await window.$mapi.manager.listDetachWindowActions()
         },
         async resize(width: number, height: number) {
-            height = Math.min(height, WindowConfig.mainMaxHeight);
-            await window.$mapi.app.windowSetSize(
-                null,
-                WindowConfig.mainWidth,
-                height,
-                {
-                    center: false,
-                },
-            );
+            height = Math.min(height, WindowConfig.mainMaxHeight)
+            await window.$mapi.app.windowSetSize(null, WindowConfig.mainWidth, height, {
+                center: false,
+            })
         },
         async isMainWindowShown() {
-            return await window.$mapi.manager.isShown();
+            return await window.$mapi.manager.isShown()
         },
         async showMainWindow() {
-            await window.$mapi.manager.show();
+            await window.$mapi.manager.show()
         },
         async hideMainWindow() {
-            await window.$mapi.manager.hide();
+            await window.$mapi.manager.hide()
         },
-        async openAction(
-            action: ActionRecord,
-            group: undefined | "window" = undefined,
-        ) {
-            await window.$mapi.manager.openAction(toRaw(action));
-            if (
-                action.type === ActionTypeEnum.COMMAND ||
-                action.type === ActionTypeEnum.BACKEND
-            ) {
-                await window.$mapi.manager.hide();
+        async openAction(action: ActionRecord, group: undefined | 'window' = undefined) {
+            await window.$mapi.manager.openAction(toRaw(action))
+            if (action.type === ActionTypeEnum.COMMAND || action.type === ActionTypeEnum.BACKEND) {
+                await window.$mapi.manager.hide()
             }
-            this.searchValue = "";
+            this.searchValue = ''
             // this.detachWindowActions = [];
             // this.searchActions = [];
             // this.matchActions = [];
@@ -247,71 +222,67 @@ export const managerStore = defineStore("manager", {
             // this.pinActions = [];
         },
         async openActionCode(id: string) {
-            if (!this.activePlugin || this.activePluginType !== "code") {
-                return;
+            if (!this.activePlugin || this.activePluginType !== 'code') {
+                return
             }
-            this.actionCodeItemActiveId = id;
-            await window.$mapi.manager.openActionCode(id);
+            this.actionCodeItemActiveId = id
+            await window.$mapi.manager.openActionCode(id)
         },
-        async openActionWindow(type: "open", action: ActionRecord) {
-            await window.$mapi.manager.openActionWindow(type, toRaw(action));
+        async openActionWindow(type: 'open', action: ActionRecord) {
+            await window.$mapi.manager.openActionWindow(type, toRaw(action))
         },
         async closeMainPlugin() {
-            await window.$mapi.manager.closeMainPlugin();
+            await window.$mapi.manager.closeMainPlugin()
         },
         async openMainPluginDevTools() {
-            await window.$mapi.manager.openMainPluginDevTools();
+            await window.$mapi.manager.openMainPluginDevTools()
         },
         async openMainPluginLog() {
-            await window.$mapi.manager.openMainPluginLog();
+            await window.$mapi.manager.openMainPluginLog()
         },
         async detachPlugin() {
-            await window.$mapi.manager.detachPlugin();
+            await window.$mapi.manager.detachPlugin()
         },
-        setSubInput(payload: {
-            placeholder: string;
-            isFocus: boolean;
-            isVisible: boolean;
-        }) {
+        setSubInput(payload: { placeholder: string; isFocus: boolean; isVisible: boolean }) {
             if (!this.activePlugin) {
-                return;
+                return
             }
-            this.searchSubPlaceholder = payload.placeholder || "";
-            this.searchSubIsVisible = payload.isVisible || false;
+            this.searchSubPlaceholder = payload.placeholder || ''
+            this.searchSubIsVisible = payload.isVisible || false
         },
         removeSubInput() {
             if (!this.activePlugin) {
-                return;
+                return
             }
-            this.searchSubPlaceholder = "";
-            this.searchSubIsVisible = false;
-            this.searchValue = "";
+            this.searchSubPlaceholder = ''
+            this.searchSubIsVisible = false
+            this.searchValue = ''
         },
         setSubInputValue(value: string) {
             if (!this.activePlugin) {
-                return;
+                return
             }
-            this.searchValue = value;
+            this.searchValue = value
         },
         onNotice(data: any) {
-            this.notice = data;
+            this.notice = data
             if (this.notice?.duration && this.notice?.duration > 0) {
                 if (this.noticeCleanTimer) {
-                    clearTimeout(this.noticeCleanTimer);
+                    clearTimeout(this.noticeCleanTimer)
                 }
                 this.noticeCleanTimer = setTimeout(() => {
-                    this.notice = null;
-                }, this.notice.duration);
+                    this.notice = null
+                }, this.notice.duration)
             }
         },
     },
-});
+})
 
-const manager = managerStore(store);
-manager.init().then();
+const manager = managerStore(store)
+manager.init().then()
 
-window.__page.onBroadcast("Notice", manager.onNotice);
+window.__page.onBroadcast('Notice', manager.onNotice)
 
 export const useManagerStore = () => {
-    return manager;
-};
+    return manager
+}

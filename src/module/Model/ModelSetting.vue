@@ -1,111 +1,138 @@
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
-import { useSettingStore } from "../../store/modules/setting";
-import { useUserStore } from "../../store/modules/user";
-import ModelAddDialog from "./components/ModelAddDialog.vue";
-import ModelEditDialog from "./components/ModelEditDialog.vue";
-import ProviderAddDialog from "./components/ProviderAddDialog.vue";
-import ProviderEditDialog from "./components/ProviderEditDialog.vue";
-import ProviderTestDialog from "./components/ProviderTestDialog.vue";
-import { getModelLogo } from "./models";
-import { getProviderUrl } from "./providers";
-import { useModelStore } from "./store/model";
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { useSettingStore } from '../../store/modules/setting'
+import { useUserStore } from '../../store/modules/user'
+import { testActionSet, testActionUnset } from '../../utils/test'
+import ModelAddDialog from './components/ModelAddDialog.vue'
+import ModelEditDialog from './components/ModelEditDialog.vue'
+import ProviderAddDialog from './components/ProviderAddDialog.vue'
+import ProviderEditDialog from './components/ProviderEditDialog.vue'
+import ProviderTestDialog from './components/ProviderTestDialog.vue'
+import { getModelLogo } from './models'
+import { getProviderUrl } from './providers'
+import { useModelStore } from './store/model'
 
-const userStore = useUserStore();
-const setting = useSettingStore();
-const modelStore = useModelStore();
-const providerAdd = ref<InstanceType<typeof ProviderAddDialog> | null>(null);
-const providerEdit = ref<InstanceType<typeof ProviderEditDialog> | null>(null);
-const modelAdd = ref<InstanceType<typeof ModelAddDialog> | null>(null);
-const modelEdit = ref<InstanceType<typeof ModelEditDialog> | null>(null);
-const providerTest = ref<InstanceType<typeof ProviderTestDialog> | null>(null);
+const userStore = useUserStore()
+const setting = useSettingStore()
+const modelStore = useModelStore()
+const providerAdd = ref<InstanceType<typeof ProviderAddDialog> | null>(null)
+const providerEdit = ref<InstanceType<typeof ProviderEditDialog> | null>(null)
+const modelAdd = ref<InstanceType<typeof ModelAddDialog> | null>(null)
+const modelEdit = ref<InstanceType<typeof ModelEditDialog> | null>(null)
+const providerTest = ref<InstanceType<typeof ProviderTestDialog> | null>(null)
 const doUser = async () => {
     if (!setting.basic.userEnable) {
-        return;
+        return
     }
     await window.$mapi.user.open({
         readyParam: {
-            page: "ChargeLLMPX",
+            page: 'ChargeLLMPX',
         },
-    });
-};
+    })
+}
 
-const keywords = ref("");
-const currentProviderId = ref("");
+const quotaRefreshing = ref(false)
+const doRefreshQuota = async () => {
+    quotaRefreshing.value = true
+    try {
+        await userStore.load()
+    } finally {
+        quotaRefreshing.value = false
+    }
+}
+
+const keywords = ref('')
+const currentProviderId = ref('')
 
 const doSelectProvider = (id: string) => {
-    currentProviderId.value = id;
-};
+    currentProviderId.value = id
+}
 const provider = computed(() => {
-    return modelStore.providers.find((p) => p.id === currentProviderId.value);
-});
+    return modelStore.providers.find((p) => p.id === currentProviderId.value)
+})
 const providerUrl = computed(() => {
-    if (!provider.value) return "";
-    return getProviderUrl(provider.value);
-});
+    if (!provider.value) return ''
+    return getProviderUrl(provider.value)
+})
 const providerModelGroups = computed(() => {
     if (!provider.value) {
-        return [];
+        return []
     }
-    const models = provider.value.data.models;
-    const groups = models
-        .map((m) => m.group)
-        .filter((v, i, a) => a.indexOf(v) === i);
+    const models = provider.value.data.models
+    const groups = models.map((m) => m.group).filter((v, i, a) => a.indexOf(v) === i)
     return groups.map((g) => {
         return {
             group: g,
             models: models.filter((m) => m.group === g),
-        };
-    });
-});
+        }
+    })
+})
 const providersFilter = computed(() => {
     return modelStore.providers.filter((p) => {
         if (keywords.value) {
-            return p.title.toLowerCase().includes(keywords.value.toLowerCase());
+            return p.title.toLowerCase().includes(keywords.value.toLowerCase())
         }
-        return true;
-    });
-});
+        return true
+    })
+})
 watch(
     () => modelStore.providers,
     () => {
         if (!currentProviderId.value && modelStore.providers.length > 0) {
-            doSelectProvider(modelStore.providers[0].id);
+            doSelectProvider(modelStore.providers[0].id)
         }
     },
     { immediate: true },
-);
+)
+
+onMounted(() => {
+    testActionSet('modelSetting.providerAdd.show', () => providerAdd.value?.show())
+    testActionSet('modelSetting.providerAdd.fill', (data: any) => providerAdd.value?.fill(data))
+    testActionSet('modelSetting.providerAdd.submit', () => providerAdd.value?.doSubmit())
+    testActionSet('modelSetting.providerEdit.show', () => {
+        const p = modelStore.providers.find((p) => !p.isSystem)
+        if (p) providerEdit.value?.show(p)
+    })
+    testActionSet('modelSetting.providerEdit.fill', (data: any) => providerEdit.value?.fill(data))
+    testActionSet('modelSetting.providerEdit.submit', () => providerEdit.value?.doSubmit())
+    testActionSet('modelSetting.modelAdd.show', () => modelAdd.value?.show())
+    testActionSet('modelSetting.modelAdd.fill', (data: any) => modelAdd.value?.fill(data))
+    testActionSet('modelSetting.modelAdd.submit', () => modelAdd.value?.doSubmit())
+})
+
+onUnmounted(() => {
+    testActionUnset([
+        'modelSetting.providerAdd.show',
+        'modelSetting.providerAdd.fill',
+        'modelSetting.providerAdd.submit',
+        'modelSetting.providerEdit.show',
+        'modelSetting.providerEdit.fill',
+        'modelSetting.providerEdit.submit',
+        'modelSetting.modelAdd.show',
+        'modelSetting.modelAdd.fill',
+        'modelSetting.modelAdd.submit',
+    ])
+})
 </script>
 
 <template>
     <div class="flex h-full">
         <div class="w-48 border-r flex flex-col flex-shrink-0">
             <div class="p-2">
-                <a-input
-                    :placeholder="$t('model.searchPlatform')"
-                    v-model="keywords"
-                >
+                <a-input :placeholder="$t('model.searchPlatform')" v-model="keywords">
                     <template #suffix>
                         <icon-search />
                     </template>
                 </a-input>
             </div>
             <div class="flex-grow p-2 overflow-x-hidden overflow-y-auto">
-                <div
-                    v-if="
-                        !providersFilter.length && modelStore.providers.length
-                    "
-                >
+                <div v-if="!providersFilter.length && modelStore.providers.length">
                     <a-empty :description="$t('empty.noModelPlatform')" />
                 </div>
                 <div v-for="p in providersFilter">
                     <div
                         class="flex hover:bg-gray-100 cursor-pointer border border-transparent rounded-full mb-3 px-3 py-1 items-center"
-                        :class="
-                            currentProviderId === p.id
-                                ? 'bg-gray-100 border-gray-300'
-                                : ''
-                        "
+                        :class="currentProviderId === p.id ? 'bg-gray-100 border-gray-300' : ''"
                         @click="doSelectProvider(p.id)"
                     >
                         <div class="mr-2">
@@ -115,12 +142,7 @@ watch(
                                 style="background: #eee; border: 1px solid #eee"
                                 :src="p.logo"
                             />
-                            <a-avatar
-                                v-else
-                                :size="20"
-                                shape="square"
-                                :style="{ backgroundColor: '#3370ff' }"
-                            >
+                            <a-avatar v-else :size="20" shape="square" :style="{ backgroundColor: '#3370ff' }">
                                 {{ p.title }}
                             </a-avatar>
                         </div>
@@ -135,7 +157,7 @@ watch(
             </div>
             <div class="p-2">
                 <a-button class="w-full" @click="providerAdd?.show()">
-                    {{ $t("common.add") }}
+                    {{ $t('common.add') }}
                     <template #icon>
                         <icon-plus />
                     </template>
@@ -172,54 +194,32 @@ watch(
                     <div>
                         <a-switch
                             :model-value="provider.data.enabled"
-                            @change="
-                                modelStore.change(
-                                    provider.id,
-                                    'data.enabled',
-                                    $event,
-                                )
-                            "
+                            @change="modelStore.change(provider.id, 'data.enabled', $event)"
                         />
                     </div>
                 </div>
                 <div class="mb-3" v-if="provider.id !== 'buildIn'">
-                    <div class="mb-2 font-bold">{{ $t("setting.apiKey") }}</div>
+                    <div class="mb-2 font-bold">{{ $t('setting.apiKey') }}</div>
                     <div>
                         <a-input-password
                             :model-value="provider.data.apiKey"
-                            @input="
-                                modelStore.change(
-                                    provider.id,
-                                    'data.apiKey',
-                                    $event,
-                                )
-                            "
+                            @input="modelStore.change(provider.id, 'data.apiKey', $event)"
                             class="w-full"
                         >
                             <template #suffix>
-                                <a
-                                    href="javascript:;"
-                                    @click="providerTest?.show()"
-                                    class="ml-2"
-                                >
-                                    {{ $t("common.check") }}
+                                <a href="javascript:;" @click="providerTest?.show()" class="ml-2">
+                                    {{ $t('common.check') }}
                                 </a>
                             </template>
                         </a-input-password>
                     </div>
                 </div>
                 <div class="mb-3" v-if="provider.id !== 'buildIn'">
-                    <div class="mb-2 font-bold">{{ $t("setting.apiUrl") }}</div>
+                    <div class="mb-2 font-bold">{{ $t('setting.apiUrl') }}</div>
                     <div>
                         <a-input
                             :model-value="provider.data.apiHost"
-                            @input="
-                                modelStore.change(
-                                    provider.id,
-                                    'data.apiHost',
-                                    $event,
-                                )
-                            "
+                            @input="modelStore.change(provider.id, 'data.apiHost', $event)"
                             class="w-full"
                         >
                         </a-input>
@@ -232,64 +232,59 @@ watch(
                 </div>
                 <div
                     class="mb-3 flex border rounded p-3 items-center"
-                    v-if="provider.id === 'buildIn'"
+                    v-if="provider.id === 'buildIn' && userStore.data.llmpx?.apiUrl"
                 >
                     <div class="flex-grow">
-                        {{ $t("user.energy") }}
-                        <span class="font-bold"
-                            >{{
-                                (
-                                    (userStore.data.llmpx?.quota || 0) / 1000
-                                ).toFixed(2)
-                            }}K</span
-                        >
+                        {{ $t('user.energy') }}
+                        <span class="font-bold">{{ ((userStore.data.llmpx?.quota || 0) / 1000).toFixed(2) }}K</span>
+                        <icon-refresh
+                            class="ml-1 cursor-pointer text-gray-400 hover:text-gray-600"
+                            :class="quotaRefreshing ? 'animate-spin' : ''"
+                            @click="doRefreshQuota"
+                        />
                     </div>
                     <div class="text-gray-400">
                         <icon-check class="text-green-600" />
-                        {{ $t("model.builtinDesc") }}
+                        {{ $t('model.builtinDesc') }}
                     </div>
                     <div>
                         <a-button class="ml-2" @click="doUser">
-                            {{ $t("common.recharge") }}
+                            {{ $t('common.recharge') }}
+                        </a-button>
+                    </div>
+                </div>
+                <div
+                    class="mb-3 flex border border-orange-200 bg-orange-50 rounded p-3 items-center"
+                    v-if="provider.id === 'buildIn' && !userStore.data.llmpx?.apiUrl"
+                >
+                    <div class="flex-grow text-orange-600">
+                        <icon-exclamation-circle class="mr-1" />
+                        {{ $t('error.energyInsufficient') }}
+                    </div>
+                    <div>
+                        <a-button class="ml-2" @click="doUser">
+                            {{ $t('common.recharge') }}
                         </a-button>
                     </div>
                 </div>
                 <div class="mb-3">
-                    <div class="mb-2 font-bold">{{ $t("model.model") }}</div>
-                    <div
-                        class="mb-2 text-sm text-gray-400"
-                        v-if="provider.id !== 'buildIn'"
-                    >
-                        {{ $t("common.view") }}
-                        <a
-                            :href="provider?.websites.docs"
-                            target="_blank"
-                            class="text-blue-600"
-                        >
+                    <div class="mb-2 font-bold">{{ $t('model.model') }}</div>
+                    <div class="mb-2 text-sm text-gray-400" v-if="provider.id !== 'buildIn'">
+                        {{ $t('common.view') }}
+                        <a :href="provider?.websites.docs" target="_blank" class="text-blue-600">
                             {{ provider.title }}
-                            {{ $t("common.docs") }}
+                            {{ $t('common.docs') }}
                         </a>
-                        {{ $t("common.and") }}
-                        <a
-                            :href="provider?.websites.models"
-                            target="_blank"
-                            class="text-blue-600"
-                        >
+                        {{ $t('common.and') }}
+                        <a :href="provider?.websites.models" target="_blank" class="text-blue-600">
                             {{ provider.title }}
-                            {{ $t("model.list") }}
+                            {{ $t('model.list') }}
                         </a>
-                        {{ $t("common.moreDetails") }}
+                        {{ $t('common.moreDetails') }}
                     </div>
-                    <div
-                        v-for="g in providerModelGroups"
-                        :key="provider.id + g.group"
-                        class="mb-2"
-                    >
+                    <div v-for="g in providerModelGroups" :key="provider.id + g.group" class="mb-2">
                         <a-collapse :default-active-key="[g.group]">
-                            <a-collapse-item
-                                :header="$t(g.group)"
-                                :key="g.group"
-                            >
+                            <a-collapse-item :header="$t(g.group)" :key="g.group">
                                 <div class="-ml-6 -mr-1">
                                     <div
                                         v-for="m in g.models"
@@ -307,17 +302,14 @@ watch(
                                             {{ m.name }}
                                         </div>
                                         <div class="flex items-center">
+                                            <span
+                                                v-if="provider.id === 'buildIn' && m.rate !== undefined"
+                                                class="text-xs text-gray-400 mr-2"
+                                                >×{{ m.rate }}</span
+                                            >
                                             <a-switch
-                                                v-if="provider.id !== 'buildIn'"
                                                 :model-value="m.enabled"
-                                                @change="
-                                                    modelStore.changeModel(
-                                                        provider.id,
-                                                        m.id,
-                                                        'enabled',
-                                                        $event,
-                                                    )
-                                                "
+                                                @change="modelStore.changeModel(provider.id, m.id, 'enabled', $event)"
                                                 class="mr-2"
                                             ></a-switch>
                                             <a-button
@@ -330,12 +322,7 @@ watch(
                                                 </template>
                                             </a-button>
                                             <a-button
-                                                @click="
-                                                    modelStore.modelDelete(
-                                                        provider.id,
-                                                        m.id,
-                                                    )
-                                                "
+                                                @click="modelStore.modelDelete(provider.id, m.id)"
                                                 v-if="provider.id !== 'buildIn'"
                                             >
                                                 <template #icon>
@@ -353,7 +340,7 @@ watch(
                             <template #icon>
                                 <icon-plus />
                             </template>
-                            {{ $t("common.add") }}
+                            {{ $t('common.add') }}
                         </a-button>
                     </div>
                 </div>

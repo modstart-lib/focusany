@@ -1,55 +1,51 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import { doCopy } from "../../components/common/util";
-import { t } from "../../lang";
-import { Dialog } from "../../lib/dialog";
+import { ref } from 'vue'
+import { doCopy } from '../../components/common/util'
+import { t } from '../../lang'
+import { Dialog } from '../../lib/dialog'
 
 const props = defineProps<{
-    size?: "small" | undefined;
-    title: string;
-    name: string;
-    defaultPrompt: string;
-    defaultSystemPrompt?: string;
-    promptPlaceholder?: string;
-    systemPromptPlaceholder?: string;
-    enableSystemPrompt?: boolean;
-    help?: string;
-    param?: Record<string, string> | { name: string; label: string }[];
-}>();
-const visible = ref(false);
-const prompt = ref<string>("");
-const systemPrompt = ref<string>("");
+    size?: 'small' | undefined
+    title: string
+    name: string
+    defaultPrompt: string
+    defaultSystemPrompt?: string
+    promptPlaceholder?: string
+    systemPromptPlaceholder?: string
+    enableSystemPrompt?: boolean
+    help?: string
+    param?: Record<string, string> | { name: string; label: string }[]
+}>()
+const visible = ref(false)
+const prompt = ref<string>('')
+const systemPrompt = ref<string>('')
 const doShow = async () => {
-    visible.value = true;
-    prompt.value = (await $mapi.storage.get(
-        "data",
-        props.name,
-        props.defaultPrompt,
-    )) as string;
+    visible.value = true
+    prompt.value = (await $mapi.storage.get('data', props.name, props.defaultPrompt)) as string
     if (props.enableSystemPrompt) {
         systemPrompt.value = (await $mapi.storage.get(
-            "data",
-            props.name + "System",
+            'data',
+            props.name + 'System',
             props.defaultSystemPrompt,
-        )) as string;
+        )) as string
     }
-};
+}
 const doSave = () => {
-    visible.value = false;
-    $mapi.storage.set("data", props.name, prompt.value);
+    visible.value = false
+    $mapi.storage.set('data', props.name, prompt.value)
     if (props.enableSystemPrompt) {
-        $mapi.storage.set("data", props.name + "System", systemPrompt.value);
+        $mapi.storage.set('data', props.name + 'System', systemPrompt.value)
     }
-    Dialog.tipSuccess(t("common.saveSuccess"));
-};
+    Dialog.tipSuccess(t('common.saveSuccess'))
+}
 const doRestore = () => {
-    prompt.value = props.defaultPrompt;
-    $mapi.storage.set("data", props.name, prompt.value);
+    prompt.value = props.defaultPrompt
+    $mapi.storage.set('data', props.name, prompt.value)
     if (props.enableSystemPrompt) {
-        systemPrompt.value = props.defaultSystemPrompt || "";
-        $mapi.storage.set("data", props.name + "System", systemPrompt.value);
+        systemPrompt.value = props.defaultSystemPrompt || ''
+        $mapi.storage.set('data', props.name + 'System', systemPrompt.value)
     }
-};
+}
 </script>
 
 <template>
@@ -65,10 +61,10 @@ const doRestore = () => {
         </template>
         <template #footer>
             <a-button @click="doRestore">
-                {{ $t("common.restoreDefault") }}
+                {{ $t('common.restoreDefault') }}
             </a-button>
             <a-button type="primary" @click="doSave">
-                {{ $t("common.save") }}
+                {{ $t('common.save') }}
             </a-button>
         </template>
         <div class="-mx- -my-3" style="height: 60vh">
@@ -79,7 +75,7 @@ const doRestore = () => {
                 </a-alert>
             </div>
             <div v-if="enableSystemPrompt">
-                <div class="text-sm mb-1">{{ $t("model.systemPrompt") }}</div>
+                <div class="text-sm mb-1">{{ $t('model.systemPrompt') }}</div>
                 <div>
                     <a-textarea
                         v-model="systemPrompt"
@@ -90,7 +86,7 @@ const doRestore = () => {
             </div>
             <div>
                 <div v-if="enableSystemPrompt" class="text-sm mb-1">
-                    {{ $t("model.userPrompt") }}
+                    {{ $t('model.userPrompt') }}
                 </div>
                 <div>
                     <a-textarea
@@ -101,23 +97,15 @@ const doRestore = () => {
                 </div>
             </div>
             <div v-if="props.param">
-                <div class="mt-2 font-bold">
-                    {{ $t("common.availableVars") }}:
-                </div>
+                <div class="mt-2 font-bold">{{ $t('common.availableVars') }}:</div>
                 <div v-if="Array.isArray(props.param)" class="mt-1">
                     <div
-                        v-for="item in props.param as {
-                            name: string;
-                            label: string;
-                        }[]"
+                        v-for="item in props.param as { name: string; label: string }[]"
                         :key="item.name"
                         class="mr-4 inline-flex items-center text-xs"
                     >
-                        <div
-                            class="font-mono mr-1 cursor-pointer"
-                            @click="doCopy(`{${item.name}}`)"
-                        >
-                            {{ "{" + item.name + "}" }}
+                        <div class="font-mono mr-1 cursor-pointer" @click="doCopy(`{${item.name}}`)">
+                            {{ '{' + item.name + '}' }}
                         </div>
                         <div class="text-gray-400">
                             {{ item.label }}
@@ -125,16 +113,9 @@ const doRestore = () => {
                     </div>
                 </div>
                 <div class="mt-1" v-else>
-                    <div
-                        v-for="(value, key) in props.param"
-                        :key="key"
-                        class="mr-4 inline-flex items-center text-xs"
-                    >
-                        <div
-                            class="font-mono mr-1 cursor-pointer"
-                            @click="doCopy(`{${key}}`)"
-                        >
-                            {{ "{" + key + "}" }}
+                    <div v-for="(value, key) in props.param" :key="key" class="mr-4 inline-flex items-center text-xs">
+                        <div class="font-mono mr-1 cursor-pointer" @click="doCopy(`{${key}}`)">
+                            {{ '{' + key + '}' }}
                         </div>
                         <div class="text-gray-400">
                             {{ value }}

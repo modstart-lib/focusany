@@ -32,7 +32,7 @@
                 ]
             },
         ],
-        "artifactName": "${productName}-${version}-win-${arch}.${ext}",
+        "artifactName": "${productName}Pro-${version}-win-${arch}.${ext}",
         "extraResources": [
             {
                 "from": "electron/resources/extra",
@@ -60,7 +60,7 @@
         ]
     },
     "nsis": {
-        "artifactName": "${productName}-${version}-win-setup-${arch}.${ext}",
+        "artifactName": "${productName}Pro-${version}-win-setup-${arch}.${ext}",
         "shortcutName": "${productName}",
         "uninstallDisplayName": "${productName}",
         "oneClick": false,
@@ -69,7 +69,7 @@
         "deleteAppDataOnUninstall": false
     },
     "portable": {
-        "artifactName": "${productName}-${version}-win-portable-${arch}.${ext}",
+        "artifactName": "${productName}Pro-${version}-win-portable-${arch}.${ext}",
         "requestExecutionLevel": "user"
     },
     "appx": {
@@ -81,7 +81,7 @@
             "en-US",
             "zh-TW"
         ],
-        "artifactName": "${productName}-${version}-win-appx-${arch}.${ext}",
+        "artifactName": "${productName}Pro-${version}-win-appx-${arch}.${ext}",
     },
     "mac": {
         "icon": "logo.icns",
@@ -91,10 +91,10 @@
                 "arch": [
                     "x64",
                     "arm64"
-                ]
+                ],
             }
         ],
-        "artifactName": "${productName}-${version}-mac-${arch}.${ext}",
+        "artifactName": "${productName}Pro-${version}-mac-${arch}.${ext}",
         "extraResources": [
             {
                 "from": "electron/resources/extra",
@@ -136,7 +136,6 @@
         "notarize": false,
         "darkModeSupport": false,
         "hardenedRuntime": true,
-        "gatekeeperAssess": false,
         "identity": "Xi'an Yanyi Information Technology Co., Ltd (Q96H3H33RK)",
     },
     "linux": {
@@ -159,7 +158,7 @@
                 ]
             }
         ],
-        "artifactName": "${productName}-${version}-linux-${arch}.${ext}",
+        "artifactName": "${productName}Pro-${version}-linux-${arch}.${ext}",
         "extraResources": [
             {
                 "from": "electron/resources/extra",
