@@ -149,5 +149,8 @@
     "repository": {
         "type": "git",
         "url": "https://github.com/modstart-lib/focusany.git"
+    },
+    "overrides": {
+        "leveldown": "6.1.1"
     }
 }
