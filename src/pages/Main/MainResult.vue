@@ -213,12 +213,13 @@
 </template>
 
 <script lang="ts" setup>
-import { onBeforeMount, ref } from 'vue'
+import { onBeforeMount, onUnmounted, ref } from 'vue'
 import IconPin from '~icons/mdi/pin'
 import { SystemIcons } from '../../../electron/mapi/manager/system/asset/icon'
 import MEmpty from '../../components/common/MEmpty.vue'
 import { useManagerStore } from '../../store/modules/manager'
 import { PluginType } from '../../types/Manager'
+import { testActionSet, testActionUnset } from '../../utils/test'
 import ResultActionCodeError from './Components/ResultActionCodeError.vue'
 import ResultActionCodeItemList from './Components/ResultActionCodeItemList.vue'
 import ResultActionCodeLoading from './Components/ResultActionCodeLoading.vue'
@@ -263,6 +264,11 @@ const isOsx = ref(false)
 
 onBeforeMount(async () => {
     isOsx.value = window.$mapi.app.isPlatform('osx')
+    testActionSet('mainResult.loaded', () => true)
+})
+
+onUnmounted(() => {
+    testActionUnset('mainResult.loaded')
 })
 
 const { webUserAgent, viewActions } = useViewOperate('main')

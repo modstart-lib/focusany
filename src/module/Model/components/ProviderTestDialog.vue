@@ -2,6 +2,7 @@
 import { computed, ref, watch } from 'vue'
 import { useModelStore } from '../store/model'
 import { Model } from '../types'
+import ModalHeaderBar from '../../../components/ModalHeaderBar.vue'
 
 const modelStore = useModelStore()
 const props = defineProps({
@@ -53,9 +54,17 @@ defineExpose({
 </script>
 
 <template>
-    <a-modal v-model:visible="visible" width="20rem" :esc-to-close="false" :mask-closable="false" title-align="start">
+    <a-modal
+        v-model:visible="visible"
+        width="20rem"
+        :esc-to-close="false"
+        :mask-closable="false"
+        title-align="start"
+        :closable="false"
+        modal-class="pb-modal-header-compact"
+    >
         <template #title>
-            {{ $t('hint.selectModelCheck') }}
+            <ModalHeaderBar :title="$t('hint.selectModelCheck')" @close="visible = false" />
         </template>
         <template #footer>
             <a-button type="primary" @click="doSubmit">{{ $t('common.test') }}</a-button>

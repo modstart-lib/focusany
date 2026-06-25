@@ -1,89 +1,120 @@
-<script setup lang="ts">
-import { useModelStore } from './store/model'
-import { computed, ref } from 'vue'
-import { getModelLogo } from './models'
-
-type ModelRecord = {
+<script lang="ts">
+export interface ModelRecord {
     providerId: string
     providerTitle: string
     modelId: string
     modelName: string
+    rate?: number
+    caps?: {
+        vision?: boolean
+        tools?: boolean
+    }
 }
+</script>
+
+<script setup lang="ts">
+import { useModelStore } from './store/model'
+import { computed } from 'vue'
+import { getModelLogo } from './models'
+import IconImage from '~icons/mdi/image'
+import IconWrench from '~icons/mdi/wrench'
+
+const props = withDefaults(
+    defineProps<{
+        modelValue?: string
+        filter?: (model: ModelRecord) => boolean
+    }>(),
+    {
+        modelValue: '',
+    },
+)
+
+const emit = defineEmits<{
+    'update:modelValue': [value: string]
+}>()
+
 const model = useModelStore()
+
 const availableModels = computed(() => {
     const models: ModelRecord[] = []
     for (const p of model.providers) {
-        if (!p.data.enabled) {
-            continue
-        }
+        if (!p.data.enabled) continue
         for (const m of p.data.models) {
-            if (!m.enabled) {
-                continue
-            }
-            models.push({
+            if (!m.enabled) continue
+            const record: ModelRecord = {
                 providerId: p.id,
                 providerTitle: p.title,
                 modelId: m.id,
-                modelName: m.name,
-            } as ModelRecord)
+                modelName: m.label || m.name,
+                rate: m.rate,
+                caps: m.caps,
+            }
+            if (props.filter && !props.filter(record)) continue
+            models.push(record)
         }
     }
     return models
 })
-const select = ref<any>(null)
+
+const localValue = computed({
+    get: () => props.modelValue,
+    set: (val) => emit('update:modelValue', val),
+})
+
 const selectedProvider = computed(() => {
-    if (select.value?.modelValue) {
-        const [providerId, modelId] = select.value.modelValue.split('|')
-        for (const p of model.providers) {
-            if (p.id === providerId) {
-                return p
-            }
-        }
-    } else {
-        return null
-    }
+    if (!props.modelValue) return null
+    const [providerId] = props.modelValue.split('|')
+    return model.providers.find((p) => p.id === providerId) || null
 })
+
 const selectedModel = computed(() => {
-    const [providerId, modelId] = select.value.modelValue.split('|')
-    if (!selectedProvider.value) {
-        return null
-    }
-    for (const m of selectedProvider.value.data.models) {
-        if (m.id === modelId) {
-            return m
-        }
-    }
-    return null
+    if (!props.modelValue) return null
+    const [providerId, modelId] = props.modelValue.split('|')
+    const provider = model.providers.find((p) => p.id === providerId)
+    if (!provider) return null
+    return provider.data.models.find((m) => m.id === modelId) || null
 })
+
 defineExpose({
     getInfo: () => {
         return {
             providerLogo: getModelLogo(selectedModel.value?.id || ''),
             providerTitle: selectedProvider.value?.title || '',
-            modelName: selectedModel.value?.name || '',
+            modelName: selectedModel.value?.label || selectedModel.value?.name || '',
         }
     },
 })
 </script>
 
 <template>
-    <a-select ref="select" style="width: auto" :placeholder="$t('model.select')">
+    <a-select v-model="localValue" style="min-width: 200px; width: auto" :placeholder="$t('model.select')">
         <template #label>
-            <div class="flex items-center" v-if="selectedProvider && selectedModel">
-                <div class="mr-1">
-                    <a-avatar
-                        :image-url="getModelLogo(selectedModel.id)"
-                        :size="20"
-                        shape="square"
-                        style="border: 1px solid #ccc"
+            <div class="flex items-center justify-between w-full" v-if="selectedProvider && selectedModel">
+                <div class="flex items-center">
+                    <div class="mr-1">
+                        <a-avatar
+                            :image-url="getModelLogo(selectedModel.id)"
+                            :size="20"
+                            shape="square"
+                            style="border: 1px solid #ccc"
+                        />
+                    </div>
+                    <div>{{ selectedModel.label || selectedModel.name }}</div>
+                </div>
+                <div class="flex items-center gap-0.5 ml-2">
+                    <IconImage
+                        v-if="selectedModel.caps?.vision"
+                        class="text-gray-400 w-3 h-3"
+                        :title="$t('model.capVision')"
                     />
-                </div>
-                <div class="mr-1">
-                    {{ selectedProvider?.title }}
-                </div>
-                <div class="mr-1 text-gray-400">/</div>
-                <div>
-                    {{ selectedModel.name }}
+                    <IconWrench
+                        v-if="selectedModel.caps?.tools"
+                        class="text-gray-400 w-3 h-3"
+                        :title="$t('model.capTools')"
+                    />
+                    <span v-if="selectedModel.rate != null" class="text-xs text-gray-400 ml-0.5"
+                        >×{{ selectedModel.rate }}</span
+                    >
                 </div>
             </div>
             <div class="flex items-center" v-else>
@@ -93,21 +124,22 @@ defineExpose({
             </div>
         </template>
         <a-option v-for="p in availableModels" :value="p.providerId + '|' + p.modelId">
-            <div class="flex items-center">
-                <div class="mr-1">
-                    <a-avatar
-                        :image-url="getModelLogo(p.modelId)"
-                        :size="20"
-                        shape="square"
-                        style="border: 1px solid #ccc"
-                    />
+            <div class="flex items-center justify-between w-full">
+                <div class="flex items-center">
+                    <div class="mr-1">
+                        <a-avatar
+                            :image-url="getModelLogo(p.modelId)"
+                            :size="20"
+                            shape="square"
+                            style="border: 1px solid #ccc"
+                        />
+                    </div>
+                    <div>{{ p.modelName }}</div>
                 </div>
-                <div class="mr-1">
-                    {{ p.providerTitle }}
-                </div>
-                <div class="mr-1 text-gray-400">/</div>
-                <div>
-                    {{ p.modelName }}
+                <div class="flex items-center gap-0.5 ml-2">
+                    <IconImage v-if="p.caps?.vision" class="text-gray-400 w-3 h-3" :title="$t('model.capVision')" />
+                    <IconWrench v-if="p.caps?.tools" class="text-gray-400 w-3 h-3" :title="$t('model.capTools')" />
+                    <span v-if="p.rate != null" class="text-xs text-gray-400 ml-0.5">×{{ p.rate }}</span>
                 </div>
             </div>
         </a-option>

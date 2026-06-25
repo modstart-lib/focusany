@@ -31,10 +31,7 @@ export default class KVDB {
         this.docMaxByteLength = 2 * 1024 * 1024
         // 20M
         this.docAttachmentMaxByteLength = 20 * 1024 * 1024
-        let dbPath = AppEnv.dataRoot
-        if (fs.existsSync(path.join(AppEnv.userData, 'kvdb'))) {
-            dbPath = AppEnv.userData
-        }
+        const dbPath = AppEnv.dataRoot
         this.dbpath = dbPath
         this.defaultDbName = path.join(dbPath, 'kvdb')
         this.versionControl = true

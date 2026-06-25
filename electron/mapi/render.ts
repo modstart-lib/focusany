@@ -15,6 +15,7 @@ import user from './user/render'
 import misc from './misc/render'
 import manager from './manager/render'
 import kvdb from './kvdb/render'
+import workflow from './workflow/render'
 
 export const MAPI = {
     init(env: typeof AppEnv = null) {
@@ -35,6 +36,7 @@ export const MAPI = {
                 misc,
                 manager,
                 kvdb,
+                workflow,
             })
             db.init()
             event.init()

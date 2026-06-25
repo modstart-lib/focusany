@@ -11,6 +11,8 @@ import ProviderTestDialog from './components/ProviderTestDialog.vue'
 import { getModelLogo } from './models'
 import { getProviderUrl } from './providers'
 import { useModelStore } from './store/model'
+import IconImage from '~icons/mdi/image'
+import IconWrench from '~icons/mdi/wrench'
 
 const userStore = useUserStore()
 const setting = useSettingStore()
@@ -284,7 +286,7 @@ onUnmounted(() => {
                     </div>
                     <div v-for="g in providerModelGroups" :key="provider.id + g.group" class="mb-2">
                         <a-collapse :default-active-key="[g.group]">
-                            <a-collapse-item :header="$t(g.group)" :key="g.group">
+                            <a-collapse-item :header="g.group" :key="g.group">
                                 <div class="-ml-6 -mr-1">
                                     <div
                                         v-for="m in g.models"
@@ -298,15 +300,28 @@ onUnmounted(() => {
                                                 style="border: 1px solid #ccc"
                                             />
                                         </div>
-                                        <div class="flex-grow">
-                                            {{ m.name }}
+                                        <div class="flex-grow flex items-center">
+                                            {{ m.label || m.name }}
+                                        </div>
+                                        <div class="flex items-center gap-0.5 mr-3">
+                                            <IconImage
+                                                v-if="m.caps?.vision"
+                                                class="text-gray-400 w-3 h-3"
+                                                :title="$t('model.capVision')"
+                                            />
+                                            <IconWrench
+                                                v-if="m.caps?.tools"
+                                                class="text-gray-400 w-3 h-3"
+                                                :title="$t('model.capTools')"
+                                            />
+                                            <span
+                                                v-if="provider.id === 'buildIn' && m.rate != null"
+                                                class="text-xs text-gray-400 ml-0.5"
+                                            >
+                                                ×{{ m.rate }}
+                                            </span>
                                         </div>
                                         <div class="flex items-center">
-                                            <span
-                                                v-if="provider.id === 'buildIn' && m.rate !== undefined"
-                                                class="text-xs text-gray-400 mr-2"
-                                                >×{{ m.rate }}</span
-                                            >
                                             <a-switch
                                                 :model-value="m.enabled"
                                                 @change="modelStore.changeModel(provider.id, m.id, 'enabled', $event)"

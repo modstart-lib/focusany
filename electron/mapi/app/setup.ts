@@ -1,5 +1,6 @@
 import { Permissions } from '../../lib/permission'
 import { rendererDistPath } from '../../lib/env-main'
+import { t } from '../../config/lang'
 
 export const SetupMain = {
     async isOk() {

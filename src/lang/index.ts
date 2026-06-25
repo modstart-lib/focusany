@@ -97,6 +97,9 @@ export const applyLocale = (lang: string) => {
 export const t = (key: string, param: object | null = null) => {
     // check if exists key
     if (!(key in messages[i18n.global.locale.value])) {
+        if (import.meta.env.DEV) {
+            console.warn(`[intlify] key "${key}" not found in ${i18n.global.locale.value}`)
+        }
         if (param) {
             return key.replace(/\{(\w+)\}/g, function (match, key) {
                 return key in param ? param[key] : match

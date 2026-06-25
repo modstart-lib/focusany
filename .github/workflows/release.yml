@@ -10,23 +10,62 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     strategy:
+      fail-fast: false
       matrix:
           include:
-              - os: ubuntu-latest
-                arch: [arm64, amd64]
-              - os: macos-latest
-                arch: [arm64, amd64]
-              - os: windows-latest
-                arch: [arm64, amd64]
+              - name: linux-x64
+                os: ubuntu-latest
+                arch: x64
+              - name: linux-arm64
+                os: ubuntu-24.04-arm
+                arch: arm64
+              - name: mac-x64
+                os: macos-latest
+                arch: x64
+              - name: mac-arm64
+                os: macos-latest
+                arch: arm64
+              - name: win-x64
+                os: windows-latest
+                arch: x64
+              - name: win-arm64
+                os: windows-11-arm
+                arch: arm64
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      - name: Git clone repo
+        if: runner.os == 'Linux' || runner.os == 'macOS'
+        env:
+          GIT_USER: ${{ secrets.GIT_USER }}
+          GIT_PASS: ${{ secrets.GIT_PASS }}
+          GIT_REPO_BASE: ${{ secrets.GIT_REPO_BASE }}
+          GIT_HOST: ${{ secrets.GIT_HOST }}
+        run: |
+          git clone -b main "https://${GIT_USER}:${GIT_PASS}@${GIT_HOST}/${GIT_REPO_BASE}/focusany-pro.git" code
+
+      - name: Git clone repo
+        if: runner.os == 'Windows'
+        env:
+          GIT_USER: ${{ secrets.GIT_USER }}
+          GIT_PASS: ${{ secrets.GIT_PASS }}
+          GIT_REPO_BASE: ${{ secrets.GIT_REPO_BASE }}
+          GIT_HOST: ${{ secrets.GIT_HOST }}
+        shell: pwsh
+        run: |
+          git clone -b main "https://${env:GIT_USER}:${env:GIT_PASS}@${env:GIT_HOST}/${env:GIT_REPO_BASE}/focusany-pro.git" code
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
 
       - name: Build Prepare (Linux)
         if: runner.os == 'Linux'
@@ -38,6 +77,20 @@ jobs:
         if: runner.os == 'macOS'
         run: |
             brew install python-setuptools
+
+      - name: Install fpm (Linux arm64)
+        if: runner.os == 'Linux' && runner.arch == 'ARM64'
+        run: |
+          sudo apt-get install -y ruby ruby-dev rubygems
+          sudo gem install fpm
+          # Replace cached x86 fpm with symlink to native arm64 system fpm
+          # (electron-builder always uses cached fpm, so we override it)
+          FPM_PATH=$(which fpm)
+          echo "System fpm: $FPM_PATH"
+          CACHE_DIR="$HOME/.cache/electron-builder/fpm/fpm-1.9.3-2.3.1-linux-x86"
+          rm -rf "$CACHE_DIR"
+          mkdir -p "$CACHE_DIR"
+          ln -sf "$FPM_PATH" "$CACHE_DIR/fpm"
 
       - name: Cert Prepare (macOS)
         if: runner.os == 'macOS'
@@ -51,6 +104,7 @@ jobs:
             security create-keychain -p "" build.keychain
             security import certificate.p12 -k build.keychain -P "$MACOS_CERTIFICATE_PASSWORD" -T /usr/bin/codesign
             security list-keychains -s build.keychain
+            security default-keychain -s build.keychain
             security set-keychain-settings -t 3600 -u build.keychain
             security unlock-keychain -p "" build.keychain
             echo "find-identity"
@@ -58,7 +112,7 @@ jobs:
             echo "find-identity"
             security find-identity -p codesigning
             echo "set-key-partition-list"
-            security set-key-partition-list -S apple-tool:,apple: -s -k "" -l "Mac Developer ID Application: Xi'an Yanyi Information Technology Co., Ltd" -t private build.keychain
+            security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "" -t private build.keychain
             echo "export"
             security export -k build.keychain -t certs -f x509 -p -o certificate.cer
             echo "add-trusted-cert"
@@ -68,40 +122,96 @@ jobs:
 
       - name: Install Dependencies (Linux/macOS)
         if: runner.os == 'Linux' || runner.os == 'macOS'
+        working-directory: code
+        run: npm install
+
+      - name: Configure Windows build environment
+        if: runner.os == 'Windows'
+        shell: pwsh
         run: |
-            npm install --ignore-scripts
-            rm -rf node_modules/canvas
-            npx electron-builder install-app-deps
+          "GYP_MSVS_VERSION=2022" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "npm_config_msvs_version=2022" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Install Visual Studio Build Tools
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $params = @(
+            "--add", "Microsoft.VisualStudio.Workload.VCTools",
+            "--includeRecommended"
+          )
+          if ($env:RUNNER_ARCH -eq 'ARM64') {
+            $params += @(
+              "--add", "Microsoft.VisualStudio.Component.VC.ARM64",
+              "--add", "Microsoft.VisualStudio.Component.VC.Tools.ARM64"
+            )
+          }
+          choco install visualstudio2022buildtools --params ($params -join ' ') -y
 
       - name: Install Dependencies (Windows)
         if: runner.os == 'Windows'
+        working-directory: code
         shell: pwsh
-        run: |
-            npm install --ignore-scripts
-            if (Test-Path node_modules\canvas) { Remove-Item -Recurse -Force node_modules\canvas }
-            npx electron-builder install-app-deps
+        run: npm install
+
+      - name: init ( Linux/macOS )
+        if: runner.os == 'Linux' || runner.os == 'macOS'
+        working-directory: code
+        run: bash ./scripts/init.sh
 
       - name: init ( Windows )
         if: runner.os == 'Windows'
+        working-directory: code
         shell: pwsh
         run: bash ./scripts/init.sh
 
-      - name: init ( Linux/osx )
-        if: runner.os == 'Linux' || runner.os == 'macOS'
-        run: bash ./scripts/init.sh
-
       - name: Build Release Files
+        working-directory: code
         run: npm run build
         env:
-          DEBUG: "electron-notarize:*"
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
-          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+            DEBUG: "electron-notarize:*"
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            TARGET_ARCH: ${{ matrix.arch == 'x64' && 'x64' || '' }}
+            APPLE_ID: ${{ secrets.APPLE_ID }}
+            APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
+            APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
+            APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+
+      - name: Rename output files (Linux/macOS)
+        if: runner.os == 'Linux' || runner.os == 'macOS'
+        working-directory: code
+        run: |
+            find dist-release/ -type f -name 'FocusAnyPro-*' -exec bash -c 'f="{}"; mv "$f" "${f/FocusAnyPro-/FocusAny-}"' \;
+
+      - name: Rename output files (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        working-directory: code
+        run: |
+            Get-ChildItem dist-release\FocusAnyPro-* | Rename-Item -NewName { $_.Name -replace 'FocusAnyPro-','FocusAny-' }
+
+      - name: Set Build Name ( Linux / macOS )
+        if: runner.os == 'Linux' || runner.os == 'macOS'
+        working-directory: code
+        run: |
+            DIST_FILE_NAME=${{ runner.os }}-${{ runner.arch }}-v$(date +%Y%m%d_%H%M%S)-${RANDOM}
+            echo ::add-mask::$DIST_FILE_NAME
+            echo DIST_FILE_NAME=$DIST_FILE_NAME >> $GITHUB_ENV
+
+      - name: Set Build Name ( Windows )
+        if: runner.os == 'Windows'
+        shell: pwsh
+        working-directory: code
+        run: |
+            $arch = "${{ runner.arch }}"
+            $randomNumber = Get-Random -Minimum 10000 -Maximum 99999
+            $DIST_FILE_NAME = "Windows-$arch-v$(Get-Date -Format 'yyyyMMdd_HHmmss')-$randomNumber"
+            Write-Host "::add-mask::$DIST_FILE_NAME"
+            echo "DIST_FILE_NAME=$DIST_FILE_NAME" >> $env:GITHUB_ENV
 
       - name: Upload Sourcemaps
         if: runner.os == 'Linux'
+        working-directory: code
         env:
           GROW_URL: ${{ secrets.GROW_URL }}
           GROW_APP_NAME: ${{ secrets.GROW_APP_NAME }}
@@ -121,56 +231,73 @@ jobs:
           done
           echo "Sourcemap upload done."
 
-      - name: Rename output files (Linux/macOS)
-        if: runner.os == 'Linux' || runner.os == 'macOS'
-        run: |
-            find dist-release/ -type f -name 'FocusAnyPro-*' -exec bash -c 'f="{}"; mv "$f" "${f/FocusAnyPro-/FocusAny-}"' \;
-
-      - name: Rename output files (Windows)
+      - name: Upload Artifact (Windows)
         if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-            Get-ChildItem dist-release\FocusAnyPro-* | Rename-Item -NewName { $_.Name -replace 'FocusAnyPro-','FocusAny-' }
-
-      - name: Set Build Name ( Linux / macOS )
-        if: runner.os == 'Linux' || runner.os == 'macOS'
-        run: |
-            DIST_FILE_NAME=${{ runner.os }}-${{ runner.arch }}-v$(date +%Y%m%d_%H%M%S)-${RANDOM}
-            echo ::add-mask::$DIST_FILE_NAME
-            echo DIST_FILE_NAME=$DIST_FILE_NAME >> $GITHUB_ENV
-
-      - name: Set Build Name ( Windows )
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-            $randomNumber = Get-Random -Minimum 10000 -Maximum 99999
-            $DIST_FILE_NAME = "Windows-X64-v$(Get-Date -Format 'yyyyMMdd_HHmmss')-$randomNumber"
-            Write-Host "::add-mask::$DIST_FILE_NAME"
-            echo "DIST_FILE_NAME=$DIST_FILE_NAME" >> $env:GITHUB_ENV
-
-      - name: Release Assets
-        uses: softprops/action-gh-release@v2
+        uses: actions/upload-artifact@v4
         with:
-          draft: true
-          prerelease: false
-          fail_on_unmatched_files: false
-          overwrite_files: true
-          files: |
-            dist-release/*.exe
-            dist-release/*.dmg
-            dist-release/*.AppImage
-            dist-release/*.deb
+          name: focusany-win-${{ matrix.arch }}
+          path: code/dist-release/*.exe
+
+      - name: Upload Artifact (macOS)
+        if: runner.os == 'macOS'
+        uses: actions/upload-artifact@v4
+        with:
+          name: focusany-mac-${{ matrix.arch }}
+          path: code/dist-release/*.dmg
+
+      - name: Upload Artifact (Linux)
+        if: runner.os == 'Linux'
+        uses: actions/upload-artifact@v4
+        with:
+          name: focusany-linux-${{ matrix.arch }}
+          path: |
+            code/dist-release/*.AppImage
+            code/dist-release/*.deb
+
+  # ── Release ────────────────────────────────────────────────────────────────────
+  release:
+    name: Create Release
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Download All Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: _artifacts
+          merge-multiple: false
+      - name: Create Release and Upload Assets
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG=${GITHUB_REF#refs/tags/}
+          # Delete any existing release for this tag (handles force-push)
+          gh release delete "$TAG" --yes 2>/dev/null || true
+          # Create release (draft, idempotent)
+          gh release create "$TAG" \
+            --title "$TAG" \
+            --draft \
+            --prerelease=false \
+            --notes "" \
+            2>/dev/null || true
+          # Upload all artifacts (with pre-release tag stripped from version)
+          FULL_VERSION=$(node -p "require('./package.json').version")
+          CLEAN_VERSION=$(node -p "require('./package.json').version.replace(/-[a-zA-Z][a-zA-Z0-9.]*$/, '')")
+          find _artifacts/ -type f | while read f; do
+            base=$(basename "$f")
+            clean=$(echo "$base" | sed "s/$FULL_VERSION/$CLEAN_VERSION/")
+            echo "Uploading: $clean"
+            gh release upload "$TAG" "$f" --clobber
+          done
 
   # ── Notify ────────────────────────────────────────────────────────────────────
   notify:
     name: Notify
-    needs: [build]
-    runs-on: ubuntu-latest
+    needs: [release]
     if: success()
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Notify Webhook
         run: |
             NAME="${{ github.event.repository.name }}"
@@ -179,4 +306,3 @@ jobs:
             curl -X POST "${{ secrets.HOOK_URL }}" \
               -H "Content-Type: application/json" \
               -d "{\"event\":\"${NAME}\",\"param\":{\"name\":\"${NAME}\",\"type\":\"${TYPE}\",\"version\":\"${VERSION}\"},\"data\":{\"name\":\"${NAME}\",\"type\":\"${TYPE}\",\"version\":\"${VERSION}\"}}"
-

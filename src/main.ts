@@ -16,6 +16,7 @@ import './style.less'
 import { reportErrorRender } from '../electron/mapi/log/beacon-render'
 import { useSettingStore } from './store/modules/setting'
 import { TaskManager } from './task'
+import { eventBus } from './eventBus'
 
 const settingStore = useSettingStore()
 
@@ -32,6 +33,8 @@ app.config.globalProperties.$t = t as any
 TaskManager.init()
 window.__test = testRegistry
 registerNavigate((path: string) => router.push(path).then(() => {}))
+// 初始化事件总线，开始监听主进程广播的系统事件
+eventBus.init()
 
 app.mount('#app').$nextTick(() => {
     postMessage({ payload: 'removeLoading' }, '*')

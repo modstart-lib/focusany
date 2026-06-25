@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import { t } from '../../../lang'
 import { SystemIcons } from '../../../../electron/mapi/manager/system/asset/icon'
 import {
     ActionMatch,
@@ -10,6 +11,7 @@ import {
     ActionMatchTypeEnum,
     ActionRecord,
 } from '../../../types/Manager'
+import ModalHeaderBar from '../../../components/ModalHeaderBar.vue'
 
 const visible = ref(false)
 const action = ref<ActionRecord | null>(null)
@@ -23,22 +25,22 @@ const show = async (a: ActionRecord, m: ActionMatch) => {
 
 const emit = defineEmits(['disable'])
 
+const title = computed(() => {
+    if (['text', 'key'].includes(match?.type as string)) {
+        return t('action.searchAction')
+    }
+    return t('action.matchAction')
+})
+
 defineExpose({
     show,
 })
 </script>
 
 <template>
-    <a-modal v-model:visible="visible" title-align="start">
+    <a-modal v-model:visible="visible" title-align="start" :closable="false" modal-class="pb-modal-header-compact">
         <template #title>
-            <div v-if="['text', 'key'].includes(match?.type as string)" class="flex items-center">
-                <img class="w-6 h-6 object-contain mr-2" :src="SystemIcons.searchKeyword" />
-                {{ $t('action.searchAction') }}
-            </div>
-            <div v-else class="flex items-center">
-                <img class="w-6 h-6 object-contain mr-2" :src="SystemIcons.searchMatch" />
-                {{ $t('action.matchAction') }}
-            </div>
+            <ModalHeaderBar :title="title" @close="visible = false" />
         </template>
         <template #footer>
             <a-button

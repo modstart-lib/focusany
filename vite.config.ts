@@ -22,7 +22,6 @@ export default defineConfig(({command}) => {
     const isBuild = command === "build";
     const sourcemap = isServe || !!process.env.VSCODE_DEBUG ? true : 'hidden';
     const minify = isBuild && !process.env.VSCODE_DEBUG;
-
     const externalPackages = [
         ...Object.keys("dependencies" in pkg ? pkg.dependencies : {}),
         ...Object.keys("devDependencies" in pkg ? pkg.devDependencies : {}),
@@ -112,7 +111,7 @@ export default defineConfig(({command}) => {
                                 // we can use `external` to exclude them to ensure they work correctly.
                                 // Others need to put them in `dependencies` to ensure they are collected into `app.asar` after the app is built.
                                 // Of course, this is not absolute, just this way is relatively simple. :)
-                                external: externalPackages,
+                                external: [...externalPackages, "node:sqlite"],
                             },
                         },
                     },

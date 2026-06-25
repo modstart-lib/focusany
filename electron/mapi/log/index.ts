@@ -27,7 +27,7 @@ const jsonStringifyLogData = (data: any) => {
 }
 
 const logsDir = () => {
-    return path.join(AppEnv.userData, 'logs')
+    return path.join(AppEnv.dataRoot, 'logs')
 }
 
 const appLogsDir = () => {

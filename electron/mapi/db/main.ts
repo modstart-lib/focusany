@@ -4,7 +4,6 @@ import migration from './migration'
 import { AppEnv } from '../env'
 import { Log } from '../log/main'
 import { ipcMain } from 'electron'
-import fs from 'node:fs'
 import { Files } from '../file/main'
 
 let dbPath: string | null = null
@@ -145,10 +144,6 @@ const migrate = async () => {
  */
 const init = async () => {
     dbPath = path.join(AppEnv.dataRoot, 'database.db')
-    const userDbPath = path.join(AppEnv.userData, 'database.db')
-    if (fs.existsSync(userDbPath)) {
-        dbPath = userDbPath
-    }
     try {
         dbConn = new sqlite3(dbPath)
         dbSuccess = true

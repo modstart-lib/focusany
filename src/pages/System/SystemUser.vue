@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onBeforeUnmount, onMounted, ref } from 'vue'
 import PageWebviewStatus from '../../components/common/PageWebviewStatus.vue'
 import { useUserPage } from '../../hooks/user'
+import { testActionSet, testActionUnset } from '../../utils/test'
 
 const status = ref<InstanceType<typeof PageWebviewStatus> | null>(null)
 const web = ref<any | null>(null)
@@ -10,6 +11,11 @@ const { webPreload, webUrl, webUserAgent, user, canGoBack, doBack, onMount } = u
 
 onMounted(async () => {
     await onMount()
+    testActionSet('systemUser.loaded', () => true)
+})
+
+onBeforeUnmount(() => {
+    testActionUnset('systemUser.loaded')
 })
 </script>
 

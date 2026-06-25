@@ -12,6 +12,9 @@ import SystemPlugin from './System/SystemPlugin.vue'
 import SystemSetting from './System/SystemSetting.vue'
 import SystemUser from './System/SystemUser.vue'
 const tab = ref('setting')
+const doOpenWorkflow = async () => {
+    await window.$mapi.manager.openPlugin('workflow')
+}
 window.focusany.onPluginReady((data) => {
     const actionNameMap = {
         'page-data': 'data',
@@ -31,9 +34,10 @@ onMounted(() => {
     testActionSet('pageSystem.switchTab', (tabName: string) => {
         tab.value = tabName
     })
+    testActionSet('pageSystem.openWorkflow', doOpenWorkflow)
 })
 onUnmounted(() => {
-    testActionUnset('pageSystem.switchTab')
+    testActionUnset(['pageSystem.switchTab', 'pageSystem.openWorkflow'])
 })
 </script>
 
@@ -101,6 +105,13 @@ onUnmounted(() => {
                 >
                     <img class="w-6 h-6 object-contain mr-2 ml-2 dark:invert" :src="SystemIcons.model" />
                     {{ $t('system.aiModel') }}
+                </div>
+                <div
+                    class="flex items-center leading-10 py-1 px-1 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600"
+                    @click="doOpenWorkflow"
+                >
+                    <img class="w-6 h-6 object-contain mr-2 ml-2 dark:invert" :src="SystemIcons.pluginWorkflow" />
+                    {{ $t('workflow.workflow') }}
                 </div>
                 <div
                     class="flex items-center leading-10 py-1 px-1 rounded-lg cursor-pointer"

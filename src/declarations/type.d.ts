@@ -145,6 +145,25 @@ type DefsMapi = {
         setAutoLaunch: (enable: boolean, options?: {}) => Promise<boolean>
         getAutoLaunch: (options?: {}) => Promise<boolean>
     }
+    workflow: {
+        list: () => Promise<any[]>
+        get: (id: string) => Promise<any>
+        insert: (payload: any) => Promise<any>
+        update: (payload: any) => Promise<any>
+        delete: (id: string) => Promise<void>
+        run: (id: string, option?: any) => Promise<any>
+        emit: (eventName: string) => Promise<any[]>
+        listLog: () => Promise<any[]>
+        listModels: () => Promise<
+            {
+                providerId: string
+                providerLogo: string
+                providerTitle: string
+                modelId: string
+                modelName: string
+            }[]
+        >
+    }
     config: {
         get: (key: string, defaultValue: any = null) => Promise<any>
         set: (key: string, value: any) => Promise<void>
@@ -422,7 +441,24 @@ type DefsMapi = {
 
         getMcpServer: () => Promise<string>
         getMcpInfo: () => Promise<{
-            tools: { name: string; description: string }[]
+            tools: {
+                name: string
+                description: string
+                inputSchema?: {
+                    type?: string
+                    properties?: Record<
+                        string,
+                        {
+                            type?: string
+                            title?: string
+                            description?: string
+                            default?: any
+                            enum?: any[]
+                        }
+                    >
+                    required?: string[]
+                }
+            }[]
         }>
 
         isShown: () => Promise<boolean>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import PageWebviewStatus from '../components/common/PageWebviewStatus.vue'
+import { testActionSet, testActionUnset } from '../utils/test'
 
 const status = ref<InstanceType<typeof PageWebviewStatus> | null>(null)
 const web = ref<any | null>(null)
@@ -11,6 +12,7 @@ const emit = defineEmits({
 
 const webPreload = ref('')
 const webUrl = ref('')
+const webReady = ref(false)
 const webUserAgent =
     'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36'
 const pageTitle = ref('')
@@ -37,6 +39,7 @@ window.__page.registerCallPage('MonitorData', (resolve, reject, payload) => {
         emit('event', 'SetTitle', { title: pageTitle.value })
     } else if ('LoadUrl' == type) {
         status.value?.setStatus('loading')
+        webReady.value = false
         pageOpenDevTools.value = data.openDevTools
         pageScript.value = data.script
         webUrl.value = data.url
@@ -60,7 +63,7 @@ const doRefresh = (e) => {
         pageDebugToolsShow.value = !pageDebugToolsShow.value
         return
     }
-    if (web.value) {
+    if (web.value && webReady.value) {
         web.value.reload()
     }
 }
@@ -82,6 +85,7 @@ watch(web, (newVal) => {
         }
     })
     web.value.addEventListener('dom-ready', (e) => {
+        webReady.value = true
         if (pageOpenDevTools.value) {
             web.value.openDevTools()
         }
@@ -117,6 +121,21 @@ watch(web, (newVal) => {
 
 onMounted(async () => {
     webPreload.value = await window.$mapi.app.getPreload()
+    testActionSet('pageMonitor.loaded', () => true)
+    testActionSet('pageMonitor.refresh', () => {
+        if (web.value && webReady.value) {
+            web.value.reload()
+            return true
+        }
+        return false
+    })
+    testActionSet('pageMonitor.debugToggle', () => {
+        pageDebugToolsShow.value = !pageDebugToolsShow.value
+    })
+})
+
+onBeforeUnmount(() => {
+    testActionUnset(['pageMonitor.loaded', 'pageMonitor.refresh', 'pageMonitor.debugToggle'])
 })
 </script>
 

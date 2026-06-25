@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useModelStore } from '../store/model'
+import ModalHeaderBar from '../../../components/ModalHeaderBar.vue'
 
 const modelStore = useModelStore()
 const props = defineProps({
@@ -16,6 +17,10 @@ const data = ref({
     id: '',
     name: '',
     group: '',
+    caps: {
+        vision: false,
+        tools: false,
+    },
 })
 watch(
     () => data.value.id,
@@ -28,6 +33,10 @@ const show = () => {
     data.value.id = ''
     data.value.name = ''
     data.value.group = ''
+    data.value.caps = {
+        vision: false,
+        tools: false,
+    }
     visible.value = true
 }
 const doSubmit = () => {
@@ -50,9 +59,17 @@ defineExpose({
 </script>
 
 <template>
-    <a-modal v-model:visible="visible" width="30rem" :esc-to-close="false" :mask-closable="false" title-align="start">
+    <a-modal
+        v-model:visible="visible"
+        width="30rem"
+        :esc-to-close="false"
+        :mask-closable="false"
+        title-align="start"
+        :closable="false"
+        modal-class="pb-modal-header-compact"
+    >
         <template #title>
-            {{ $t('model.add') }}
+            <ModalHeaderBar :title="$t('model.add')" @close="visible = false" />
         </template>
         <template #footer>
             <a-button @click="visible = false">{{ $t('common.cancel') }}</a-button>
@@ -68,6 +85,12 @@ defineExpose({
                 </a-form-item>
                 <a-form-item :label="$t('group.name')" name="type">
                     <a-input v-model:model-value="data.group" :placeholder="$t('placeholder.chatgpt')" />
+                </a-form-item>
+                <a-form-item :label="$t('model.capVision')" name="capVision">
+                    <a-switch v-model="data.caps.vision" />
+                </a-form-item>
+                <a-form-item :label="$t('model.capTools')" name="capTools">
+                    <a-switch v-model="data.caps.tools" />
                 </a-form-item>
             </a-form>
         </div>

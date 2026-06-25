@@ -10,7 +10,7 @@
         "output": "dist-release",
         "buildResources": "electron/resources/build"
     },
-    "afterPack": "./scripts/build_optimize.cjs",
+    "afterPack": "./scripts/build-optimize.cjs",
     "files": [
         "dist",
         "dist-electron"
@@ -38,8 +38,8 @@
                 "from": "electron/resources/extra",
                 "to": "extra",
                 "filter": [
-                    "common",
-                    "win"
+                    "common/**",
+                    "win-*/**"
                 ]
             }
         ],
@@ -100,8 +100,8 @@
                 "from": "electron/resources/extra",
                 "to": "extra",
                 "filter": [
-                    "common",
-                    "osx"
+                    "common/**",
+                    "osx/**"
                 ]
             }
         ],
@@ -136,7 +136,7 @@
         "notarize": false,
         "darkModeSupport": false,
         "hardenedRuntime": true,
-        "identity": "Xi'an Yanyi Information Technology Co., Ltd (Q96H3H33RK)",
+        "identity": null,
     },
     "linux": {
         "icon": "logo.icns",
@@ -164,8 +164,8 @@
                 "from": "electron/resources/extra",
                 "to": "extra",
                 "filter": [
-                    "common",
-                    "linux"
+                    "common/**",
+                    "linux/**"
                 ]
             }
         ],

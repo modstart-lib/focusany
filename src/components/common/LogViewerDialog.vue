@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import LogViewer from './LogViewer.vue'
 import FileLogViewer from './FileLogViewer.vue'
+import ModalHeaderBar from '../ModalHeaderBar.vue'
 
 const visible = ref(false)
 const autoScroll = ref(true)
@@ -29,9 +30,16 @@ defineExpose({
 </script>
 
 <template>
-    <a-modal v-model:visible="visible" title-align="start" :footer="false" width="80vw">
+    <a-modal
+        v-model:visible="visible"
+        title-align="start"
+        :footer="false"
+        width="80vw"
+        :closable="false"
+        modal-class="pb-modal-header-compact"
+    >
         <template #title>
-            {{ $t('log.view') }}
+            <ModalHeaderBar :title="$t('log.view')" @close="visible = false" />
         </template>
         <div>
             <div class="mb-2 -mt-3">

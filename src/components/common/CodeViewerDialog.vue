@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { nextTick, onMounted, ref } from 'vue'
+import ModalHeaderBar from '../ModalHeaderBar.vue'
 import { EditorView, keymap, lineNumbers } from '@codemirror/view'
 import { dracula } from '@uiw/codemirror-theme-dracula'
 import { quietlight } from '@uiw/codemirror-theme-quietlight'
@@ -57,9 +58,15 @@ defineExpose({
 </script>
 
 <template>
-    <a-modal v-model:visible="visible" :footer="false" width="80vw">
+    <a-modal
+        v-model:visible="visible"
+        :footer="false"
+        width="80vw"
+        :closable="false"
+        modal-class="pb-modal-header-compact"
+    >
         <template #title>
-            {{ $t('common.viewCode') }}
+            <ModalHeaderBar :title="$t('common.viewCode')" @close="visible = false" />
         </template>
         <div>
             <div class="w-full h-96">

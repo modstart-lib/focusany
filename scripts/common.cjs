@@ -1,6 +1,7 @@
 const fs = require("node:fs");
 const {resolve, join} = require("node:path");
 const crypto = require("node:crypto");
+const {execSync} = require("node:child_process");
 
 const dir = (p) => {
     p = p || ''
@@ -89,7 +90,16 @@ const copy = (src, dest, print) => {
         if (print) {
             console.log(`Copying file from ${src} to ${dest}`);
         }
-        fs.copyFileSync(src, dest);
+        try { fs.unlinkSync(dest); } catch (e) {}
+        const srcStat = fs.statSync(src);
+        // macOS 26+ com.apple.provenance xattr 导致 cp 失败，先用 Node.js 直接读写（不保留 xattr）
+        try {
+            fs.writeFileSync(dest, fs.readFileSync(src));
+        } catch (writeErr) {
+            // 如果直接写入也失败（macOS 沙箱限制），尝试 shell cp -f
+            execSync(`/bin/cp -f '${src}' '${dest}'`);
+        }
+        try { fs.chmodSync(dest, srcStat.mode); } catch (e) {}
     }
 }
 

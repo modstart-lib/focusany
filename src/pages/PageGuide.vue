@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { nextTick, onBeforeMount, onMounted, ref } from 'vue'
+import { nextTick, onBeforeMount, onMounted, onUnmounted, ref } from 'vue'
 import { AppConfig } from '../config'
 import PageWebviewStatus from '../components/common/PageWebviewStatus.vue'
+import { testActionSet, testActionUnset } from '../utils/test'
 
 const status = ref<InstanceType<typeof PageWebviewStatus> | null>(null)
 const web = ref<any | null>(null)
@@ -11,6 +12,7 @@ const webUserAgent = window.$mapi.app.getUserAgent()
 
 onMounted(async () => {
     webPreload.value = await window.$mapi.app.getPreload()
+    testActionSet('pageGuide.loaded', () => true)
     nextTick(() => {
         web.value.addEventListener('did-fail-load', (event: any) => {
             status.value?.setStatus('fail')
@@ -22,6 +24,10 @@ onMounted(async () => {
         status.value?.setStatus('loading')
         webUrl.value = AppConfig.guideUrl
     })
+})
+
+onUnmounted(() => {
+    testActionUnset('pageGuide.loaded')
 })
 </script>
 

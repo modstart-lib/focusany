@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import { doCopy } from './util'
 import { Dialog } from '../../lib/dialog'
 import { t } from '../../lang'
+import ModalHeaderBar from '../ModalHeaderBar.vue'
 
 const props = defineProps<{
     size?: 'small' | undefined
@@ -43,9 +44,15 @@ const type = computed(() => {
         </template>
         {{ title }}
     </a-button>
-    <a-modal v-model:visible="visible" width="800px" title-align="start">
+    <a-modal
+        v-model:visible="visible"
+        width="800px"
+        title-align="start"
+        :closable="false"
+        modal-class="pb-modal-header-compact"
+    >
         <template #title>
-            {{ title }}
+            <ModalHeaderBar :title="title" @close="visible = false" />
         </template>
         <template #footer>
             <a-button @click="doRestore">

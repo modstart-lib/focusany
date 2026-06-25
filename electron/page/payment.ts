@@ -11,28 +11,35 @@ import { DevToolsManager } from '../lib/devtools'
 export const PagePayment = {
     NAME: 'payment',
     event: {
-        onRefresh: null,
-        onWatch: null,
-        onClose: null,
+        onRefresh: async () => ({
+            payUrl: 'https://focusany.com',
+            watchUrl: '',
+            payExpireSeconds: 300,
+            body: 'FocusAny',
+        }),
+        onWatch: async () => ({
+            status: 'WaitPay' as const,
+        }),
+        onClose: () => {},
     },
     open: async (option: {
-        onRefresh: () => Promise<{
+        onRefresh?: () => Promise<{
             payUrl: string
             watchUrl: string
             payExpireSeconds: number
             body: string
         }>
-        onWatch: () => Promise<{
+        onWatch?: () => Promise<{
             status: 'WaitPay' | 'Scanned' | 'Payed' | 'Expired' | 'Error'
         }>
-        onClose: () => void
+        onClose?: () => void
         parent?: BrowserWindow
     }): Promise<{
         close: () => void
     }> => {
-        PagePayment.event.onRefresh = option.onRefresh
-        PagePayment.event.onWatch = option.onWatch
-        PagePayment.event.onClose = option.onClose
+        if (option.onRefresh) PagePayment.event.onRefresh = option.onRefresh
+        if (option.onWatch) PagePayment.event.onWatch = option.onWatch
+        if (option.onClose) PagePayment.event.onClose = option.onClose
         let icon = logoPath
         if (process.platform === 'win32') {
             icon = icoLogoPath

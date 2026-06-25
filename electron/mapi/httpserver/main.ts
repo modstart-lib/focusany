@@ -31,7 +31,11 @@ const generateToken = (): string => {
 
 const writeCliAuthFile = (port: number, token: string): void => {
     try {
-        const filePath = path.join(AppEnv.userData, 'cli-auth.json')
+        const filePath = path.join(AppEnv.dataRoot, 'cli-auth.json')
+        const dir = path.dirname(filePath)
+        if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true })
+        }
         fs.writeFileSync(filePath, JSON.stringify({ port, token }), 'utf-8')
     } catch (e) {
         Log.error('httpserver.writeCliAuthFile.error', e)

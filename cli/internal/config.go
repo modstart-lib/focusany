@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"runtime"
+	"strings"
 )
 
 // AuthConfig holds the port and token read from cli-auth.json
@@ -14,43 +14,100 @@ type AuthConfig struct {
 	Token string `json:"token"`
 }
 
-// userDataDir returns the Electron userData directory path matching app.getPath('userData')
-// which uses the app name "focusany".
-func userDataDir() (string, error) {
-	switch runtime.GOOS {
-	case "darwin":
-		home, err := os.UserHomeDir()
-		if err != nil {
-			return "", err
-		}
-		return filepath.Join(home, "Library", "Application Support", "focusany"), nil
-	case "windows":
-		appData := os.Getenv("APPDATA")
-		if appData == "" {
-			return "", fmt.Errorf("APPDATA environment variable not set")
-		}
-		return filepath.Join(appData, "focusany"), nil
-	default:
-		// Linux: XDG_CONFIG_HOME or ~/.config
-		configDir := os.Getenv("XDG_CONFIG_HOME")
-		if configDir == "" {
-			home, err := os.UserHomeDir()
-			if err != nil {
-				return "", err
-			}
-			configDir = filepath.Join(home, ".config")
-		}
-		return filepath.Join(configDir, "focusany"), nil
-	}
+// ClientConfig holds the shared local client settings.
+type ClientConfig struct {
+	DataPath string `json:"dataPath"`
 }
 
-// LoadAuthConfig reads cli-auth.json from the focusany userData directory.
-func LoadAuthConfig() (*AuthConfig, error) {
-	dir, err := userDataDir()
+func focusanyRoot() (string, error) {
+	home, err := os.UserHomeDir()
 	if err != nil {
-		return nil, fmt.Errorf("cannot determine userData directory: %w", err)
+		return "", err
 	}
-	filePath := filepath.Join(dir, "cli-auth.json")
+	return filepath.Join(home, ".focusany"), nil
+}
+
+func defaultClientConfig() (*ClientConfig, error) {
+	root, err := focusanyRoot()
+	if err != nil {
+		return nil, err
+	}
+	return &ClientConfig{DataPath: filepath.Join(root, "data")}, nil
+}
+
+func expandHome(value string) (string, error) {
+	if value != "~" && !strings.HasPrefix(value, "~/") && !strings.HasPrefix(value, "~"+string(filepath.Separator)) {
+		return value, nil
+	}
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return "", err
+	}
+	if value == "~" {
+		return home, nil
+	}
+	return filepath.Join(home, value[2:]), nil
+}
+
+func writeClientConfig(filePath string, cfg *ClientConfig) error {
+	if err := os.MkdirAll(filepath.Dir(filePath), 0755); err != nil {
+		return err
+	}
+	b, err := json.MarshalIndent(cfg, "", "  ")
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(filePath, b, 0644)
+}
+
+// LoadClientConfig reads ~/.focusany/client.json and creates it when missing.
+func LoadClientConfig() (*ClientConfig, error) {
+	root, err := focusanyRoot()
+	if err != nil {
+		return nil, err
+	}
+	filePath := filepath.Join(root, "client.json")
+	defaultCfg, err := defaultClientConfig()
+	if err != nil {
+		return nil, err
+	}
+	if _, err := os.Stat(filePath); os.IsNotExist(err) {
+		if err := writeClientConfig(filePath, defaultCfg); err != nil {
+			return nil, fmt.Errorf("cannot create %s: %w", filePath, err)
+		}
+		return defaultCfg, nil
+	} else if err != nil {
+		return nil, fmt.Errorf("cannot stat %s: %w", filePath, err)
+	}
+	data, err := os.ReadFile(filePath)
+	if err != nil {
+		return nil, fmt.Errorf("cannot read %s: %w", filePath, err)
+	}
+	var cfg ClientConfig
+	if err := json.Unmarshal(data, &cfg); err != nil {
+		return nil, fmt.Errorf("invalid client.json: %w", err)
+	}
+	if strings.TrimSpace(cfg.DataPath) == "" {
+		cfg.DataPath = defaultCfg.DataPath
+	}
+	cfg.DataPath, err = expandHome(cfg.DataPath)
+	if err != nil {
+		return nil, err
+	}
+	cfg.DataPath, err = filepath.Abs(cfg.DataPath)
+	if err != nil {
+		return nil, err
+	}
+	return &cfg, nil
+}
+
+// LoadAuthConfig reads cli-auth.json from the configured FocusAny dataPath.
+func LoadAuthConfig() (*AuthConfig, error) {
+	clientCfg, err := LoadClientConfig()
+	if err != nil {
+		return nil, fmt.Errorf("cannot load client config: %w", err)
+	}
+	filePath := filepath.Join(clientCfg.DataPath, "cli-auth.json")
 	data, err := os.ReadFile(filePath)
 	if err != nil {
 		return nil, fmt.Errorf("cannot read %s: %w (is FocusAny running?)", filePath, err)

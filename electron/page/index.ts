@@ -1,7 +1,6 @@
 import { Events } from '../mapi/event/main'
 import { AppEnv, AppRuntime } from '../mapi/env'
 import { PageUser } from './user'
-import { PageThirdPartyImageBeautifier } from './thirdPartyImageBeautifier'
 import { BrowserWindow, shell } from 'electron'
 import { rendererLoadPath } from '../lib/env-main'
 import { PageGuide } from './guide'
@@ -14,7 +13,6 @@ import { PageMonitor } from './monitor'
 import { PageLog } from './log'
 
 const Pages = {
-    thirdPartyImageBeautifier: PageThirdPartyImageBeautifier,
     user: PageUser,
     guide: PageGuide,
     setup: PageSetup,
@@ -84,6 +82,9 @@ export const Page = {
             AppRuntime.windows[name].focus()
             AppRuntime.windows[name].setParentWindow(option.parent)
             return
+        }
+        if (!Pages[name]) {
+            throw new Error(`PageNotFound:${name}`)
         }
         return Pages[name].open(option)
     },

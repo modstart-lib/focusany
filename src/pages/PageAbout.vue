@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import FeedbackTicketButton from '../components/common/FeedbackTicketButton.vue'
 import UpdaterButton from '../components/common/UpdaterButton.vue'
 import { AppConfig } from '../config'
 import { t } from '../lang'
 import { useSettingStore } from '../store/modules/setting'
+import { testActionSet, testActionUnset } from '../utils/test'
 
 const setting = useSettingStore()
 const licenseYear = new Date().getFullYear()
@@ -13,6 +14,15 @@ const devSettingVisible = ref(false)
 const doOpenLog = async () => {
     await window.$mapi.app.openPath(window.$mapi.log.root())
 }
+onMounted(() => {
+    testActionSet('pageAbout.loaded', () => true)
+    testActionSet('pageAbout.openLog', () => doOpenLog())
+})
+
+onUnmounted(() => {
+    testActionUnset(['pageAbout.loaded', 'pageAbout.openLog'])
+})
+
 let clickTimes = 0
 let clickLastTime = 0
 const doDevSettingTriggerClick = () => {

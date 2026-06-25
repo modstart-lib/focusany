@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { t } from '../lang'
 import { Dialog } from '../lib/dialog'
+import { testActionSet, testActionUnset } from '../utils/test'
 
 const recordActiveIndex = ref(0)
 const recordActive = computed(() => {
@@ -23,6 +24,13 @@ const records = ref<
 onMounted(() => {
     doLoad().then()
     window.$mapi.app.windowHide('main')
+    testActionSet('pageSetup.loaded', () => records.value.length)
+    testActionSet('pageSetup.check', () => doCheck())
+    testActionSet('pageSetup.open', () => doOpen())
+})
+
+onBeforeUnmount(() => {
+    testActionUnset(['pageSetup.loaded', 'pageSetup.check', 'pageSetup.open'])
 })
 
 const doLoad = async () => {

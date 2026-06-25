@@ -2,6 +2,7 @@
 import { ipcRenderer } from 'electron'
 import QRCode from 'qrcode'
 import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { testActionSet, testActionUnset } from '../utils/test'
 
 const payUrl = ref<string>('')
 const qrcodeExpireTime = ref<number>(0)
@@ -15,6 +16,8 @@ let watchTimer = null as any
 
 onMounted(async () => {
     await doRefresh()
+    testActionSet('pagePayment.loaded', () => status.value)
+    testActionSet('pagePayment.refresh', () => doRefresh())
     countDownTimer = setInterval(() => {
         if (status.value !== 'WaitPay') {
             return
@@ -34,6 +37,7 @@ onMounted(async () => {
 onBeforeUnmount(() => {
     clearInterval(countDownTimer)
     clearTimeout(watchTimer)
+    testActionUnset(['pagePayment.loaded', 'pagePayment.refresh'])
 })
 
 const doRefresh = async () => {

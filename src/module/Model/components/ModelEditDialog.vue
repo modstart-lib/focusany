@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { useModelStore } from '../store/model'
 import { Model } from '../types'
+import ModalHeaderBar from '../../../components/ModalHeaderBar.vue'
 
 const modelStore = useModelStore()
 const props = defineProps({
@@ -17,11 +18,19 @@ const data = ref({
     id: '',
     name: '',
     group: '',
+    caps: {
+        vision: false,
+        tools: false,
+    },
 })
 const show = (model: Model) => {
     data.value.id = model.id
     data.value.name = model.name
     data.value.group = model.group
+    data.value.caps = {
+        vision: !!model.caps?.vision,
+        tools: !!model.caps?.tools,
+    }
     visible.value = true
 }
 const doSubmit = () => {
@@ -37,9 +46,17 @@ defineExpose({
 </script>
 
 <template>
-    <a-modal v-model:visible="visible" width="30rem" :esc-to-close="false" :mask-closable="false" title-align="start">
+    <a-modal
+        v-model:visible="visible"
+        width="30rem"
+        :esc-to-close="false"
+        :mask-closable="false"
+        title-align="start"
+        :closable="false"
+        modal-class="pb-modal-header-compact"
+    >
         <template #title>
-            {{ $t('model.edit') }}
+            <ModalHeaderBar :title="$t('model.edit')" @close="visible = false" />
         </template>
         <template #footer>
             <a-button @click="visible = false">{{ $t('common.cancel') }}</a-button>
@@ -60,6 +77,12 @@ defineExpose({
                 </a-form-item>
                 <a-form-item :label="$t('group.name')" name="type">
                     <a-input v-model:model-value="data.group" :placeholder="$t('placeholder.chatgpt')" />
+                </a-form-item>
+                <a-form-item :label="$t('model.capVision')" name="capVision">
+                    <a-switch v-model="data.caps.vision" />
+                </a-form-item>
+                <a-form-item :label="$t('model.capTools')" name="capTools">
+                    <a-switch v-model="data.caps.tools" />
                 </a-form-item>
             </a-form>
         </div>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useSettingStore } from '../store/modules/setting'
+import ModalHeaderBar from './ModalHeaderBar.vue'
 
 const visible = ref(false)
 const remember = ref(false)
@@ -50,11 +51,13 @@ defineExpose({
     <a-modal
         v-model:visible="visible"
         width="22rem"
-        modal-class="pb-app-quit-confirm"
-        :closable="true"
-        :title="$t('common.tip')"
+        :modal-class="['pb-app-quit-confirm', 'pb-modal-header-compact']"
+        :closable="false"
         title-align="start"
     >
+        <template #title>
+            <ModalHeaderBar :title="$t('common.tip')" @close="visible = false" />
+        </template>
         <template #footer>
             <a-button @click="doCancel">{{ $t('common.cancel') }}</a-button>
             <a-button @click="doExit">{{ $t('common.exit') }}</a-button>

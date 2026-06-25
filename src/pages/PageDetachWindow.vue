@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { onBeforeMount, ref } from 'vue'
+import { onBeforeMount, onBeforeUnmount, ref } from 'vue'
 import { PluginRecord, PluginState, PluginType } from '../types/Manager'
 import { useDetachWindowOperate } from './DetachWindow/operate'
 import debounce from 'lodash/debounce'
 import { useSettingStore } from '../store/modules/setting'
+import { testActionSet, testActionUnset } from '../utils/test'
 
 const setting = useSettingStore()
 
@@ -27,6 +28,17 @@ const subInputChangeDebounce = debounce((keywords) => {
 
 onBeforeMount(async () => {
     isOsx.value = window.$mapi.app.isPlatform('osx')
+    testActionSet('pageDetachWindow.loaded', () => ({
+        plugin: plugin.value?.name,
+        windowTitle: windowTitle.value,
+        alwaysOnTop: alwaysOnTop.value,
+    }))
+    testActionSet('pageDetachWindow.toggleAlwaysOnTop', () => doToggleAlwaysOnTop())
+    testActionSet('pageDetachWindow.close', () => doClose())
+})
+
+onBeforeUnmount(() => {
+    testActionUnset(['pageDetachWindow.loaded', 'pageDetachWindow.toggleAlwaysOnTop', 'pageDetachWindow.close'])
 })
 
 const doToggleAlwaysOnTop = async () => {

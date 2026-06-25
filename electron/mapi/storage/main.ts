@@ -5,19 +5,11 @@ import nodePath from 'node:path'
 
 let data = {}
 
-const userDataRoot = () => {
-    return nodePath.join(AppEnv.userData, 'storage')
-}
-
 const dataRoot = () => {
     return nodePath.join(AppEnv.dataRoot, 'storage')
 }
 
 const filePath = (group: string) => {
-    let p = nodePath.join(userDataRoot(), `${group}.json`)
-    if (fs.existsSync(p)) {
-        return p
-    }
     return nodePath.join(dataRoot(), `${group}.json`)
 }
 

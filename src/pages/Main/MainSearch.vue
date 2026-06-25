@@ -100,12 +100,13 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, onMounted, ref, watch } from 'vue'
+import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import IconFormatText from '~icons/mdi/format-text'
 import { useDragWindow } from '../../app/dragWindow'
 import FileExt from '../../components/common/FileExt.vue'
 import { useManagerStore } from '../../store/modules/manager'
 import { PluginType } from '../../types/Manager'
+import { testActionSet, testActionUnset } from '../../utils/test'
 import { EntryListener } from './Lib/entryListener'
 import { useSearchOperate } from './Lib/searchOperate'
 
@@ -159,6 +160,11 @@ watch(
 
 onMounted(() => {
     updateWidth()
+    testActionSet('mainSearch.loaded', () => true)
+})
+
+onBeforeUnmount(() => {
+    testActionUnset('mainSearch.loaded')
 })
 
 const onSearchValueChange = (value: string) => {

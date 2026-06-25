@@ -1,6 +1,6 @@
 <template>
     <a-config-provider :locale="locale" :global="true">
-        <div ref="main" id="main" :class="{ 'no-active-plugin': !manager.activePlugin }">
+        <div ref="main" id="main">
             <MainSearch ref="mainSearch" @onClose="onClose" />
             <MainResult ref="mainResult" />
         </div>
@@ -194,42 +194,10 @@ onMounted(() => {
 </script>
 
 <style lang="less">
-@mainBorderRadius: 15px;
 #main {
     height: 100vh;
     overflow: hidden;
-    border-radius: @mainBorderRadius;
     background: #ffffff;
-
-    &.no-active-plugin {
-        &::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            padding: 4px;
-            border-radius: @mainBorderRadius;
-            background-image: linear-gradient(130deg, #a8c8f4, #61c4f5, #ba59ff);
-            background-size: 300% 300%;
-            animation: border-flow 2s linear infinite;
-            -webkit-mask:
-                linear-gradient(#fff 0 0) content-box,
-                linear-gradient(#fff 0 0);
-            -webkit-mask-composite: xor;
-            pointer-events: none;
-        }
-
-        @keyframes border-flow {
-            0% {
-                background-position: 0% 50%;
-            }
-            50% {
-                background-position: 100% 50%;
-            }
-            100% {
-                background-position: 0% 50%;
-            }
-        }
-    }
 }
 
 [data-theme='dark'] {

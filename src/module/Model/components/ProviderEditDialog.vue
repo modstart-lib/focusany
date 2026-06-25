@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { ProviderType } from '../types'
 import { useModelStore } from '../store/model'
+import ModalHeaderBar from '../../../components/ModalHeaderBar.vue'
 
 const modelStore = useModelStore()
 const visible = ref(false)
@@ -35,9 +36,17 @@ defineExpose({
 </script>
 
 <template>
-    <a-modal v-model:visible="visible" width="30rem" :esc-to-close="false" :mask-closable="false" title-align="start">
+    <a-modal
+        v-model:visible="visible"
+        width="30rem"
+        :esc-to-close="false"
+        :mask-closable="false"
+        title-align="start"
+        :closable="false"
+        modal-class="pb-modal-header-compact"
+    >
         <template #title>
-            {{ $t('model.editProvider') }}
+            <ModalHeaderBar :title="$t('model.editProvider')" @close="visible = false" />
         </template>
         <template #footer>
             <a-button @click="visible = false">{{ $t('common.cancel') }}</a-button>

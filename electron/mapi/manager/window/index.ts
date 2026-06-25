@@ -66,6 +66,22 @@ const removeDetachWindows = (win: BrowserWindow) => {
     detachWindows.delete(win.webContents)
 }
 
+const isBrowserViewAlive = (view?: BrowserView | null) => {
+    try {
+        return !!view?.webContents && !view.webContents.isDestroyed()
+    } catch {
+        return false
+    }
+}
+
+const isBrowserWindowAlive = (win?: BrowserWindow | null) => {
+    try {
+        return !!win && !win.isDestroyed()
+    } catch {
+        return false
+    }
+}
+
 const checkForHotkey = async (view: PluginContext, input: Electron.Input) => {
     if (view._event && view._event['Hotkey']) {
         const hotkey = HotKeyUtil.getFromEvent(input)
@@ -99,7 +115,7 @@ export const ManagerWindow = {
                 break
             }
             // console.log('getViewByWebContents.value.start', value[1], value[1]._window)
-            if (value[1]._window.webContents === webContents) {
+            if (isBrowserWindowAlive(value[1]._window) && value[1]._window.webContents === webContents) {
                 return value[1]
             }
         }
@@ -155,15 +171,21 @@ export const ManagerWindow = {
         })
     },
     async _pluginViewLoad(view: BrowserView, main: string) {
+        const pluginName = view._plugin?.name || 'Unknown'
         try {
+            if (!isBrowserViewAlive(view)) {
+                return
+            }
             if (rendererIsUrl(main)) {
                 await view.webContents.loadURL(main)
             } else {
                 await view.webContents.loadFile(main)
             }
         } catch (e) {
-            view.webContents.loadURL('about:blank').then()
-            PluginLog.error(view._plugin.name, 'Load.Error-loadUrl', {
+            if (isBrowserViewAlive(view)) {
+                await view.webContents.loadURL('about:blank').catch(() => {})
+            }
+            PluginLog.error(pluginName, 'Load.Error-loadUrl', {
                 error: e + '',
                 main,
             })
@@ -391,6 +413,9 @@ export const ManagerWindow = {
         if (option.type === 'action' && singleton) {
             for (const v of this.listBrowserViews()) {
                 if (v._plugin.name === plugin.name) {
+                    if (!v._window) {
+                        continue
+                    }
                     v._window.show()
                     v._window.focus()
                     await executeHooks(AppRuntime.mainWindow, 'PluginAlreadyOpened', {})
@@ -516,23 +541,35 @@ export const ManagerWindow = {
                 isVisible: false,
             },
             loadUrl: async () => {
-                ManagerWindow._pluginViewLoad(view, main).then()
+                await ManagerWindow._pluginViewLoad(view, main)
             },
             option,
         }
         setTimeout(async () => {
-            if (autoDetach) {
-                if (!mainWindowView) {
-                    AppRuntime.mainWindow.hide()
+            try {
+                if (!isBrowserViewAlive(view)) {
+                    return
                 }
+                if (autoDetach) {
+                    if (!mainWindowView) {
+                        AppRuntime.mainWindow.hide()
+                    }
+                }
+                if (autoDetach || option.type === 'callPage') {
+                    await this._showInDetachWindow(view, windowOption)
+                } else {
+                    await this._showInMainWindow(view, windowOption)
+                }
+                if (!isBrowserViewAlive(view)) {
+                    return
+                }
+                // Log.info('open.PluginReady', JSON.stringify({readyData, action}))
+                await executePluginHooks(view, 'PluginReady', readyData)
+            } catch (e) {
+                PluginLog.error(view._plugin.name, 'Load.Error-showWindow', {
+                    error: e + '',
+                })
             }
-            if (autoDetach || option.type === 'callPage') {
-                await this._showInDetachWindow(view, windowOption)
-            } else {
-                await this._showInMainWindow(view, windowOption)
-            }
-            // Log.info('open.PluginReady', JSON.stringify({readyData, action}))
-            await executePluginHooks(view, 'PluginReady', readyData)
         }, 0)
     },
     async subInputChange(win: BrowserWindow, keywords: string) {
@@ -608,8 +645,14 @@ export const ManagerWindow = {
         }
     },
     async _showInMainWindow(view: BrowserView, option: OpenShowWindowOption) {
+        if (!isBrowserViewAlive(view)) {
+            return
+        }
         if (!(await ManagerPluginEvent.isMainWindowShown(null, null))) {
             await ManagerPluginEvent.showMainWindow(null, null)
+        }
+        if (!isBrowserViewAlive(view)) {
+            return
         }
         // console.log('showInMainWindow', view._plugin.name, option)
         if (mainWindowView) {
@@ -617,6 +660,9 @@ export const ManagerWindow = {
                 openForNext: true,
             })
             mainWindowView = null
+        }
+        if (!isBrowserViewAlive(view)) {
+            return
         }
         view._window = AppRuntime.mainWindow
         mainWindowView = view
@@ -634,8 +680,17 @@ export const ManagerWindow = {
             param: pluginParam,
         }
         await executeHooks(view._window, 'PluginInit', pluginInitReadyParam)
+        if (!isBrowserViewAlive(view)) {
+            return
+        }
         view.webContents.once('dom-ready', async () => {
+            if (!isBrowserViewAlive(view)) {
+                return
+            }
             await executeHooks(view._window, 'PluginInitReady', pluginInitReadyParam)
+            if (!isBrowserViewAlive(view)) {
+                return
+            }
             view.setBounds({
                 x: 0,
                 y: WindowConfig.mainHeight,
@@ -644,9 +699,12 @@ export const ManagerWindow = {
             })
             AppRuntime.mainWindow.focus()
         })
-        option.loadUrl()
+        await option.loadUrl()
     },
     async _showInDetachWindow(view: BrowserView, option: OpenShowWindowOption) {
+        if (!isBrowserViewAlive(view)) {
+            return
+        }
         const plugin = view._plugin
         let alwaysOnTop = false
         if (plugin.setting?.detachAlwaysOnTop) {
@@ -657,7 +715,7 @@ export const ManagerWindow = {
             option.width,
             option.height + WindowConfig.detachWindowTitleHeight,
         )
-        let win = new BrowserWindow({
+        let win: BrowserWindow | undefined = new BrowserWindow({
             height: option.height + WindowConfig.detachWindowTitleHeight,
             width: option.width,
             autoHideMenuBar: true,
@@ -704,10 +762,15 @@ export const ManagerWindow = {
             await executeHooks(AppRuntime.mainWindow, 'DetachWindowClosed', {})
         })
         win.on('focus', () => {
-            view && win.webContents?.focus()
+            if (isBrowserViewAlive(view) && isBrowserWindowAlive(win)) {
+                win.webContents?.focus()
+            }
         })
         DevToolsManager.register(`DetachWindow.${view._plugin.name}`, win)
         win.on('maximize', () => {
+            if (!isBrowserWindowAlive(win)) {
+                return
+            }
             executeHooks(win, 'Maximize')
             const display = screen.getDisplayMatching(win.getBounds())
             view.setBounds({
@@ -718,6 +781,9 @@ export const ManagerWindow = {
             })
         })
         win.on('unmaximize', () => {
+            if (!isBrowserWindowAlive(win)) {
+                return
+            }
             executeHooks(win, 'Unmaximize')
             const bounds = win.getBounds()
             const display = screen.getDisplayMatching(bounds)
@@ -732,7 +798,9 @@ export const ManagerWindow = {
         })
         win.webContents.once('render-process-gone', () => {
             // console.log('detach.render-process-gone')
-            win.close()
+            if (isBrowserWindowAlive(win)) {
+                win.close()
+            }
         })
         win.webContents.on('before-input-event', (event, input) => {
             if (input.type === 'keyDown') {
@@ -754,11 +822,15 @@ export const ManagerWindow = {
             return { action: 'deny' }
         })
         if (option.loadUrl) {
-            option.loadUrl()
+            await option.loadUrl()
         }
         const pluginJson = JSON.parse(JSON.stringify(view._plugin))
         return new Promise((resolve, reject) => {
             win.webContents.once('dom-ready', async () => {
+                if (!isBrowserViewAlive(view)) {
+                    resolve(undefined)
+                    return
+                }
                 await executeDarkMode(win, {
                     plugin,
                     isSystem: true,
@@ -826,6 +898,27 @@ export const ManagerWindow = {
     },
     async closeDetachPlugin(view: BrowserView, option?: {}) {
         view._window.close()
+    },
+    async testCallMainPluginAction(name: string, arg?: any) {
+        if (!mainWindowView) {
+            throw new Error('MainPluginViewNotFound')
+        }
+        return mainWindowView.webContents.executeJavaScript(
+            `(() => {
+                if (!window.__test) throw new Error('TestRegistryNotFound')
+                if (!window.__test.listActions().includes(${JSON.stringify(name)})) {
+                    throw new Error('TestActionNotFound: ${name}')
+                }
+                return window.__test.callAction(${JSON.stringify(name)}, ${JSON.stringify(arg)})
+            })()`,
+        )
+    },
+    async testCaptureMainPluginView() {
+        if (!mainWindowView) {
+            throw new Error('MainPluginViewNotFound')
+        }
+        const image = await mainWindowView.webContents.capturePage()
+        return image.toPNG().toString('base64')
     },
     async openDetachPluginDevTools(view: BrowserView, option?: {}) {
         const devToolsWin = DevToolsManager.getWindow(view)

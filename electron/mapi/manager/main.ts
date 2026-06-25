@@ -384,6 +384,14 @@ ipcMain.handle('manager:closeDetachPlugin', async (event) => {
     await ManagerWindow.closeDetachPlugin(view)
 })
 
+ipcMain.handle('test:callMainPluginAction', async (event, name: string, arg?: any) => {
+    return ManagerWindow.testCallMainPluginAction(name, arg)
+})
+
+ipcMain.handle('test:captureMainPluginView', async () => {
+    return ManagerWindow.testCaptureMainPluginView()
+})
+
 ipcMain.handle('manager:openDetachPluginDevTools', async (event, option?: {}) => {
     const view = ManagerWindow.getViewByWebContents(event.sender)
     await ManagerWindow.openDetachPluginDevTools(view)

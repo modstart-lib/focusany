@@ -154,11 +154,25 @@ const windowOpen = async (
     },
 ) => {
     name = name || 'main'
+    if (name === 'main') {
+        AppRuntime.mainWindow.show()
+        AppRuntime.mainWindow.focus()
+        return
+    }
     return Page.open(name, option)
 }
 
-ipcMain.handle('window:open', (event, name: string, option: any) => {
-    return windowOpen(name, option)
+ipcMain.handle('window:open', async (event, name: string, option: any) => {
+    await windowOpen(name, option)
+})
+
+ipcMain.handle('test:captureWindow', async (event, name?: string) => {
+    const win = getWindowByName(name || 'main') || BrowserWindow.fromWebContents(event.sender)
+    if (!win) {
+        throw new Error('WindowNotFound')
+    }
+    const image = await win.capturePage()
+    return image.toPNG().toString('base64')
 })
 
 ipcMain.handle('window:hide', (event, name: string) => {

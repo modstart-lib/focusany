@@ -101,9 +101,10 @@ export const modelStore = defineStore('model', {
                                 name: m.name,
                                 group: m.group,
                                 types: ['text' as Model['types'][number]],
+                                caps: (m as any).caps || {},
                                 enabled: false,
                                 editable: false,
-                            } satisfies Model
+                            } as Model
                         }),
                         enabled: false,
                     },
@@ -140,14 +141,16 @@ export const modelStore = defineStore('model', {
                     for (const providerId in storageData.providerData) {
                         const provider = results.find((p) => p.id === providerId)
                         if (provider) {
+                            provider.apiUrl = storageData.providerData[providerId].apiUrl || provider.apiUrl || ''
                             provider.data.apiKey = storageData.providerData[providerId].apiKey || ''
                             provider.data.apiHost = storageData.providerData[providerId].apiHost
-                            ;(storageData.providerData[providerId].models || []).forEach((model) => {
+                            ;(storageData.providerData[providerId].models || []).forEach((model: any) => {
                                 const existingModel = provider.data.models.find((m) => m.id === model.id)
                                 if (existingModel) {
                                     existingModel.name = model.name
                                     existingModel.group = model.group
                                     existingModel.types = model.types
+                                    existingModel.caps = model.caps || existingModel.caps || {}
                                     existingModel.enabled = model.enabled || false
                                 } else {
                                     provider.data.models.push({
@@ -155,7 +158,8 @@ export const modelStore = defineStore('model', {
                                         provider: providerId,
                                         name: model.name,
                                         group: model.group,
-                                        types: ['text'],
+                                        types: ['text'] as Model['types'],
+                                        caps: model.caps || {},
                                         enabled: model.enabled || false,
                                         editable: true,
                                     })
@@ -192,28 +196,27 @@ export const modelStore = defineStore('model', {
         async refreshBuildIn(buildInProviderData?: Partial<Provider['data']> | null) {
             if (userStore.data && userStore.data.llmpx && userStore.data.llmpx.models) {
                 const llmpx = userStore.data.llmpx
-                if (!llmpx.apiUrl) {
-                    return
-                }
                 const buildInProvider = this.providers.find((p) => p.id === 'buildIn')
                 if (!buildInProvider) {
                     const models: Model[] = []
                     for (const m of llmpx.models) {
-                        const modelId = typeof m === 'string' ? m : m.name
-                        const modelRate = typeof m === 'string' ? undefined : m.rate
-                        const savedModel = (buildInProviderData?.models || []).find((sm) => sm.id === modelId)
+                        const modelName = (m as any).name || m
+                        const modelRate = (m as any).rate
+                        const modelCaps = (m as any).caps || {}
+                        const savedModel = (buildInProviderData?.models || []).find((sm: any) => sm.id === modelName)
                         models.push({
-                            id: modelId,
+                            id: modelName,
                             provider: 'buildIn',
-                            name: modelId,
+                            name: modelName,
+                            label: (m as any).label || undefined,
                             group: 'Default',
                             types: ['text'],
-                            enabled: savedModel ? savedModel.enabled : true,
+                            caps: modelCaps,
+                            enabled: savedModel ? (savedModel.enabled ?? true) : true,
                             editable: false,
                             rate: modelRate,
                         })
                     }
-                    // console.log("model.init.buildIn", JSON.stringify({llmpx}, null, 2));
                     let enabled = true
                     if (buildInProviderData && 'enabled' in buildInProviderData) {
                         enabled = buildInProviderData.enabled ?? true
@@ -240,25 +243,25 @@ export const modelStore = defineStore('model', {
                     })
                 } else {
                     buildInProvider.data.apiKey = llmpx.apiKey
-                    for (const m of llmpx.models) {
-                        const modelId = typeof m === 'string' ? m : m.name
-                        const modelRate = typeof m === 'string' ? undefined : m.rate
-                        const existingModel = buildInProvider.data.models.find((em) => em.id === modelId)
-                        if (existingModel) {
-                            existingModel.rate = modelRate
-                        } else {
-                            buildInProvider.data.models.push({
-                                id: modelId,
-                                provider: 'buildIn',
-                                name: modelId,
-                                group: 'Default',
-                                types: ['text'],
-                                enabled: true,
-                                editable: false,
-                                rate: modelRate,
-                            })
-                        }
-                    }
+                    buildInProvider.apiUrl = llmpx.apiUrl
+                    buildInProvider.data.models = llmpx.models.map((m: any) => {
+                        const modelName = m.name || m
+                        const savedModel =
+                            buildInProviderData?.models?.find((sm: any) => sm.id === modelName) ||
+                            buildInProvider.data.models.find((sm: any) => sm.id === modelName)
+                        return {
+                            id: modelName,
+                            provider: 'buildIn',
+                            name: modelName,
+                            label: m.label || undefined,
+                            group: 'Default',
+                            types: ['text'],
+                            caps: m.caps || {},
+                            enabled: savedModel ? (savedModel.enabled ?? true) : true,
+                            editable: false,
+                            rate: m.rate,
+                        } as Model
+                    })
                 }
             }
         },
@@ -430,6 +433,7 @@ export const modelStore = defineStore('model', {
                 name: model.name || '',
                 group: model.group || '',
                 types: model.types || ['text'],
+                caps: model.caps || {},
                 enabled: true,
                 editable: model.editable ?? true,
             }
@@ -463,6 +467,9 @@ export const modelStore = defineStore('model', {
                 if ('types' in model) {
                     m.types = model.types || ['text']
                 }
+                if ('caps' in model) {
+                    m.caps = model.caps || {}
+                }
                 if ('enabled' in model) {
                     m.enabled = model.enabled as boolean
                 }
@@ -481,9 +488,12 @@ export const modelStore = defineStore('model', {
             await this.sync()
         },
         sync: debounce(async () => {
-            const providerData = {}
+            const providerData: any = {}
             model.providers.forEach((provider) => {
-                providerData[provider.id] = ObjectUtil.clone(provider.data)
+                providerData[provider.id] = {
+                    ...ObjectUtil.clone(provider.data),
+                    apiUrl: provider.apiUrl || '',
+                }
                 if (provider.id === 'buildIn') {
                     providerData[provider.id].apiKey = ''
                 }

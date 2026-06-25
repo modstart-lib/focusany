@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import { onMounted, onUnmounted } from 'vue'
 import { useManagerStore } from '../../store/modules/manager'
 import { PluginType } from '../../types/Manager'
+import { testActionSet, testActionUnset } from '../../utils/test'
 import { useViewOperate } from '../Main/Lib/viewOperate'
 import { useResultOperate } from './Lib/resultOperate'
 
@@ -8,6 +10,14 @@ const manager = useManagerStore()
 const { doOpenAction } = useResultOperate()
 
 const { webUserAgent, viewActions } = useViewOperate('fastPanel')
+
+onMounted(() => {
+    testActionSet('fastPanelResult.loaded', () => true)
+})
+
+onUnmounted(() => {
+    testActionUnset('fastPanelResult.loaded')
+})
 </script>
 
 <template>

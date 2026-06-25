@@ -41,6 +41,9 @@ export const t = (text: string, param: object | null = null) => {
             return messages[locale][text]
         }
     }
+    if (isDev) {
+        console.warn(`[intlify] key "${text}" not found in ${locale}`)
+    }
     if (param) {
         return text.replace(/\{(\w+)\}/g, function (match, key) {
             return key in param ? param[key] : match

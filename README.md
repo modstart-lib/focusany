@@ -4,6 +4,8 @@
   <img src="./screenshots/cn/home.png" alt="FocusAny 主界面" width="800"/>
 </div>
 
+> [🇨🇳 中文](README.md) | [🇺🇸 English](README.en-US.md)
+
 <div align="center">
   <img src="https://img.shields.io/badge/Framework-TS%2BVue3%2BElectron-blue" alt="Framework"/>
   <a href="https://focusany.com"><img src="https://img.shields.io/badge/WEB-focusany.com-blue" alt="Website"/></a>

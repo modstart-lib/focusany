@@ -4,6 +4,7 @@ import PageWebviewStatus from '../components/common/PageWebviewStatus.vue'
 import { t } from '../lang'
 import { useSettingStore } from '../store/modules/setting'
 import { useUserStore } from '../store/modules/user'
+import { testActionSet, testActionUnset } from '../utils/test'
 
 const setting = useSettingStore()
 const user = useUserStore()
@@ -45,10 +46,12 @@ document.addEventListener('click', (event) => {
     webPreload.value = await window.$mapi.app.getPreload()
     webUrl.value = await window.$mapi.user.getWebEnterUrl(`/store`)
     window.__page.onBroadcast('PluginInstallProgress', installProgressCallback)
+    testActionSet('pageStore.loaded', () => true)
 })
 
 onBeforeUnmount(() => {
     window.__page.offBroadcast('PluginInstallProgress', installProgressCallback)
+    testActionUnset('pageStore.loaded')
 })
 
 focusany.setSubInput(

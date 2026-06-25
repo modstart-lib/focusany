@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import CodeViewer from '../../../components/common/CodeViewer.vue'
 import { t } from '../../../lang'
 import { Dialog } from '../../../lib/dialog'
 import { SystemDataRecord } from './type'
+import ModalHeaderBar from '../../../components/ModalHeaderBar.vue'
 
 const visible = ref(false)
 const record = ref<SystemDataRecord | null>(null)
@@ -34,17 +35,17 @@ const doDelete = async () => {
 
 const emit = defineEmits(['update'])
 
+const title = computed(() => key.value || '')
+
 defineExpose({
     show,
 })
 </script>
 
 <template>
-    <a-modal v-model:visible="visible" title-align="start">
+    <a-modal v-model:visible="visible" title-align="start" :closable="false" modal-class="pb-modal-header-compact">
         <template #title>
-            <div class="truncate hover:bg-gray-100 cursor-pointer w-96">
-                {{ key }}
-            </div>
+            <ModalHeaderBar :title="title" @close="visible = false" />
         </template>
         <template #footer>
             <a-button type="primary" size="small" status="danger" @click="doDelete">

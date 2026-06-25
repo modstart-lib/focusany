@@ -2,6 +2,7 @@
 import { ref, toRaw } from 'vue'
 import { t } from '../../../../lang'
 import { Dialog } from '../../../../lib/dialog'
+import ModalHeaderBar from '../../../../components/ModalHeaderBar.vue'
 
 const visible = ref(false)
 const formData = ref({
@@ -48,8 +49,10 @@ defineExpose({
 </script>
 
 <template>
-    <a-modal v-model:visible="visible" title-align="start">
-        <template #title> {{ $t('backup.webdavSettings') }} </template>
+    <a-modal v-model:visible="visible" title-align="start" :closable="false" modal-class="pb-modal-header-compact">
+        <template #title>
+            <ModalHeaderBar :title="$t('backup.webdavSettings')" @close="visible = false" />
+        </template>
         <template #footer>
             <a-button type="primary" size="small" @click="doSubmit"> {{ $t('common.save') }} </a-button>
             <a-button size="small" @click="visible = false"> {{ $t('common.close') }} </a-button>

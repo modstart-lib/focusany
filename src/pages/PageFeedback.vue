@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
+import { nextTick, onBeforeUnmount, onMounted, onUnmounted, ref } from 'vue'
 import { AppConfig } from '../config'
 import { t } from '../lang'
 import UpdaterButton from '../components/common/UpdaterButton.vue'
 import { useSettingStore } from '../store/modules/setting'
 import FeedbackTicketButton from '../components/common/FeedbackTicketButton.vue'
 import PageWebviewStatus from '../components/common/PageWebviewStatus.vue'
+import { testActionSet, testActionUnset } from '../utils/test'
 
 const setting = useSettingStore()
 
@@ -19,6 +20,7 @@ onMounted(async () => {
     status.value?.setStatus('loading')
     webPreload.value = await window.$mapi.app.getPreload()
     webUrl.value = AppConfig.feedbackUrl
+    testActionSet('pageFeedback.loaded', () => true)
     nextTick(() => {
         web.value.addEventListener('did-fail-load', (event: any) => {
             status.value?.setStatus('fail')
@@ -42,6 +44,10 @@ document.addEventListener('click', (event) => {
             status.value?.setStatus('success')
         })
     })
+})
+
+onUnmounted(() => {
+    testActionUnset('pageFeedback.loaded')
 })
 </script>
 

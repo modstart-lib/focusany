@@ -8,14 +8,15 @@
 </template>
 
 <script setup lang="ts">
+import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { useLocale } from '../app/locale'
-import { ref } from 'vue'
 import FastPanelSearch from './FastPanel/FastPanelSearch.vue'
 import FastPanelResult from './FastPanel/FastPanelResult.vue'
 import MainSearch from './Main/MainSearch.vue'
 import MainResult from './Main/MainResult.vue'
 import { useSettingStore } from '../store/modules/setting'
 import { useManagerStore } from '../store/modules/manager'
+import { testActionSet, testActionUnset } from '../utils/test'
 
 const setting = useSettingStore()
 // do not remove this line, it is used to trigger the setting store to be initialized
@@ -31,6 +32,14 @@ const mainResult = ref<InstanceType<typeof MainResult> | null>(null)
 window.__page.onShow(() => {
     manager.showFirstRun = true
     mainSearch.value?.onShow()
+})
+
+onMounted(() => {
+    testActionSet('pageFastPanel.loaded', () => true)
+})
+
+onBeforeUnmount(() => {
+    testActionUnset('pageFastPanel.loaded')
 })
 </script>
 

@@ -2,12 +2,19 @@ export type ProviderType = 'openai' // | 'anthropic' | 'gemini' | 'qwenlm' | 'az
 
 export type ModelType = 'text' // | 'vision' | 'embedding' | 'reasoning' | 'function_calling'
 
+export type ModelCaps = {
+    vision?: boolean
+    tools?: boolean
+}
+
 export type Model = {
     id: string
     provider: string
     name: string
+    label?: string
     group: string
     types: ModelType[]
+    caps?: ModelCaps
     enabled: boolean
     editable: boolean
     rate?: number

@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import { onMounted, onUnmounted } from 'vue'
 import IconFormatText from '~icons/mdi/format-text'
 import { useDragWindow } from '../../app/dragWindow'
 import FileExt from '../../components/common/FileExt.vue'
 import { useManagerStore } from '../../store/modules/manager'
+import { testActionSet, testActionUnset } from '../../utils/test'
 import { EntryListener } from '../Main/Lib/entryListener'
 import { useSearchOperate } from '../Main/Lib/searchOperate'
 
@@ -20,6 +22,14 @@ const onShow = () => {
         isFastPanel: true,
     }).then()
 }
+
+onMounted(() => {
+    testActionSet('fastPanelSearch.loaded', () => true)
+})
+
+onUnmounted(() => {
+    testActionUnset('fastPanelSearch.loaded')
+})
 
 defineExpose({
     onShow,

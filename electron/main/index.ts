@@ -8,6 +8,7 @@ import { isDummy } from '../lib/process'
 
 import { AppEnv, AppRuntime } from '../mapi/env'
 import { MAPI } from '../mapi/main'
+import { SystemEventBus } from '../mapi/event/systemEventBus'
 
 import { AppConfig } from '../../src/config'
 import { ConfigContextMenu } from '../config/contextMenu'
@@ -16,6 +17,7 @@ import { ConfigLang } from '../config/lang'
 import { ConfigMenu } from '../config/menu'
 import { ConfigTray } from '../config/tray'
 import { WindowConfig } from '../config/window'
+import { loadClientConfig } from '../lib/clientConfig'
 import { DevToolsManager } from '../lib/devtools'
 import { isMac, isPackaged } from '../lib/env'
 import { preloadDefault, rendererLoadPath } from '../lib/env-main'
@@ -29,7 +31,13 @@ import { ProtocolMain } from '../mapi/protocol/main'
 import { Page } from '../page'
 import { FastPanelMain } from './fastPanel'
 
+const focusanyDataRoot = loadClientConfig().dataPath
+if (!fs.existsSync(focusanyDataRoot)) {
+    fs.mkdirSync(focusanyDataRoot, { recursive: true })
+}
+app.setPath('userData', focusanyDataRoot)
 app.commandLine.appendSwitch('enable-experimental-web-platform-features')
+app.commandLine.appendSwitch('user-data-dir', focusanyDataRoot)
 
 const isDummyNew = isDummy
 
@@ -38,7 +46,7 @@ if (process.env['ELECTRON_ENV_PROD']) {
 }
 
 const logDebugContent = (label: string, content: any) => {
-    const filePath = AppEnv.userData + '/debug.log'
+    const filePath = path.join(AppEnv.dataRoot, 'debug.log')
     const msg = label + ' - ' + JSON.stringify(content)
     console.log(msg)
     fs.appendFileSync(filePath, msg + '\n')
@@ -82,7 +90,7 @@ if (!app.requestSingleInstanceLock()) {
 AppEnv.appRoot = process.env.APP_ROOT
 AppEnv.appData = app.getPath('appData')
 AppEnv.userData = app.getPath('userData')
-AppEnv.dataRoot = path.join(AppEnv.userData, 'data')
+AppEnv.dataRoot = focusanyDataRoot
 
 if (!fs.existsSync(AppEnv.dataRoot)) {
     fs.mkdirSync(AppEnv.dataRoot, { recursive: true })
@@ -234,7 +242,7 @@ app.whenReady()
         })
     })
     .then(ConfigLang.readyAsync)
-    .then(() => {
+    .then(async () => {
         if (isMac) {
             app.dock.hide()
         }
@@ -246,6 +254,8 @@ app.whenReady()
         })
         createWindow().then()
         handleArgsForApp(process.argv)
+        // 系统启动完成
+        SystemEventBus.emit('system:started', { timestamp: Date.now() })
     })
 
 app.on('before-quit', (event) => {

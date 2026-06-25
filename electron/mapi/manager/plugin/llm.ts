@@ -73,6 +73,7 @@ const listProviders = async (): Promise<Provider[]> => {
             for (const providerId in storageData.providerData) {
                 const provider = results.find((p) => p.id === providerId)
                 if (provider) {
+                    provider.apiUrl = storageData.providerData[providerId].apiUrl || provider.apiUrl || ''
                     provider.data.apiKey = storageData.providerData[providerId].apiKey || ''
                     provider.data.apiHost = storageData.providerData[providerId].apiHost
                     ;(storageData.providerData[providerId].models || []).forEach((model) => {
@@ -196,13 +197,17 @@ export const modelChat = async (
     if (!model || !model.enabled) {
         throw new Error(`Model not found or not enabled: ${modelId}`)
     }
-    const res = await ModelProvider.chat(message, {
-        type: provider.type,
-        modelId: model.id,
-        apiUrl: provider.apiUrl,
-        apiHost: provider.data.apiHost,
-        apiKey: provider.data.apiKey,
-    })
+    const res = await ModelProvider.chat(
+        message,
+        { systemPrompt: null },
+        {
+            type: provider.type,
+            modelId: model.id,
+            apiUrl: provider.apiUrl,
+            apiHost: provider.data.apiHost,
+            apiKey: provider.data.apiKey,
+        },
+    )
     if (res.code) {
         return {
             code: -1,

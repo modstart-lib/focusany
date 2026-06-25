@@ -14,6 +14,7 @@ import storage from './storage/main'
 import ui from './ui'
 import updater from './updater/main'
 import user from './user/main'
+import workflow from './workflow/main'
 
 const $mapi = {
     app,
@@ -31,6 +32,7 @@ const $mapi = {
     updater,
     manager,
     kvdb,
+    workflow,
 }
 
 export const MAPI = {
@@ -40,6 +42,7 @@ export const MAPI = {
         await $mapi.event.init()
         $mapi.kvdb.init()
         $mapi.manager.init()
+        await $mapi.workflow.init()
         HttpServer.start().then()
     },
     ready() {
@@ -50,5 +53,6 @@ export const MAPI = {
     destroy() {
         $mapi.keys.destroy()
         $mapi.manager.destroy()
+        $mapi.workflow.destroy()
     },
 }

@@ -7,18 +7,11 @@ import { Events } from '../event/main'
 let data = null
 let dataEnv = {}
 
-const userDataRoot = () => {
-    return path.join(AppEnv.userData, 'config.json')
-}
-
 const dataRoot = () => {
     return path.join(AppEnv.dataRoot, 'config.json')
 }
 
 const filePath = () => {
-    if (fs.existsSync(userDataRoot())) {
-        return userDataRoot()
-    }
     return dataRoot()
 }
 
@@ -39,7 +32,12 @@ const loadIfNeed = () => {
 }
 
 const save = () => {
-    fs.writeFileSync(filePath(), JSON.stringify(data, null, 4))
+    const p = filePath()
+    const dir = path.dirname(p)
+    if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true })
+    }
+    fs.writeFileSync(p, JSON.stringify(data, null, 4))
 }
 
 const all = async () => {

@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import FileLogViewer from '../components/common/FileLogViewer.vue'
+import { testActionSet, testActionUnset } from '../utils/test'
 
 const file = ref('')
 const autoScroll = ref(true)
@@ -10,6 +11,15 @@ const doOpen = async () => {
 window['__logInit'] = (option: { log: string }) => {
     file.value = option.log
 }
+
+onMounted(() => {
+    testActionSet('pageLog.loaded', () => ({ file: file.value, autoScroll: autoScroll.value }))
+    testActionSet('pageLog.openFile', () => doOpen())
+})
+
+onUnmounted(() => {
+    testActionUnset(['pageLog.loaded', 'pageLog.openFile'])
+})
 </script>
 
 <template>

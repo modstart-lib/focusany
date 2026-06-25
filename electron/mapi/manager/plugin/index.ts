@@ -12,6 +12,7 @@ import {
 } from '../../../../src/types/Manager'
 import { Files } from '../../file/main'
 import { preloadDefault, preloadPluginDefault, rendererDistPath, rendererIsUrl } from '../../../lib/env-main'
+import { SystemEventBus } from '../../event/systemEventBus'
 import { join } from 'node:path'
 import { KVDBMain } from '../../kvdb/main'
 import { CommonConfig } from '../../../config/common'
@@ -463,6 +464,10 @@ export const ManagerPlugin = {
             plugin.runtime = runtime
             await ManagerBackend.run(plugin, 'hook', 'installed', {})
         }, 1000)
+        SystemEventBus.emit('plugin:installed', {
+            name: info.name,
+            version: info.version,
+        })
     },
     async refreshInstall(name: string) {
         const doc = await KVDBMain.get(CommonConfig.dbSystem, `${CommonConfig.dbPluginIdPrefix}/${name}`)
@@ -499,6 +504,10 @@ export const ManagerPlugin = {
             plugin.runtime = runtime
             await ManagerBackend.run(plugin, 'hook', 'installed', {})
         }, 1000)
+        SystemEventBus.emit('plugin:installed', {
+            name: info.name,
+            version: info.version,
+        })
     },
     async uninstall(name: string) {
         const plugin = await this.get(name)
@@ -525,6 +534,9 @@ export const ManagerPlugin = {
         await ManagerConfig.clearCustomAction(name)
         await this.clearCache()
         await this.clearViewSession(plugin)
+        SystemEventBus.emit('plugin:uninstalled', {
+            name: info.name,
+        })
     },
     async getPluginInstalledVersion(name: string) {
         const plugin = await this.get(name)

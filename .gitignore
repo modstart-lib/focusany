@@ -39,6 +39,9 @@ database.db
 /AGENTS.md
 dist-cli/
 test-results/
-/_temp/
-/storage/screenshot-last/
-
+_temp/
+/storage/screenshot/image
+/storage/screenshot-last/image
+/storage/test-project/
+/DEV_*.md
+/.env
