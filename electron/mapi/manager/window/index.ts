@@ -551,7 +551,7 @@ export const ManagerWindow = {
                     return
                 }
                 if (autoDetach) {
-                    if (!mainWindowView) {
+                    if (!mainWindowView && !process.env.FOCUSANY_SCREENSHOT_SERVER) {
                         AppRuntime.mainWindow.hide()
                     }
                 }
