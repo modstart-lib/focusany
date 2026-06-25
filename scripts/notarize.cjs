@@ -23,15 +23,22 @@ function walkDir(dir) {
 }
 
 /**
- * Sign every .node file inside the .app bundle using the first available
- * Developer ID certificate.  This avoids Gatekeeper errors on quarantined
- * apps for unsigned native addons (rollup, fsevents, etc.).
+ * Resolve the first available Developer ID Application certificate identity.
  */
-function signNodeModules(appPath) {
-  const identity = execSync(
+function resolveDeveloperIdentity() {
+  const out = execSync(
     `security find-identity -v -p codesigning | grep "Developer ID Application" | head -1 | sed 's/.*"\\(.*\\)"/\\1/'`,
     {encoding: "utf8"}
   ).trim();
+  return out;
+}
+
+/**
+ * Sign every .node file inside the .app bundle using the given identity.
+ * This avoids Gatekeeper errors on quarantined apps for unsigned native
+ * addons (rollup, fsevents, etc.).
+ */
+function signNodeModules(appPath, identity) {
   if (!identity) {
     console.warn("  • [WARN] No Developer ID Application certificate found, skipping .node signing");
     return;
@@ -87,8 +94,22 @@ exports.default = async function notarizing(context) {
 
     let appPath = `${appOutDir}/${appName}.app`;
 
+    // ── Resolve signing identity once ──────────────────────────────
+    const identity = resolveDeveloperIdentity();
+
     // ── Sign all .node files before notarization ───────────────────
-    signNodeModules(appPath);
+    signNodeModules(appPath, identity);
+
+    // Re-sign the .app root bundle (without --deep) to update CodeResources,
+    // so the hashes of re-signed .node files match. Otherwise codesign --verify
+    // --deep --strict will report "file modified" on those .node files.
+    if (identity) {
+        console.log(`  • Re-signing .app bundle to update CodeResources`);
+        execSync(
+            `codesign --sign "${identity}" --force --options runtime --timestamp "${appPath}" 2>&1`,
+            {stdio: ["ignore", "pipe", "pipe"], timeout: 60000}
+        );
+    }
 
     let {APPLE_ID, APPLE_ID_PASSWORD, APPLE_TEAM_ID} = process.env;
     if (!APPLE_ID) {
