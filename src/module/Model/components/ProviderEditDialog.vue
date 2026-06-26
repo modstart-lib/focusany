@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { ProviderType } from '../types'
 import { useModelStore } from '../store/model'
+import { t } from '../../../lang'
 import ModalHeaderBar from '../../../components/ModalHeaderBar.vue'
 
 const modelStore = useModelStore()
@@ -19,7 +20,7 @@ const show = (provider) => {
 }
 const doSubmit = () => {
     if (!data.value.title) {
-        throw new Error('[ProviderEditDialog] 提交失败：providerName 为空')
+        throw new Error(`[ProviderEditDialog] ${t('提交失败：供应商名称为空')}`)
     }
     modelStore.edit(data.value)
     visible.value = false

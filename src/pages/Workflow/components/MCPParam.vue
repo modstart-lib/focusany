@@ -19,7 +19,10 @@ export type McpInputSchema = {
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import CodeEditor from '../../../components/common/CodeEditor.vue'
+
+const { t } = useI18n()
 import { WorkflowVariableOption } from '../variable'
 import WorkflowVariableInput from './WorkflowVariableInput.vue'
 
@@ -112,7 +115,7 @@ const applyJsonText = () => {
     try {
         const value = JSON.parse(jsonText.value || '{}')
         if (!value || typeof value !== 'object' || Array.isArray(value)) {
-            jsonError.value = 'JSON 配置必须是对象'
+            jsonError.value = t('JSON 配置必须是对象')
             return false
         }
         jsonError.value = ''

@@ -9,7 +9,6 @@ import { PageAbout } from './about'
 import { DevToolsManager } from '../lib/devtools'
 import { PageFeedback } from './feedback'
 import { PagePayment } from './payment'
-import { PageMonitor } from './monitor'
 import { PageLog } from './log'
 
 const Pages = {
@@ -19,7 +18,6 @@ const Pages = {
     payment: PagePayment,
     about: PageAbout,
     feedback: PageFeedback,
-    monitor: PageMonitor,
     log: PageLog,
 }
 

@@ -1,4 +1,6 @@
 import { BrowserWindow, ipcMain } from 'electron'
+import screenshotUtil from '../../lib/screenshot.cjs'
+const { flattenToWhite } = screenshotUtil
 import { ActionRecord, ActionTypeEnum, FilePluginRecord, LaunchRecord, PluginEnv } from '../../../src/types/Manager'
 import { t } from '../../config/lang'
 import { Permissions } from '../../lib/permission'
@@ -389,7 +391,8 @@ ipcMain.handle('test:callMainPluginAction', async (event, name: string, arg?: an
 })
 
 ipcMain.handle('test:captureMainPluginView', async () => {
-    return ManagerWindow.testCaptureMainPluginView()
+    const base64 = await ManagerWindow.testCaptureMainPluginView()
+    return flattenToWhite(Buffer.from(base64, 'base64')).toString('base64')
 })
 
 /** 按插件名称截取其 BrowserView 内容（支持主窗口和分离窗口中的插件） */
@@ -398,7 +401,7 @@ ipcMain.handle('test:capturePluginViewByName', async (event, pluginName: string)
     const view = views.find((v) => v._plugin?.name === pluginName)
     if (!view) throw new Error(`PluginViewNotFound: ${pluginName}`)
     const image = await view.webContents.capturePage()
-    return image.toPNG().toString('base64')
+    return flattenToWhite(Buffer.from(image.toPNG())).toString('base64')
 })
 
 /** 按插件名称关闭对应的分离窗口（DetachWindow） */

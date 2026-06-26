@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useModelStore } from '../store/model'
+import { t } from '../../../lang'
 import ModalHeaderBar from '../../../components/ModalHeaderBar.vue'
 
 const modelStore = useModelStore()
@@ -41,7 +42,7 @@ const show = () => {
 }
 const doSubmit = () => {
     if (!data.value.id) {
-        throw new Error('[ModelAddDialog] 提交失败：model id 为空')
+        throw new Error(`[ModelAddDialog] ${t('提交失败：模型ID为空')}`)
     }
     modelStore.modelAdd(props.provider.id, data.value)
     visible.value = false

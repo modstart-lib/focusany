@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import CodeEditor from '../../../../components/common/CodeEditor.vue'
+
+const { t } = useI18n()
 import { WorkflowNode } from '../../types'
 
 const props = defineProps<{
@@ -35,14 +38,14 @@ const outputType = computed({
 
 <template>
     <div>
-        <div class="mb-2 text-sm text-gray-700">JS代码</div>
+        <div class="mb-2 text-sm text-gray-700">{{ $t('JS代码') }}</div>
         <CodeEditor v-model="codeValue" lang="javascript" height="14rem" />
     </div>
     <div>
-        <div class="mb-2 text-sm text-gray-700">输出类型</div>
+        <div class="mb-2 text-sm text-gray-700">{{ $t('输出类型') }}</div>
         <a-select v-model="outputType">
-            <a-option value="any">任意</a-option>
-            <a-option value="text">文本</a-option>
+            <a-option value="any">{{ $t('任意') }}</a-option>
+            <a-option value="text">{{ $t('文本') }}</a-option>
             <a-option value="json">JSON</a-option>
         </a-select>
     </div>

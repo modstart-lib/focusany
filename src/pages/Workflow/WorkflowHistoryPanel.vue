@@ -36,7 +36,7 @@ const statusText = (status: string) =>
           ? t('workflow.running')
           : status === 'failed'
             ? t('workflow.statusFailed')
-            : '跳过'
+            : t('跳过')
 const triggerText = (type: string) => {
     if (type === 'manual') return t('workflow.triggerManual')
     if (type === 'timer') return t('workflow.triggerTimer')

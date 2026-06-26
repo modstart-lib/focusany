@@ -14,6 +14,8 @@ import { AppPosition } from './lib/position'
 import { makeLoading } from './loading'
 import { SetupMain } from './setup'
 import { makeToast } from './toast'
+import screenshotUtil from '../../lib/screenshot.cjs'
+const { flattenToWhite, flattenNativeImage } = screenshotUtil
 
 const getWindowByName = (name?: string) => {
     if (!name || 'main' === name) {
@@ -172,7 +174,7 @@ ipcMain.handle('test:captureWindow', async (event, name?: string) => {
         throw new Error('WindowNotFound')
     }
     const image = await win.capturePage()
-    return image.toPNG().toString('base64')
+    return flattenNativeImage(image)
 })
 
 ipcMain.handle('window:hide', (event, name: string) => {

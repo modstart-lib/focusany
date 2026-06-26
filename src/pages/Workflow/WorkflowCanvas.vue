@@ -251,7 +251,7 @@ class WorkflowLogicNode extends RectNode {
                               fontWeight: 700,
                               textAnchor: 'start',
                           },
-                          '是',
+                          t('是'),
                       ),
                       h(
                           'text',
@@ -263,7 +263,7 @@ class WorkflowLogicNode extends RectNode {
                               fontWeight: 700,
                               textAnchor: 'start',
                           },
-                          '否',
+                          t('否'),
                       ),
                   ]
                 : []
@@ -341,7 +341,7 @@ const toLogicFlowData = () => ({
         properties: {
             sourceAnchorId: edge.sourceAnchorId,
         },
-        text: edge.sourceAnchorId ? (edge.sourceAnchorId === 'true' ? '是' : '否') : undefined,
+        text: edge.sourceAnchorId ? (edge.sourceAnchorId === 'true' ? t('是') : t('否')) : undefined,
     })),
 })
 

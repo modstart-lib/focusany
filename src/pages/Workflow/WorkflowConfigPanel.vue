@@ -73,7 +73,7 @@ watch(
                 <div v-if="hasInputFields" class="space-y-3">
                     <div class="flex items-center gap-2 font-bold text-gray-800">
                         <icon-import />
-                        <span>输入参数</span>
+                        <span>{{ $t('输入参数') }}</span>
                     </div>
                     <WorkflowFieldsPanel type="input" :selected-node="selectedNode" :variables="variables" />
                 </div>
@@ -81,7 +81,7 @@ watch(
                 <div class="space-y-3" data-testid="workflow-config-section">
                     <div class="flex items-center gap-2 font-bold text-gray-800">
                         <icon-settings />
-                        <span>配置项</span>
+                        <span>{{ $t('配置项') }}</span>
                     </div>
                     <div class="space-y-4">
                         <component :is="configComponent" :selected-node="selectedNode" :variables="variables" />
@@ -91,7 +91,7 @@ watch(
                 <div v-if="hasOutputFields" class="space-y-3">
                     <div class="flex items-center gap-2 font-bold text-gray-800">
                         <icon-export />
-                        <span>输出参数</span>
+                        <span>{{ $t('输出参数') }}</span>
                     </div>
                     <WorkflowFieldsPanel type="output" :selected-node="selectedNode" :variables="variables" />
                 </div>
