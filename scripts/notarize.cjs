@@ -4,6 +4,8 @@ const {readdirSync, lstatSync} = require("node:fs");
 const {resolve, join} = require("node:path");
 const common = require('./common.cjs')
 
+const entitlementsPath = resolve(__dirname, '..', 'entitlements.mac.plist');
+
 /**
  * Walk a directory recursively, yielding absolute paths.
  */
@@ -68,6 +70,17 @@ function signNodeModules(appPath, identity) {
   }
 }
 
+function verifyAppEntitlements(appPath) {
+  const output = execSync(
+    `codesign -d --entitlements - "${appPath}" 2>&1`,
+    {encoding: "utf8", timeout: 30000}
+  );
+  if (!output.includes("com.apple.security.cs.allow-jit")) {
+    throw new Error(`Missing allow-jit entitlement after signing: ${appPath}`);
+  }
+  console.log("  • Verified .app entitlements include allow-jit");
+}
+
 exports.default = async function notarizing(context) {
     const appName = context.packager.appInfo.productFilename;
     const {electronPlatformName, appOutDir} = context;
@@ -104,11 +117,12 @@ exports.default = async function notarizing(context) {
     // so the hashes of re-signed .node files match. Otherwise codesign --verify
     // --deep --strict will report "file modified" on those .node files.
     if (identity) {
-        console.log(`  • Re-signing .app bundle to update CodeResources`);
+        console.log(`  • Re-signing .app bundle to update CodeResources and preserve entitlements`);
         execSync(
-            `codesign --sign "${identity}" --force --options runtime --timestamp "${appPath}" 2>&1`,
+            `codesign --sign "${identity}" --force --options runtime --timestamp --entitlements "${entitlementsPath}" "${appPath}" 2>&1`,
             {stdio: ["ignore", "pipe", "pipe"], timeout: 60000}
         );
+        verifyAppEntitlements(appPath);
     }
 
     let {APPLE_ID, APPLE_ID_PASSWORD, APPLE_TEAM_ID} = process.env;
