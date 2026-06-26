@@ -394,10 +394,14 @@ ipcMain.handle('test:captureMainPluginView', async () => {
     return flattenToWhite(Buffer.from(base64, 'base64')).toString('base64')
 })
 
+ipcMain.handle('test:evaluateMainPluginView', async (event, script: string) => {
+    return ManagerWindow.testEvaluateMainPluginView(script)
+})
+
 /** 按插件名称截取其 BrowserView 内容（支持主窗口和分离窗口中的插件） */
 ipcMain.handle('test:capturePluginViewByName', async (event, pluginName: string) => {
     const views = ManagerWindow.listBrowserViews()
-    const view = views.find((v) => v._plugin?.name === pluginName)
+    const view = [...views].reverse().find((v) => v._plugin?.name === pluginName)
     if (!view) throw new Error(`PluginViewNotFound: ${pluginName}`)
     const image = await view.webContents.capturePage()
     return flattenToWhite(Buffer.from(image.toPNG())).toString('base64')
@@ -405,7 +409,7 @@ ipcMain.handle('test:capturePluginViewByName', async (event, pluginName: string)
 
 ipcMain.handle('test:getPluginViewState', async (event, pluginName: string) => {
     const views = ManagerWindow.listBrowserViews()
-    const view = views.find((v) => v._plugin?.name === pluginName)
+    const view = [...views].reverse().find((v) => v._plugin?.name === pluginName)
     if (!view) throw new Error(`PluginViewNotFound: ${pluginName}`)
     return view.webContents.executeJavaScript(`
         (() => {

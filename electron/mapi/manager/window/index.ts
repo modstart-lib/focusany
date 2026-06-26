@@ -920,6 +920,12 @@ export const ManagerWindow = {
         const image = await mainWindowView.webContents.capturePage()
         return image.toPNG().toString('base64')
     },
+    async testEvaluateMainPluginView(script: string) {
+        if (!mainWindowView) {
+            throw new Error('MainPluginViewNotFound')
+        }
+        return mainWindowView.webContents.executeJavaScript(script)
+    },
     async openDetachPluginDevTools(view: BrowserView, option?: {}) {
         const devToolsWin = DevToolsManager.getWindow(view)
         if (devToolsWin) {

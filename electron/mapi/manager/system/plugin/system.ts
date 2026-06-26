@@ -54,6 +54,27 @@ export const SystemPlugin: PluginRecord = {
             matches: [t('system.hotkeys'), 'launch'] as any,
         },
         {
+            name: 'page-model',
+            title: t('system.aiModel'),
+            type: ActionTypeEnum.WEB,
+            icon: SystemIcons.model,
+            matches: [t('system.aiModel'), 'model'] as any,
+        },
+        {
+            name: 'page-mcp',
+            title: 'MCP',
+            type: ActionTypeEnum.WEB,
+            icon: SystemIcons.mcp,
+            matches: ['MCP', 'mcp'] as any,
+        },
+        {
+            name: 'page-user',
+            title: t('system.myAccount'),
+            type: ActionTypeEnum.WEB,
+            icon: SystemIcons.user,
+            matches: [t('system.myAccount'), 'user'] as any,
+        },
+        {
             name: 'about',
             title: t('system.about'),
             type: ActionTypeEnum.CODE,
