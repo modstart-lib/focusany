@@ -19,7 +19,7 @@ import { ConfigTray } from '../config/tray'
 import { WindowConfig } from '../config/window'
 import { loadClientConfig } from '../lib/clientConfig'
 import { DevToolsManager } from '../lib/devtools'
-import { isMac, isPackaged } from '../lib/env'
+import { isMac, isWin, isPackaged } from '../lib/env'
 import { preloadDefault, rendererLoadPath } from '../lib/env-main'
 import { AppPosition } from '../mapi/app/lib/position'
 import { AppsMain } from '../mapi/app/main'
@@ -129,12 +129,12 @@ async function createWindow() {
             y: screenY + screenHeight / 8,
         }
     })
+    const backgroundColor = isWin ? '#ffffff' : await AppsMain.defaultDarkModeBackgroundColor()
     AppRuntime.mainWindow = new BrowserWindow({
         show: true,
         title: AppConfig.title,
         ...(!isPackaged ? { icon } : {}),
         frame: false,
-        transparent: true,
         hasShadow: true,
         // center: true,
         x: wx,
@@ -147,7 +147,7 @@ async function createWindow() {
         skipTaskbar: true,
         resizable: false,
         maximizable: false,
-        backgroundColor: await AppsMain.defaultDarkModeBackgroundColor(),
+        backgroundColor,
         webPreferences: {
             preload: preloadDefault,
             // Warning: Enable nodeIntegration and disable contextIsolation is not secure in production

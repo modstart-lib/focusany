@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue'
+import { nextTick, onMounted, onUnmounted, ref } from 'vue'
 import { SystemIcons } from '../../electron/mapi/manager/system/asset/icon'
 import { testActionSet, testActionUnset } from '../utils/test'
 import SystemAction from './System/SystemAction.vue'
@@ -25,14 +25,17 @@ window.focusany.onPluginReady((data) => {
         'page-launch': 'launch',
         'page-model': 'model',
         'page-mcp': 'mcp',
+        'page-user': 'user',
     }
     if (actionNameMap[data.actionName]) {
         tab.value = actionNameMap[data.actionName]
     }
 })
 onMounted(() => {
-    testActionSet('pageSystem.switchTab', (tabName: string) => {
+    testActionSet('pageSystem.switchTab', async (tabName: string) => {
         tab.value = tabName
+        await nextTick()
+        await new Promise((resolve) => setTimeout(resolve, 100))
     })
     testActionSet('pageSystem.openWorkflow', doOpenWorkflow)
 })

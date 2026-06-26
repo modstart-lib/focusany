@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { ProviderType } from '../types'
 import { useModelStore } from '../store/model'
+import { t } from '../../../lang'
 import ModalHeaderBar from '../../../components/ModalHeaderBar.vue'
 
 const modelStore = useModelStore()
@@ -17,7 +18,7 @@ const show = () => {
 }
 const doSubmit = () => {
     if (!data.value.title) {
-        throw new Error('[ProviderAddDialog] 提交失败：providerName 为空')
+        throw new Error(`[ProviderAddDialog] ${t('provider.submitFailNameEmpty')}`)
     }
     modelStore.add(data.value)
     visible.value = false

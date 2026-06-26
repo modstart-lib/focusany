@@ -30,6 +30,7 @@ export const PageUser = {
             frame: false,
             center: true,
             transparent: false,
+            hasShadow: true,
             focusable: true,
             parent: option.parent,
             alwaysOnTop,

@@ -152,7 +152,10 @@ jobs:
         if: runner.os == 'Windows'
         working-directory: code
         shell: pwsh
-        run: npm install
+        run: |
+          npm install --ignore-scripts
+          if (Test-Path node_modules\canvas) { Remove-Item -Recurse -Force node_modules\canvas }
+          npx electron-builder install-app-deps
 
       - name: init ( Linux/macOS )
         if: runner.os == 'Linux' || runner.os == 'macOS'

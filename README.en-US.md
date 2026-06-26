@@ -1,7 +1,7 @@
-# 🎯 FocusAny - Smart AI Office Assistant
+# 🎯 FocusAny - AI-Powered Productivity Launcher
 
 <div align="center">
-  <img src="./screenshots/en/home.png" alt="FocusAny Main Interface" width="800"/>
+  <img src="./demo/image/home.png" alt="FocusAny Main Interface" width="800"/>
 </div>
 
 > [🇨🇳 中文](README.md) | [🇺🇸 English](README.en-US.md)
@@ -15,94 +15,160 @@
   <img src="https://img.shields.io/badge/License-Apache%202.0-green" alt="License"/>
 </div>
 
-> [🇨🇳 中文](README.md) | [🇺🇸 English](README.en-US.md)
-
 ## ✨ Introduction
 
-`FocusAny` is a powerful AI-powered office assistant designed to boost your productivity. It supports one-click launching of marketplace plugins and local plugins, allowing you to quickly extend functionality and create a personalized office environment.
+**FocusAny** is an open-source AI productivity tool that combines **global search, plugin ecosystem, LLM integration, MCP protocol, and visual workflow automation** into one powerful desktop app. Whether you need quick file access, clipboard management, screenshot tools, AI chat across 40+ providers, or automated workflow orchestration — FocusAny has you covered.
 
-🚀 **Quick Launch** | 🔧 **Plugin Extensions** | 🎨 **Modern UI** | 🌙 **Dark Mode Support**
+> 🎯 **Mission**: Be your "second brain" — an infinitely extensible productivity hub.
+
+🚀 **Global Search** | 🔌 **Plugin Ecosystem** | 🤖 **40+ LLM Providers** | ⚡ **MCP Protocol** | 🎨 **Visual Workflow**
 
 ## 📋 Features
 
-- ⚙️ **Settings**: Customizable shortcut keys, auto-start on boot
-- 🛠️ **Plugin Management**: One-click install, uninstall, enable/disable plugins
-- 🎯 **Action Management**: Quick preview and management of built-in and plugin actions
-- 📁 **File Quick Launch**: Instantly locate target files
-- ⌨️ **Shortcut Launch**: Global hotkeys for quick app launching
-- 💾 **Data Center**: File export sync, WebDAV file sync
-- 🌙 **Dark Mode**: Eye-friendly dark theme interface
+### 🎯 Core Capabilities
+
+| Feature | Description |
+|---------|-------------|
+| **Global Search** | Instant search with pinyin fuzzy matching, context-aware (current file/image/text/window) |
+| **Quick Panel** | Hotkey-activated action panel, follows your cursor |
+| **AI LLM Integration** | 40+ built-in providers (OpenAI / Claude / Gemini / DeepSeek / Qwen, etc.), custom providers & models |
+| **MCP Protocol** | Built-in MCP server (127.0.0.1:61000), plugin tools exposed to AI via standardized protocol |
+| **Visual Workflow** | Drag-and-drop automation engine (triggers + conditions + LLM calls + commands) |
+| **Plugin Ecosystem** | Install from store / local ZIP / dev directory — as easy as browser extensions |
+| **Clipboard History** | Real-time monitoring (text/image/file), encrypted storage, search & WebDAV sync |
+| **Screenshot & Recording** | Built-in screenshot, screen recording, color picker, screen lock |
+| **File Management** | Quick file launch, file explorer integration, WebDAV remote sync |
+| **Window Management** | Global hotkeys, detachable windows, cursor-tracked positioning |
+| **Dark Mode** | Eye-friendly dark theme |
+| **Cross-Platform** | Supports **macOS / Windows / Linux** |
 
 ## 🔌 Plugin Ecosystem
 
-FocusAny features a rich plugin ecosystem supporting various office scenarios:
+FocusAny features a rich plugin ecosystem covering document editing, design, development tools, and utilities. Plugins can be installed via **one-click from the store**, **imported from local ZIP**, or **loaded from a dev directory**. Developers can build plugins quickly with `focusany-sdk`.
 
-### Plugin Market Overview
+### 🎪 Plugin Store
+
+<div align="center">
+  <img src="./demo/image/store.png" alt="Plugin Store" width="800"/>
+</div>
+
+### 📦 Featured Plugins
 
 <table width="100%">
   <thead>
     <tr>
-      <th colspan="2">🎪 Plugin Market</th>
+      <th width="33%">📝 Super Markdown</th>
+      <th width="33%">📋 Smart Clipboard</th>
+      <th width="33%">🌐 Translate</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td colspan="2">
-        <img src="./screenshots/en/plugin/Store.png" alt="Plugin Market" style="width:100%; border-radius: 8px;"/>
-      </td>
+      <td><img src="./demo/image/Markdown.png" alt="Markdown" style="width:100%; border-radius: 8px;"/></td>
+      <td><img src="./demo/image/Clipboard.png" alt="Clipboard" style="width:100%; border-radius: 8px;"/></td>
+      <td><img src="./demo/image/Translate.png" alt="Translate" style="width:100%; border-radius: 8px;"/></td>
     </tr>
+  </tbody>
+  <thead>
     <tr>
-      <th width="50%">📝 Markdown Plugin</th>
-      <th>🛠️ Ctool Developer Toolbox</th>
+      <th>🧠 Mind Map (Kityminder)</th>
+      <th>📊 Diagram Editor (mxGraph)</th>
+      <th>🔮 JSON Visualizer (JsonCrack)</th>
     </tr>
+  </thead>
+  <tbody>
     <tr>
-      <td><img src="./screenshots/en/plugin/Markdown.png" alt="Markdown Plugin" style="width:100%; border-radius: 8px;"/></td>
-      <td><img src="./screenshots/en/plugin/Ctool.png" alt="Ctool Toolbox" style="width:100%; border-radius: 8px;"/></td>
+      <td><img src="./demo/image/KityminderEditor.png" alt="Kityminder" style="width:100%; border-radius: 8px;"/></td>
+      <td><img src="./demo/image/MxgraphEditor.png" alt="mxGraph" style="width:100%; border-radius: 8px;"/></td>
+      <td><img src="./demo/image/JsonCrack.png" alt="JsonCrack" style="width:100%; border-radius: 8px;"/></td>
     </tr>
-    <tr>
-      <th>🌐 Translation Plugin</th>
-      <th>📋 Clipboard Plugin</th>
-    </tr>
-    <tr>
-      <td><img src="./screenshots/en/plugin/Translate.png" alt="Translation Plugin" style="width:100%; border-radius: 8px;"/></td>
-      <td><img src="./screenshots/en/plugin/Clipboard.png" alt="Clipboard Plugin" style="width:100%; border-radius: 8px;"/></td>
-    </tr>
-    <tr>
-      <th>🧠 Mind Map Editor</th>
-      <th>📊 mxGraph Editor</th>
-    </tr>
-    <tr>
-      <td><img src="./screenshots/en/plugin/KityminderEditor.png" alt="Mind Map Editor" style="width:100%; border-radius: 8px;"/></td>
-      <td><img src="./screenshots/en/plugin/MxgraphEditor.png" alt="mxGraph Editor" style="width:100%; border-radius: 8px;"/></td>
-    </tr>
+  </tbody>
+  <thead>
     <tr>
       <th>🎨 tldraw Whiteboard</th>
       <th>✏️ Excalidraw Whiteboard</th>
+      <th>🖼️ Fabric Image Editor</th>
     </tr>
+  </thead>
+  <tbody>
     <tr>
-      <td><img src="https://ms-assets.modstart.com/data/image/2024/12/27/20345_in2n_2839.png" alt="tldraw Whiteboard" style="width:100%; border-radius: 8px;"/></td>
-      <td><img src="https://ms-assets.modstart.com/data/image/2024/12/23/27895_hlat_8257.png" alt="Excalidraw Whiteboard" style="width:100%; border-radius: 8px;"/></td>
+      <td><img src="./demo/image/TldrawEditor.png" alt="tldraw" style="width:100%; border-radius: 8px;"/></td>
+      <td><img src="./demo/image/ExcalidrawEditor.png" alt="Excalidraw" style="width:100%; border-radius: 8px;"/></td>
+      <td><img src="./demo/image/FabricEditor.png" alt="Fabric" style="width:100%; border-radius: 8px;"/></td>
     </tr>
+  </tbody>
+  <thead>
     <tr>
-      <th>🔐 Password Manager</th>
       <th>🖼️ Image Beautifier</th>
+      <th>🎨 Photopea (Online PS)</th>
+      <th>🔐 Password Manager</th>
     </tr>
+  </thead>
+  <tbody>
     <tr>
-      <td><img src="https://ms-assets.modstart.com/data/image/2024/12/22/12047_w27p_4263.png" alt="Password Manager" style="width:100%; border-radius: 8px;"/></td>
-      <td><img src="https://ms-assets.modstart.com/data/image/2024/12/22/53485_fk4f_3417.png" alt="Image Beautifier" style="width:100%; border-radius: 8px;"/></td>
+      <td><img src="./demo/image/ImageBeautifier.png" alt="ImageBeautifier" style="width:100%; border-radius: 8px;"/></td>
+      <td><img src="./demo/image/Photopea.png" alt="Photopea" style="width:100%; border-radius: 8px;"/></td>
+      <td><img src="./demo/image/Password.png" alt="Password" style="width:100%; border-radius: 8px;"/></td>
     </tr>
+  </tbody>
+  <thead>
     <tr>
       <th>🔢 OTP Two-Factor Auth</th>
-      <th>📸 Screenshot & Paste</th>
+      <th>🛠️ Ctool Developer Toolbox</th>
+      <th>📝 Markdown WeChat Format</th>
     </tr>
+  </thead>
+  <tbody>
     <tr>
-      <td><img src="https://ms-assets.modstart.com/data/image/2024/12/24/7709_81pr_6266.png" alt="OTP Auth" style="width:100%; border-radius: 8px;"/></td>
-      <td><img src="https://ms-assets.modstart.com/data/image/2024/12/22/42330_u3my_6770.png" alt="Screenshot Tool" style="width:100%; border-radius: 8px;"/></td>
+      <td><img src="./demo/image/Otp.png" alt="OTP" style="width:100%; border-radius: 8px;"/></td>
+      <td><img src="https://ms-assets.modstart.com/data/image/2024/12/22/42330_u3my_6770.png" alt="Ctool" style="width:100%; border-radius: 8px;"/></td>
+      <td><img src="./demo/image/MarkdownWechat.png" alt="MarkdownWechat" style="width:100%; border-radius: 8px;"/></td>
     </tr>
   </tbody>
 </table>
 
-💡 **Continuous Expansion**: FocusAny is constantly adding more plugins, enabling unlimited functionality through plugins!
+💡 **Growing Fast**: New plugins are added regularly. Developers can publish and monetize their own plugins via the FocusAny SDK.
+
+### 💻 Plugin Development
+
+FocusAny provides a complete SDK (`focusany-sdk`) supporting Vue / React and other frameworks. Plugins declare capabilities via `config.json` (actions, match rules, MCP tools, permissions, etc.).
+
+```bash
+npx focusany release-prepare   # Pre-publish config check
+```
+
+## 🤖 AI LLM & MCP
+
+FocusAny ships with built-in **AI LLM** and **MCP (Model Context Protocol)** support:
+
+### 40+ LLM Providers
+
+Use hundreds of models out of the box:
+
+**Global**: OpenAI / Anthropic Claude / Google Gemini / Groq / Mistral / Perplexity / xAI Grok / Nvidia / GitHub Models
+
+**China**: DeepSeek / Qwen / GLM (Zhipu) / Moonshot (Kimi) / Baichuan / Yi (01.AI) / Stepfun / Doubao (Volcengine) / Tencent Hunyuan / Baidu ERNIE / iFlytek Spark / 360 Brain / SiliconFlow / Ollama / LM Studio
+
+### MCP Protocol (Model Context Protocol)
+
+Built-in MCP server at `127.0.0.1:61000` with **HTTP + SSE** dual protocol support. All plugin-registered MCP tools are accessible to any MCP-compatible AI client.
+
+<div align="center">
+  <img src="./demo/image/system_mcp.png" alt="MCP Settings" width="800"/>
+</div>
+
+## ⚡ Visual Workflow
+
+Drag-and-drop automation engine for creating complex workflows without coding:
+
+- **Triggers**: Manual / Timer (Cron) / Event-based
+- **Node Types**: Command execution / JavaScript / Conditions / LLM calls / MCP plugin tools
+- **Variables**: Auto-pass data between nodes with `${variable}` syntax
+- **Run Logs**: Real-time execution tracking
+
+<div align="center">
+  <img src="./demo/image/workflow.png" alt="Workflow" width="800"/>
+</div>
 
 ## 🚀 Quick Start
 
@@ -140,26 +206,6 @@ npm run dev
 npm run build
 ```
 
-## 🏗️ Tech Stack
-
-<div align="center">
-  <img src="https://img.shields.io/badge/Electron-47848F?style=for-the-badge&logo=electron&logoColor=white" alt="Electron"/>
-  <img src="https://img.shields.io/badge/Vue.js-4FC08D?style=for-the-badge&logo=vue.js&logoColor=white" alt="Vue.js"/>
-  <img src="https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript"/>
-  <img src="https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=node.js&logoColor=white" alt="Node.js"/>
-</div>
-
-## 📚 Project Structure
-
-```
-focusany/
-├── electron/          # Electron main process code
-├── src/              # Vue.js frontend source
-├── public/           # Static assets
-├── scripts/          # Build scripts
-├── screenshots/      # Screenshot assets
-└── dist-release/     # Build output
-```
 
 ## 🤝 Community
 
@@ -174,15 +220,22 @@ focusany/
   </thead>
   <tbody>
     <tr>
-      <td><img src="https://modstart.com/code_dynamic/modstart_wx" alt="WeChat Group" style="width:100%; border-radius: 8px;"/></td>
-      <td><img src="https://modstart.com/code_dynamic/modstart_qq" alt="QQ Group" style="width:100%; border-radius: 8px;"/></td>
+      <td><img src="https://open.tecmz.com/code_dynamic/wx" alt="微信群" style="width:100%; border-radius: 8px;"/></td>
+      <td><img src="https://open.tecmz.com/code_dynamic/qq" alt="QQ群" style="width:100%; border-radius: 8px;"/></td>
     </tr>
   </tbody>
 </table>
 
+### 🌟 Support Us
+
+- ⭐ Star us on [GitHub](https://github.com/modstart-lib/focusany) / [Gitee](https://gitee.com/modstart-lib/focusany) / [GitCode](https://gitcode.com/modstart-lib/focusany)
+- 🐛 Report bugs or suggest features → [Open an Issue](https://github.com/modstart-lib/focusany/issues)
+- 🔌 Build a plugin → Check out `/sdk` directory and `focusany-sdk`
+- 📖 Improve docs → PRs welcome
+
 ## 📄 License
 
-This project is open-sourced under the [Apache-2.0](LICENSE) license.
+This project is open-sourced under the [Apache-2.0](LICENSE) license. **Free to use, modify, and distribute commercially.**
 
 ---
 

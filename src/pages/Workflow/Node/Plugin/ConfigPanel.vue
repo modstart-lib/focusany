@@ -101,7 +101,7 @@ onMounted(loadTools)
                 {{ tool.name }}
             </a-option>
         </a-select>
-        <div class="mt-1 text-xs text-gray-400">共 {{ tools.length }} 个 MCP 方法</div>
+        <div class="mt-1 text-xs text-gray-400">{{ $t('workflow.mcpMethodCount', { count: tools.length }) }}</div>
         <div v-if="selectedTool?.description" class="mt-2 text-xs text-gray-500">
             {{ selectedTool.description }}
         </div>

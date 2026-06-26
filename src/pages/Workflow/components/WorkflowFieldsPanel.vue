@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { Message } from '@arco-design/web-vue'
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { WorkflowNode, WorkflowNodeField } from '../types'
+
+const { t } = useI18n()
 import { WorkflowVariableOption } from '../variable'
 import WorkflowVariableInput from './WorkflowVariableInput.vue'
 
@@ -14,22 +17,22 @@ const props = defineProps<{
 const inputFields = computed(() => props.selectedNode.properties.inputFields || [])
 const outputFields = computed(() => props.selectedNode.properties.outputFields || [])
 const fields = computed(() => (props.type === 'input' ? inputFields.value : outputFields.value))
-const emptyText = computed(() => (props.type === 'input' ? '暂无输入参数' : '暂无输出参数'))
+const emptyText = computed(() => (props.type === 'input' ? t('workflow.noInputParams') : t('workflow.noOutputParams')))
 const testId = computed(() => (props.type === 'input' ? 'workflow-fields-panel' : 'workflow-output-fields'))
 const outputToken = (field: WorkflowNodeField) => '${' + props.selectedNode.title + '.' + field.name + '}'
 
 const doCopyOutputToken = async (field: WorkflowNodeField) => {
     await window.$mapi.app.setClipboardText(outputToken(field))
-    Message.success('已复制')
+    Message.success(t('common.copySuccess'))
 }
 
 const typeTitle = (type: WorkflowNodeField['type']) => {
-    if (type === 'any') return '任意'
-    if (type === 'textarea') return '多行文本'
-    if (type === 'number') return '数字'
-    if (type === 'boolean') return '布尔'
+    if (type === 'any') return t('workflow.anyType')
+    if (type === 'textarea') return t('workflow.multilineText')
+    if (type === 'number') return t('workflow.numberType')
+    if (type === 'boolean') return t('workflow.booleanType')
     if (type === 'json') return 'JSON'
-    return '文本'
+    return t('workflow.textType')
 }
 </script>
 

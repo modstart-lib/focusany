@@ -42,7 +42,7 @@ const insertVariable = (token: string) => {
             @update:model-value="emit('update:modelValue', $event)"
         />
         <a-dropdown v-if="variables.length" trigger="click">
-            <a-button aria-label="插入变量">
+            <a-button :aria-label="$t('workflow.insertVariable')">
                 <template #icon><icon-code /></template>
             </a-button>
             <template #content>

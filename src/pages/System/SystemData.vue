@@ -41,7 +41,7 @@ onMounted(async () => {
         if (records.value.length > 0) {
             dataViewDialog.value?.open(records.value[0])
         } else {
-            throw new Error('[SystemData] 无数据记录可查看')
+            throw new Error(`[SystemData] ${t('system.noDataRecords')}`)
         }
     })
 })

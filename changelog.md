@@ -1,20 +1,12 @@
 # FocusAny 更新日志
 
-## [Unreleased]
+## v2.0.0 工作流引擎重磅上线，开启自动化新纪元
 
-- 新增：biz 测试覆盖 kvdb/config/app/storage/log/focusany.util/file 等预加载 API
+- 新增：工作流相关功能，支持定时任务、事件触发等
 - 新增：FastPanel 窗口 UI 测试覆盖
 - 新增：工作流 UI 测试全面覆盖（创建、编排、配置面板、保存、画布操作、连线、复制、执行、运行记录等）
-- 优化：测试框架增加执行时间记录与最慢用例自动识别
-- 优化：dev-seed 前台运行模式，支持 Ctrl+C 优雅退出
-- 优化：工作流页面多语言化改造
-- 优化：新增 payment、user 等页面截图支持
-- 修复：修复构建脚本中 ffprobe.exe 文件名错误 (Fix: Fixed filename error for ffprobe.exe in build script)
-
-## v1.2.0
-
 - 新增：内置屏幕取色功能
-- 新增：增加科技感边框
+- 优化：工作流页面多语言化改造
 - 优化：内置命令执行时自动隐藏主窗口
 - 优化：toast 弹窗显示圆角
 - 修复：code 执行时不自动隐藏主窗口

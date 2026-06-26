@@ -4,6 +4,8 @@ const {readdirSync, lstatSync} = require("node:fs");
 const {resolve, join} = require("node:path");
 const common = require('./common.cjs')
 
+const entitlementsPath = resolve(__dirname, '..', 'entitlements.mac.plist');
+
 /**
  * Walk a directory recursively, yielding absolute paths.
  */
@@ -23,15 +25,22 @@ function walkDir(dir) {
 }
 
 /**
- * Sign every .node file inside the .app bundle using the first available
- * Developer ID certificate.  This avoids Gatekeeper errors on quarantined
- * apps for unsigned native addons (rollup, fsevents, etc.).
+ * Resolve the first available Developer ID Application certificate identity.
  */
-function signNodeModules(appPath) {
-  const identity = execSync(
+function resolveDeveloperIdentity() {
+  const out = execSync(
     `security find-identity -v -p codesigning | grep "Developer ID Application" | head -1 | sed 's/.*"\\(.*\\)"/\\1/'`,
     {encoding: "utf8"}
   ).trim();
+  return out;
+}
+
+/**
+ * Sign every .node file inside the .app bundle using the given identity.
+ * This avoids Gatekeeper errors on quarantined apps for unsigned native
+ * addons (rollup, fsevents, etc.).
+ */
+function signNodeModules(appPath, identity) {
   if (!identity) {
     console.warn("  • [WARN] No Developer ID Application certificate found, skipping .node signing");
     return;
@@ -61,6 +70,17 @@ function signNodeModules(appPath) {
   }
 }
 
+function verifyAppEntitlements(appPath) {
+  const output = execSync(
+    `codesign -d --entitlements - "${appPath}" 2>&1`,
+    {encoding: "utf8", timeout: 30000}
+  );
+  if (!output.includes("com.apple.security.cs.allow-jit")) {
+    throw new Error(`Missing allow-jit entitlement after signing: ${appPath}`);
+  }
+  console.log("  • Verified .app entitlements include allow-jit");
+}
+
 exports.default = async function notarizing(context) {
     const appName = context.packager.appInfo.productFilename;
     const {electronPlatformName, appOutDir} = context;
@@ -83,12 +103,27 @@ exports.default = async function notarizing(context) {
 
     // THIS MUST BE THE SAME AS THE `appId` property
     // in your electron builder configuration
-    const appId = "FocusAny";
+    const appId = "com.focusany.app";
 
     let appPath = `${appOutDir}/${appName}.app`;
 
+    // ── Resolve signing identity once ──────────────────────────────
+    const identity = resolveDeveloperIdentity();
+
     // ── Sign all .node files before notarization ───────────────────
-    signNodeModules(appPath);
+    signNodeModules(appPath, identity);
+
+    // Re-sign the .app root bundle (without --deep) to update CodeResources,
+    // so the hashes of re-signed .node files match. Otherwise codesign --verify
+    // --deep --strict will report "file modified" on those .node files.
+    if (identity) {
+        console.log(`  • Re-signing .app bundle to update CodeResources and preserve entitlements`);
+        execSync(
+            `codesign --sign "${identity}" --force --options runtime --timestamp --entitlements "${entitlementsPath}" "${appPath}" 2>&1`,
+            {stdio: ["ignore", "pipe", "pipe"], timeout: 60000}
+        );
+        verifyAppEntitlements(appPath);
+    }
 
     let {APPLE_ID, APPLE_ID_PASSWORD, APPLE_TEAM_ID} = process.env;
     if (!APPLE_ID) {

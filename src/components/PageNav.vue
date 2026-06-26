@@ -78,15 +78,6 @@ const doUser = async () => {
                 </div>
                 <div class="text-sm">{{ $t('avatar.digitalHuman') }}</div>
             </a>
-            <!--            <a class="page-nav-item block text-center py-3"-->
-            <!--               :class="activeTab==='sound'?'active':''"-->
-            <!--               @click="$router.push('/sound')"-->
-            <!--               href="javascript:;">-->
-            <!--                <div>-->
-            <!--                    <icon-sound class="text-xl"/>-->
-            <!--                </div>-->
-            <!--                <div class="text-sm">{{ $t('声音') }}</div>-->
-            <!--            </a>-->
             <a
                 class="page-nav-item block text-center py-3"
                 :class="activeTab === 'server' ? 'active' : ''"

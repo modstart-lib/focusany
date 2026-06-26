@@ -100,6 +100,16 @@ export const ManagerPlugin = {
         if (!rendererIsUrl(main)) {
             main = `file://${main}`
         }
+        // 截图模式下通过本地 HTTP 服务加载插件，解决 file:// 下模块脚本受限的问题
+        const screenshotServer = process.env.FOCUSANY_SCREENSHOT_SERVER
+        const screenshotRoot = process.env.FOCUSANY_SCREENSHOT_ROOT
+        if (screenshotServer && screenshotRoot && main.startsWith('file://')) {
+            const mainPath = main.replace(/^file:\/\//, '')
+            if (mainPath.startsWith(screenshotRoot)) {
+                const relPath = mainPath.slice(screenshotRoot.length).replace(/^[/\\]+/, '')
+                main = `${screenshotServer.replace(/\/+$/, '')}/${relPath}`
+            }
+        }
         if (plugin.runtime?.root) {
             if (!rendererIsUrl(mainView)) {
                 mainView = join(plugin.runtime?.root, mainView)
@@ -110,6 +120,13 @@ export const ManagerPlugin = {
         }
         if (!rendererIsUrl(mainView)) {
             mainView = `file://${mainView}`
+        }
+        if (screenshotServer && screenshotRoot && mainView.startsWith('file://')) {
+            const mainViewPath = mainView.replace(/^file:\/\//, '')
+            if (mainViewPath.startsWith(screenshotRoot)) {
+                const relPath = mainViewPath.slice(screenshotRoot.length).replace(/^[/\\]+/, '')
+                mainView = `${screenshotServer.replace(/\/+$/, '')}/${relPath}`
+            }
         }
 
         // auto detach
@@ -308,7 +325,10 @@ export const ManagerPlugin = {
         }
 
         const configJson = option.configJson || null
-        if (configJson) {
+        // 生产模式（ELECTRON_ENV_PROD=1）时忽略 development 配置，
+        // 确保插件使用打包后的静态资源而非 dev server
+        const skipDevelopment = process.env.ELECTRON_ENV_PROD === '1'
+        if (configJson && !skipDevelopment) {
             if (configJson['development']) {
                 plugin.env = PluginEnv.DEV
                 if (configJson['development'].env) {

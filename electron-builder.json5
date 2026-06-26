@@ -1,7 +1,7 @@
 // @see https://www.electron.build/configuration/configuration
 {
     "$schema": "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json",
-    "appId": "FocusAny",
+    "appId": "com.focusany.app",
     "asar": true,
     "npmRebuild": true,
     "publish": [],
@@ -109,6 +109,7 @@
         "entitlementsInherit": "./entitlements.mac.plist",
         "entitlements": "./entitlements.mac.plist",
         "extendInfo": {
+            "LSApplicationCategoryType": "public.app-category.utilities",
             "NSDocumentsFolderUsageDescription": "Application requests access to the user's Documents folder.",
             "NSDownloadsFolderUsageDescription": "Application requests access to the user's Downloads folder.",
             "NSAccessibilityUsageDescription": "Application requests access to the user's Accessibility features.",

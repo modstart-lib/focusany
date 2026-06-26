@@ -1,5 +1,6 @@
 import { BrowserWindow, ipcMain } from 'electron'
 import { ActionRecord, ActionTypeEnum, FilePluginRecord, LaunchRecord, PluginEnv } from '../../../src/types/Manager'
+import { flattenToWhite } from '../../lib/screenshot'
 import { t } from '../../config/lang'
 import { Permissions } from '../../lib/permission'
 import { Page } from '../../page'
@@ -389,7 +390,47 @@ ipcMain.handle('test:callMainPluginAction', async (event, name: string, arg?: an
 })
 
 ipcMain.handle('test:captureMainPluginView', async () => {
-    return ManagerWindow.testCaptureMainPluginView()
+    const base64 = await ManagerWindow.testCaptureMainPluginView()
+    return flattenToWhite(Buffer.from(base64, 'base64')).toString('base64')
+})
+
+ipcMain.handle('test:evaluateMainPluginView', async (event, script: string) => {
+    return ManagerWindow.testEvaluateMainPluginView(script)
+})
+
+/** 按插件名称截取其 BrowserView 内容（支持主窗口和分离窗口中的插件） */
+ipcMain.handle('test:capturePluginViewByName', async (event, pluginName: string) => {
+    const views = ManagerWindow.listBrowserViews()
+    const view = [...views].reverse().find((v) => v._plugin?.name === pluginName)
+    if (!view) throw new Error(`PluginViewNotFound: ${pluginName}`)
+    const image = await view.webContents.capturePage()
+    return flattenToWhite(Buffer.from(image.toPNG())).toString('base64')
+})
+
+ipcMain.handle('test:getPluginViewState', async (event, pluginName: string) => {
+    const views = ManagerWindow.listBrowserViews()
+    const view = [...views].reverse().find((v) => v._plugin?.name === pluginName)
+    if (!view) throw new Error(`PluginViewNotFound: ${pluginName}`)
+    return view.webContents.executeJavaScript(`
+        (() => {
+            const body = document.body
+            return {
+                readyState: document.readyState,
+                title: document.title || '',
+                text: (body?.innerText || '').trim(),
+                bodyChildCount: body?.children?.length || 0,
+            }
+        })()
+    `)
+})
+
+/** 按插件名称关闭对应的分离窗口（DetachWindow） */
+ipcMain.handle('test:closeDetachPluginByName', async (event, pluginName: string) => {
+    const detachWindows = ManagerWindow.listDetachWindows()
+    const detachWin = detachWindows.find((w) => w._name === `DetachWindow.${pluginName}`)
+    if (detachWin && !detachWin.isDestroyed()) {
+        detachWin.close()
+    }
 })
 
 ipcMain.handle('manager:openDetachPluginDevTools', async (event, option?: {}) => {
