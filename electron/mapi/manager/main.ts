@@ -403,6 +403,23 @@ ipcMain.handle('test:capturePluginViewByName', async (event, pluginName: string)
     return flattenToWhite(Buffer.from(image.toPNG())).toString('base64')
 })
 
+ipcMain.handle('test:getPluginViewState', async (event, pluginName: string) => {
+    const views = ManagerWindow.listBrowserViews()
+    const view = views.find((v) => v._plugin?.name === pluginName)
+    if (!view) throw new Error(`PluginViewNotFound: ${pluginName}`)
+    return view.webContents.executeJavaScript(`
+        (() => {
+            const body = document.body
+            return {
+                readyState: document.readyState,
+                title: document.title || '',
+                text: (body?.innerText || '').trim(),
+                bodyChildCount: body?.children?.length || 0,
+            }
+        })()
+    `)
+})
+
 /** 按插件名称关闭对应的分离窗口（DetachWindow） */
 ipcMain.handle('test:closeDetachPluginByName', async (event, pluginName: string) => {
     const detachWindows = ManagerWindow.listDetachWindows()

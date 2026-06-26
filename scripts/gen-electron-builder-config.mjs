@@ -56,7 +56,8 @@ for (const t of platformTarget) {
 }
 
 // 2. On macOS, allow code signing (CI has cert in keychain; base config has identity=null for local dev)
-if (platform === 'darwin') {
+//    Skip for local installs (FOCUSANY_LOCAL_INSTALL=1) to avoid signing failures without a cert.
+if (platform === 'darwin' && !process.env.FOCUSANY_LOCAL_INSTALL) {
   delete nativeConfig.mac.identity;
   nativeConfig.mac.type = 'distribution';
 }
