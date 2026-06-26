@@ -27,6 +27,7 @@ export const PageFeedback = {
             show: true,
             frame: false,
             transparent: false,
+            hasShadow: true,
         })
         return Page.openWindow(PageFeedback.NAME, win, 'page/feedback.html')
     },

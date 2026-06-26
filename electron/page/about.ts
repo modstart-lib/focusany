@@ -27,6 +27,7 @@ export const PageAbout = {
             show: true,
             frame: false,
             transparent: false,
+            hasShadow: true,
         })
         return Page.openWindow(PageAbout.NAME, win, 'page/about.html')
     },

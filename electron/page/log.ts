@@ -31,6 +31,7 @@ export const PageLog = {
             show: true,
             frame: false,
             transparent: false,
+            hasShadow: true,
         })
         await Page.openWindow(PageLog.NAME, win, 'page/log.html')
         const logInit = {
