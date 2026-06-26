@@ -103,7 +103,7 @@ exports.default = async function notarizing(context) {
 
     // THIS MUST BE THE SAME AS THE `appId` property
     // in your electron builder configuration
-    const appId = "FocusAny";
+    const appId = "com.focusany.app";
 
     let appPath = `${appOutDir}/${appName}.app`;
 

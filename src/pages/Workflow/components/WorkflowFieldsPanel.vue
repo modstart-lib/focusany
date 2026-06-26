@@ -17,22 +17,22 @@ const props = defineProps<{
 const inputFields = computed(() => props.selectedNode.properties.inputFields || [])
 const outputFields = computed(() => props.selectedNode.properties.outputFields || [])
 const fields = computed(() => (props.type === 'input' ? inputFields.value : outputFields.value))
-const emptyText = computed(() => (props.type === 'input' ? t('暂无输入参数') : t('暂无输出参数')))
+const emptyText = computed(() => (props.type === 'input' ? t('workflow.noInputParams') : t('workflow.noOutputParams')))
 const testId = computed(() => (props.type === 'input' ? 'workflow-fields-panel' : 'workflow-output-fields'))
 const outputToken = (field: WorkflowNodeField) => '${' + props.selectedNode.title + '.' + field.name + '}'
 
 const doCopyOutputToken = async (field: WorkflowNodeField) => {
     await window.$mapi.app.setClipboardText(outputToken(field))
-    Message.success(t('已复制'))
+    Message.success(t('common.copySuccess'))
 }
 
 const typeTitle = (type: WorkflowNodeField['type']) => {
-    if (type === 'any') return t('任意')
-    if (type === 'textarea') return t('多行文本')
-    if (type === 'number') return t('数字')
-    if (type === 'boolean') return t('布尔')
+    if (type === 'any') return t('workflow.anyType')
+    if (type === 'textarea') return t('workflow.multilineText')
+    if (type === 'number') return t('workflow.numberType')
+    if (type === 'boolean') return t('workflow.booleanType')
     if (type === 'json') return 'JSON'
-    return t('文本')
+    return t('workflow.textType')
 }
 </script>
 

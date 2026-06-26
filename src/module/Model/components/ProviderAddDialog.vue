@@ -18,7 +18,7 @@ const show = () => {
 }
 const doSubmit = () => {
     if (!data.value.title) {
-        throw new Error(`[ProviderAddDialog] ${t('提交失败：供应商名称为空')}`)
+        throw new Error(`[ProviderAddDialog] ${t('provider.submitFailNameEmpty')}`)
     }
     modelStore.add(data.value)
     visible.value = false

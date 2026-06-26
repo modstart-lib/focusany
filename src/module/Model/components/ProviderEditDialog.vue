@@ -20,7 +20,7 @@ const show = (provider) => {
 }
 const doSubmit = () => {
     if (!data.value.title) {
-        throw new Error(`[ProviderEditDialog] ${t('提交失败：供应商名称为空')}`)
+        throw new Error(`[ProviderEditDialog] ${t('provider.submitFailNameEmpty')}`)
     }
     modelStore.edit(data.value)
     visible.value = false

@@ -13,7 +13,7 @@ export const nodeTypeTitle = (type: WorkflowNodeType, t: (key: string) => string
     const map: Record<WorkflowNodeType, string> = {
         trigger: t('workflow.nodeTypeTrigger'),
         command: t('workflow.nodeTypeCommand'),
-        js: t('执行JS'),
+        js: t('workflow.executeJS'),
         condition: t('workflow.nodeTypeCondition'),
         llm: t('workflow.nodeTypeLlm'),
         plugin: t('workflow.nodeTypePlugin'),
@@ -25,7 +25,7 @@ export const subTitle = (type: WorkflowNodeType, t: (key: string) => string) => 
     const map: Record<WorkflowNodeType, string> = {
         trigger: t('workflow.nodeTypeTrigger'),
         command: t('workflow.nodeTypeCommand'),
-        js: t('执行JS'),
+        js: t('workflow.executeJS'),
         condition: t('workflow.nodeTypeCondition'),
         llm: t('workflow.nodeTypeLlm'),
         plugin: t('workflow.nodeTypePlugin'),

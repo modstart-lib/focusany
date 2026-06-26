@@ -115,7 +115,7 @@ const applyJsonText = () => {
     try {
         const value = JSON.parse(jsonText.value || '{}')
         if (!value || typeof value !== 'object' || Array.isArray(value)) {
-            jsonError.value = t('JSON 配置必须是对象')
+            jsonError.value = t('workflow.jsonMustBeObject')
             return false
         }
         jsonError.value = ''

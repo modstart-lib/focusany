@@ -116,7 +116,7 @@ const insert = async (payload: Partial<WorkflowRecord>) => {
     const now = Date.now()
     const record: WorkflowRecord = {
         id: createId('wf'),
-        name: payload.name || t('未命名工作流'),
+        name: payload.name || t('workflow.unnamed'),
         enabled: payload.enabled ?? true,
         data: normalizeGraph(payload.data),
         createdAt: now,
@@ -335,7 +335,7 @@ const runPlugin = async (props: Record<string, any>) => {
     const pluginName = props.pluginName
     const toolName = props.toolName || props.actionName
     const mcpToolName = props.mcpToolName || (pluginName && toolName ? `${pluginName}-${toolName}` : '')
-    if (!mcpToolName) return t('MCP 方法未配置，已跳过')
+    if (!mcpToolName) return t('workflow.mcpNotConfigured')
     const result = await PluginHttpMCP['tools/call']({
         name: mcpToolName,
         arguments: props.arguments || {},
@@ -345,7 +345,7 @@ const runPlugin = async (props: Record<string, any>) => {
 
 const runNode = async (node: WorkflowNodeRecord, context: Record<string, any>) => {
     const props = node.properties || {}
-    if (node.type === 'trigger') return { output: `${t('触发方式：')}${props.triggerType || 'manual'}` }
+    if (node.type === 'trigger') return { output: `${t('workflow.triggerType')}: ${props.triggerType || 'manual'}` }
     if (node.type === 'command') {
         const command = resolveValue(props.command || getInputFieldValue(props, 'Command') || '', context)
         return { output: await runCommand(String(command)) }
@@ -440,12 +440,12 @@ const runGraph = async (workflow: WorkflowRecord, triggerType: WorkflowTriggerTy
                 item.message = e?.message || String(e)
                 item.endedAt = Date.now()
                 log.nodes.push(item)
-                skipDownstreamNodes(log, workflow.data, node.id, visited, t('上游节点失败，已跳过'))
+                skipDownstreamNodes(log, workflow.data, node.id, visited, t('workflow.upstreamNodeFailed'))
                 throw e
             }
         }
         log.status = 'success'
-        log.message = t('执行成功')
+        log.message = t('workflow.executionSuccess')
     } catch (e: any) {
         log.status = 'failed'
         log.message = e?.message || String(e)

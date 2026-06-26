@@ -13,7 +13,7 @@ const ready = () => {
                 { label: `${t('menu.about')}${app.name}`, role: 'about' },
                 { type: 'separator' },
                 // {
-                //     label: t("设置"),
+                //     label: t("common.setting"),
                 //     click: () => {
                 //         createSettingWindow();
                 //     },
@@ -59,18 +59,18 @@ const ready = () => {
         })
     }
     // menuTemplate.push({
-    //     label: t("帮助"),
+    //     label: t("nav.guide"),
     //     role: "help",
     //     submenu: [
     //         // {
-    //         //     label: t("教程帮助"),
+    //         //     label: t("help.tutorial"),
     //         //     click: () => {
     //         //         createHelpWindow();
     //         //     },
     //         // },
     //         // {type: "separator"},
     //         // {
-    //         //     label: t("关于"),
+    //         //     label: t("about.title"),
     //         //     click: () => {
     //         //         PageAbout.open().then()
     //         //     },

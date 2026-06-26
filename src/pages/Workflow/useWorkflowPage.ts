@@ -192,7 +192,7 @@ export const useWorkflowPage = () => {
             idMap.set(node.id, copiedNodes[index].id)
         })
         currentId.value = ''
-        name.value = `${workflow.name}${t('副本')}`
+        name.value = `${workflow.name}${t('workflow.copySuffix')}`
         nodes.value = copiedNodes
         edges.value = (workflow.data?.edges || []).map((edge: WorkflowEdge) => ({
             ...edge,
@@ -209,7 +209,7 @@ export const useWorkflowPage = () => {
         const node: WorkflowNode = {
             id: createId('node'),
             type,
-            title: workflowNodeTypes.find((item) => item.type === type)?.title || t('节点'),
+            title: workflowNodeTypes.find((item) => item.type === type)?.title || t('workflow.node'),
             x: position?.x ?? (last ? last.x : 560),
             y: position?.y ?? (last ? last.y + 130 : 80),
             properties: defaultWorkflowNodeProperties(type),

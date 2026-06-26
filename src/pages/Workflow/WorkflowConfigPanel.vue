@@ -61,7 +61,7 @@ watch(
                     <div class="text-xs text-gray-400">{{ subTitle(selectedNode.type, t) }}</div>
                     <div class="truncate font-bold text-gray-950">{{ selectedNode.title }}</div>
                 </div>
-                <a-button :aria-label="$t('编辑节点标题')" @click="showTitleModal">
+                <a-button :aria-label="$t('workflow.editNodeTitle')" @click="showTitleModal">
                     <template #icon><icon-edit /></template>
                 </a-button>
                 <a-button :aria-label="t('workflow.closeNodeConfig')" @click="emit('close')">
@@ -73,7 +73,7 @@ watch(
                 <div v-if="hasInputFields" class="space-y-3">
                     <div class="flex items-center gap-2 font-bold text-gray-800">
                         <icon-import />
-                        <span>{{ $t('输入参数') }}</span>
+                        <span>{{ $t('workflow.inputParams') }}</span>
                     </div>
                     <WorkflowFieldsPanel type="input" :selected-node="selectedNode" :variables="variables" />
                 </div>
@@ -81,7 +81,7 @@ watch(
                 <div class="space-y-3" data-testid="workflow-config-section">
                     <div class="flex items-center gap-2 font-bold text-gray-800">
                         <icon-settings />
-                        <span>{{ $t('配置项') }}</span>
+                        <span>{{ $t('workflow.configItems') }}</span>
                     </div>
                     <div class="space-y-4">
                         <component :is="configComponent" :selected-node="selectedNode" :variables="variables" />
@@ -91,7 +91,7 @@ watch(
                 <div v-if="hasOutputFields" class="space-y-3">
                     <div class="flex items-center gap-2 font-bold text-gray-800">
                         <icon-export />
-                        <span>{{ $t('输出参数') }}</span>
+                        <span>{{ $t('workflow.outputParams') }}</span>
                     </div>
                     <WorkflowFieldsPanel type="output" :selected-node="selectedNode" :variables="variables" />
                 </div>
@@ -99,7 +99,7 @@ watch(
 
             <a-modal v-model:visible="titleModalVisible" width="min(600px, 90vw)" :footer="false" title-align="start">
                 <template #title
-                    ><div class="font-bold">{{ $t('编辑节点标题') }}</div></template
+                    ><div class="font-bold">{{ $t('workflow.editNodeTitle') }}</div></template
                 >
                 <div class="space-y-4 p-4">
                     <a-input v-model="titleDraft" :placeholder="$t('workflow.nodeTitle')" />

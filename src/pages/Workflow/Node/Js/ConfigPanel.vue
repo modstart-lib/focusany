@@ -38,14 +38,14 @@ const outputType = computed({
 
 <template>
     <div>
-        <div class="mb-2 text-sm text-gray-700">{{ $t('JS代码') }}</div>
+        <div class="mb-2 text-sm text-gray-700">{{ $t('workflow.jsCode') }}</div>
         <CodeEditor v-model="codeValue" lang="javascript" height="14rem" />
     </div>
     <div>
-        <div class="mb-2 text-sm text-gray-700">{{ $t('输出类型') }}</div>
+        <div class="mb-2 text-sm text-gray-700">{{ $t('workflow.outputType') }}</div>
         <a-select v-model="outputType">
-            <a-option value="any">{{ $t('任意') }}</a-option>
-            <a-option value="text">{{ $t('文本') }}</a-option>
+            <a-option value="any">{{ $t('workflow.anyType') }}</a-option>
+            <a-option value="text">{{ $t('workflow.textType') }}</a-option>
             <a-option value="json">JSON</a-option>
         </a-select>
     </div>

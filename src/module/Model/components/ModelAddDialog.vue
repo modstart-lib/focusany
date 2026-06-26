@@ -42,7 +42,7 @@ const show = () => {
 }
 const doSubmit = () => {
     if (!data.value.id) {
-        throw new Error(`[ModelAddDialog] ${t('提交失败：模型ID为空')}`)
+        throw new Error(`[ModelAddDialog] ${t('provider.submitFailModelIdEmpty')}`)
     }
     modelStore.modelAdd(props.provider.id, data.value)
     visible.value = false
