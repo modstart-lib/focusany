@@ -1,7 +1,6 @@
 import { BrowserWindow, ipcMain } from 'electron'
-import screenshotUtil from '../../lib/screenshot.cjs'
-const { flattenToWhite } = screenshotUtil
 import { ActionRecord, ActionTypeEnum, FilePluginRecord, LaunchRecord, PluginEnv } from '../../../src/types/Manager'
+import { flattenToWhite } from '../../lib/screenshot'
 import { t } from '../../config/lang'
 import { Permissions } from '../../lib/permission'
 import { Page } from '../../page'

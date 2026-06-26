@@ -14,8 +14,12 @@ import { AppPosition } from './lib/position'
 import { makeLoading } from './loading'
 import { SetupMain } from './setup'
 import { makeToast } from './toast'
-import screenshotUtil from '../../lib/screenshot.cjs'
-const { flattenToWhite, flattenNativeImage } = screenshotUtil
+import { flattenToWhite } from '../../lib/screenshot'
+
+/** 将 NativeImage 截图中透明像素合成到白色背景，返回 base64 编码的 PNG */
+function flattenNativeImage(image: { toPNG: () => Buffer }): string {
+    return flattenToWhite(Buffer.from(image.toPNG())).toString('base64')
+}
 
 const getWindowByName = (name?: string) => {
     if (!name || 'main' === name) {
