@@ -33,7 +33,6 @@ database.db
 /focusany-plugin-*
 /data
 /data-*
-.vscode
 .github/copilot-instructions.md
 /.agents
 /AGENTS.md
