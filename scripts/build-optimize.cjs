@@ -53,6 +53,30 @@ function dirSize(dir) {
 exports.default = async function (context) {
   console.log("BuildOptimize", {name: common.platformName(), arch: common.platformArch()});
 
+  // macOS 本地构建版（无证书，identity=null）二进制签名 identifier 默认为 Electron，
+  // 与 Info.plist 的 CFBundleIdentifier 不一致会导致 TCC 辅助功能/屏幕录制授权失效。
+  // 此处用 ad-hoc 重新签名并指定 appId，使签名 identifier 与 bundle 一致。
+  if (common.platformName() === "osx" && process.env.FOCUSANY_LOCAL_INSTALL === "1") {
+    const appDir = common.pathResolve(
+      context.appOutDir,
+      `${context.packager.appInfo.productFilename}.app`,
+    );
+    const appId = context.packager.appInfo.appId || "com.focusany.app";
+    try {
+      require("node:child_process").execSync(
+        `codesign --force --deep --sign - --identifier ${appId} "${appDir}"`,
+        {stdio: "pipe"},
+      );
+      const sig = require("node:child_process").execSync(
+        `codesign -dv "${appDir}" 2>&1 | grep Identifier`,
+        {encoding: "utf8"},
+      );
+      console.log(`  [sign] local build re-signed (${sig.trim()})`);
+    } catch (e) {
+      console.error("  [error] local build re-sign failed:", e.message);
+    }
+  }
+
   const extraDir = resolveApp(context, "extra");
   console.log(`  [check] extra dir: ${extraDir}`);
 

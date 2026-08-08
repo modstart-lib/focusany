@@ -1,5 +1,14 @@
 # FocusAny 更新日志
 
+## vNext
+
+- 新增：数据存储目录支持 `FOCUSANY_DATA_ROOT` 环境变量覆盖，优先级高于 `client.json` 的 `dataPath`，为正式使用数据与开发测试数据隔离做准备
+- 新增：首次进入权限引导页时自动请求屏幕录制权限，避免实际使用录屏功能时才提示，提升用户体验
+- 修复：macOS 本地构建版重新 ad-hoc 签名并修正 identifier，解决因二进制签名 identifier 为 Electron 导致 TCC 辅助功能/屏幕录制授权无法匹配的问题
+- 修复：开发测试进程清理不再误杀已安装的正式版 FocusAny 进程
+- 修复：初始化设置等窗口顶部标题栏 logo 图标内容错误（旧图形），统一替换为新的 focusany-pro 品牌图标，并修正图标尺寸 class 笔误（`t-4` → `h-4`）
+- 优化：macOS 开发模式 Electron 被 Gatekeeper 拦截导致无法启动、辅助功能权限无法授权的问题——新增 `scripts/fix-quarantine.mjs` 自动移除 electron 包的 `com.apple.quarantine` 标记，并在 `postinstall` / `dev:seed` / `make dev` 流程中自动执行
+
 ## v2.0.0 工作流引擎重磅上线，开启自动化新纪元
 
 - 新增：工作流相关功能，支持定时任务、事件触发等
@@ -9,9 +18,12 @@
 - 优化：工作流页面多语言化改造
 - 优化：内置命令执行时自动隐藏主窗口
 - 优化：toast 弹窗显示圆角
+- 优化：分离窗口记住上次的位置与大小，重新打开时自动恢复
 - 修复：code 执行时不自动隐藏主窗口
 - 修复：code 执行后搜索提示不显示问题
 - 修复：剪切板历史内容获取异常问题修复
+- 修复：快捷键唤起分离窗口时主窗口闪现问题
+- 修复：分离窗口 detachPosition 位置设置不生效问题（center 参数覆盖位置）
 
 ## v1.1.0 插件搜索过滤，FAD文件优化，插件显示MCP服务
 

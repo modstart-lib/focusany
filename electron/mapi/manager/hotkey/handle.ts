@@ -1,3 +1,4 @@
+import { AppRuntime } from '../../env'
 import { ManagerPluginEvent } from '../plugin/event'
 import { ManagerConfig } from '../config/config'
 import ConfigMain from '../../config/main'
@@ -28,6 +29,10 @@ export const ManagerHotkeyHandle = {
         const i = parseInt(index)
         const launches = await ManagerConfig.listLaunch()
         if (i < launches.length) {
+            // 快捷唤起启动项前先隐藏主窗口，避免主窗口闪现
+            if (AppRuntime.mainWindow?.isVisible()) {
+                AppRuntime.mainWindow.hide()
+            }
             await ManagerPluginEvent.redirect(null, {
                 keywordsOrAction: launches[i].keyword,
             })

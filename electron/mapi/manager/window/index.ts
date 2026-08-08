@@ -11,6 +11,7 @@ import { AppsMain } from '../../app/main'
 import { AppEnv, AppRuntime } from '../../env'
 import { Events } from '../../event/main'
 import { Log } from '../../log/main'
+import StorageMain from '../../storage/main'
 import { executeDarkMode, executeHooks, executePluginHooks } from '../lib/hooks'
 import { ManagerPlugin } from '../plugin'
 import { ManagerPluginEvent } from '../plugin/event'
@@ -80,6 +81,57 @@ const isBrowserWindowAlive = (win?: BrowserWindow | null) => {
     } catch {
         return false
     }
+}
+
+/**
+ * 检测窗口 bounds 是否至少部分落在某个显示器的可见区域内，
+ * 用于判断缓存的窗口位置在重新打开时是否仍然有效（防止显示器变更后窗口出现在屏幕外）。
+ */
+const isBoundsVisible = (bounds: Electron.Rectangle | null | undefined): boolean => {
+    if (!bounds || typeof bounds.x !== 'number' || typeof bounds.y !== 'number') {
+        return false
+    }
+    if (
+        typeof bounds.width !== 'number' ||
+        typeof bounds.height !== 'number' ||
+        bounds.width <= 0 ||
+        bounds.height <= 0
+    ) {
+        return false
+    }
+    const minVisible = 50
+    return screen.getAllDisplays().some((display) => {
+        const area = display.workArea
+        const overlapWidth = Math.min(bounds.x + bounds.width, area.x + area.width) - Math.max(bounds.x, area.x)
+        const overlapHeight = Math.min(bounds.y + bounds.height, area.y + area.height) - Math.max(bounds.y, area.y)
+        return overlapWidth >= minVisible && overlapHeight >= minVisible
+    })
+}
+
+const DETACH_WINDOW_BOUNDS_GROUP = 'detachWindowBounds'
+const detachWindowBoundsCache: Record<string, Electron.Rectangle> = {}
+
+/** 获取某个插件分离窗口上次保存的窗口 bounds，无缓存或已不在可见区域内时返回 null */
+const getDetachWindowBounds = async (pluginName: string): Promise<Electron.Rectangle | null> => {
+    const bounds = await StorageMain.get(DETACH_WINDOW_BOUNDS_GROUP, pluginName, null)
+    if (!isBoundsVisible(bounds)) {
+        return null
+    }
+    return bounds as Electron.Rectangle
+}
+
+/** 保存某个插件分离窗口的窗口 bounds（内存缓存 + 落盘） */
+const saveDetachWindowBounds = (pluginName: string, bounds: Electron.Rectangle) => {
+    detachWindowBoundsCache[pluginName] = bounds
+    StorageMain.set(DETACH_WINDOW_BOUNDS_GROUP, pluginName, bounds).then()
+}
+
+/** 读取某个插件分离窗口的窗口 bounds（优先内存缓存） */
+const readDetachWindowBounds = async (pluginName: string): Promise<Electron.Rectangle | null> => {
+    if (isBoundsVisible(detachWindowBoundsCache[pluginName])) {
+        return detachWindowBoundsCache[pluginName]
+    }
+    return getDetachWindowBounds(pluginName)
 }
 
 const checkForHotkey = async (view: PluginContext, input: Electron.Input) => {
@@ -545,15 +597,14 @@ export const ManagerWindow = {
             },
             option,
         }
+        // 分离模式窗口打开前先同步隐藏主窗口，避免 Alt+C 等快捷唤起时主窗口闪现
+        if (autoDetach && !process.env.FOCUSANY_SCREENSHOT_SERVER && AppRuntime.mainWindow?.isVisible()) {
+            AppRuntime.mainWindow.hide()
+        }
         setTimeout(async () => {
             try {
                 if (!isBrowserViewAlive(view)) {
                     return
-                }
-                if (autoDetach) {
-                    if (!mainWindowView && !process.env.FOCUSANY_SCREENSHOT_SERVER) {
-                        AppRuntime.mainWindow.hide()
-                    }
                 }
                 if (autoDetach || option.type === 'callPage') {
                     await this._showInDetachWindow(view, windowOption)
@@ -715,9 +766,21 @@ export const ManagerWindow = {
             option.width,
             option.height + WindowConfig.detachWindowTitleHeight,
         )
+        // 优先恢复该插件上次关闭时的窗口位置与大小，否则使用配置的默认位置/大小
+        let winX = x
+        let winY = y
+        let winWidth = option.width
+        let winHeight = option.height + WindowConfig.detachWindowTitleHeight
+        const savedBounds = await readDetachWindowBounds(plugin.name)
+        if (savedBounds) {
+            winX = savedBounds.x
+            winY = savedBounds.y
+            winWidth = savedBounds.width
+            winHeight = savedBounds.height
+        }
         let win: BrowserWindow | undefined = new BrowserWindow({
-            height: option.height + WindowConfig.detachWindowTitleHeight,
-            width: option.width,
+            height: winHeight,
+            width: winWidth,
             autoHideMenuBar: true,
             titleBarStyle: 'hidden',
             trafficLightPosition: { x: 10, y: 11 },
@@ -729,9 +792,8 @@ export const ManagerWindow = {
             enableLargerThanScreen: true,
             backgroundColor: '#fff',
             alwaysOnTop,
-            x,
-            y,
-            center: true,
+            x: winX,
+            y: winY,
             webPreferences: {
                 webSecurity: false,
                 allowRunningInsecureContent: true,
@@ -751,10 +813,28 @@ export const ManagerWindow = {
         view._window = win
         remoteMain.enable(win.webContents)
         win.on('close', () => {
+            if (isBrowserWindowAlive(win)) {
+                saveDetachWindowBounds(view._plugin.name, win.getBounds())
+            }
             executePluginHooks(view, 'PluginExit', null)
             removeBrowserViews(view)
             removeDetachWindows(win)
         })
+        // 窗口移动/缩放时（防抖）保存位置与大小，保证进程被异常结束/直接退出时也能恢复
+        let boundsSaveTimer: ReturnType<typeof setTimeout> = null
+        const scheduleSaveDetachWindowBounds = () => {
+            if (boundsSaveTimer) {
+                clearTimeout(boundsSaveTimer)
+            }
+            boundsSaveTimer = setTimeout(() => {
+                boundsSaveTimer = null
+                if (isBrowserWindowAlive(win)) {
+                    saveDetachWindowBounds(view._plugin.name, win.getBounds())
+                }
+            }, 300)
+        }
+        win.on('move', scheduleSaveDetachWindowBounds)
+        win.on('resize', scheduleSaveDetachWindowBounds)
         win.on('closed', async () => {
             // @ts-ignore
             view.webContents?.destroy()
@@ -837,11 +917,13 @@ export const ManagerWindow = {
                 })
                 view.setAutoResize({ width: true, height: true })
                 win.setBrowserView(view)
+                // 按窗口实际大小设置视图区域（分离窗口顶部为标题栏）
+                const winBounds = win.getBounds()
                 view.setBounds({
                     x: 0,
                     y: WindowConfig.detachWindowTitleHeight,
-                    width: option.width,
-                    height: option.height,
+                    width: winBounds.width,
+                    height: Math.max(winBounds.height - WindowConfig.detachWindowTitleHeight, 0),
                 })
                 DevToolsManager.autoShow(win)
                 const pluginParam = {

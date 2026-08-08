@@ -22,7 +22,7 @@
     "type": "module",
     "scripts": {
         "dev": "vite",
-        "dev:seed": "tsx test/dev-seed.ts",
+        "dev:seed": "node scripts/fix-quarantine.mjs && tsx test/dev-seed.ts",
         "screenshot": "tsx test/screenshot.ts",
         "dev:mac": "pkill -f focusany; vite",
         "dev:mac:pre": "export ELECTRON_ENV_PROD=1 && pkill -f focusany; vite",
@@ -38,7 +38,7 @@
         "preview": "vite preview",
         "format": "prettier --write --log-level warn \"src/**/*.{ts,tsx,vue,js}\" \"electron/**/*.{ts,tsx,js}\"",
         "lint": "eslint src electron",
-        "postinstall": "electron-builder install-app-deps",
+        "postinstall": "node scripts/fix-quarantine.mjs && electron-builder install-app-deps",
         "postuninstall": "electron-builder install-app-deps",
         "re-sqlite": "npx electron-rebuild -f -w better-sqlite3"
     },

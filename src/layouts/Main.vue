@@ -41,7 +41,7 @@ const doDebugToggle = () => {
         <div class="window-header flex h-10 items-center border-b border-solid border-gray-200 dark:border-gray-800">
             <div class="window-header-title flex-grow flex items-center">
                 <div class="pl-2 py-2">
-                    <img src="/logo.svg" class="w-4 t-4" />
+                    <img src="/logo.svg" class="w-4 h-4" />
                 </div>
                 <div class="p-2 flex-grow">
                     {{ AppConfig.title }}
