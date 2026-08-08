@@ -7,6 +7,9 @@ import path from 'node:path'
 import { AppEnv } from '../env'
 import { Log } from '../log/main'
 import { Manager } from '../manager/manager'
+import { ManagerPlugin } from '../manager/plugin'
+import { ManagerWindow } from '../manager/window'
+import { PluginType } from '../../../src/types/Manager'
 
 let server: http.Server | null = null
 let isRunning = false
@@ -81,6 +84,130 @@ const createApp = (port: number, token: string) => {
                 description: p.description || '',
             }))
             sendJson(res, 200, { code: 0, data: { list } })
+        } catch (e) {
+            sendJson(res, 500, { code: -1, msg: String(e) })
+        }
+    })
+
+    app.get('/api/plugin/info', async (req: Request, res: Response) => {
+        try {
+            const name = String(req.query.name || '')
+            if (!name) {
+                sendJson(res, 400, { code: -1, msg: 'missing name' })
+                return
+            }
+            const plugin = await Manager.getPlugin(name)
+            if (!plugin) {
+                sendJson(res, 404, { code: -1, msg: `PluginNotExists:${name}` })
+                return
+            }
+            const runtime = plugin.runtime as Record<string, unknown> | undefined
+            sendJson(res, 200, {
+                code: 0,
+                data: {
+                    name: plugin.name,
+                    title: plugin.title,
+                    version: plugin.version,
+                    logo: plugin.logo,
+                    type: plugin.type,
+                    description: plugin.description || '',
+                    main: plugin.main,
+                    preload: plugin.preload || '',
+                    developmentEnv: plugin.development?.env || 'prod',
+                    actions: (plugin.actions || []).map((a: any) => ({
+                        name: a.name,
+                        title: a.title,
+                        type: a.type,
+                    })),
+                    mcpTools: (plugin.mcp?.tools || []).map((t: any) => t.name),
+                    root: runtime?.root || null,
+                },
+            })
+        } catch (e) {
+            sendJson(res, 500, { code: -1, msg: String(e) })
+        }
+    })
+
+    // body: { path: string, type?: 'dir' | 'zip' }
+    app.post('/api/plugin/install', async (req: Request, res: Response) => {
+        try {
+            const fileOrPath = String(req.body?.path || '')
+            if (!fileOrPath) {
+                sendJson(res, 400, { code: -1, msg: 'missing path' })
+                return
+            }
+            const type = req.body?.type === 'zip' ? PluginType.ZIP : PluginType.DIR
+            await ManagerPlugin.installFromFileOrDir(fileOrPath, type)
+            sendJson(res, 200, { code: 0, data: { path: fileOrPath, type } })
+        } catch (e) {
+            sendJson(res, 500, { code: -1, msg: String(e) })
+        }
+    })
+
+    // body: { name: string }
+    app.post('/api/plugin/uninstall', async (req: Request, res: Response) => {
+        try {
+            const name = String(req.body?.name || '')
+            if (!name) {
+                sendJson(res, 400, { code: -1, msg: 'missing name' })
+                return
+            }
+            await ManagerPlugin.uninstall(name)
+            sendJson(res, 200, { code: 0, data: { name } })
+        } catch (e) {
+            sendJson(res, 500, { code: -1, msg: String(e) })
+        }
+    })
+
+    // body: { name: string, actionName?: string, files?: string[] }
+    app.post('/api/plugin/run', async (req: Request, res: Response) => {
+        try {
+            const name = String(req.body?.name || '')
+            if (!name) {
+                sendJson(res, 400, { code: -1, msg: 'missing name' })
+                return
+            }
+            const plugin = await Manager.getPlugin(name)
+            if (!plugin) {
+                sendJson(res, 404, { code: -1, msg: `PluginNotExists:${name}` })
+                return
+            }
+            const actionName = req.body?.actionName ? String(req.body.actionName) : ''
+            let target = null
+            if (actionName) {
+                target = (plugin.actions || []).find((a) => a.name === actionName) || null
+                if (!target) {
+                    sendJson(res, 404, { code: -1, msg: `ActionNotExists:${name}/${actionName}` })
+                    return
+                }
+            } else {
+                target = (plugin.actions || []).find((a) => a.type === 'web') || (plugin.actions || [])[0] || null
+                if (!target) {
+                    sendJson(res, 404, { code: -1, msg: `PluginNoActions:${name}` })
+                    return
+                }
+            }
+            ;(target as any).pluginName = name
+
+            // Optional files (paths) are handed to the plugin's preload as
+            // actionMatchFiles — the same channel the search box uses when the
+            // user selects files. This lets the CLI drive file-open actions
+            // (e.g. bento opening a .bento.html) without GUI interaction.
+            const files: string[] = Array.isArray(req.body?.files) ? req.body.files.map(String) : []
+            if (files.length > 0) {
+                const matchFiles = files.map((p) => ({
+                    name: path.basename(p),
+                    path: p,
+                    isFile: true,
+                    isDirectory: false,
+                    fileExt: path.extname(p).replace(/^\./, ''),
+                }))
+                ;(target as any).runtime = { ...((target as any).runtime || {}), matchFiles }
+                await ManagerWindow.open(plugin, target)
+            } else {
+                await Manager.openAction(target)
+            }
+            sendJson(res, 200, { code: 0, data: { name, action: target.name, files } })
         } catch (e) {
             sendJson(res, 500, { code: -1, msg: String(e) })
         }

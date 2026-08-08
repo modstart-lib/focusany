@@ -6,7 +6,17 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"path/filepath"
 )
+
+// AbsPath expands ~ and returns an absolute path.
+func AbsPath(p string) (string, error) {
+	expanded, err := expandHome(p)
+	if err != nil {
+		return "", err
+	}
+	return filepath.Abs(expanded)
+}
 
 // DoRequest sends an HTTP request to the local FocusAny HTTP server.
 func DoRequest(cfg *AuthConfig, method string, urlPath string, body any) (map[string]any, error) {

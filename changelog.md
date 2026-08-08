@@ -2,7 +2,12 @@
 
 ## vNext
 
-- 新增：数据存储目录支持 `FOCUSANY_DATA_ROOT` 环境变量覆盖，优先级高于 `client.json` 的 `dataPath`，为正式使用数据与开发测试数据隔离做准备
+- 新增：CLI 插件管理命令支持安装/卸载/运行/查看信息（`install` / `uninstall` / `run` / `info`）
+- 新增：CLI 新增 `mcp` 命令，支持列出插件暴露的 MCP 工具（`tools`）并调用（`call`）
+- 新增：CLI 运行插件时可指定 `--file` 传递文件给插件 preload（`actionMatchFiles`，与搜索框选择文件同一通道），便于无界面驱动文件打开类动作
+- 新增：HTTP 服务新增插件管理接口（`/api/plugin/info`、`/api/plugin/install`、`/api/plugin/uninstall`、`/api/plugin/run`），供 CLI 等外部调用
+- 新增：CLI 数据存储目录支持 `FOCUSANY_DATA_ROOT` 环境变量覆盖，优先级高于 `client.json` 的 `dataPath`，与主应用保持同一规则
+- 新增：CLI 新增插件管理、MCP、环境变量优先级相关测试用例
 - 新增：首次进入权限引导页时自动请求屏幕录制权限，避免实际使用录屏功能时才提示，提升用户体验
 - 修复：macOS 本地构建版重新 ad-hoc 签名并修正 identifier，解决因二进制签名 identifier 为 Electron 导致 TCC 辅助功能/屏幕录制授权无法匹配的问题
 - 修复：开发测试进程清理不再误杀已安装的正式版 FocusAny 进程

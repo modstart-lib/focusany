@@ -13,6 +13,7 @@ node_modules
 /dist-electron
 /dist-release
 /_delete
+*.tsbuildinfo
 *.local
 
 # Editor directories and files

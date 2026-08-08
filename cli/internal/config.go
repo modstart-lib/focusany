@@ -71,6 +71,21 @@ func LoadClientConfig() (*ClientConfig, error) {
 	if err != nil {
 		return nil, err
 	}
+	// FOCUSANY_DATA_ROOT wins over client.json's dataPath — the same rule the
+	// app itself applies (electron/lib/clientConfig.ts). launchers such as
+	// ss-start-focusany rely on it to point both the app and the CLI at the
+	// same data directory.
+	if envRoot := os.Getenv("FOCUSANY_DATA_ROOT"); envRoot != "" {
+		expanded, err := expandHome(envRoot)
+		if err != nil {
+			return nil, err
+		}
+		abs, err := filepath.Abs(expanded)
+		if err != nil {
+			return nil, err
+		}
+		return &ClientConfig{DataPath: abs}, nil
+	}
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
 		if err := writeClientConfig(filePath, defaultCfg); err != nil {
 			return nil, fmt.Errorf("cannot create %s: %w", filePath, err)

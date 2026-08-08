@@ -243,6 +243,48 @@ func TestLoadAuthConfigMissingFile(t *testing.T) {
 	}
 }
 
+func TestLoadClientConfigEnvDataRootWins(t *testing.T) {
+	home := withHome(t)
+	// Even a fully-populated client.json must be ignored when the env var is set.
+	clientPath := filepath.Join(home, ".focusany", "client.json")
+	if err := os.MkdirAll(filepath.Dir(clientPath), 0755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(clientPath, []byte(`{"dataPath": "/elsewhere/data"}`), 0644); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("FOCUSANY_DATA_ROOT", "~/env/runtime/focusany")
+	cfg, err := LoadClientConfig()
+	if err != nil {
+		t.Fatalf("LoadClientConfig failed: %v", err)
+	}
+	want := filepath.Join(home, "env/runtime/focusany")
+	if cfg.DataPath != want {
+		t.Fatalf("DataPath = %q, want %q (FOCUSANY_DATA_ROOT must win)", cfg.DataPath, want)
+	}
+}
+
+func TestLoadAuthConfigEnvDataRoot(t *testing.T) {
+	home := withHome(t)
+	t.Setenv("FOCUSANY_DATA_ROOT", "~/env/runtime/focusany")
+	authDir := filepath.Join(home, "env/runtime/focusany")
+	if err := os.MkdirAll(authDir, 0755); err != nil {
+		t.Fatal(err)
+	}
+	authCfg := AuthConfig{Port: 54321, Token: "env-token"}
+	b, _ := json.Marshal(authCfg)
+	if err := os.WriteFile(filepath.Join(authDir, "cli-auth.json"), b, 0644); err != nil {
+		t.Fatal(err)
+	}
+	got, err := LoadAuthConfig()
+	if err != nil {
+		t.Fatalf("LoadAuthConfig failed: %v", err)
+	}
+	if got.Port != 54321 || got.Token != "env-token" {
+		t.Fatalf("unexpected auth from env data root: %+v", got)
+	}
+}
+
 func TestLoadAuthConfigIncomplete(t *testing.T) {
 	home := withHome(t)
 	clientPath := filepath.Join(home, ".focusany", "client.json")

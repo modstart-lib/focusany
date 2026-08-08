@@ -138,3 +138,73 @@ func TestPluginSubCommand(t *testing.T) {
 		t.Fatal("plugin command should have 'list' subcommand")
 	}
 }
+
+func TestPluginManageSubCommands(t *testing.T) {
+	want := map[string]bool{
+		"install":   true,
+		"uninstall": true,
+		"run":       true,
+		"info":      true,
+	}
+	for _, c := range pluginCmd.Commands() {
+		delete(want, c.Name())
+	}
+	if len(want) > 0 {
+		names := make([]string, 0, len(want))
+		for n := range want {
+			names = append(names, n)
+		}
+		t.Fatalf("plugin command is missing subcommands: %v", names)
+	}
+}
+
+func TestPluginInstallRequiresPath(t *testing.T) {
+	// install with no args must fail at the cobra Args layer.
+	if err := pluginInstallCmd.Args(pluginInstallCmd, []string{}); err == nil {
+		t.Fatal("install with no args should error")
+	}
+	if err := pluginInstallCmd.Args(pluginInstallCmd, []string{"a", "b"}); err == nil {
+		t.Fatal("install with two args should error")
+	}
+}
+
+func TestPluginRunAcceptsOneOrTwoArgs(t *testing.T) {
+	if err := pluginRunCmd.Args(pluginRunCmd, []string{}); err == nil {
+		t.Fatal("run with no args should error")
+	}
+	if err := pluginRunCmd.Args(pluginRunCmd, []string{"A"}); err != nil {
+		t.Fatalf("run with one arg should be accepted: %v", err)
+	}
+	if err := pluginRunCmd.Args(pluginRunCmd, []string{"A", "B"}); err != nil {
+		t.Fatalf("run with two args should be accepted: %v", err)
+	}
+	if err := pluginRunCmd.Args(pluginRunCmd, []string{"A", "B", "C"}); err == nil {
+		t.Fatal("run with three args should error")
+	}
+}
+
+func TestMcpSubCommands(t *testing.T) {
+	want := map[string]bool{"tools": true, "call": true}
+	for _, c := range mcpCmd.Commands() {
+		delete(want, c.Name())
+	}
+	if len(want) > 0 {
+		names := make([]string, 0, len(want))
+		for n := range want {
+			names = append(names, n)
+		}
+		t.Fatalf("mcp command is missing subcommands: %v", names)
+	}
+}
+
+func TestMcpCallRequiresTwoArgs(t *testing.T) {
+	if err := mcpCallCmd.Args(mcpCallCmd, []string{}); err == nil {
+		t.Fatal("call with no args should error")
+	}
+	if err := mcpCallCmd.Args(mcpCallCmd, []string{"P"}); err == nil {
+		t.Fatal("call with one arg should error")
+	}
+	if err := mcpCallCmd.Args(mcpCallCmd, []string{"P", "t"}); err != nil {
+		t.Fatalf("call with two args should be accepted: %v", err)
+	}
+}
