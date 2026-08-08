@@ -208,3 +208,33 @@ func TestMcpCallRequiresTwoArgs(t *testing.T) {
 		t.Fatalf("call with two args should be accepted: %v", err)
 	}
 }
+
+func TestLogCommandRegistered(t *testing.T) {
+	found := false
+	for _, c := range rootCmd.Commands() {
+		if c.Name() == "log" {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Fatal("log command should be registered")
+	}
+	if logCmd.Short == "" {
+		t.Fatal("log command should have a Short description")
+	}
+}
+
+func TestPluginDevSubCommands(t *testing.T) {
+	want := map[string]bool{"check": true, "release-prepare": true, "package": true}
+	for _, c := range pluginCmd.Commands() {
+		delete(want, c.Name())
+	}
+	if len(want) > 0 {
+		names := make([]string, 0, len(want))
+		for n := range want {
+			names = append(names, n)
+		}
+		t.Fatalf("plugin command is missing dev subcommands: %v", names)
+	}
+}

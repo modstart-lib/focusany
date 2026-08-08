@@ -13,6 +13,11 @@
 - 修复：开发测试进程清理不再误杀已安装的正式版 FocusAny 进程
 - 修复：初始化设置等窗口顶部标题栏 logo 图标内容错误（旧图形），统一替换为新的 focusany-pro 品牌图标，并修正图标尺寸 class 笔误（`t-4` → `h-4`）
 - 优化：macOS 开发模式 Electron 被 Gatekeeper 拦截导致无法启动、辅助功能权限无法授权的问题——新增 `scripts/fix-quarantine.mjs` 自动移除 electron 包的 `com.apple.quarantine` 标记，并在 `postinstall` / `dev:seed` / `make dev` 流程中自动执行
+- 新增：CLI 新增 `log` 命令，支持查看 FocusAny 主程序与插件日志（`--list` 列出插件日志、`--plugin`/`--date` 指定范围、`--level` 级别过滤、`--follow` 实时跟踪）
+- 新增：CLI 新增 `plugin check` 命令，发布前校验插件目录 config.json（名称/版本/引用的文件/actions 匹配规则/MCP 工具 schema/权限枚举/开发环境标记）
+- 新增：CLI 新增 `plugin release-prepare` 命令，一键将 config.json 的 `development.env` 切换为 prod 并关闭调试开关，幂等可重复执行
+- 新增：CLI 新增 `plugin package` 命令，将插件目录打包为发布 zip（支持 `.faignore` 忽略规则、`--output` 指定输出路径、`--prod` 打包前自动 release-prepare）
+- 新增：CLI 新增 log 命令注册、插件发布子命令、config 校验、`.faignore`/zip 打包、日志 tail 相关测试用例
 
 ## v2.0.0 工作流引擎重磅上线，开启自动化新纪元
 

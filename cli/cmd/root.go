@@ -26,4 +26,5 @@ func init() {
 	rootCmd.AddCommand(versionCmd)
 	rootCmd.AddCommand(pluginCmd)
 	rootCmd.AddCommand(mcpCmd)
+	rootCmd.AddCommand(logCmd)
 }

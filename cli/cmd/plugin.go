@@ -1,8 +1,11 @@
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
+	"strings"
 
 	"focusany-cli/internal"
 
@@ -92,6 +95,8 @@ var pluginUninstallCmd = &cobra.Command{
 }
 
 var pluginRunFiles []string
+var pluginPackageOut string
+var pluginPackageProd bool
 
 // --- run / start ------------------------------------------------------------
 
@@ -171,12 +176,163 @@ var pluginInfoCmd = &cobra.Command{
 	},
 }
 
+// --- check (pre-publish validation) -----------------------------------------
+
+var pluginCheckCmd = &cobra.Command{
+	Use:   "check <dir>",
+	Short: "Validate a plugin directory before publishing",
+	Long: "Validate config.json structure and referenced files (main/logo/preload), " +
+		"action matches, MCP tool schemas, permissions and development env.",
+	Args: cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		dir, err := internal.AbsPath(args[0])
+		if err != nil {
+			return err
+		}
+		res, err := internal.CheckPluginConfig(dir, true)
+		if err != nil {
+			return err
+		}
+		for _, w := range res.Warns {
+			fmt.Println("WARN  " + w)
+		}
+		for _, e := range res.Errors {
+			fmt.Println("ERROR " + e)
+		}
+		if !res.Valid {
+			return fmt.Errorf("check failed with %d error(s)", len(res.Errors))
+		}
+		fmt.Println("OK  config.json is valid for release")
+		return nil
+	},
+}
+
+// --- release-prepare --------------------------------------------------------
+
+var pluginReleasePrepareCmd = &cobra.Command{
+	Use:   "release-prepare <dir>",
+	Short: "Switch development.env to prod for release",
+	Long: "Set config.json development.env to \"prod\" (and clear debug flags), the " +
+		"same behaviour as `npx focusany release-prepare`. Idempotent.",
+	Args: cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		dir, err := internal.AbsPath(args[0])
+		if err != nil {
+			return err
+		}
+		cfgPath := filepath.Join(dir, "config.json")
+		raw, err := os.ReadFile(cfgPath)
+		if err != nil {
+			return err
+		}
+		var cfg map[string]any
+		if err := json.Unmarshal(raw, &cfg); err != nil {
+			return fmt.Errorf("config.json is not valid JSON: %w", err)
+		}
+		dev, _ := cfg["development"].(map[string]any)
+		if dev == nil {
+			dev = map[string]any{}
+			cfg["development"] = dev
+		}
+		changed := false
+		if env, _ := dev["env"].(string); env != "prod" {
+			dev["env"] = "prod"
+			changed = true
+		}
+		for _, k := range []string{"showDevTools", "showCodeDevTools", "keepCodeDevTools", "showViewDevTools"} {
+			if v, ok := dev[k].(bool); ok && v {
+				dev[k] = false
+				changed = true
+			}
+		}
+		if !changed {
+			fmt.Println("already prod, nothing to change")
+			return nil
+		}
+		out, _ := json.MarshalIndent(cfg, "", "    ")
+		if err := os.WriteFile(cfgPath, out, 0644); err != nil {
+			return err
+		}
+		fmt.Println("development.env → prod (" + cfgPath + ")")
+		return nil
+	},
+}
+
+// --- package (zip) ----------------------------------------------------------
+
+var pluginPackageCmd = &cobra.Command{
+	Use:   "package <dir>",
+	Short: "Package a plugin directory into a release zip",
+	Long: "Create a zip archive with config.json at the root (FocusAny installer " +
+		"format), excluding entries matched by .faignore. With --prod, applies " +
+		"release-prepare first.",
+	Args: cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		dir, err := internal.AbsPath(args[0])
+		if err != nil {
+			return err
+		}
+		if pluginPackageProd {
+			if err := pluginReleasePrepareCmd.RunE(cmd, []string{dir}); err != nil {
+				return err
+			}
+		}
+		if res, err := internal.CheckPluginConfig(dir, true); err != nil {
+			return err
+		} else if !res.Valid {
+			for _, e := range res.Errors {
+				fmt.Println("ERROR " + e)
+			}
+			return fmt.Errorf("check failed, run 'focusany plugin check %s'", dir)
+		}
+		outPath := pluginPackageOut
+		if outPath == "" {
+			cfg, err := readPluginConfigName(dir)
+			if err != nil {
+				return err
+			}
+			parent := filepath.Dir(dir)
+			outPath = filepath.Join(parent, cfg+".zip")
+		}
+		if !strings.HasSuffix(strings.ToLower(outPath), ".zip") {
+			outPath += ".zip"
+		}
+		if err := internal.ZipPlugin(dir, outPath); err != nil {
+			return err
+		}
+		fi, _ := os.Stat(outPath)
+		fmt.Printf("packaged: %s (%d bytes)\n", outPath, fi.Size())
+		return nil
+	},
+}
+
+func readPluginConfigName(dir string) (string, error) {
+	raw, err := os.ReadFile(filepath.Join(dir, "config.json"))
+	if err != nil {
+		return "", err
+	}
+	var cfg map[string]any
+	if err := json.Unmarshal(raw, &cfg); err != nil {
+		return "", err
+	}
+	name, _ := cfg["name"].(string)
+	if name == "" {
+		return "", fmt.Errorf("config.json has no name")
+	}
+	return name, nil
+}
+
 func init() {
 	pluginInstallCmd.Flags().StringVar(&pluginInstallType, "type", "", "package type: dir (default) or zip")
 	pluginRunCmd.Flags().StringArrayVar(&pluginRunFiles, "file", nil, "file(s) to hand to the plugin (repeatable, like selecting files in search)")
+	pluginPackageCmd.Flags().StringVarP(&pluginPackageOut, "output", "o", "", "output zip path (default: <name>.zip next to the plugin dir)")
+	pluginPackageCmd.Flags().BoolVar(&pluginPackageProd, "prod", false, "apply release-prepare (dev→prod) before packaging")
 	pluginCmd.AddCommand(pluginListCmd)
 	pluginCmd.AddCommand(pluginInstallCmd)
 	pluginCmd.AddCommand(pluginUninstallCmd)
 	pluginCmd.AddCommand(pluginRunCmd)
 	pluginCmd.AddCommand(pluginInfoCmd)
+	pluginCmd.AddCommand(pluginCheckCmd)
+	pluginCmd.AddCommand(pluginReleasePrepareCmd)
+	pluginCmd.AddCommand(pluginPackageCmd)
 }
