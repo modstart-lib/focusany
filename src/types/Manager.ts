@@ -4,6 +4,8 @@ export type ConfigRecord = {
     mainTrigger: HotkeyKeyItem
     detachWindowTrigger: HotkeyKeyItem
     fastPanelTrigger: HotkeyKeySimpleItem
+    /** 是否已引导过 macOS 无障碍/录屏权限，避免每次开机重复弹出引导窗口 */
+    permissionSetupGuided: boolean
 }
 
 export type PluginConfig = {

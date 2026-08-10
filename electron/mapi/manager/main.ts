@@ -31,21 +31,26 @@ const init = () => {
     PluginHttp.init().then()
 }
 
-const ready = () => {
-    Permissions.checkAccessibilityAccess().then((enable) => {
-        if (enable) {
-            ManagerHotkey.init()
-        } else {
+const ready = async () => {
+    const [accessibilityOk, screenOk] = await Promise.all([
+        Permissions.checkAccessibilityAccess(),
+        Permissions.checkScreenCaptureAccess(),
+    ])
+    if (accessibilityOk) {
+        ManagerHotkey.init()
+    }
+    if (screenOk) {
+        ManagerAutomation.init()
+    }
+    // 权限未就绪时仅首次自动弹出引导页，之后开机静默启动，
+    // 避免每次启动都弹出授权提示窗口（可随时从托盘菜单再次打开引导页）
+    if (!accessibilityOk || !screenOk) {
+        const guided = await ManagerConfig.getPermissionSetupGuided()
+        if (!guided) {
+            ManagerConfig.setPermissionSetupGuided(true).then()
             Page.open('setup').then()
         }
-    })
-    Permissions.checkScreenCaptureAccess().then((enable) => {
-        if (enable) {
-            ManagerAutomation.init()
-        } else {
-            Page.open('setup').then()
-        }
-    })
+    }
     ManagerEditor.ready().then()
 }
 

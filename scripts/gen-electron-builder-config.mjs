@@ -5,6 +5,7 @@
 // This avoids cross-compilation — only the native arch is targeted.
 
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { execSync } from 'node:child_process';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import JSON5 from 'json5';
@@ -55,9 +56,20 @@ for (const t of platformTarget) {
   t.arch = [archName];
 }
 
-// 2. On macOS, allow code signing (CI has cert in keychain; base config has identity=null for local dev)
-//    Skip for local installs (FOCUSANY_LOCAL_INSTALL=1) to avoid signing failures without a cert.
-if (platform === 'darwin' && !process.env.FOCUSANY_LOCAL_INSTALL) {
+// 2. On macOS, allow code signing when the keychain has a Developer ID certificate
+//    (electron-builder auto-discovers it) or for non-local builds (CI has the cert).
+//    Local installs without a cert keep identity=null; the adhoc fallback in
+//    build-optimize.cjs then fixes the identifier and entitlements.
+const hasDeveloperIdCert = () => {
+  try {
+    const out = execSync('security find-identity -v -p codesigning 2>/dev/null', {encoding: 'utf8'});
+    return /Developer ID Application/.test(out);
+  } catch (e) {
+    return false;
+  }
+};
+
+if (platform === 'darwin' && (!process.env.FOCUSANY_LOCAL_INSTALL || hasDeveloperIdCert())) {
   delete nativeConfig.mac.identity;
   nativeConfig.mac.type = 'distribution';
 }

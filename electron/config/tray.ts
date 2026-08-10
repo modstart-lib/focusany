@@ -34,6 +34,12 @@ const ready = () => {
             },
         },
         {
+            label: t('tray.permissionSetup'),
+            click: () => {
+                AppsMain.windowOpen('setup').then()
+            },
+        },
+        {
             label: t('nav.guide'),
             click: () => {
                 AppsMain.windowOpen('guide').then()

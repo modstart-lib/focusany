@@ -84,9 +84,26 @@ function verifyAppEntitlements(appPath) {
 exports.default = async function notarizing(context) {
     const appName = context.packager.appInfo.productFilename;
     const {electronPlatformName, appOutDir} = context;
+    // THIS MUST BE THE SAME AS THE `appId` property
+    // in your electron builder configuration
+    const appId = "com.focusany.app";
+    const appPath = `${appOutDir}/${appName}.app`;
     console.log(`  • Notarization Start`);
     if (process.env.FOCUSANY_LOCAL_INSTALL === "1") {
-        console.log(`  • Skipping notarization and .node signing for local install`);
+        console.log(`  • Skipping notarization for local install`);
+        // 钥匙串已有 Developer ID 证书时补签 .node 原生模块并重签 app，
+        // 保持 CodeResources 一致（避免 Gatekeeper/hardened runtime 校验失败）。
+        // 无证书（adhoc 路径）时跳过，保持产物一致。
+        const identity = resolveDeveloperIdentity();
+        if (identity) {
+            signNodeModules(appPath, identity);
+            console.log(`  • Re-signing .app bundle to update CodeResources and preserve entitlements`);
+            execSync(
+                `codesign --sign "${identity}" --force --options runtime --timestamp --entitlements "${entitlementsPath}" "${appPath}" 2>&1`,
+                {stdio: ["ignore", "pipe", "pipe"], timeout: 60000}
+            );
+            verifyAppEntitlements(appPath);
+        }
         await common.calcSha256()
         return;
     }
@@ -101,15 +118,8 @@ exports.default = async function notarizing(context) {
         return;
     }
 
-    // THIS MUST BE THE SAME AS THE `appId` property
-    // in your electron builder configuration
-    const appId = "com.focusany.app";
-
-    let appPath = `${appOutDir}/${appName}.app`;
-
     // ── Resolve signing identity once ──────────────────────────────
     const identity = resolveDeveloperIdentity();
-
     // ── Sign all .node files before notarization ───────────────────
     signNodeModules(appPath, identity);
 

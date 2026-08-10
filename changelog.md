@@ -2,13 +2,20 @@
 
 ## vNext
 
+- 优化：权限引导页（初始化设置）窗口取消置顶显示，改为打开时自动置前并聚焦——避免引导窗口永久锁定最高层级，遮挡后续弹出的用户登录/授权、支付等其他窗口
+- 优化：macOS 权限引导策略——权限未就绪时仅首次自动弹出引导页，之后开机静默启动不再弹授权提示窗口，可随时从托盘菜单「权限设置」重新打开引导页
+- 优化：权限引导页不再进入页面时自动请求屏幕录制权限（原会反复触发 macOS 系统授权弹窗），改为点击「打开设置」按钮才触发请求
+- 优化：权限引导页增加提示文案，说明部分权限授权后需重启应用才能生效（解决系统设置已勾选但应用内验证不通过的问题）
+- 新增：托盘菜单新增「权限设置」入口，方便授权完成后随时查看权限状态
+- 修复：本地构建二次签名（`build-optimize.cjs`）会覆盖丢失 hardened runtime 与 entitlements 的问题，adhoc 兜底时补回 `--options runtime --entitlements`；钥匙串检测到证书时跳过 adhoc 重签，避免覆盖 Developer ID 签名
+- 修复：本地安装流程（`notarize.cjs`）钥匙串检测到证书时补签 .node 原生模块并重建 CodeResources，避免 Gatekeeper/hardened runtime 校验失败
+- 优化：macOS 签名改为从钥匙串自动发现 Developer ID 证书——用户只需将证书导入钥匙串即可，无证书时自动降级 adhoc 签名，不再依赖任何证书目录或环境变量配置
 - 新增：CLI 插件管理命令支持安装/卸载/运行/查看信息（`install` / `uninstall` / `run` / `info`）
 - 新增：CLI 新增 `mcp` 命令，支持列出插件暴露的 MCP 工具（`tools`）并调用（`call`）
 - 新增：CLI 运行插件时可指定 `--file` 传递文件给插件 preload（`actionMatchFiles`，与搜索框选择文件同一通道），便于无界面驱动文件打开类动作
 - 新增：HTTP 服务新增插件管理接口（`/api/plugin/info`、`/api/plugin/install`、`/api/plugin/uninstall`、`/api/plugin/run`），供 CLI 等外部调用
 - 新增：CLI 数据存储目录支持 `FOCUSANY_DATA_ROOT` 环境变量覆盖，优先级高于 `client.json` 的 `dataPath`，与主应用保持同一规则
 - 新增：CLI 新增插件管理、MCP、环境变量优先级相关测试用例
-- 新增：首次进入权限引导页时自动请求屏幕录制权限，避免实际使用录屏功能时才提示，提升用户体验
 - 修复：macOS 本地构建版重新 ad-hoc 签名并修正 identifier，解决因二进制签名 identifier 为 Electron 导致 TCC 辅助功能/屏幕录制授权无法匹配的问题
 - 修复：开发测试进程清理不再误杀已安装的正式版 FocusAny 进程
 - 修复：初始化设置等窗口顶部标题栏 logo 图标内容错误（旧图形），统一替换为新的 focusany-pro 品牌图标，并修正图标尺寸 class 笔误（`t-4` → `h-4`）

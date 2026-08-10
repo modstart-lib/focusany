@@ -34,7 +34,6 @@ export const PageSetup = {
             resizable: false,
             maximizable: false,
             backgroundColor: '#f1f5f9',
-            alwaysOnTop: true,
             webPreferences: {
                 preload: preloadDefault,
                 // Warning: Enable nodeIntegration and disable contextIsolation is not secure in production
@@ -59,6 +58,10 @@ export const PageSetup = {
         win.webContents.on('did-finish-load', () => {
             Page.ready('setup')
             DevToolsManager.autoShow(win)
+            // 不锁定置顶层级，仅在打开时带到前台，避免遮挡登录/授权等其他窗口
+            win.show()
+            win.focus()
+            win.moveTop()
         })
         DevToolsManager.register('Setup', win)
         // win.webContents.setWindowOpenHandler(({url}) => {

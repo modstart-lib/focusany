@@ -5,7 +5,6 @@ import { Dialog } from '../lib/dialog'
 import { testActionSet, testActionUnset } from '../utils/test'
 
 const recordActiveIndex = ref(0)
-let autoPrompted = false
 const recordActive = computed(() => {
     return records.value[recordActiveIndex.value] || null
 })
@@ -36,15 +35,6 @@ onBeforeUnmount(() => {
 
 const doLoad = async () => {
     records.value = await window.$mapi.app.setupList()
-    if (!autoPrompted) {
-        autoPrompted = true
-        // 首次进入引导页时自动请求屏幕录制权限（macOS 会弹出系统权限窗），
-        // 避免用户实际使用录屏功能时才提示，提升体验
-        const screen = records.value.find((r) => r.name === 'screen')
-        if (screen && screen.status === 'fail') {
-            window.$mapi.app.setupOpen('screen').then()
-        }
-    }
 }
 
 const doOpen = async () => {
@@ -123,6 +113,7 @@ const doCheck = async () => {
                                 </template>
                                 {{ $t('setup.verifyComplete') }}
                             </a-button>
+                            <div class="mt-2 text-xs text-gray-500">{{ $t('setup.restartTip') }}</div>
                         </div>
                     </div>
                 </div>

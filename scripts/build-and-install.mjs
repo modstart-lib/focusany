@@ -86,12 +86,14 @@ function killRunningInstances() {
 
 function buildProject() {
   step('构建项目');
-  run('npm run build', {
-    env: {
-      CSC_IDENTITY_AUTO_DISCOVERY: 'false',
-      FOCUSANY_LOCAL_INSTALL: '1',
-    },
-  });
+  // 不指定证书，electron-builder 自动发现钥匙串中的 Developer ID 证书；
+  // 无证书时由构建脚本降级为 adhoc 签名（build-optimize.cjs）。
+  const env = {
+    FOCUSANY_LOCAL_INSTALL: '1',
+    // 本地安装不公证（公证需上传构建产物到苹果，仅发布时使用）
+    SKIP_NOTARIZE: 'true',
+  };
+  run('npm run build', {env});
   console.log('  ✓ 构建完成');
 }
 

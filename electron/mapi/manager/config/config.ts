@@ -36,6 +36,7 @@ const defaultConfig: ConfigRecord = {
         type: 'Ctrl',
         times: 1,
     },
+    permissionSetupGuided: false,
     // fastPanelTriggerButton: {
     //     button: HotkeyMouseButtonEnum.RIGHT,
     //     type: 'longPress',
@@ -107,6 +108,14 @@ export const ManagerConfig = {
         if (hotkeyChanged) {
             ManagerHotkey.configInit().then()
         }
+    },
+    async getPermissionSetupGuided(): Promise<boolean> {
+        return (await this.get()).permissionSetupGuided
+    },
+    async setPermissionSetupGuided(guided: boolean) {
+        const config = await this.get()
+        config.permissionSetupGuided = guided
+        await this.save(config)
     },
     async listDisabledActionMatch() {
         return MemoryCacheUtil.remember('DisabledActionMatches', async () => {

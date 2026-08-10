@@ -53,27 +53,47 @@ function dirSize(dir) {
 exports.default = async function (context) {
   console.log("BuildOptimize", {name: common.platformName(), arch: common.platformArch()});
 
-  // macOS 本地构建版（无证书，identity=null）二进制签名 identifier 默认为 Electron，
-  // 与 Info.plist 的 CFBundleIdentifier 不一致会导致 TCC 辅助功能/屏幕录制授权失效。
-  // 此处用 ad-hoc 重新签名并指定 appId，使签名 identifier 与 bundle 一致。
+  // macOS 本地构建版：
+  // - 钥匙串已导入 Developer ID 证书时，electron-builder 随后会用证书签名，
+  //   授权记录按 TeamID 匹配，重装/升级后授权可持久，无需 adhoc 覆盖。
+  // - 无证书（identity=null，不签名）时，用 ad-hoc 重新签名并指定 appId，使签名
+  //   identifier 与 bundle 一致，避免 TCC 辅助功能/屏幕录制授权失效；同时保留
+  //   hardened runtime 与 entitlements。
   if (common.platformName() === "osx" && process.env.FOCUSANY_LOCAL_INSTALL === "1") {
     const appDir = common.pathResolve(
       context.appOutDir,
       `${context.packager.appInfo.productFilename}.app`,
     );
-    const appId = context.packager.appInfo.appId || "com.focusany.app";
-    try {
-      require("node:child_process").execSync(
-        `codesign --force --deep --sign - --identifier ${appId} "${appDir}"`,
-        {stdio: "pipe"},
-      );
-      const sig = require("node:child_process").execSync(
-        `codesign -dv "${appDir}" 2>&1 | grep Identifier`,
-        {encoding: "utf8"},
-      );
-      console.log(`  [sign] local build re-signed (${sig.trim()})`);
-    } catch (e) {
-      console.error("  [error] local build re-sign failed:", e.message);
+    const hasCert = (() => {
+      try {
+        const out = require("node:child_process").execSync(
+          `security find-identity -v -p codesigning 2>&1`,
+          {encoding: "utf8"},
+        );
+        return /Developer ID Application/.test(out);
+      } catch (e) {
+        return false;
+      }
+    })();
+    if (hasCert) {
+      console.log("  [sign] 钥匙串已检测到 Developer ID 证书，跳过 adhoc 重新签名");
+    } else {
+      const appId = context.packager.appInfo.appId || "com.focusany.app";
+      const entitlementsPath = require("node:path").resolve(__dirname, "..", "entitlements.mac.plist");
+      const exec = require("node:child_process").execSync;
+      try {
+        exec(
+          `codesign --force --deep --sign - --identifier ${appId} --options runtime --entitlements "${entitlementsPath}" "${appDir}"`,
+          {stdio: "pipe"},
+        );
+        const sig = exec(
+          `codesign -dv "${appDir}" 2>&1 | grep Identifier`,
+          {encoding: "utf8"},
+        );
+        console.log(`  [sign] local build re-signed (${sig.trim()})`);
+      } catch (e) {
+        console.error("  [error] local build re-sign failed:", e.message);
+      }
     }
   }
 
