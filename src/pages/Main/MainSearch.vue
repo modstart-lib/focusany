@@ -78,9 +78,12 @@
             </div>
         </div>
         <div v-else @dblclick="onSearchDoubleClick" class="main-search"></div>
-        <div class="content-right" @click="doShowMenu">
-            <div class="more" v-if="manager.activePlugin">
+        <div class="content-right">
+            <div class="more" v-if="manager.activePlugin" @click="doShowMenu">
                 <icon-more-vertical style="font-size: 20px" />
+            </div>
+            <div class="close" :title="$t('common.close')" @mousedown.stop @click="doClose">
+                <icon-close />
             </div>
         </div>
         <div
@@ -161,10 +164,11 @@ watch(
 onMounted(() => {
     updateWidth()
     testActionSet('mainSearch.loaded', () => true)
+    testActionSet('mainSearch.closeButton', () => !!document.querySelector('.content-right .close'))
 })
 
 onBeforeUnmount(() => {
-    testActionUnset('mainSearch.loaded')
+    testActionUnset(['mainSearch.loaded', 'mainSearch.closeButton'])
 })
 
 const onSearchValueChange = (value: string) => {
@@ -185,6 +189,10 @@ const focus = (search: boolean) => {
 
 const doLogoClick = () => {
     window.focusany.redirect(['system', 'page-setting'])
+}
+
+const doClose = () => {
+    manager.closeMain().then()
 }
 
 const onBlur = () => {
@@ -426,6 +434,45 @@ defineExpose({
     }
 
     .content-right {
+        display: flex;
+        align-items: center;
+        margin-left: 5px;
+        flex-shrink: 0;
+
+        .more {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            margin-right: 2px;
+
+            &:hover {
+                background: var(--color-fill-2);
+            }
+        }
+
+        .close {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            color: var(--color-text-2);
+
+            &:hover {
+                background: rgba(255, 0, 0, 0.15);
+                color: #e02d2d;
+            }
+
+            :deep(.arco-icon) {
+                font-size: 16px;
+            }
+        }
     }
 }
 </style>

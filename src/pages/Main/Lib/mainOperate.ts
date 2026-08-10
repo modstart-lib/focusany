@@ -78,11 +78,7 @@ export const useMainOperate = () => {
                 }
                 break
             case 'esc':
-                if (manager.activePlugin) {
-                    manager.closeMainPlugin().then()
-                } else {
-                    manager.hideMainWindow().then()
-                }
+                manager.closeMain().then()
                 break
             default:
                 switch (e.keyCode) {

@@ -234,6 +234,13 @@ export const managerStore = defineStore('manager', {
         async closeMainPlugin() {
             await window.$mapi.manager.closeMainPlugin()
         },
+        async closeMain() {
+            if (this.activePlugin) {
+                await this.closeMainPlugin()
+            } else {
+                await this.hideMainWindow()
+            }
+        },
         async openMainPluginDevTools() {
             await window.$mapi.manager.openMainPluginDevTools()
         },

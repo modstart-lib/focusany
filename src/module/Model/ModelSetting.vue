@@ -264,6 +264,12 @@ onUnmounted(() => {
                         {{ $t('error.energyInsufficient') }}
                     </div>
                     <div>
+                        <a-button class="ml-2" @click="doRefreshQuota">
+                            <template #icon>
+                                <icon-refresh :class="quotaRefreshing ? 'animate-spin' : ''" />
+                            </template>
+                            {{ $t('common.refresh') }}
+                        </a-button>
                         <a-button class="ml-2" @click="doUser">
                             {{ $t('common.recharge') }}
                         </a-button>
