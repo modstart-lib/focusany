@@ -16,7 +16,7 @@ type AuthConfig struct {
 
 // ClientConfig holds the shared local client settings.
 type ClientConfig struct {
-	DataPath string `json:"dataPath"`
+	DataRoot string `json:"dataRoot"`
 }
 
 func focusanyRoot() (string, error) {
@@ -32,7 +32,7 @@ func defaultClientConfig() (*ClientConfig, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &ClientConfig{DataPath: filepath.Join(root, "data")}, nil
+	return &ClientConfig{DataRoot: filepath.Join(root, "data")}, nil
 }
 
 func expandHome(value string) (string, error) {
@@ -71,7 +71,7 @@ func LoadClientConfig() (*ClientConfig, error) {
 	if err != nil {
 		return nil, err
 	}
-	// FOCUSANY_DATA_ROOT wins over client.json's dataPath — the same rule the
+	// FOCUSANY_DATA_ROOT wins over client.json's dataRoot — the same rule the
 	// app itself applies (electron/lib/clientConfig.ts). launchers such as
 	// ss-start-focusany rely on it to point both the app and the CLI at the
 	// same data directory.
@@ -84,7 +84,7 @@ func LoadClientConfig() (*ClientConfig, error) {
 		if err != nil {
 			return nil, err
 		}
-		return &ClientConfig{DataPath: abs}, nil
+		return &ClientConfig{DataRoot: abs}, nil
 	}
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
 		if err := writeClientConfig(filePath, defaultCfg); err != nil {
@@ -102,27 +102,27 @@ func LoadClientConfig() (*ClientConfig, error) {
 	if err := json.Unmarshal(data, &cfg); err != nil {
 		return nil, fmt.Errorf("invalid client.json: %w", err)
 	}
-	if strings.TrimSpace(cfg.DataPath) == "" {
-		cfg.DataPath = defaultCfg.DataPath
+	if strings.TrimSpace(cfg.DataRoot) == "" {
+		cfg.DataRoot = defaultCfg.DataRoot
 	}
-	cfg.DataPath, err = expandHome(cfg.DataPath)
+	cfg.DataRoot, err = expandHome(cfg.DataRoot)
 	if err != nil {
 		return nil, err
 	}
-	cfg.DataPath, err = filepath.Abs(cfg.DataPath)
+	cfg.DataRoot, err = filepath.Abs(cfg.DataRoot)
 	if err != nil {
 		return nil, err
 	}
 	return &cfg, nil
 }
 
-// LoadAuthConfig reads cli-auth.json from the configured FocusAny dataPath.
+// LoadAuthConfig reads cli-auth.json from the configured FocusAny dataRoot.
 func LoadAuthConfig() (*AuthConfig, error) {
 	clientCfg, err := LoadClientConfig()
 	if err != nil {
 		return nil, fmt.Errorf("cannot load client config: %w", err)
 	}
-	filePath := filepath.Join(clientCfg.DataPath, "cli-auth.json")
+	filePath := filepath.Join(clientCfg.DataRoot, "cli-auth.json")
 	data, err := os.ReadFile(filePath)
 	if err != nil {
 		return nil, fmt.Errorf("cannot read %s: %w (is FocusAny running?)", filePath, err)

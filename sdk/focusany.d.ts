@@ -25,6 +25,39 @@ declare type BaseResult<T = any> = {
     data?: T;
 };
 
+/** llmChat / llmChatJson 的入参 */
+declare type LlmChatCallInfo = {
+    providerId: string;
+    modelId: string;
+    /** 可选系统提示词 */
+    systemPrompt?: string;
+    /** 用户消息。与 messages 至少提供其一 */
+    prompt?: string;
+    /** 完整消息列表（多轮/自定义 role）。与 prompt 至少提供其一；同时提供 systemPrompt 时会插到最前 */
+    messages?: Array<{ role: string; content: string }>;
+    /**
+     * 推理（思考链）控制，通用布尔或对象（底层按模型自动适配格式）：
+     *  - false：关闭（DeepSeek 系 thinking.disabled；OpenAI o 系 reasoning_effort=low）
+     *  - true / 缺省：开启
+     *  - { enabled, effort }：enabled=false 关闭；effort 设置思考强度（o 系）
+     */
+    reasoning?: boolean | { enabled?: boolean; effort?: "low" | "medium" | "high" };
+    /** 最大返回 token 数（请求体 max_tokens） */
+    maxTokens?: number;
+    /** 采样温度 0~2（请求体 temperature） */
+    temperature?: number;
+    /** 核采样 0~1（请求体 top_p） */
+    topP?: number;
+    /** 停止序列（请求体 stop） */
+    stop?: string | string[];
+    /** 存在惩罚 -2~2（请求体 presence_penalty） */
+    presencePenalty?: number;
+    /** 频率惩罚 -2~2（请求体 frequency_penalty） */
+    frequencyPenalty?: number;
+    /** 随机种子（请求体 seed） */
+    seed?: number;
+};
+
 declare type PlatformType = "win" | "osx" | "linux";
 
 declare type EditionType = "open" | "pro";
@@ -845,10 +878,15 @@ interface FocusAnyApi {
      * call large language model chat
      * @param callInfo
      */
-    llmChat(callInfo: { providerId: string; modelId: string; message: string }): Promise<
-        BaseResult<{
-            message: string;
-        }>
+    llmChat(callInfo: LlmChatCallInfo): Promise<BaseResult<{ message: string }>>;
+
+    /**
+     * call large language model chat and parse the reply as JSON.
+     * Handles common issues: ```json fenced blocks, surrounding prose,
+     * and truncated/incomplete JSON (returns a readable error).
+     */
+    llmChatJson(callInfo: LlmChatCallInfo): Promise<
+        BaseResult<{ json: any; message: string }>
     >;
 
     /**

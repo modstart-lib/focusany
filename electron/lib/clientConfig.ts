@@ -3,13 +3,13 @@ import os from 'node:os'
 import path from 'node:path'
 
 export type ClientConfig = {
-    dataPath: string
+    dataRoot: string
 }
 
 const focusanyRoot = () => path.join(os.homedir(), '.focusany')
 
 const defaultClientConfig = (): ClientConfig => ({
-    dataPath: path.join(focusanyRoot(), 'data'),
+    dataRoot: path.join(focusanyRoot(), 'data'),
 })
 
 const expandHome = (value: string): string => {
@@ -38,7 +38,7 @@ export const loadClientConfig = (): ClientConfig => {
     const envDataRoot = process.env.FOCUSANY_DATA_ROOT
     if (envDataRoot && envDataRoot.trim()) {
         return {
-            dataPath: path.resolve(expandHome(envDataRoot)),
+            dataRoot: path.resolve(expandHome(envDataRoot)),
         }
     }
     const filePath = getClientConfigPath()
@@ -49,9 +49,9 @@ export const loadClientConfig = (): ClientConfig => {
     }
     const data = fs.readFileSync(filePath, 'utf-8')
     const config = JSON.parse(data) as Partial<ClientConfig>
-    const dataPath =
-        typeof config.dataPath === 'string' && config.dataPath.trim() ? config.dataPath : defaultConfig.dataPath
+    const dataRoot =
+        typeof config.dataRoot === 'string' && config.dataRoot.trim() ? config.dataRoot : defaultConfig.dataRoot
     return {
-        dataPath: path.resolve(expandHome(dataPath)),
+        dataRoot: path.resolve(expandHome(dataRoot)),
     }
 }

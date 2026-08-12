@@ -764,13 +764,23 @@ const FocusAnyShim = {
                     },
                 ]);
             },
-            llmChat(callInfo: { providerId: string; modelId: string; message: string }): Promise<BaseResult<{
+            llmChat(callInfo: LlmChatCallInfo): Promise<BaseResult<{
                 message: string;
             }>> {
                 return Promise.resolve({
                     code: 200,
                     msg: "Mock response",
                     data: {message: "Mock LLM response"}
+                });
+            },
+            llmChatJson(callInfo: LlmChatCallInfo): Promise<BaseResult<{
+                json: any;
+                message: string;
+            }>> {
+                return Promise.resolve({
+                    code: 200,
+                    msg: "Mock response",
+                    data: {json: {mock: true}, message: "Mock LLM response"}
                 });
             },
             logInfo(label: string, data?: any): void {

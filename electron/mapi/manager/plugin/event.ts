@@ -27,7 +27,7 @@ import { Manager } from '../manager'
 import { PluginContext } from '../type'
 import { ManagerWindow } from '../window'
 import { ManagerPlugin } from './index'
-import { listModels, modelChat } from './llm'
+import { listModels, modelChat, modelChatJson } from './llm'
 import { PluginLog } from './log'
 import { ManagerPluginPermission } from './permission'
 import { screenCapture } from './screenCapture'
@@ -580,7 +580,19 @@ export const ManagerPluginEvent = {
     llmChat: async (context: PluginContext, data: any) => {
         const { callInfo } = data
         try {
-            return modelChat(callInfo.providerId, callInfo.modelId, callInfo.message)
+            return modelChat(callInfo.providerId, callInfo.modelId, callInfo)
+        } catch (e) {
+            return {
+                code: -1,
+                msg: `Request failed: ${e instanceof Error ? e.message : String(e)}`,
+            }
+        }
+    },
+
+    llmChatJson: async (context: PluginContext, data: any) => {
+        const { callInfo } = data
+        try {
+            return modelChatJson(callInfo.providerId, callInfo.modelId, callInfo)
         } catch (e) {
             return {
                 code: -1,

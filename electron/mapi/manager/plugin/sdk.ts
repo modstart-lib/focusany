@@ -296,7 +296,21 @@ export const PluginSdkCreate = (plugin: PluginRecord) => {
             return ManagerPluginEvent.llmListModels(context, {})
         },
 
-        async llmChat(callInfo: { providerId: string; modelId: string; message: string }): Promise<{
+        async llmChat(callInfo: {
+            providerId: string
+            modelId: string
+            systemPrompt?: string
+            prompt?: string
+            messages?: Array<{ role: string; content: string }>
+            reasoning?: boolean | { enabled?: boolean; effort?: 'low' | 'medium' | 'high' }
+            maxTokens?: number
+            temperature?: number
+            topP?: number
+            stop?: string | string[]
+            presencePenalty?: number
+            frequencyPenalty?: number
+            seed?: number
+        }): Promise<{
             code: number
             msg: string
             data?: {
@@ -304,6 +318,31 @@ export const PluginSdkCreate = (plugin: PluginRecord) => {
             }
         }> {
             return ManagerPluginEvent.llmChat(context, { callInfo })
+        },
+
+        async llmChatJson(callInfo: {
+            providerId: string
+            modelId: string
+            systemPrompt?: string
+            prompt?: string
+            messages?: Array<{ role: string; content: string }>
+            reasoning?: boolean | { enabled?: boolean; effort?: 'low' | 'medium' | 'high' }
+            maxTokens?: number
+            temperature?: number
+            topP?: number
+            stop?: string | string[]
+            presencePenalty?: number
+            frequencyPenalty?: number
+            seed?: number
+        }): Promise<{
+            code: number
+            msg: string
+            data?: {
+                json: any
+                message: string
+            }
+        }> {
+            return ManagerPluginEvent.llmChatJson(context, { callInfo })
         },
 
         logInfo(label: string, data?: any): void {

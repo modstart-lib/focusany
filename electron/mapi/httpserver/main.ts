@@ -9,7 +9,9 @@ import { Log } from '../log/main'
 import { Manager } from '../manager/manager'
 import { ManagerPlugin } from '../manager/plugin'
 import { ManagerWindow } from '../manager/window'
+import { ManagerPluginStore } from '../manager/system/plugin/store/index'
 import { PluginType } from '../../../src/types/Manager'
+import { listModels } from '../manager/plugin/llm'
 
 let server: http.Server | null = null
 let isRunning = false
@@ -154,6 +156,66 @@ const createApp = (port: number, token: string) => {
             }
             await ManagerPlugin.uninstall(name)
             sendJson(res, 200, { code: 0, data: { name } })
+        } catch (e) {
+            sendJson(res, 500, { code: -1, msg: String(e) })
+        }
+    })
+
+    app.get('/api/llm/models', async (_req: Request, res: Response) => {
+        try {
+            const models = await listModels()
+            sendJson(res, 200, { code: 0, data: { list: models } })
+        } catch (e) {
+            sendJson(res, 500, { code: -1, msg: String(e) })
+        }
+    })
+
+    // body: { name: string } → capture the plugin's current window as base64 PNG
+    app.post('/api/plugin/capture', async (req: Request, res: Response) => {
+        try {
+            const name = String(req.body?.name || '')
+            if (!name) {
+                sendJson(res, 400, { code: -1, msg: 'missing name' })
+                return
+            }
+            const shot = await ManagerWindow.capture(name)
+            sendJson(res, 200, { code: 0, data: { name, type: shot.type, base64: shot.base64, state: shot.state } })
+        } catch (e) {
+            sendJson(res, 500, { code: -1, msg: String(e) })
+        }
+    })
+
+    // body: { name: string, version?: string } → package the plugin and upload
+    // to the official store via UserApi (store/plugin_publish). Reuses the
+    // desktop app's own publish implementation (ManagerPluginStore.publish):
+    // reads release.md, zips the plugin dir, posts with Api-Token auth.
+    app.post('/api/plugin/publish', async (req: Request, res: Response) => {
+        try {
+            const name = String(req.body?.name || '')
+            if (!name) {
+                sendJson(res, 400, { code: -1, msg: 'missing name' })
+                return
+            }
+            const version = req.body?.version ? String(req.body.version) : undefined
+            const result = await ManagerPluginStore.publish(name, { version })
+            sendJson(res, 200, { code: 0, data: result })
+        } catch (e) {
+            sendJson(res, 500, { code: -1, msg: String(e) })
+        }
+    })
+
+    // body: { name: string, version?: string } → update plugin info (content/
+    // preview) on the store without publishing a new package.
+    app.post('/api/plugin/publish-info', async (req: Request, res: Response) => {
+        try {
+            const name = String(req.body?.name || '')
+            if (!name) {
+                sendJson(res, 400, { code: -1, msg: 'missing name' })
+                return
+            }
+            const version = req.body?.version ? String(req.body.version) : undefined
+            const result = await ManagerPluginStore.publishInfo(name, { version })
+            sendJson(res, 200, { code: 0, data: result })
         } catch (e) {
             sendJson(res, 500, { code: -1, msg: String(e) })
         }

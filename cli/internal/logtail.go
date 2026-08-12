@@ -18,7 +18,7 @@ func LogDir() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return filepath.Join(cfg.DataPath, "logs"), nil
+	return filepath.Join(cfg.DataRoot, "logs"), nil
 }
 
 // LogFileName picks today's (or a requested date's) log file for a scope:
@@ -36,7 +36,7 @@ func LogFileName(logDir, plugin, date string) (string, error) {
 	}
 	p := filepath.Join(logDir, name)
 	if _, err := os.Stat(p); err != nil {
-		return "", fmt.Errorf("log file not found: %s (dataPath=%s)", p, logDir)
+		return "", fmt.Errorf("log file not found: %s (dataRoot=%s)", p, logDir)
 	}
 	return p, nil
 }

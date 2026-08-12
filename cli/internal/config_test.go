@@ -35,8 +35,8 @@ func TestDefaultClientConfig(t *testing.T) {
 		t.Fatalf("defaultClientConfig failed: %v", err)
 	}
 	want := filepath.Join(home, ".focusany", "data")
-	if cfg.DataPath != want {
-		t.Fatalf("DataPath = %q, want %q", cfg.DataPath, want)
+	if cfg.DataRoot != want {
+		t.Fatalf("DataRoot = %q, want %q", cfg.DataRoot, want)
 	}
 }
 
@@ -72,7 +72,7 @@ func TestExpandHome(t *testing.T) {
 func TestWriteClientConfig(t *testing.T) {
 	home := withHome(t)
 	filePath := filepath.Join(home, ".focusany", "client.json")
-	cfg := &ClientConfig{DataPath: "/custom/path"}
+	cfg := &ClientConfig{DataRoot: "/custom/path"}
 
 	if err := writeClientConfig(filePath, cfg); err != nil {
 		t.Fatalf("writeClientConfig failed: %v", err)
@@ -87,8 +87,8 @@ func TestWriteClientConfig(t *testing.T) {
 	if err := json.Unmarshal(data, &readCfg); err != nil {
 		t.Fatalf("invalid JSON written: %v", err)
 	}
-	if readCfg.DataPath != cfg.DataPath {
-		t.Fatalf("written DataPath = %q, want %q", readCfg.DataPath, cfg.DataPath)
+	if readCfg.DataRoot != cfg.DataRoot {
+		t.Fatalf("written DataRoot = %q, want %q", readCfg.DataRoot, cfg.DataRoot)
 	}
 }
 
@@ -99,21 +99,21 @@ func TestLoadClientConfigCreatesDefault(t *testing.T) {
 		t.Fatalf("LoadClientConfig failed: %v", err)
 	}
 	want := filepath.Join(home, ".focusany", "data")
-	if cfg.DataPath != want {
-		t.Fatalf("DataPath = %q, want %q", cfg.DataPath, want)
+	if cfg.DataRoot != want {
+		t.Fatalf("DataRoot = %q, want %q", cfg.DataRoot, want)
 	}
 	if _, err := os.Stat(filepath.Join(home, ".focusany", "client.json")); err != nil {
 		t.Fatalf("client.json was not created: %v", err)
 	}
 }
 
-func TestLoadClientConfigReadsCustomDataPath(t *testing.T) {
+func TestLoadClientConfigReadsCustomDataRoot(t *testing.T) {
 	home := withHome(t)
 	clientPath := filepath.Join(home, ".focusany", "client.json")
 	if err := os.MkdirAll(filepath.Dir(clientPath), 0755); err != nil {
 		t.Fatal(err)
 	}
-	b, err := json.Marshal(ClientConfig{DataPath: "~/custom-data"})
+	b, err := json.Marshal(ClientConfig{DataRoot: "~/custom-data"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -125,19 +125,19 @@ func TestLoadClientConfigReadsCustomDataPath(t *testing.T) {
 		t.Fatalf("LoadClientConfig failed: %v", err)
 	}
 	want := filepath.Join(home, "custom-data")
-	if cfg.DataPath != want {
-		t.Fatalf("DataPath = %q, want %q", cfg.DataPath, want)
+	if cfg.DataRoot != want {
+		t.Fatalf("DataRoot = %q, want %q", cfg.DataRoot, want)
 	}
 }
 
-func TestLoadClientConfigEmptyDataPath(t *testing.T) {
+func TestLoadClientConfigEmptyDataRoot(t *testing.T) {
 	home := withHome(t)
 	clientPath := filepath.Join(home, ".focusany", "client.json")
 	if err := os.MkdirAll(filepath.Dir(clientPath), 0755); err != nil {
 		t.Fatal(err)
 	}
-	// Empty DataPath should fall back to default
-	b, err := json.Marshal(ClientConfig{DataPath: ""})
+	// Empty DataRoot should fall back to default
+	b, err := json.Marshal(ClientConfig{DataRoot: ""})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -149,19 +149,19 @@ func TestLoadClientConfigEmptyDataPath(t *testing.T) {
 		t.Fatalf("LoadClientConfig failed: %v", err)
 	}
 	want := filepath.Join(home, ".focusany", "data")
-	if cfg.DataPath != want {
-		t.Fatalf("DataPath = %q, want %q", cfg.DataPath, want)
+	if cfg.DataRoot != want {
+		t.Fatalf("DataRoot = %q, want %q", cfg.DataRoot, want)
 	}
 }
 
-func TestLoadClientConfigSpacesOnlyDataPath(t *testing.T) {
+func TestLoadClientConfigSpacesOnlyDataRoot(t *testing.T) {
 	home := withHome(t)
 	clientPath := filepath.Join(home, ".focusany", "client.json")
 	if err := os.MkdirAll(filepath.Dir(clientPath), 0755); err != nil {
 		t.Fatal(err)
 	}
-	// Whitespace-only DataPath should fall back to default
-	b, err := json.Marshal(ClientConfig{DataPath: "   "})
+	// Whitespace-only DataRoot should fall back to default
+	b, err := json.Marshal(ClientConfig{DataRoot: "   "})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -173,8 +173,8 @@ func TestLoadClientConfigSpacesOnlyDataPath(t *testing.T) {
 		t.Fatalf("LoadClientConfig failed: %v", err)
 	}
 	want := filepath.Join(home, ".focusany", "data")
-	if cfg.DataPath != want {
-		t.Fatalf("DataPath = %q, want %q", cfg.DataPath, want)
+	if cfg.DataRoot != want {
+		t.Fatalf("DataRoot = %q, want %q", cfg.DataRoot, want)
 	}
 }
 
@@ -207,7 +207,7 @@ func TestLoadAuthConfig(t *testing.T) {
 		t.Fatal(err)
 	}
 	// Create auth file in the data directory
-	authDir := defaultCfg.DataPath
+	authDir := defaultCfg.DataRoot
 	if err := os.MkdirAll(authDir, 0755); err != nil {
 		t.Fatal(err)
 	}
@@ -250,7 +250,7 @@ func TestLoadClientConfigEnvDataRootWins(t *testing.T) {
 	if err := os.MkdirAll(filepath.Dir(clientPath), 0755); err != nil {
 		t.Fatal(err)
 	}
-	if err := os.WriteFile(clientPath, []byte(`{"dataPath": "/elsewhere/data"}`), 0644); err != nil {
+	if err := os.WriteFile(clientPath, []byte(`{"dataRoot": "/elsewhere/data"}`), 0644); err != nil {
 		t.Fatal(err)
 	}
 	t.Setenv("FOCUSANY_DATA_ROOT", "~/env/runtime/focusany")
@@ -259,8 +259,8 @@ func TestLoadClientConfigEnvDataRootWins(t *testing.T) {
 		t.Fatalf("LoadClientConfig failed: %v", err)
 	}
 	want := filepath.Join(home, "env/runtime/focusany")
-	if cfg.DataPath != want {
-		t.Fatalf("DataPath = %q, want %q (FOCUSANY_DATA_ROOT must win)", cfg.DataPath, want)
+	if cfg.DataRoot != want {
+		t.Fatalf("DataRoot = %q, want %q (FOCUSANY_DATA_ROOT must win)", cfg.DataRoot, want)
 	}
 }
 
@@ -295,7 +295,7 @@ func TestLoadAuthConfigIncomplete(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	authDir := defaultCfg.DataPath
+	authDir := defaultCfg.DataRoot
 	if err := os.MkdirAll(authDir, 0755); err != nil {
 		t.Fatal(err)
 	}

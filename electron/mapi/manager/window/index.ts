@@ -1,5 +1,5 @@
 import * as remoteMain from '@electron/remote/main'
-import { BrowserView, BrowserWindow, screen, shell, WebContents } from 'electron'
+import { BrowserView, BrowserWindow, desktopCapturer, nativeImage, screen, shell, WebContents } from 'electron'
 import { ActionRecord, PluginRecord, PluginState } from '../../../../src/types/Manager'
 import { t } from '../../../config/lang'
 import { WindowConfig } from '../../../config/window'
@@ -110,6 +110,10 @@ const isBoundsVisible = (bounds: Electron.Rectangle | null | undefined): boolean
 
 const DETACH_WINDOW_BOUNDS_GROUP = 'detachWindowBounds'
 const detachWindowBoundsCache: Record<string, Electron.Rectangle> = {}
+
+// detach 窗口底部圆角半径（macOS）。BrowserView 内容底部留出该高度，
+// 由外壳背景填充圆角区域，使窗口四角圆角一致（顶部系统红绿灯已是圆角）。
+const DETACH_WINDOW_CORNER_RADIUS = 12
 
 /** 获取某个插件分离窗口上次保存的窗口 bounds，无缓存或已不在可见区域内时返回 null */
 const getDetachWindowBounds = async (pluginName: string): Promise<Electron.Rectangle | null> => {
@@ -502,6 +506,8 @@ export const ManagerWindow = {
                     serif: 'system-ui',
                 },
                 spellcheck: false,
+                // 隐藏窗口也持续渲染：否则主窗口隐藏时 capturePage 只能得到初始帧
+                backgroundThrottling: false,
             },
         })
         await ManagerWindow._logPluginViewError(view, plugin)
@@ -788,9 +794,10 @@ export const ManagerWindow = {
             resizable: true,
             frame: false,
             show: false,
-            transparent: false,
+            transparent: isMac,
             enableLargerThanScreen: true,
             backgroundColor: '#fff',
+            roundedCorners: true,
             alwaysOnTop,
             x: winX,
             y: winY,
@@ -857,7 +864,7 @@ export const ManagerWindow = {
                 x: 0,
                 y: WindowConfig.detachWindowTitleHeight,
                 width: display.workArea.width,
-                height: display.workArea.height - WindowConfig.detachWindowTitleHeight,
+                height: display.workArea.height - WindowConfig.detachWindowTitleHeight - DETACH_WINDOW_CORNER_RADIUS,
             })
         })
         win.on('unmaximize', () => {
@@ -873,7 +880,7 @@ export const ManagerWindow = {
                 x: 0,
                 y: WindowConfig.detachWindowTitleHeight,
                 width,
-                height: height - WindowConfig.detachWindowTitleHeight,
+                height: height - WindowConfig.detachWindowTitleHeight - DETACH_WINDOW_CORNER_RADIUS,
             })
         })
         win.webContents.once('render-process-gone', () => {
@@ -917,13 +924,16 @@ export const ManagerWindow = {
                 })
                 view.setAutoResize({ width: true, height: true })
                 win.setBrowserView(view)
-                // 按窗口实际大小设置视图区域（分离窗口顶部为标题栏）
+                // 按窗口实际大小设置视图区域（分离窗口顶部为标题栏、底部预留圆角）
                 const winBounds = win.getBounds()
                 view.setBounds({
                     x: 0,
                     y: WindowConfig.detachWindowTitleHeight,
                     width: winBounds.width,
-                    height: Math.max(winBounds.height - WindowConfig.detachWindowTitleHeight, 0),
+                    height: Math.max(
+                        winBounds.height - WindowConfig.detachWindowTitleHeight - DETACH_WINDOW_CORNER_RADIUS,
+                        0,
+                    ),
                 })
                 DevToolsManager.autoShow(win)
                 const pluginParam = {
@@ -1001,6 +1011,311 @@ export const ManagerWindow = {
         }
         const image = await mainWindowView.webContents.capturePage()
         return image.toPNG().toString('base64')
+    },
+    /**
+     * 截取指定插件当前打开的窗口画面，返回 base64 PNG。
+     * 查找顺序：分离窗口（detach）→ 主窗口内嵌视图（browser view）→ 当前主插件视图。
+     *
+     * 渲染前提：Electron 对隐藏窗口默认启用 backgroundThrottling，渲染会被暂停，
+     * capturePage 只会得到初始帧（白底+logo）。因此截图前必须：
+     *   1. 临时关闭 backgroundThrottling（强制持续渲染）
+     *   2. 若窗口隐藏则 show + focus（触发真实绘制）
+     *   3. 等待渲染帧稳定后再截
+     * @param name 插件 name（如 BentoSlides）
+     */
+    async capture(name: string) {
+        if (!name) {
+            throw new Error('PluginNameRequired')
+        }
+        const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+
+        const snapshot = async (wc: Electron.WebContents, win?: BrowserWindow | null, wasVisible?: boolean) => {
+            if (!wc || wc.isDestroyed()) {
+                return null
+            }
+            const wasThrottled = wc.getBackgroundThrottling()
+            wc.setBackgroundThrottling(false)
+            let lastState: any = null
+            try {
+                // 隐藏窗口先显示，触发真实渲染
+                if (win && isBrowserWindowAlive(win) && !win.isVisible()) {
+                    win.show()
+                    win.focus()
+                    await sleep(500)
+                }
+                // 轮询页面状态：等待 readyState=complete 且 body 有实际内容
+                // （隐藏窗口初帧只有白底/logo，必须等真实渲染完成）
+                const deadline = Date.now() + 20000
+                while (Date.now() < deadline) {
+                    try {
+                        const state = await wc.executeJavaScript(
+                            `({readyState: document.readyState, len: (document.body ? document.body.innerText.length : 0), htmlLen: document.documentElement ? document.documentElement.innerHTML.length : 0, bentoReady: !!(window && window.bento), url: location.href, title: document.title})`,
+                            true,
+                        )
+                        lastState = state
+                        if (state && state.readyState === 'complete' && state.len > 20) {
+                            break
+                        }
+                    } catch {
+                        // 页面尚未就绪，继续等
+                    }
+                    await sleep(500)
+                }
+                // 等一帧渲染稳定
+                await sleep(800)
+                const image = await wc.capturePage()
+                if (image && !image.isEmpty()) {
+                    return { base64: image.toPNG().toString('base64'), state: lastState }
+                }
+                return { base64: '', state: lastState }
+            } finally {
+                wc.setBackgroundThrottling(wasThrottled)
+                // 恢复窗口原有可见状态
+                if (win && isBrowserWindowAlive(win) && !wasVisible && win.isVisible()) {
+                    win.hide()
+                }
+            }
+        }
+
+        // 把两张 nativeImage 合成一张：shell 为底（含标题栏/红绿灯），
+        // content 按 (offsetX, offsetY)（DIP）覆盖上去。
+        // 返回 { base64, width, height }；失败返回 null。
+        const composeImages = (
+            shell: Electron.NativeImage,
+            content: Electron.NativeImage,
+            offsetX: number,
+            offsetY: number,
+        ): { base64: string; width: number; height: number } | null => {
+            if (shell.isEmpty() || content.isEmpty()) {
+                return null
+            }
+            const shellSize = shell.getSize()
+            const contentSize = content.getSize()
+            const outW = shellSize.width
+            const outH = shellSize.height
+            // 直接用 raw bitmap（BGRA）逐行拷贝，避免额外 PNG 编解码。
+            // toBitmap() 返回物理像素 buffer：宽高 = DIP 尺寸 × scaleFactor。
+            const scaleFactor = shell.getScaleFactors()[0] || 1
+            const shellRaw = shell.toBitmap()
+            const contentRaw = content.toBitmap()
+            const contentW = Math.round(contentSize.width * scaleFactor)
+            const contentH = Math.round(contentSize.height * scaleFactor)
+            const outRaw = Buffer.from(shellRaw)
+            const dstX = Math.round(offsetX * scaleFactor)
+            const dstY = Math.round(offsetY * scaleFactor)
+            const bytesPerRow = Math.round(outW * scaleFactor) * 4
+            // 内容图底部不越过圆角预留区：BrowserView 高度已减 cornerRadius，
+            // 但 capturePage 返回的 webContents 视口高度可能未随 bounds 裁剪，
+            // 这里显式限制覆盖高度，避免内容盖住底部圆角。
+            const maxRows = Math.round((outH - offsetY - DETACH_WINDOW_CORNER_RADIUS) * scaleFactor)
+            const copyRows = Math.min(contentH, maxRows)
+            for (let y = 0; y < copyRows; y++) {
+                const srcRow = y * contentW * 4
+                const dstRow = (dstY + y) * bytesPerRow + dstX * 4
+                if (dstRow < 0 || dstRow + contentW * 4 > outRaw.length) {
+                    continue
+                }
+                contentRaw.copy(outRaw, dstRow, srcRow, srcRow + contentW * 4)
+            }
+            const composed = nativeImage.createFromBitmap(outRaw, {
+                width: Math.round(outW * scaleFactor),
+                height: Math.round(outH * scaleFactor),
+            })
+            if (composed.isEmpty()) {
+                return null
+            }
+            // 修正透明窗口圆角：desktopCapturer 系统截图会把窗口透明角落
+            // （圆角外区域）渲染成不透明的近黑像素，这里把四角近黑像素的
+            // alpha 置 0（透明），还原 macOS 圆角窗口的透明角落。
+            const fixCornerBlack = (raw: Buffer, cornerW: number, cornerH: number) => {
+                const bw = Math.round(outW * scaleFactor)
+                const bh = Math.round(outH * scaleFactor)
+                const rowBytes = bw * 4
+                const isNearBlack = (i: number) => {
+                    const b = raw[i]
+                    const g = raw[i + 1]
+                    const r = raw[i + 2]
+                    return r < 40 && g < 40 && b < 40
+                }
+                const patch = (x0: number, y0: number, w: number, h: number) => {
+                    for (let y = 0; y < h; y++) {
+                        for (let x = 0; x < w; x++) {
+                            const i = (y0 + y) * rowBytes + (x0 + x) * 4
+                            if (isNearBlack(i)) {
+                                // BGRA：alpha 是第 4 个字节
+                                raw[i + 3] = 0
+                            }
+                        }
+                    }
+                }
+                patch(0, 0, cornerW, cornerH) // top-left
+                patch(bw - cornerW, 0, cornerW, cornerH) // top-right
+                patch(0, bh - cornerH, cornerW, cornerH) // bottom-left
+                patch(bw - cornerW, bh - cornerH, cornerW, cornerH) // bottom-right
+            }
+            const cornerPx = Math.round(DETACH_WINDOW_CORNER_RADIUS * scaleFactor) + 4
+            fixCornerBlack(outRaw, cornerPx, cornerPx)
+            const fixed = nativeImage.createFromBitmap(outRaw, {
+                width: Math.round(outW * scaleFactor),
+                height: Math.round(outH * scaleFactor),
+            })
+            return { base64: fixed.toPNG().toString('base64'), width: outW, height: outH }
+        }
+
+        // 系统级截取指定窗口的画面（含 macOS 红绿灯等系统 overlay）。
+        // desktopCapturer 截取的是窗口的完整合成画面（系统录制 API），
+        // 与 win.capturePage()（仅 webContents，不含系统 overlay）不同。
+        // 需屏幕录制权限；失败时返回 null，由调用方回退。
+        const captureWindowSource = async (win: BrowserWindow): Promise<Electron.NativeImage | null> => {
+            try {
+                const [winW, winH] = win.getSize()
+                const sources = await desktopCapturer.getSources({
+                    types: ['window'],
+                    thumbnailSize: { width: winW, height: winH },
+                    fetchWindowIcons: false,
+                })
+                if (!sources || sources.length === 0) {
+                    return null
+                }
+                // 优先匹配窗口标题（detach 窗口 title = plugin.title）
+                const targetTitle = win.getTitle()
+                let source = sources.find((s) => s.name === targetTitle) || null
+                if (!source) {
+                    // 兜底：找尺寸接近的窗口源
+                    source =
+                        sources.find((s) => {
+                            const t = s.thumbnail.getSize()
+                            return Math.abs(t.width - winW) < 50 && Math.abs(t.height - winH) < 50
+                        }) || null
+                }
+                if (!source || source.thumbnail.isEmpty()) {
+                    return null
+                }
+                return source.thumbnail
+            } catch {
+                return null
+            }
+        }
+
+        // 窗口级截图：截取整个 BrowserWindow（含 macOS 红绿灯标题栏），
+        // 再截内嵌 BrowserView 的真实内容，按 view 在窗口内的位置合成。
+        // 外壳优先用 desktopCapturer 窗口源（系统级截图，含红绿灯），
+        // 失败回退 win.capturePage()（仅 webContents）。
+        const snapshotWindowWithView = async (win: BrowserWindow, view: BrowserView) => {
+            if (!isBrowserWindowAlive(win) || !isBrowserViewAlive(view)) {
+                return null
+            }
+            const wasVisible = win.isVisible()
+            const wc = view.webContents
+            const wasThrottled = wc.getBackgroundThrottling()
+            wc.setBackgroundThrottling(false)
+            try {
+                // 隐藏窗口先显示，触发真实渲染（desktopCapturer 也只能截可见窗口）
+                if (!wasVisible) {
+                    win.show()
+                    win.focus()
+                    await sleep(500)
+                }
+                // 等待插件视图渲染完成（readyState=complete 且有实际内容）
+                const deadline = Date.now() + 20000
+                let lastState: any = null
+                while (Date.now() < deadline) {
+                    try {
+                        const state = await wc.executeJavaScript(
+                            `({readyState: document.readyState, len: (document.body ? document.body.innerText.length : 0)})`,
+                            true,
+                        )
+                        lastState = state
+                        if (state && state.readyState === 'complete' && state.len > 20) {
+                            break
+                        }
+                    } catch {
+                        // continue waiting
+                    }
+                    await sleep(500)
+                }
+                await sleep(800)
+                // 2) 内容：插件 BrowserView
+                const content = await wc.capturePage()
+                // 1) 外壳：优先系统级窗口截图（含红绿灯），失败回退 webContents 截图
+                let shell = await captureWindowSource(win)
+                let shellType = 'desktop'
+                if (!shell) {
+                    shell = await win.capturePage()
+                    shellType = 'webContents'
+                }
+                // 3) 合成：view 在窗口内容区内的位置（y 从标题栏下方开始）
+                const bounds = view.getBounds()
+                const composed = composeImages(shell, content, bounds.x, bounds.y)
+                if (composed) {
+                    return { ...composed, state: lastState, shellType }
+                }
+                return null
+            } finally {
+                wc.setBackgroundThrottling(wasThrottled)
+                if (!wasVisible && win.isVisible()) {
+                    win.hide()
+                }
+            }
+        }
+
+        // 1) detach windows: capture shell (traffic-light title bar) + BrowserView content.
+        for (const win of ManagerWindow.listDetachWindows()) {
+            if (win._plugin?.name === name && isBrowserWindowAlive(win)) {
+                const views = win.getBrowserViews()
+                const view = views.find((v) => isBrowserViewAlive(v)) || null
+                if (view) {
+                    const shot = await snapshotWindowWithView(win, view)
+                    if (shot) {
+                        return { type: 'detach', ...shot }
+                    }
+                }
+            }
+        }
+        // 2) browser views embedded in the main window:
+        //    shell = mainWindow (search bar + traffic lights), content = BrowserView.
+        for (const view of ManagerWindow.listBrowserViews()) {
+            if (view._plugin?.name === name && isBrowserViewAlive(view)) {
+                const win = view._window && isBrowserWindowAlive(view._window) ? view._window : null
+                if (win) {
+                    const shot = await snapshotWindowWithView(win, view)
+                    if (shot) {
+                        return { type: 'view', ...shot }
+                    }
+                } else {
+                    const shot = await snapshot(view.webContents, null, true)
+                    if (shot) {
+                        return { type: 'view', ...shot }
+                    }
+                }
+            }
+        }
+        // 3) the current main plugin view (same as #2 without separate loop)
+        if (mainWindowView && mainWindowView._plugin?.name === name && isBrowserViewAlive(mainWindowView)) {
+            const win =
+                mainWindowView._window && isBrowserWindowAlive(mainWindowView._window) ? mainWindowView._window : null
+            if (win) {
+                const shot = await snapshotWindowWithView(win, mainWindowView)
+                if (shot) {
+                    return { type: 'view', ...shot }
+                }
+            } else {
+                const shot = await snapshot(mainWindowView.webContents, null, true)
+                if (shot) {
+                    return { type: 'view', ...shot }
+                }
+            }
+        }
+        const liveViews = ManagerWindow.listBrowserViews()
+            .filter((v) => isBrowserViewAlive(v))
+            .map((v) => v._plugin?.name || '?')
+        const liveDetach = ManagerWindow.listDetachWindows()
+            .filter((w) => isBrowserWindowAlive(w))
+            .map((w) => w._plugin?.name || '?')
+        const mainName = mainWindowView && isBrowserViewAlive(mainWindowView) ? mainWindowView._plugin?.name : null
+        throw new Error(
+            `PluginWindowNotFound:${name} (views=[${liveViews.join(',')}] detach=[${liveDetach.join(',')}] main=${mainName})`,
+        )
     },
     async testEvaluateMainPluginView(script: string) {
         if (!mainWindowView) {

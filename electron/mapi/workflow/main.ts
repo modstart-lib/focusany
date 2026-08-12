@@ -326,7 +326,7 @@ const runLlm = async (props: Record<string, any>, context: Record<string, any>) 
     const prompt = String(
         resolveValue(props.prompt || getInputFieldValue(props, 'Prompt') || context.lastOutput || '', context),
     )
-    const res = await modelChat(selected.providerId, selected.modelId, prompt)
+    const res = await modelChat(selected.providerId, selected.modelId, { prompt })
     if (res.code) throw new Error(res.msg || 'ModelChatFailed')
     return res.data?.message || ''
 }

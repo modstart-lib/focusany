@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"archive/zip"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -306,6 +308,129 @@ var pluginPackageCmd = &cobra.Command{
 	},
 }
 
+var pluginScreenshotOut string
+var pluginScreenshotRaw bool
+
+// --- screenshot (capture plugin window as base64 PNG) -----------------------
+
+var pluginScreenshotCmd = &cobra.Command{
+	Use:   "screenshot <name>",
+	Short: "Capture a running plugin's window as a base64 PNG",
+	Long: "Capture the currently open window of a plugin and print the image " +
+		"as base64 (PNG). The plugin must be running (e.g. via `focusany plugin " +
+		"run <name>`).\n\n" +
+		"By default prints a one-line summary plus the base64 data. With --raw, " +
+		"prints only the base64 (suitable for piping into scripts). With --output, " +
+		"decodes and writes the PNG to a file instead.\n\n" +
+		"Examples:\n" +
+		"  focusany plugin screenshot BentoSlides\n" +
+		"  focusany plugin screenshot BentoSlides --raw | base64 -d > shot.png\n" +
+		"  focusany plugin screenshot BentoSlides --output shot.png",
+	Args: cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		cfg, err := internal.LoadAuthConfig()
+		if err != nil {
+			return err
+		}
+		name := args[0]
+		result, err := internal.DoRequest(cfg, "POST", "/api/plugin/capture", map[string]any{"name": name})
+		if err != nil {
+			return err
+		}
+		if code, _ := result["code"].(float64); code != 0 {
+			return fmt.Errorf("capture failed: %v", result["msg"])
+		}
+		data, _ := result["data"].(map[string]any)
+		b64, _ := data["base64"].(string)
+		if b64 == "" {
+			return fmt.Errorf("capture returned no image data")
+		}
+		if pluginScreenshotOut != "" {
+			decoded, err := decodeBase64(b64)
+			if err != nil {
+				return err
+			}
+			outPath, err := internal.AbsPath(pluginScreenshotOut)
+			if err != nil {
+				return err
+			}
+			if err := os.WriteFile(outPath, decoded, 0644); err != nil {
+				return err
+			}
+			fmt.Printf("screenshot saved: %s (%d bytes)\n", outPath, len(decoded))
+			return nil
+		}
+		if pluginScreenshotRaw {
+			fmt.Println(b64)
+			return nil
+		}
+		fmt.Printf("screenshot captured: %s (base64 PNG, %d chars)\n", name, len(b64))
+		fmt.Println(b64)
+		return nil
+	},
+}
+
+func decodeBase64(s string) ([]byte, error) {
+	// tolerate optional data:image/png;base64, prefix
+	if i := strings.Index(s, ","); i >= 0 && strings.HasPrefix(s[:i], "data:image") {
+		s = s[i+1:]
+	}
+	decoded, err := base64.StdEncoding.DecodeString(s)
+	if err != nil {
+		return nil, fmt.Errorf("decode base64: %w", err)
+	}
+	return decoded, nil
+}
+
+var pluginPublishVersion string
+var pluginPublishInfo bool
+
+// --- publish (package + upload to official store via desktop UserApi) -------
+
+var pluginPublishCmd = &cobra.Command{
+	Use:   "publish <name>",
+	Short: "Package the plugin and upload it to the official store",
+	Long: "Ask the running FocusAny desktop app to publish the plugin: it " +
+		"packages the installed plugin directory (excludes node_modules/.git/." +
+		"faignore, rewrites config.json without development/$schema), parses " +
+		"release.md for the version entry, and uploads via the app's UserApi " +
+		"(store/plugin_publish) using the logged-in user token.\n\n" +
+		"The plugin must be installed as a directory (dir type), its config.json " +
+		"version must match --version (defaults to the installed version), and " +
+		"development.env must be prod.\n\n" +
+		"Examples:\n" +
+		"  focusany plugin publish Bento\n" +
+		"  focusany plugin publish Bento --version 1.0.0\n" +
+		"  focusany plugin publish Bento --info-only   # update content/preview only",
+	Args: cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		cfg, err := internal.LoadAuthConfig()
+		if err != nil {
+			return err
+		}
+		name := args[0]
+		path := "/api/plugin/publish"
+		verb := "publishing"
+		if pluginPublishInfo {
+			path = "/api/plugin/publish-info"
+			verb = "updating info"
+		}
+		body := map[string]any{"name": name}
+		if pluginPublishVersion != "" {
+			body["version"] = pluginPublishVersion
+		}
+		fmt.Printf("%s %s ...\n", verb, name)
+		result, err := internal.DoRequest(cfg, "POST", path, body)
+		if err != nil {
+			return err
+		}
+		if code, _ := result["code"].(float64); code != 0 {
+			return fmt.Errorf("publish failed: %v", result["msg"])
+		}
+		return internal.PrintJSON(result["data"])
+	},
+}
+
 func readPluginConfigName(dir string) (string, error) {
 	raw, err := os.ReadFile(filepath.Join(dir, "config.json"))
 	if err != nil {
@@ -322,11 +447,214 @@ func readPluginConfigName(dir string) (string, error) {
 	return name, nil
 }
 
+// readPluginNameFromZip extracts the plugin name from a zip's config.json.
+func readPluginNameFromZip(zipPath string) (string, error) {
+	zr, err := zip.OpenReader(zipPath)
+	if err != nil {
+		return "", err
+	}
+	defer zr.Close()
+	for _, f := range zr.File {
+		if f.Name != "config.json" {
+			continue
+		}
+		rc, err := f.Open()
+		if err != nil {
+			return "", err
+		}
+		var cfg map[string]any
+		if err := json.NewDecoder(rc).Decode(&cfg); err != nil {
+			rc.Close()
+			return "", err
+		}
+		rc.Close()
+		name, _ := cfg["name"].(string)
+		if name == "" {
+			return "", fmt.Errorf("zip config.json has no name")
+		}
+		return name, nil
+	}
+	return "", fmt.Errorf("zip has no config.json at root")
+}
+
+// --- smoke (one-shot install → launch → verify → cleanup) -------------------
+
+var (
+	pluginSmokeKeep bool
+	pluginSmokeCall string
+	pluginSmokeArgs string
+	pluginSmokeType string
+)
+
+var pluginSmokeCmd = &cobra.Command{
+	Use:   "smoke <dir-or-name>",
+	Short: "Smoke-test a plugin: install if needed, launch, verify MCP tools, cleanup",
+	Long: "Install the plugin directory (if not installed), launch it, list its MCP tools, " +
+		"optionally call one tool, then uninstall unless --keep is given.\n\n" +
+		"Examples:\n" +
+		"  focusany plugin smoke ./my-plugin\n" +
+		"  focusany plugin smoke ./my-plugin --call my.tool '{\"a\":1}'\n" +
+		"  focusany plugin smoke BentoSlides --keep",
+	Args: cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		cfg, err := internal.LoadAuthConfig()
+		if err != nil {
+			return err
+		}
+		target := args[0]
+		wasInstalled := true
+
+		// resolve the plugin name: installed name, or read from dir/zip config.json
+		name := target
+		if !isInstalled(cfg, target) {
+			abs, err := internal.AbsPath(target)
+			if err != nil {
+				return err
+			}
+			// zip packages don't expose config.json on disk — read it out of the zip
+			body := map[string]any{"path": abs}
+			if pluginSmokeType == "zip" || (strings.HasSuffix(strings.ToLower(abs), ".zip")) {
+				body["type"] = "zip"
+				n, err := readPluginNameFromZip(abs)
+				if err != nil {
+					return fmt.Errorf("cannot read plugin name from %s: %w", abs, err)
+				}
+				name = n
+			} else {
+				if st, err := os.Stat(abs); err != nil || !st.IsDir() {
+					return fmt.Errorf("plugin not installed and %s is not a directory or zip", target)
+				}
+				n, err := readPluginConfigName(abs)
+				if err != nil {
+					return err
+				}
+				name = n
+			}
+			fmt.Printf("installing %s ...\n", abs)
+			if result, err := internal.DoRequest(cfg, "POST", "/api/plugin/install", body); err != nil {
+				return err
+			} else if code, _ := result["code"].(float64); code != 0 {
+				return fmt.Errorf("install failed: %v", result["msg"])
+			}
+			wasInstalled = false
+		} else {
+			fmt.Printf("plugin already installed: %s\n", name)
+		}
+
+		// cleanup (unless --keep or it was already installed before us)
+		cleanup := !pluginSmokeKeep && !wasInstalled
+		defer func() {
+			if cleanup {
+				if _, err := internal.DoRequest(cfg, "POST", "/api/plugin/uninstall", map[string]any{"name": name}); err == nil {
+					fmt.Printf("cleaned up: uninstalled %s\n", name)
+				}
+			}
+		}()
+
+		// launch
+		fmt.Printf("launching %s ...\n", name)
+		if result, err := internal.DoRequest(cfg, "POST", "/api/plugin/run", map[string]any{"name": name}); err != nil {
+			return err
+		} else if code, _ := result["code"].(float64); code != 0 {
+			return fmt.Errorf("run failed: %v", result["msg"])
+		}
+		fmt.Println("launched (window should be visible)")
+
+		// list MCP tools
+		tools, err := listMcpTools()
+		if err != nil {
+			return fmt.Errorf("mcp tools unreachable: %w", err)
+		}
+		var mine []string
+		for _, t := range tools {
+			if strings.HasPrefix(t, name+"-") {
+				mine = append(mine, strings.TrimPrefix(t, name+"-"))
+			}
+		}
+		if len(mine) == 0 {
+			fmt.Println("mcp: plugin exposes no MCP tools")
+		} else {
+			fmt.Printf("mcp tools: %s\n", strings.Join(mine, ", "))
+		}
+
+		// optional tool call
+		if pluginSmokeCall != "" {
+			fmt.Printf("calling %s.%s ...\n", name, pluginSmokeCall)
+			if err := mcpCallTool(name, pluginSmokeCall, pluginSmokeArgs); err != nil {
+				return err
+			}
+		}
+
+		fmt.Println("smoke OK")
+		return nil
+	},
+}
+
+func isInstalled(cfg *internal.AuthConfig, name string) bool {
+	result, err := internal.DoRequest(cfg, "GET", "/api/plugin/list", nil)
+	if err != nil {
+		return false
+	}
+	data, _ := result["data"].(map[string]any)
+	list, _ := data["list"].([]any)
+	for _, p := range list {
+		if pm, ok := p.(map[string]any); ok {
+			if fmt.Sprintf("%v", pm["name"]) == name {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func listMcpTools() ([]string, error) {
+	result, err := mcpRPC("tools/list", map[string]any{}, 1)
+	if err != nil {
+		return nil, err
+	}
+	res, _ := result["result"].(map[string]any)
+	tools, _ := res["tools"].([]any)
+	var names []string
+	for _, t := range tools {
+		if tm, ok := t.(map[string]any); ok {
+			names = append(names, fmt.Sprintf("%v", tm["name"]))
+		}
+	}
+	return names, nil
+}
+
+func mcpCallTool(pluginName, toolName, argsJSON string) error {
+	params := map[string]any{}
+	if argsJSON != "" {
+		if err := json.Unmarshal([]byte(argsJSON), &params); err != nil {
+			return fmt.Errorf("args not valid JSON: %w", err)
+		}
+	}
+	result, err := mcpRPC("tools/call", map[string]any{"name": pluginName + "-" + toolName, "arguments": params}, 1)
+	if err != nil {
+		return err
+	}
+	if errMsg, ok := result["error"].(map[string]any); ok {
+		return fmt.Errorf("mcp tool error: %v", errMsg["message"])
+	}
+	out, _ := json.MarshalIndent(result["result"], "  ", "  ")
+	fmt.Println(string(out))
+	return nil
+}
+
 func init() {
 	pluginInstallCmd.Flags().StringVar(&pluginInstallType, "type", "", "package type: dir (default) or zip")
 	pluginRunCmd.Flags().StringArrayVar(&pluginRunFiles, "file", nil, "file(s) to hand to the plugin (repeatable, like selecting files in search)")
 	pluginPackageCmd.Flags().StringVarP(&pluginPackageOut, "output", "o", "", "output zip path (default: <name>.zip next to the plugin dir)")
 	pluginPackageCmd.Flags().BoolVar(&pluginPackageProd, "prod", false, "apply release-prepare (dev→prod) before packaging")
+	pluginPublishCmd.Flags().StringVar(&pluginPublishVersion, "version", "", "version to publish (default: installed plugin version)")
+	pluginPublishCmd.Flags().BoolVar(&pluginPublishInfo, "info-only", false, "only update store content/preview info, no package upload")
+	pluginScreenshotCmd.Flags().StringVarP(&pluginScreenshotOut, "output", "o", "", "write decoded PNG to a file instead of printing base64")
+	pluginScreenshotCmd.Flags().BoolVar(&pluginScreenshotRaw, "raw", false, "print only the base64 payload (no summary line)")
+	pluginSmokeCmd.Flags().BoolVar(&pluginSmokeKeep, "keep", false, "keep the plugin installed after the smoke test (default: uninstall)")
+	pluginSmokeCmd.Flags().StringVar(&pluginSmokeCall, "call", "", "MCP tool name to call as part of the smoke test (e.g. bento.new_deck)")
+	pluginSmokeCmd.Flags().StringVar(&pluginSmokeArgs, "args", "", "JSON args for --call")
+	pluginSmokeCmd.Flags().StringVar(&pluginSmokeType, "type", "", "package type when installing: dir (default) or zip")
 	pluginCmd.AddCommand(pluginListCmd)
 	pluginCmd.AddCommand(pluginInstallCmd)
 	pluginCmd.AddCommand(pluginUninstallCmd)
@@ -335,4 +663,7 @@ func init() {
 	pluginCmd.AddCommand(pluginCheckCmd)
 	pluginCmd.AddCommand(pluginReleasePrepareCmd)
 	pluginCmd.AddCommand(pluginPackageCmd)
+	pluginCmd.AddCommand(pluginPublishCmd)
+	pluginCmd.AddCommand(pluginScreenshotCmd)
+	pluginCmd.AddCommand(pluginSmokeCmd)
 }

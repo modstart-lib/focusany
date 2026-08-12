@@ -177,10 +177,32 @@ export const listModels = async () => {
     return results
 }
 
+export type LlmReasoning = boolean | { enabled?: boolean; effort?: 'low' | 'medium' | 'high' }
+
+export type LlmChatCallInfo = {
+    systemPrompt?: string
+    prompt?: string
+    messages?: Array<{ role: string; content: string }>
+    /**
+     * 推理（思考链）控制。通用布尔或对象：
+     *  - false：关闭（驱动层按模型格式自动适配：DeepSeek 系 thinking.disabled、OpenAI o 系 reasoning_effort=low）
+     *  - true：默认开启
+     *  - { enabled, effort }：enabled=false 关闭；effort 设置思考强度（OpenAI o 系）
+     */
+    reasoning?: LlmReasoning
+    maxTokens?: number
+    temperature?: number
+    topP?: number
+    stop?: string | string[]
+    presencePenalty?: number
+    frequencyPenalty?: number
+    seed?: number
+}
+
 export const modelChat = async (
     providerId: string,
     modelId: string,
-    message: string,
+    callInfo: LlmChatCallInfo,
 ): Promise<{
     code: number
     msg: string
@@ -197,15 +219,37 @@ export const modelChat = async (
     if (!model || !model.enabled) {
         throw new Error(`Model not found or not enabled: ${modelId}`)
     }
+    // prompt 与 messages 至少提供其一；systemPrompt 单独提供无效
+    let promptArg: string | Array<{ role: string; content: string }>
+    if (Array.isArray(callInfo.messages) && callInfo.messages.length) {
+        promptArg = [...callInfo.messages]
+        if (callInfo.systemPrompt) {
+            promptArg = [{ role: 'system', content: callInfo.systemPrompt }, ...promptArg]
+        }
+    } else {
+        if (!callInfo.prompt || typeof callInfo.prompt !== 'string') {
+            throw new Error('prompt or messages is required')
+        }
+        promptArg = callInfo.prompt
+    }
     const res = await ModelProvider.chat(
-        message,
-        { systemPrompt: null },
+        promptArg,
+        { systemPrompt: callInfo.systemPrompt || null },
         {
             type: provider.type,
             modelId: model.id,
             apiUrl: provider.apiUrl,
             apiHost: provider.data.apiHost,
             apiKey: provider.data.apiKey,
+            // 默认开启推理；reasoning=false 关闭，或 {enabled:false} / {effort} 精细控制
+            reasoning: callInfo.reasoning,
+            maxTokens: callInfo.maxTokens,
+            temperature: callInfo.temperature,
+            topP: callInfo.topP,
+            stop: callInfo.stop,
+            presencePenalty: callInfo.presencePenalty,
+            frequencyPenalty: callInfo.frequencyPenalty,
+            seed: callInfo.seed,
         },
     )
     if (res.code) {
@@ -220,5 +264,47 @@ export const modelChat = async (
         data: {
             message: res.data.content,
         },
+    }
+}
+
+/** 从 LLM 文本中提取 JSON：剥离 ```json 代码块与前后杂文，找首个 { 到最后一个 }。 */
+export function extractJSON(text: string): any {
+    if (!text || typeof text !== 'string') throw new Error('AI 返回内容为空')
+    let t = text.trim()
+    const fence = t.match(/```(?:json)?\s*([\s\S]*?)```/)
+    if (fence) t = fence[1].trim()
+    const s = t.indexOf('{')
+    const e = t.lastIndexOf('}')
+    if (s < 0 || e <= s) throw new Error('返回内容中没有 JSON 对象')
+    return JSON.parse(t.slice(s, e + 1))
+}
+
+/**
+ * modelChatJson — 返回解析好的 JSON（而非字符串）。内部处理大模型常见问题：
+ *  ```json 代码块包裹、前后杂文、截断导致的 JSON 不完整。
+ */
+export const modelChatJson = async (
+    providerId: string,
+    modelId: string,
+    callInfo: LlmChatCallInfo,
+): Promise<{
+    code: number
+    msg: string
+    data?: {
+        json: any
+        message: string
+    }
+}> => {
+    const res = await modelChat(providerId, modelId, callInfo)
+    if (res.code !== 0) {
+        return { code: res.code, msg: res.msg, data: { message: res.data?.message || '' } }
+    }
+    const content = res.data?.message || ''
+    try {
+        const json = extractJSON(content)
+        return { code: 0, msg: 'ok', data: { json, message: content } }
+    } catch (e) {
+        const msg = `AI 返回不是合法 JSON：${String((e as Error)?.message || e)}。输出可能被 max_tokens 截断——请调大 maxTokens 或简化要求/换更大上下文模型。`
+        return { code: -1, msg, data: { message: content } }
     }
 }

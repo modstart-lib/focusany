@@ -20,13 +20,13 @@ var infoCmd = &cobra.Command{
 			return err
 		}
 		out := map[string]any{
-			"dataPath": cfg.DataPath,
-			"logsDir":  filepath.Join(cfg.DataPath, "logs"),
-			"kvdbDir":  filepath.Join(cfg.DataPath, "kvdb"),
+			"dataRoot": cfg.DataRoot,
+			"logsDir":  filepath.Join(cfg.DataRoot, "logs"),
+			"kvdbDir":  filepath.Join(cfg.DataRoot, "kvdb"),
 		}
 
-		// plugin directory (installed plugins land under dataPath/plugin)
-		pd := filepath.Join(cfg.DataPath, "plugin")
+		// plugin directory (installed plugins land under dataRoot/plugin)
+		pd := filepath.Join(cfg.DataRoot, "plugin")
 		if st, err := os.Stat(pd); err == nil && st.IsDir() {
 			entries, _ := os.ReadDir(pd)
 			var names []string
@@ -57,7 +57,7 @@ var infoCmd = &cobra.Command{
 		}
 
 		// plugin log files (latest 5)
-		logDir := filepath.Join(cfg.DataPath, "logs")
+		logDir := filepath.Join(cfg.DataRoot, "logs")
 		if entries, err := os.ReadDir(logDir); err == nil {
 			var logs []string
 			for _, e := range entries {

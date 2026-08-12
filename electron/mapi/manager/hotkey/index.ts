@@ -56,6 +56,10 @@ const keyCodeToKey = (keyCode: number) => {
 export const ManagerHotkey = {
     isGrab: false,
     keyMultiDelayTime: 500,
+    /** 修饰键单击有效按住时长窗口 [min, max]（毫秒），过滤快速误碰与刻意长按 */
+    keySimpleHoldTime: [80, 1500] as [number, number],
+    /** 修饰键触发冷却时间（毫秒），避免连续误触导致面板反复开关 */
+    keySimpleCoolDown: 2000,
     keyConfigs: [
         // {
         //     name: 'mainTrigger',
@@ -97,6 +101,8 @@ export const ManagerHotkey = {
         key: null as null | 'Ctrl' | 'Alt' | 'Meta',
         expire: 0,
         times: 0,
+        downTime: 0,
+        lastFire: 0,
     },
 
     init() {
@@ -147,18 +153,33 @@ export const ManagerHotkey = {
             // keySimpleConfigs start
             if (e.keycode === UiohookKey.Ctrl && !e.altKey && e.ctrlKey && !e.metaKey && !e.shiftKey) {
                 this._keySimple.down = 'Ctrl'
+                this._keySimple.downTime = e.time
             } else if (e.keycode === UiohookKey.Alt && e.altKey && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
                 this._keySimple.down = 'Alt'
+                this._keySimple.downTime = e.time
             } else if (e.keycode === UiohookKey.Meta && !e.altKey && !e.ctrlKey && e.metaKey && !e.shiftKey) {
                 this._keySimple.down = 'Meta'
+                this._keySimple.downTime = e.time
             } else {
                 this._keySimple.down = null
             }
             // keySimpleConfigs end
         })
-        const keySimpleUp = (key: 'Ctrl' | 'Alt' | 'Meta') => {
+        const keySimpleUp = (key: 'Ctrl' | 'Alt' | 'Meta', time: number) => {
             // console.log('keySimpleUp', key, JSON.stringify(this.keySimpleConfigs))
+            // 按住时长窗口过滤：按下过短（误碰）或过长（长按）均不视为有效呼出
+            const holdTime = time - this._keySimple.downTime
+            if (holdTime < this.keySimpleHoldTime[0] || holdTime > this.keySimpleHoldTime[1]) {
+                this._keySimple.times = 0
+                this._keySimple.key = key
+                this._keySimple.expire = 0
+                return
+            }
             const now = Date.now()
+            // 触发冷却：距上次触发过短时忽略，避免误触连锁导致面板反复开关
+            if (now - this._keySimple.lastFire < this.keySimpleCoolDown) {
+                return
+            }
             if (this._keySimple.expire > now && key === this._keySimple.key) {
                 this._keySimple.times++
             } else {
@@ -166,9 +187,11 @@ export const ManagerHotkey = {
                 this._keySimple.key = key
             }
             this._keySimple.expire = now + this.keyMultiDelayTime
-            this.keySimpleConfigs
-                .filter((o) => o.type === key && o.times <= this._keySimple.times)
-                .forEach((o) => this.fire(o.name))
+            const fired = this.keySimpleConfigs.filter((o) => o.type === key && o.times <= this._keySimple.times)
+            fired.forEach((o) => this.fire(o.name))
+            if (fired.length) {
+                this._keySimple.lastFire = Date.now()
+            }
         }
         uIOhook.on('keyup', (e) => {
             if (
@@ -179,7 +202,7 @@ export const ManagerHotkey = {
                 !e.shiftKey &&
                 this._keySimple.down === 'Ctrl'
             ) {
-                keySimpleUp('Ctrl')
+                keySimpleUp('Ctrl', e.time)
             } else if (
                 e.keycode === UiohookKey.Alt &&
                 !e.altKey &&
@@ -188,7 +211,7 @@ export const ManagerHotkey = {
                 !e.shiftKey &&
                 this._keySimple.down === 'Alt'
             ) {
-                keySimpleUp('Alt')
+                keySimpleUp('Alt', e.time)
             } else if (
                 e.keycode === UiohookKey.Meta &&
                 !e.altKey &&
@@ -197,7 +220,7 @@ export const ManagerHotkey = {
                 !e.shiftKey &&
                 this._keySimple.down === 'Meta'
             ) {
-                keySimpleUp('Meta')
+                keySimpleUp('Meta', e.time)
             }
         })
         // uIOhook.on('mousedown', (e) => {

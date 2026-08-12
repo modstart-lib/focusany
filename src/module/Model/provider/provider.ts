@@ -40,7 +40,7 @@ export const ModelProvider = {
         throw new Error(`Unsupported provider type: ${type}`)
     },
     async chat(
-        prompt: string,
+        prompt: string | Array<{ role: string; content: string }>,
         chatParam: ChatParam,
         config: {
             type: ProviderType
@@ -48,6 +48,22 @@ export const ModelProvider = {
             apiUrl: string
             apiHost: string
             apiKey: string
+            /** 是否启用模型推理（思考链）；false 时驱动层会附加关闭思考的参数 */
+            reasoning?: boolean
+            /** 最大返回 token 数（max_tokens） */
+            maxTokens?: number
+            /** 采样温度（temperature） */
+            temperature?: number
+            /** 核采样（top_p） */
+            topP?: number
+            /** 停止序列（stop） */
+            stop?: string | string[]
+            /** 存在惩罚（presence_penalty） */
+            presencePenalty?: number
+            /** 频率惩罚（frequency_penalty） */
+            frequencyPenalty?: number
+            /** 随机种子（seed） */
+            seed?: number
         },
     ): Promise<ModelChatResult> {
         let url = this.apiUrl(config.type, config.apiUrl, config.apiHost)

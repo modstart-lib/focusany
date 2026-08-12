@@ -124,6 +124,9 @@ func TestCheckPluginConfig(t *testing.T) {
 	}`)
 	write("index.html", "<h1>x</h1>")
 	write("logo.svg", "<svg/>")
+	write("content.md", "## 插件说明\n\n好插件")
+	write("release.md", "## 1.0.0 初始版本发布\n\n初始版本发布\n")
+	write(".faignore", ".DS_Store\n")
 	res, err := CheckPluginConfig(dir, true)
 	if err != nil {
 		t.Fatal(err)
@@ -148,5 +151,70 @@ func TestCheckPluginConfig(t *testing.T) {
 	}
 	if len(res.Warns) == 0 {
 		t.Fatal("dev env should produce warnings")
+	}
+}
+
+func TestCheckReleaseDocs(t *testing.T) {
+	dir := t.TempDir()
+	write := func(name, content string) {
+		p := filepath.Join(dir, name)
+		if err := os.MkdirAll(filepath.Dir(p), 0755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(p, []byte(content), 0644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	write("config.json", `{
+		"name": "GoodPlugin", "version": "1.1.0", "title": "好插件",
+		"main": "index.html", "logo": "logo.svg",
+		"actions": [{"name": "open", "title": "open", "type": "web", "matches": ["good"]}]
+	}`)
+	write("index.html", "<h1>x</h1>")
+	write("logo.svg", "<svg/>")
+	write("content.md", "## 插件说明\n\n好插件")
+	write("release.md", "## 1.1.0 新增功能\n\n- 新增功能\n\n---\n\n## 1.0.0 初始版本发布\n\n初始")
+	write(".faignore", ".DS_Store\n")
+
+	res, err := CheckPluginConfig(dir, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !res.Valid {
+		t.Fatalf("complete plugin should pass: %v", res.Errors)
+	}
+
+	// missing content.md → error
+	os.Remove(filepath.Join(dir, "content.md"))
+	res, _ = CheckPluginConfig(dir, true)
+	if res.Valid {
+		t.Fatal("missing content.md should fail")
+	}
+	write("content.md", "x")
+
+	// release.md version mismatch → error
+	write("release.md", "## 0.9.0 旧版本\n\n内容")
+	res, _ = CheckPluginConfig(dir, true)
+	if res.Valid {
+		t.Fatal("release version mismatch should fail")
+	}
+
+	// release.md missing --- separators → error
+	write("release.md", "## 1.1.0 新增\n\n内容\n\n## 1.0.0 初始\n\n内容")
+	res, _ = CheckPluginConfig(dir, true)
+	if res.Valid {
+		t.Fatal("missing --- separators should fail")
+	}
+	write("release.md", "## 1.1.0 新增\n\n内容\n\n---\n\n## 1.0.0 初始\n\n内容")
+
+	// bad action type → error
+	write("config.json", `{
+		"name": "GoodPlugin", "version": "1.1.0", "title": "t",
+		"main": "index.html",
+		"actions": [{"name": "open", "title": "open", "type": "hack", "matches": ["x"]}]
+	}`)
+	res, _ = CheckPluginConfig(dir, true)
+	if res.Valid {
+		t.Fatal("invalid action type should fail")
 	}
 }

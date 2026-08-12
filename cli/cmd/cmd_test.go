@@ -197,6 +197,35 @@ func TestMcpSubCommands(t *testing.T) {
 	}
 }
 
+func TestDoctorCommandRegistered(t *testing.T) {
+	found := false
+	for _, c := range rootCmd.Commands() {
+		if c.Name() == "doctor" {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Fatal("doctor command should be registered")
+	}
+}
+
+func TestPluginSmokeCommandRegistered(t *testing.T) {
+	found := false
+	for _, c := range pluginCmd.Commands() {
+		if c.Name() == "smoke" {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Fatal("plugin smoke should be registered")
+	}
+	if err := pluginSmokeCmd.Args(pluginSmokeCmd, []string{}); err == nil {
+		t.Fatal("smoke requires a target")
+	}
+}
+
 func TestMcpCallRequiresTwoArgs(t *testing.T) {
 	if err := mcpCallCmd.Args(mcpCallCmd, []string{}); err == nil {
 		t.Fatal("call with no args should error")

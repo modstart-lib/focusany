@@ -187,6 +187,9 @@ window.__page.onLeaveFullScreen(() => {
 <style lang="less" scoped>
 [data-theme='dark'] {
     .pb-page-detach-window {
+        background: #333333;
+        border-radius: 12px;
+
         .head {
             background: #333333;
             color: #ffffff;
@@ -199,6 +202,12 @@ window.__page.onLeaveFullScreen(() => {
 }
 
 .pb-page-detach-window {
+    position: relative;
+    height: 100vh;
+    overflow: hidden;
+    border-radius: 12px;
+    background: #ffffff;
+
     &.osx {
         .head {
             padding-left: 80px;

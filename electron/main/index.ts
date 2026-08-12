@@ -31,13 +31,16 @@ import { ProtocolMain } from '../mapi/protocol/main'
 import { Page } from '../page'
 import { FastPanelMain } from './fastPanel'
 
-const focusanyDataRoot = loadClientConfig().dataPath
+const focusanyDataRoot = loadClientConfig().dataRoot
 if (!fs.existsSync(focusanyDataRoot)) {
     fs.mkdirSync(focusanyDataRoot, { recursive: true })
 }
-app.setPath('userData', focusanyDataRoot)
+// NOTE: do NOT redirect app.setPath('userData') / user-data-dir here.
+// Electron/Chromium system data (Cache, Cookies, Preferences, Local Storage,
+// Session Storage, ...) stays in the OS-default userData; FocusAny business
+// data (logs, config.json, storage, kvdb, database.db, cli-auth.json,
+// clipboard, plugin, temp) lives under AppEnv.dataRoot (focusanyDataRoot).
 app.commandLine.appendSwitch('enable-experimental-web-platform-features')
-app.commandLine.appendSwitch('user-data-dir', focusanyDataRoot)
 
 const isDummyNew = isDummy
 
