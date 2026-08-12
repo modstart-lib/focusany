@@ -527,6 +527,7 @@
     "plugin.notExist": "插件 {name} 不存在",
     "plugin.notFound": "没有找到插件",
     "plugin.opening": "正在打开插件",
+    "plugin.openPluginDir": "打开插件位置",
     "plugin.publish": "发布插件",
     "plugin.publishFailed": "发布失败:{error}",
     "plugin.publishSuccess": "发布成功",

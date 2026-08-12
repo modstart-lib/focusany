@@ -16,6 +16,7 @@ import {
     ActionMatchWindow,
     ActionRecord,
     PluginActionRecord,
+    PluginEnv,
     PluginRecord,
     PluginType,
 } from '../../types/Manager'
@@ -221,6 +222,12 @@ const doPublishInfo = async () => {
 const doLog = async () => {
     await window.$mapi.manager.showLog(recordCurrent.value?.name as string)
 }
+const doOpenPluginDir = async () => {
+    const root = recordCurrent.value?.runtime?.root
+    if (root) {
+        await window.$mapi.app.showItemInFolder(root)
+    }
+}
 const doInstallPlugin = async (type: 'zip' | 'config') => {
     const filters: any[] = []
     if ('zip' === type) {
@@ -334,6 +341,9 @@ const doInstallStore = async () => {
                             </template>
                         </a-button>
                         <template #content>
+                            <a-doption v-if="recordCurrent.env === PluginEnv.DEV" @click="doOpenPluginDir">
+                                {{ $t('plugin.openPluginDir') }}
+                            </a-doption>
                             <a-doption @click="doRefreshInstall">{{ $t('common.refresh') }}</a-doption>
                             <a-doption v-if="developerPlugins.includes(recordCurrent.name)" @click="doPublish">
                                 {{ $t('plugin.publish') }}

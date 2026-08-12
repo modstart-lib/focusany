@@ -431,6 +431,154 @@ var pluginPublishCmd = &cobra.Command{
 	},
 }
 
+var pluginEvalFile string
+
+// --- eval (execute JS in the plugin's window) ------------------------------
+
+var pluginEvalCmd = &cobra.Command{
+	Use:   "eval <name> <script>",
+	Short: "Execute JS in a running plugin's window and print the result",
+	Long: "Execute a JavaScript expression inside the plugin's currently open " +
+		"window (detach → main view) and print the JSON-safe result. The script " +
+		"runs inside an async wrapper, so `await` is allowed and thrown errors " +
+		"are reported as PluginEvalScriptError.\n\n" +
+		"Script can be given inline or via --file. Results that are strings are " +
+		"printed raw; other values are printed as JSON.\n\n" +
+		"Examples:\n" +
+		"  focusany plugin eval Nat \"document.querySelectorAll('.card').length\"\n" +
+		"  focusany plugin eval Nat --file tests/ui-state.js",
+	Args: cobra.ExactArgs(2),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		cfg, err := internal.LoadAuthConfig()
+		if err != nil {
+			return err
+		}
+		name := args[0]
+		script := args[1]
+		if pluginEvalFile != "" {
+			raw, err := os.ReadFile(pluginEvalFile)
+			if err != nil {
+				return err
+			}
+			script = string(raw)
+		}
+		if strings.TrimSpace(script) == "" {
+			return fmt.Errorf("empty script")
+		}
+		result, err := internal.DoRequest(cfg, "POST", "/api/plugin/eval", map[string]any{"name": name, "script": script})
+		if err != nil {
+			return err
+		}
+		if code, _ := result["code"].(float64); code != 0 {
+			return fmt.Errorf("eval failed: %v", result["msg"])
+		}
+		data, _ := result["data"].(map[string]any)
+		val := data["result"]
+		if s, ok := val.(string); ok {
+			fmt.Println(s)
+			return nil
+		}
+		return internal.PrintJSON(val)
+	},
+}
+
+// --- windows (list open plugin windows) ------------------------------------
+
+var pluginWindowsCmd = &cobra.Command{
+	Use:   "windows [name]",
+	Short: "List open windows/views of plugins (optionally filter by name)",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		cfg, err := internal.LoadAuthConfig()
+		if err != nil {
+			return err
+		}
+		body := map[string]any{}
+		if len(args) == 1 {
+			body["name"] = args[0]
+		} else if len(args) > 1 {
+			return fmt.Errorf("accepts at most 1 arg (plugin name)")
+		}
+		result, err := internal.DoRequest(cfg, "POST", "/api/plugin/window-list", body)
+		if err != nil {
+			return err
+		}
+		if code, _ := result["code"].(float64); code != 0 {
+			return fmt.Errorf("window-list failed: %v", result["msg"])
+		}
+		return internal.PrintJSON(result["data"])
+	},
+}
+
+// --- close (close a plugin's window(s)) ------------------------------------
+
+var pluginCloseCmd = &cobra.Command{
+	Use:   "close <name>",
+	Short: "Close all open windows/views of a plugin",
+	Args:  cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		cfg, err := internal.LoadAuthConfig()
+		if err != nil {
+			return err
+		}
+		name := args[0]
+		result, err := internal.DoRequest(cfg, "POST", "/api/plugin/close", map[string]any{"name": name})
+		if err != nil {
+			return err
+		}
+		if code, _ := result["code"].(float64); code != 0 {
+			return fmt.Errorf("close failed: %v", result["msg"])
+		}
+		data, _ := result["data"].(map[string]any)
+		closed, _ := data["closed"].([]any)
+		fmt.Printf("closed %s windows: %s\n", name, strings.Join(toStrings(closed), ", "))
+		return nil
+	},
+}
+
+// --- event (call a backend.cjs event handler directly) ---------------------
+
+var pluginEventCmd = &cobra.Command{
+	Use:   "event <name> <event> [jsonData]",
+	Short: "Call a plugin's backend.cjs event handler (headless)",
+	Long: "Invoke a backend.cjs event handler directly with the given JSON data, " +
+		"the same channel the frontend sendBackendEvent() uses but without " +
+		"needing a plugin window. Great for backend logic testing.\n\n" +
+		"Example: focusany plugin event Nat nat.list",
+	Args: cobra.RangeArgs(2, 3),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		cfg, err := internal.LoadAuthConfig()
+		if err != nil {
+			return err
+		}
+		name := args[0]
+		event := args[1]
+		var data any
+		if len(args) == 3 {
+			if err := json.Unmarshal([]byte(args[2]), &data); err != nil {
+				return fmt.Errorf("jsonData is not valid JSON: %w", err)
+			}
+		}
+		result, err := internal.DoRequest(cfg, "POST", "/api/plugin/event", map[string]any{
+			"name": name, "event": event, "data": data,
+		})
+		if err != nil {
+			return err
+		}
+		if code, _ := result["code"].(float64); code != 0 {
+			return fmt.Errorf("event %s.%s failed: %v", name, event, result["msg"])
+		}
+		return internal.PrintJSON(result["data"])
+	},
+}
+
+func toStrings(items []any) []string {
+	out := make([]string, 0, len(items))
+	for _, it := range items {
+		out = append(out, fmt.Sprintf("%v", it))
+	}
+	return out
+}
+
 func readPluginConfigName(dir string) (string, error) {
 	raw, err := os.ReadFile(filepath.Join(dir, "config.json"))
 	if err != nil {
@@ -655,6 +803,7 @@ func init() {
 	pluginSmokeCmd.Flags().StringVar(&pluginSmokeCall, "call", "", "MCP tool name to call as part of the smoke test (e.g. bento.new_deck)")
 	pluginSmokeCmd.Flags().StringVar(&pluginSmokeArgs, "args", "", "JSON args for --call")
 	pluginSmokeCmd.Flags().StringVar(&pluginSmokeType, "type", "", "package type when installing: dir (default) or zip")
+	pluginEvalCmd.Flags().StringVar(&pluginEvalFile, "file", "", "read the script from a file instead of the inline arg")
 	pluginCmd.AddCommand(pluginListCmd)
 	pluginCmd.AddCommand(pluginInstallCmd)
 	pluginCmd.AddCommand(pluginUninstallCmd)
@@ -666,4 +815,8 @@ func init() {
 	pluginCmd.AddCommand(pluginPublishCmd)
 	pluginCmd.AddCommand(pluginScreenshotCmd)
 	pluginCmd.AddCommand(pluginSmokeCmd)
+	pluginCmd.AddCommand(pluginEvalCmd)
+	pluginCmd.AddCommand(pluginWindowsCmd)
+	pluginCmd.AddCommand(pluginCloseCmd)
+	pluginCmd.AddCommand(pluginEventCmd)
 }

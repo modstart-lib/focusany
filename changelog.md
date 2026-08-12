@@ -2,34 +2,39 @@
 
 ## vNext
 
-- 优化：Electron/Chromium 系统数据（Cache、Cookies、Preferences、Local Storage 等）恢复存放到系统默认 userData 目录，不再重定向到 dataRoot；FocusAny 业务数据（日志、配置、storage、kvdb、数据库、cli-auth.json、剪贴板、插件、临时文件）仍统一存储在 dataRoot 下
-- 优化：`client.json` 中数据根目录字段统一更名为 `dataRoot`（原 `dataPath`），CLI 与主应用同步，`appData` 一并指向该目录，后续所有数据统一存储在数据根目录下
-- 优化：快捷面板修饰键呼出增加防误触保护——按下次长过短（误碰，<80ms）或过长（长按，>1.5s）不触发，触发后 2 秒冷却期内再次触发无效，避免日常按 Ctrl/Alt 时面板频繁误弹出、反复开关
+- 新增：新增 `make update-version` 命令（`make update-version VERSION=2.1.0` 或 `make update-version 2.1.0`），一键同步更新 `package.json` / `package-lock.json` 版本号，支持 `v` 前缀并校验 `x.y.z` 格式
+
+## v2.1.0 CLI 全面升级，支持插件管理与 MCP 调用
+
+- 新增：插件管理页本地 DEV 插件下拉菜单新增「打开插件位置」选项，点击后在文件管理器中显示插件所在目录
 - 新增：主窗口搜索工具条右侧增加关闭按钮，可通过鼠标点击关闭（无插件时隐藏窗口、有插件时关闭插件），与 Esc 快捷键行为一致
 - 新增：内置大模型「能量不足」提示区域在充值按钮旁增加「刷新」按钮，充值到账后无需重启应用，点击即可重新拉取用户能量信息
-- 优化：权限引导页（初始化设置）窗口取消置顶显示，改为打开时自动置前并聚焦——避免引导窗口永久锁定最高层级，遮挡后续弹出的用户登录/授权、支付等其他窗口
-- 优化：macOS 权限引导策略——权限未就绪时仅首次自动弹出引导页，之后开机静默启动不再弹授权提示窗口，可随时从托盘菜单「权限设置」重新打开引导页
-- 优化：权限引导页不再进入页面时自动请求屏幕录制权限（原会反复触发 macOS 系统授权弹窗），改为点击「打开设置」按钮才触发请求
-- 优化：权限引导页增加提示文案，说明部分权限授权后需重启应用才能生效（解决系统设置已勾选但应用内验证不通过的问题）
 - 新增：托盘菜单新增「权限设置」入口，方便授权完成后随时查看权限状态
-- 修复：本地构建二次签名（`build-optimize.cjs`）会覆盖丢失 hardened runtime 与 entitlements 的问题，adhoc 兜底时补回 `--options runtime --entitlements`；钥匙串检测到证书时跳过 adhoc 重签，避免覆盖 Developer ID 签名
-- 修复：本地安装流程（`notarize.cjs`）钥匙串检测到证书时补签 .node 原生模块并重建 CodeResources，避免 Gatekeeper/hardened runtime 校验失败
-- 优化：macOS 签名改为从钥匙串自动发现 Developer ID 证书——用户只需将证书导入钥匙串即可，无证书时自动降级 adhoc 签名，不再依赖任何证书目录或环境变量配置
 - 新增：CLI 插件管理命令支持安装/卸载/运行/查看信息（`install` / `uninstall` / `run` / `info`）
 - 新增：CLI 新增 `mcp` 命令，支持列出插件暴露的 MCP 工具（`tools`）并调用（`call`）
 - 新增：CLI 运行插件时可指定 `--file` 传递文件给插件 preload（`actionMatchFiles`，与搜索框选择文件同一通道），便于无界面驱动文件打开类动作
 - 新增：HTTP 服务新增插件管理接口（`/api/plugin/info`、`/api/plugin/install`、`/api/plugin/uninstall`、`/api/plugin/run`），供 CLI 等外部调用
 - 新增：CLI 数据存储目录支持 `FOCUSANY_DATA_ROOT` 环境变量覆盖，优先级高于 `client.json` 的 `dataPath`，与主应用保持同一规则
-- 新增：CLI 新增插件管理、MCP、环境变量优先级相关测试用例
-- 修复：macOS 本地构建版重新 ad-hoc 签名并修正 identifier，解决因二进制签名 identifier 为 Electron 导致 TCC 辅助功能/屏幕录制授权无法匹配的问题
-- 修复：开发测试进程清理不再误杀已安装的正式版 FocusAny 进程
-- 修复：初始化设置等窗口顶部标题栏 logo 图标内容错误（旧图形），统一替换为新的 focusany-pro 品牌图标，并修正图标尺寸 class 笔误（`t-4` → `h-4`）
-- 优化：macOS 开发模式 Electron 被 Gatekeeper 拦截导致无法启动、辅助功能权限无法授权的问题——新增 `scripts/fix-quarantine.mjs` 自动移除 electron 包的 `com.apple.quarantine` 标记，并在 `postinstall` / `dev:seed` / `make dev` 流程中自动执行
 - 新增：CLI 新增 `log` 命令，支持查看 FocusAny 主程序与插件日志（`--list` 列出插件日志、`--plugin`/`--date` 指定范围、`--level` 级别过滤、`--follow` 实时跟踪）
 - 新增：CLI 新增 `plugin check` 命令，发布前校验插件目录 config.json（名称/版本/引用的文件/actions 匹配规则/MCP 工具 schema/权限枚举/开发环境标记）
 - 新增：CLI 新增 `plugin release-prepare` 命令，一键将 config.json 的 `development.env` 切换为 prod 并关闭调试开关，幂等可重复执行
 - 新增：CLI 新增 `plugin package` 命令，将插件目录打包为发布 zip（支持 `.faignore` 忽略规则、`--output` 指定输出路径、`--prod` 打包前自动 release-prepare）
-- 新增：CLI 新增 log 命令注册、插件发布子命令、config 校验、`.faignore`/zip 打包、日志 tail 相关测试用例
+- 新增：CLI 新增插件管理、MCP、环境变量优先级、log 命令注册、插件发布子命令、config 校验、`.faignore`/zip 打包、日志 tail 相关测试用例
+- 优化：storage AppManager 首页内容配置为「AI 大模型集成」「可视化工作流」补充功能配图（分别使用系统设置-模型、工作流界面截图，同步中英文配置）
+- 优化：Electron/Chromium 系统数据（Cache、Cookies、Preferences、Local Storage 等）恢复存放到系统默认 userData 目录，不再重定向到 dataRoot；FocusAny 业务数据（日志、配置、storage、kvdb、数据库、cli-auth.json、剪贴板、插件、临时文件）仍统一存储在 dataRoot 下
+- 优化：`client.json` 中数据根目录字段统一更名为 `dataRoot`（原 `dataPath`），CLI 与主应用同步，`appData` 一并指向该目录，后续所有数据统一存储在数据根目录下
+- 优化：快捷面板修饰键呼出增加防误触保护——按下次长过短（误碰，<80ms）或过长（长按，>1.5s）不触发，触发后 2 秒冷却期内再次触发无效，避免日常按 Ctrl/Alt 时面板频繁误弹出、反复开关
+- 优化：权限引导页（初始化设置）窗口取消置顶显示，改为打开时自动置前并聚焦——避免引导窗口永久锁定最高层级，遮挡后续弹出的用户登录/授权、支付等其他窗口
+- 优化：macOS 权限引导策略——权限未就绪时仅首次自动弹出引导页，之后开机静默启动不再弹授权提示窗口，可随时从托盘菜单「权限设置」重新打开引导页
+- 优化：权限引导页不再进入页面时自动请求屏幕录制权限（原会反复触发 macOS 系统授权弹窗），改为点击「打开设置」按钮才触发请求
+- 优化：权限引导页增加提示文案，说明部分权限授权后需重启应用才能生效（解决系统设置已勾选但应用内验证不通过的问题）
+- 优化：macOS 签名改为从钥匙串自动发现 Developer ID 证书——用户只需将证书导入钥匙串即可，无证书时自动降级 adhoc 签名，不再依赖任何证书目录或环境变量配置
+- 优化：macOS 开发模式 Electron 被 Gatekeeper 拦截导致无法启动、辅助功能权限无法授权的问题——新增 `scripts/fix-quarantine.mjs` 自动移除 electron 包的 `com.apple.quarantine` 标记，并在 `postinstall` / `dev:seed` / `make dev` 流程中自动执行
+- 修复：插件日志查看器「暂无日志」空状态图标未水平居中，修正为与文字居中对齐
+- 修复：本地构建二次签名（`build-optimize.cjs`）会覆盖丢失 hardened runtime 与 entitlements 的问题，adhoc 兜底时补回 `--options runtime --entitlements`；钥匙串检测到证书时跳过 adhoc 重签，避免覆盖 Developer ID 签名
+- 修复：本地安装流程（`notarize.cjs`）钥匙串检测到证书时补签 .node 原生模块并重建 CodeResources，避免 Gatekeeper/hardened runtime 校验失败
+- 修复：macOS 本地构建版重新 ad-hoc 签名并修正 identifier，解决因二进制签名 identifier 为 Electron 导致 TCC 辅助功能/屏幕录制授权无法匹配的问题
+- 修复：开发测试进程清理不再误杀已安装的正式版 FocusAny 进程
 
 ## v2.0.0 工作流引擎重磅上线，开启自动化新纪元
 

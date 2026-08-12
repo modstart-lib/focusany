@@ -527,6 +527,7 @@
     "plugin.notExist": "Plugin {name} not found",
     "plugin.notFound": "No plugins found",
     "plugin.opening": "Opening plugin",
+    "plugin.openPluginDir": "Open Plugin Location",
     "plugin.publish": "Publish Plugin",
     "plugin.publishFailed": "Publish failed:{error}",
     "plugin.publishSuccess": "Publish successful",

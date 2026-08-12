@@ -62,7 +62,7 @@ watch(
     <div :style="{ height: props.height }" ref="logContainer" class="bg-black p-3 overflow-auto">
         <div v-if="!logs.length" class="text-center text-white py-10">
             <div>
-                <IconInboxOutline class="text-4xl" />
+                <IconInboxOutline class="text-4xl mx-auto" />
             </div>
             <div class="text-xs mt-3">
                 {{ $t('empty.noLog') }}

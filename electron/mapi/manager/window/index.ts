@@ -1337,4 +1337,191 @@ export const ManagerWindow = {
             })
         }
     },
+    // ------------------------------------------------------------------
+    //  Test / automation helpers (CLI-driven plugin UI testing)
+    // ------------------------------------------------------------------
+
+    /**
+     * Find all live windows/views of a plugin. Order: detach windows →
+     * embedded browser views → the current main plugin view. Each entry
+     * carries the BrowserView (whose webContents is the plugin page) and
+     * the owning window (may be null for view-only cases).
+     */
+    findPluginWindows(name: string) {
+        const found: { view: BrowserView; win: BrowserWindow | null; type: 'detach' | 'view' | 'main' }[] = []
+        for (const win of ManagerWindow.listDetachWindows()) {
+            if (win._plugin?.name === name && isBrowserWindowAlive(win)) {
+                for (const v of win.getBrowserViews()) {
+                    if (isBrowserViewAlive(v)) {
+                        found.push({ view: v, win, type: 'detach' })
+                    }
+                }
+            }
+        }
+        for (const view of ManagerWindow.listBrowserViews()) {
+            if (view._plugin?.name !== name || view === mainWindowView || !isBrowserViewAlive(view)) {
+                continue
+            }
+            const win = view._window && isBrowserWindowAlive(view._window) ? view._window : null
+            found.push({ view, win, type: 'view' })
+        }
+        if (mainWindowView && mainWindowView._plugin?.name === name && isBrowserViewAlive(mainWindowView)) {
+            const win =
+                mainWindowView._window && isBrowserWindowAlive(mainWindowView._window) ? mainWindowView._window : null
+            found.push({ view: mainWindowView, win, type: 'main' })
+        }
+        return found
+    },
+
+    /** Wait until a webContents reaches readyState=complete with a body, or timeout. */
+    async waitWindowReady(wc: Electron.WebContents, ms = 15000) {
+        const sleep = (t: number) => new Promise((r) => setTimeout(r, t))
+        const deadline = Date.now() + ms
+        while (Date.now() < deadline) {
+            if (wc.isDestroyed()) {
+                throw new Error('PluginWindowDestroyed')
+            }
+            try {
+                const state = await wc.executeJavaScript(
+                    `({readyState: document.readyState, hasBody: !!(document.body && document.body.children.length)})`,
+                    true,
+                )
+                if (state && state.readyState === 'complete' && state.hasBody) {
+                    return
+                }
+            } catch {
+                // page not ready yet
+            }
+            await sleep(300)
+        }
+        throw new Error('PluginWindowReadyTimeout')
+    },
+
+    /**
+     * Execute JS in a plugin's current window (the first live one found).
+     *
+     * The script is expected to be an **expression** (e.g.
+     * `document.querySelectorAll('.card').length`). It runs inside an async
+     * wrapper so `await` is allowed, errors are captured and rethrown by the
+     * caller, and the result is JSON-safe (functions → "[Function]",
+     * HTMLElement → outerHTML).
+     */
+    async eval(name: string, script: string) {
+        const windows = this.findPluginWindows(name)
+        if (windows.length === 0) {
+            const liveViews = ManagerWindow.listBrowserViews()
+                .filter((v) => isBrowserViewAlive(v))
+                .map((v) => v._plugin?.name || '?')
+            const liveDetach = ManagerWindow.listDetachWindows()
+                .filter((w) => isBrowserWindowAlive(w))
+                .map((w) => w._plugin?.name || '?')
+            const mainName = mainWindowView && isBrowserViewAlive(mainWindowView) ? mainWindowView._plugin?.name : null
+            throw new Error(
+                `PluginWindowNotFound:${name} (views=[${liveViews.join(',')}] detach=[${liveDetach.join(',')}] main=${mainName})`,
+            )
+        }
+        const { view, type } = windows[0]
+        const wc = view.webContents
+        await this.waitWindowReady(wc)
+        const wrapped = `(async () => {
+            try {
+                const __r = (${script});
+                return JSON.parse(JSON.stringify(await __r, (k, v) => {
+                    if (typeof v === 'function') return '[Function]';
+                    if (typeof v === 'undefined') return null;
+                    if (v instanceof HTMLElement) return v.outerHTML;
+                    return v;
+                }));
+            } catch (e) {
+                return { __eval_error__: String((e && e.message) || e) };
+            }
+        })()`
+        let raw: any
+        try {
+            raw = await wc.executeJavaScript(wrapped, true)
+        } catch (e) {
+            throw new Error(`PluginEvalFailed:${(e as any)?.message || e}`)
+        }
+        if (raw && typeof raw === 'object' && '__eval_error__' in raw) {
+            throw new Error(`PluginEvalScriptError:${raw.__eval_error__}`)
+        }
+        return { type, result: raw }
+    },
+
+    /** List open windows/views of a plugin (all plugins if name is omitted). */
+    async listWindows(name?: string) {
+        const result: any[] = []
+        const pushView = async (view: BrowserView, type: string) => {
+            const wc = view.webContents
+            let state: any = {}
+            try {
+                state = await wc.executeJavaScript(
+                    `({readyState: document.readyState, url: location.href, title: document.title})`,
+                    true,
+                )
+            } catch {
+                // ignore
+            }
+            result.push({
+                name: view._plugin?.name || '?',
+                type,
+                url: state.url || '',
+                title: state.title || '',
+                readyState: state.readyState || '',
+                alive: !wc.isDestroyed(),
+            })
+        }
+        for (const win of ManagerWindow.listDetachWindows()) {
+            if ((!name || win._plugin?.name === name) && isBrowserWindowAlive(win)) {
+                for (const v of win.getBrowserViews()) {
+                    if (isBrowserViewAlive(v)) {
+                        await pushView(v, 'detach')
+                    }
+                }
+            }
+        }
+        for (const view of ManagerWindow.listBrowserViews()) {
+            if ((!name || view._plugin?.name === name) && isBrowserViewAlive(view) && view !== mainWindowView) {
+                await pushView(view, 'view')
+            }
+        }
+        if (mainWindowView && (!name || mainWindowView._plugin?.name === name) && isBrowserViewAlive(mainWindowView)) {
+            await pushView(mainWindowView, 'main')
+        }
+        return result
+    },
+
+    /** Close all windows/views of a plugin (detach + main view + embedded views). */
+    async closePluginWindows(name: string) {
+        const closed: string[] = []
+        for (const win of ManagerWindow.listDetachWindows()) {
+            if (win._plugin?.name === name && isBrowserWindowAlive(win)) {
+                win.close()
+                closed.push('detach')
+            }
+        }
+        if (mainWindowView && mainWindowView._plugin?.name === name && isBrowserViewAlive(mainWindowView)) {
+            await this.close(mainWindowView._plugin, { openForNext: false })
+            closed.push('main')
+        }
+        for (const view of ManagerWindow.listBrowserViews()) {
+            if (view._plugin?.name !== name || view === mainWindowView || !isBrowserViewAlive(view)) {
+                continue
+            }
+            if (mainPluginActionCode.view === view) {
+                await this._pluginActionCodeEnd()
+            } else {
+                try {
+                    removeBrowserViews(view)
+                    AppRuntime.mainWindow?.removeBrowserView(view)
+                } catch {}
+                try {
+                    // @ts-ignore webContents.destroy exists on BrowserView's webContents
+                    view.webContents?.destroy()
+                } catch {}
+            }
+            closed.push('view')
+        }
+        return { closed }
+    },
 }

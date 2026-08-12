@@ -12,6 +12,8 @@ import { ManagerWindow } from '../manager/window'
 import { ManagerPluginStore } from '../manager/system/plugin/store/index'
 import { PluginType } from '../../../src/types/Manager'
 import { listModels } from '../manager/plugin/llm'
+import { ImportUtil } from '../../lib/util'
+import { PluginSdkCreate } from '../manager/plugin/sdk'
 
 let server: http.Server | null = null
 let isRunning = false
@@ -49,6 +51,21 @@ const writeCliAuthFile = (port: number, token: string): void => {
 
 const sendJson = (res: Response, statusCode: number, data: any) => {
     res.status(statusCode).json(data)
+}
+
+/** JSON 安全序列化：函数→"[Function]"，undefined→null，循环引用→"[Circular]" */
+const toJSONSafe = (v: any) => {
+    try {
+        return JSON.parse(
+            JSON.stringify(v, (k, val) => {
+                if (typeof val === 'function') return '[Function]'
+                if (typeof val === 'undefined') return null
+                return val
+            }),
+        )
+    } catch {
+        return '[Circular]'
+    }
 }
 
 const createApp = (port: number, token: string) => {
@@ -180,6 +197,90 @@ const createApp = (port: number, token: string) => {
             }
             const shot = await ManagerWindow.capture(name)
             sendJson(res, 200, { code: 0, data: { name, type: shot.type, base64: shot.base64, state: shot.state } })
+        } catch (e) {
+            sendJson(res, 500, { code: -1, msg: String(e) })
+        }
+    })
+
+    // body: { name: string, script: string } → execute JS in the plugin's
+    // current window and return the (JSON-safe) result. Script must be an
+    // expression; errors inside the page are surfaced as PluginEvalScriptError.
+    app.post('/api/plugin/eval', async (req: Request, res: Response) => {
+        try {
+            const name = String(req.body?.name || '')
+            const script = String(req.body?.script || '')
+            if (!name || !script) {
+                sendJson(res, 400, { code: -1, msg: 'missing name or script' })
+                return
+            }
+            const result = await ManagerWindow.eval(name, script)
+            sendJson(res, 200, { code: 0, data: { name, type: result.type, result: toJSONSafe(result.result) } })
+        } catch (e) {
+            sendJson(res, 500, { code: -1, msg: String(e) })
+        }
+    })
+
+    // body: { name?: string } → list open windows/views of plugin(s)
+    app.post('/api/plugin/window-list', async (req: Request, res: Response) => {
+        try {
+            const name = req.body?.name ? String(req.body.name) : undefined
+            const list = await ManagerWindow.listWindows(name)
+            sendJson(res, 200, { code: 0, data: { list } })
+        } catch (e) {
+            sendJson(res, 500, { code: -1, msg: String(e) })
+        }
+    })
+
+    // body: { name: string } → close all windows/views of a plugin
+    app.post('/api/plugin/close', async (req: Request, res: Response) => {
+        try {
+            const name = String(req.body?.name || '')
+            if (!name) {
+                sendJson(res, 400, { code: -1, msg: 'missing name' })
+                return
+            }
+            const result = await ManagerWindow.closePluginWindows(name)
+            sendJson(res, 200, { code: 0, data: { name, closed: result.closed } })
+        } catch (e) {
+            sendJson(res, 500, { code: -1, msg: String(e) })
+        }
+    })
+
+    // body: { name: string, event: string, data?: any } → call a backend.cjs
+    // event handler directly (same channel as the frontend sendBackendEvent,
+    // but headless — no plugin window required). Errors propagate.
+    app.post('/api/plugin/event', async (req: Request, res: Response) => {
+        try {
+            const name = String(req.body?.name || '')
+            const event = String(req.body?.event || '')
+            if (!name || !event) {
+                sendJson(res, 400, { code: -1, msg: 'missing name or event' })
+                return
+            }
+            const plugin = await Manager.getPlugin(name)
+            if (!plugin) {
+                sendJson(res, 404, { code: -1, msg: `PluginNotExists:${name}` })
+                return
+            }
+            const root = (plugin.runtime as Record<string, unknown> | undefined)?.root
+            if (!root) {
+                sendJson(res, 500, { code: -1, msg: `PluginRootNotFound:${name}` })
+                return
+            }
+            const backendPath = path.join(root as string, 'backend.cjs')
+            if (!fs.existsSync(backendPath)) {
+                sendJson(res, 500, { code: -1, msg: `BackendFileNotFound:${backendPath}` })
+                return
+            }
+            const backend = await ImportUtil.loadCommonJs(backendPath)
+            const handler = backend?.event?.[event]
+            if (typeof handler !== 'function') {
+                sendJson(res, 500, { code: -1, msg: `BackendEventNotFound:${name}.${event}` })
+                return
+            }
+            const sdk = PluginSdkCreate(plugin)
+            const result = await handler(sdk, req.body?.data)
+            sendJson(res, 200, { code: 0, data: { name, event, result: toJSONSafe(result) } })
         } catch (e) {
             sendJson(res, 500, { code: -1, msg: String(e) })
         }
