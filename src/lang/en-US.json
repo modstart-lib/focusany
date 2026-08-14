@@ -433,6 +433,7 @@
     "model.builtinDesc": "Official models, ready to use",
     "model.builtinModels": "Official Models",
     "model.capTools": "Tools",
+    "model.capability": "Capabilities",
     "model.capVision": "Vision",
     "model.censorResult": "Filtered word detection result",
     "model.cloudAvatar": "Cloud Avatar",

@@ -3,6 +3,8 @@ import { ref, watch } from 'vue'
 import { useModelStore } from '../store/model'
 import { t } from '../../../lang'
 import ModalHeaderBar from '../../../components/ModalHeaderBar.vue'
+import IconEye from '~icons/mdi/eye'
+import IconWrench from '~icons/mdi/wrench'
 
 const modelStore = useModelStore()
 const props = defineProps({
@@ -47,10 +49,16 @@ const doSubmit = () => {
     modelStore.modelAdd(props.provider.id, data.value)
     visible.value = false
 }
-const fill = (d: { id?: string; name?: string; group?: string }) => {
+const fill = (d: { id?: string; name?: string; group?: string; caps?: { vision?: boolean; tools?: boolean } }) => {
     if (d.id !== undefined) data.value.id = d.id
     if (d.name !== undefined) data.value.name = d.name
     if (d.group !== undefined) data.value.group = d.group
+    if (d.caps !== undefined) {
+        data.value.caps = {
+            vision: !!d.caps.vision,
+            tools: !!d.caps.tools,
+        }
+    }
 }
 defineExpose({
     show,
@@ -87,11 +95,21 @@ defineExpose({
                 <a-form-item :label="$t('group.name')" name="type">
                     <a-input v-model:model-value="data.group" :placeholder="$t('placeholder.chatgpt')" />
                 </a-form-item>
-                <a-form-item :label="$t('model.capVision')" name="capVision">
-                    <a-switch v-model="data.caps.vision" />
-                </a-form-item>
-                <a-form-item :label="$t('model.capTools')" name="capTools">
-                    <a-switch v-model="data.caps.tools" />
+                <a-form-item :label="$t('model.capability')" name="caps">
+                    <div class="flex gap-4">
+                        <a-checkbox v-model="data.caps.vision">
+                            <template #checkbox-icon>
+                                <IconEye />
+                            </template>
+                            {{ $t('model.capVision') }}
+                        </a-checkbox>
+                        <a-checkbox v-model="data.caps.tools">
+                            <template #checkbox-icon>
+                                <IconWrench />
+                            </template>
+                            {{ $t('model.capTools') }}
+                        </a-checkbox>
+                    </div>
                 </a-form-item>
             </a-form>
         </div>

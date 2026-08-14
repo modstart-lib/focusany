@@ -21,8 +21,42 @@ npx focusany <command> [options]
 Available commands:
 
 - `release-prepare`: Check and update config.json for production release
+- `cli`: Forward commands to the locally installed FocusAny CLI
+- `status`: Check the local FocusAny environment (app, CLI binary, service)
 - `version`: Display the current version of FocusAny SDK
 - `help`: Show help information
+
+### FocusAny CLI Bridge
+
+The `cli` command finds the real FocusAny CLI installed on your machine and
+forwards all arguments to it — useful while developing plugins, without
+installing the CLI separately.
+
+```bash
+npx focusany cli plugin list
+npx focusany cli doctor
+npx focusany cli mcp tools
+```
+
+The CLI binary is located in this priority order:
+
+1. `--cli <path>` explicit override
+2. `FOCUSANY_CLI` environment variable
+3. `focusany` on `PATH`
+4. Common install locations (`~/.focusany/bin`, `~/.local/bin`,
+   `/usr/local/bin`, `/opt/homebrew/bin`, `dist-cli/` of the current project)
+
+### Status
+
+The `status` command diagnoses the local FocusAny setup:
+
+```bash
+npx focusany status
+```
+
+It reports whether the FocusAny desktop app is installed, where the CLI binary
+was found, the data root directory, and whether the FocusAny service is
+running. Exits non-zero when any check fails.
 
 ### Release Prepare
 

@@ -6,6 +6,7 @@ import { getProviderLogo, getProviderTitle, SystemProviders } from '../../../../
 import { AppConfig } from '../../../../src/config'
 import { SystemModels } from '../../../../src/module/Model/models'
 import { ModelProvider } from '../../../../src/module/Model/provider/provider'
+import { LlmChatMessage, LlmTool, LlmToolChoice } from '../../../../src/module/Model/types'
 import StorageMain from '../../storage/main'
 import User from '../../user/main'
 
@@ -35,6 +36,7 @@ const listProviders = async (): Promise<Provider[]> => {
                         name: m.name,
                         group: m.group,
                         types: ['text'],
+                        caps: (m as any).caps,
                         enabled: false,
                     } as any
                 }),
@@ -82,6 +84,7 @@ const listProviders = async (): Promise<Provider[]> => {
                             existingModel.name = model.name
                             existingModel.group = model.group
                             existingModel.types = model.types
+                            existingModel.caps = model.caps || existingModel.caps
                             existingModel.enabled = model.enabled || false
                         } else {
                             provider.data.models.push({
@@ -90,6 +93,7 @@ const listProviders = async (): Promise<Provider[]> => {
                                 name: model.name,
                                 group: model.group,
                                 types: ['text'],
+                                caps: model.caps || {},
                                 enabled: model.enabled || false,
                                 editable: true,
                             })
@@ -109,14 +113,17 @@ const listProviders = async (): Promise<Provider[]> => {
         const models: Model[] = []
         for (const m of llmpx.models) {
             const modelId = typeof m === 'string' ? m : m.name
+            const modelLabel = typeof m === 'string' ? undefined : m.label
             const modelRate = typeof m === 'string' ? undefined : m.rate
             const savedModel = (buildInProviderData?.models || []).find((sm) => sm.id === modelId)
             models.push({
                 id: modelId,
                 provider: 'buildIn',
                 name: modelId,
+                label: modelLabel,
                 group: 'Default',
                 types: ['text'],
+                caps: (m as any).caps || {},
                 enabled: savedModel ? savedModel.enabled : true,
                 editable: false,
                 rate: modelRate,
@@ -157,6 +164,12 @@ export const listModels = async () => {
         providerTitle: string
         modelId: string
         modelName: string
+        modelLabel?: string
+        /** 模型能力：vision 视觉识别 / tools 工具调用 */
+        modelCaps?: {
+            vision?: boolean
+            tools?: boolean
+        }
     }[] = []
     for (const provider of providers) {
         if (!provider.data || !provider.data.enabled || !provider.data.models) {
@@ -170,6 +183,8 @@ export const listModels = async () => {
                     providerTitle: provider.title,
                     modelId: model.id,
                     modelName: model.name,
+                    modelLabel: model.label,
+                    modelCaps: model.caps || {},
                 })
             }
         }
@@ -182,7 +197,8 @@ export type LlmReasoning = boolean | { enabled?: boolean; effort?: 'low' | 'medi
 export type LlmChatCallInfo = {
     systemPrompt?: string
     prompt?: string
-    messages?: Array<{ role: string; content: string }>
+    /** 完整消息列表（多轮/自定义 role）。content 支持纯文本或含图片（image_url）的多模态数组 */
+    messages?: LlmChatMessage[]
     /**
      * 推理（思考链）控制。通用布尔或对象：
      *  - false：关闭（驱动层按模型格式自动适配：DeepSeek 系 thinking.disabled、OpenAI o 系 reasoning_effort=low）
@@ -197,6 +213,10 @@ export type LlmChatCallInfo = {
     presencePenalty?: number
     frequencyPenalty?: number
     seed?: number
+    /** 工具定义列表（Function Calling，仅支持工具调用的模型可用） */
+    tools?: LlmTool[]
+    /** 工具选择策略：auto/none/required 或指定具体函数 */
+    toolChoice?: LlmToolChoice
 }
 
 export const modelChat = async (
@@ -208,6 +228,13 @@ export const modelChat = async (
     msg: string
     data?: {
         message: string
+        /** 工具调用结果（模型请求了函数调用时返回） */
+        toolCalls?: Array<{
+            id?: string
+            type?: string
+            name?: string
+            arguments?: string
+        }>
     }
 }> => {
     const providers = await listProviders()
@@ -220,7 +247,7 @@ export const modelChat = async (
         throw new Error(`Model not found or not enabled: ${modelId}`)
     }
     // prompt 与 messages 至少提供其一；systemPrompt 单独提供无效
-    let promptArg: string | Array<{ role: string; content: string }>
+    let promptArg: string | LlmChatMessage[]
     if (Array.isArray(callInfo.messages) && callInfo.messages.length) {
         promptArg = [...callInfo.messages]
         if (callInfo.systemPrompt) {
@@ -250,6 +277,8 @@ export const modelChat = async (
             presencePenalty: callInfo.presencePenalty,
             frequencyPenalty: callInfo.frequencyPenalty,
             seed: callInfo.seed,
+            tools: callInfo.tools,
+            toolChoice: callInfo.toolChoice,
         },
     )
     if (res.code) {
@@ -262,7 +291,8 @@ export const modelChat = async (
         code: 0,
         msg: 'ok',
         data: {
-            message: res.data.content,
+            message: res.data?.content || '',
+            toolCalls: res.data?.toolCalls,
         },
     }
 }

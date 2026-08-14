@@ -2,7 +2,13 @@
 
 ## vNext
 
-- 新增：新增 `make update-version` 命令（`make update-version VERSION=2.1.0` 或 `make update-version 2.1.0`），一键同步更新 `package.json` / `package-lock.json` 版本号，支持 `v` 前缀并校验 `x.y.z` 格式
+- 新增：大模型设置支持模型「能力」配置与展示——预置模型补充能力标注（视觉识别 / 工具调用，覆盖 OpenAI o 系、GPT-4o、Claude、Gemini、DeepSeek、智谱 GLM-4/4V、通义千问、Yi 等 117 个模型），模型列表与下拉选择均显示能力图标
+- 新增：添加/编辑模型弹窗的能力设置改为「能力」分组勾选（视觉识别 / 工具调用，带图标标识），与供应商设置弹窗交互保持一致
+- 新增：后端大模型接口（`llmChat` / `llmChatJson`）支持视觉多模态消息（messages content 带 `image_url` 图片）与工具调用（`tools` / `toolChoice` 参数），返回结果支持 `toolCalls` 函数调用解析；`llmListModels` 接口返回模型能力标识 `modelCaps`
+- 新增：SDK `llmChat` / `llmChatJson` 支持图片消息与工具调用参数，`llmListModels` 返回模型能力标识，插件侧同步透传（类型声明与 shim 均已升级）
+- 新增：SDK CLI（`npx focusany`）新增 `cli` 命令，可真实查找本机 FocusAny CLI 二进制（优先级：`--cli` 参数 → `FOCUSANY_CLI` 环境变量 → PATH → `~/.focusany/bin` / `~/.local/bin` / `/usr/local/bin` / `/opt/homebrew/bin` / 项目 `dist-cli/`）并透传参数调用（如 `npx focusany cli plugin list` / `npx focusany cli doctor`），便于开发插件时直接调用本机 FocusAny 工具
+- 新增：SDK CLI 新增 `status` 命令，诊断本机 FocusAny 环境（桌面应用是否安装、CLI 二进制位置、数据目录、服务是否运行），任一检查失败时退出码非 0
+- 新增：SDK 新增 `sdk/bin/find-focusany.ts` 查找模块及对应测试 `sdk/tests/test-find-focusany.js`（`npm test` 运行）
 
 ## v2.1.0 CLI 全面升级，支持插件管理与 MCP 调用
 

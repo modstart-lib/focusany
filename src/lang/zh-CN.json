@@ -433,6 +433,7 @@
     "model.builtinDesc": "官方模型即开即用",
     "model.builtinModels": "官方模型",
     "model.capTools": "工具调用",
+    "model.capability": "能力",
     "model.capVision": "图像识别",
     "model.censorResult": "违规词检测结果",
     "model.cloudAvatar": "云端形象",

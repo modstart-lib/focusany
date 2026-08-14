@@ -44,3 +44,27 @@ export type Provider = {
 export type ChatParam = {
     systemPrompt: string | null
 }
+
+/** 多模态消息内容片段：纯文本或图片（OpenAI 兼容格式） */
+export type LlmMessageContentPart =
+    | { type: 'text'; text: string }
+    | { type: 'image_url'; image_url: { url: string; detail?: 'auto' | 'low' | 'high' } }
+
+/** 聊天消息：content 支持纯文本或含图片的多模态片段数组 */
+export type LlmChatMessage = {
+    role: string
+    content: string | LlmMessageContentPart[]
+}
+
+/** 工具定义（Function Calling，OpenAI 兼容格式） */
+export type LlmTool = {
+    type: 'function'
+    function: {
+        name: string
+        description?: string
+        parameters?: Record<string, any>
+    }
+}
+
+/** 工具选择策略：auto/none/required 或指定具体函数 */
+export type LlmToolChoice = 'auto' | 'none' | 'required' | { type: 'function'; function: { name: string } }

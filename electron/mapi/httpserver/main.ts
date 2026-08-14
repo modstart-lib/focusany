@@ -187,7 +187,9 @@ const createApp = (port: number, token: string) => {
         }
     })
 
-    // body: { name: string } → capture the plugin's current window as base64 PNG
+    // body: { name: string, mode?: 'composite' | 'content' } → capture the
+    // plugin's current window. 'composite' (default) = shell + BrowserView
+    // merged (traffic-light title bar); 'content' = raw webContents capture.
     app.post('/api/plugin/capture', async (req: Request, res: Response) => {
         try {
             const name = String(req.body?.name || '')
@@ -195,8 +197,18 @@ const createApp = (port: number, token: string) => {
                 sendJson(res, 400, { code: -1, msg: 'missing name' })
                 return
             }
-            const shot = await ManagerWindow.capture(name)
-            sendJson(res, 200, { code: 0, data: { name, type: shot.type, base64: shot.base64, state: shot.state } })
+            const mode = req.body?.mode === 'content' ? 'content' : 'composite'
+            const shot = await ManagerWindow.capture(name, mode)
+            sendJson(res, 200, {
+                code: 0,
+                data: {
+                    name,
+                    type: shot.type,
+                    base64: shot.base64,
+                    state: shot.state,
+                    debug: (shot as any).debug,
+                },
+            })
         } catch (e) {
             sendJson(res, 500, { code: -1, msg: String(e) })
         }

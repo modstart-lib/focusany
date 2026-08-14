@@ -88,6 +88,34 @@ watch(
 )
 
 onMounted(() => {
+    testActionSet('modelSetting.providers', () => {
+        return modelStore.providers.map((p) => ({
+            id: p.id,
+            title: p.title,
+            enabled: p.data.enabled,
+        }))
+    })
+    testActionSet('modelSetting.selectProvider', (params: any) => {
+        doSelectProvider(params?.providerId || '')
+    })
+    testActionSet('modelSetting.models', () => {
+        return (provider.value?.data.models || []).map((m) => ({
+            id: m.id,
+            name: m.name,
+            group: m.group,
+            caps: m.caps ? Object.assign({}, m.caps) : {},
+            enabled: m.enabled,
+        }))
+    })
+    testActionSet('modelSetting.enabledModels', async () => {
+        return await modelStore.enabledModels()
+    })
+    testActionSet('modelSetting.chat', async (params: any) => {
+        return await modelStore.chat(currentProviderId.value, params?.modelId || '', params?.prompt || '', {
+            systemPrompt: null,
+            ...(params?.extra || {}),
+        } as any)
+    })
     testActionSet('modelSetting.providerAdd.show', () => providerAdd.value?.show())
     testActionSet('modelSetting.providerAdd.fill', (data: any) => providerAdd.value?.fill(data))
     testActionSet('modelSetting.providerAdd.submit', () => providerAdd.value?.doSubmit())
@@ -100,10 +128,24 @@ onMounted(() => {
     testActionSet('modelSetting.modelAdd.show', () => modelAdd.value?.show())
     testActionSet('modelSetting.modelAdd.fill', (data: any) => modelAdd.value?.fill(data))
     testActionSet('modelSetting.modelAdd.submit', () => modelAdd.value?.doSubmit())
+    testActionSet('modelSetting.modelEdit.show', (params: any) => {
+        const m = provider.value?.data.models.find((m) => m.id === params?.modelId)
+        if (m) modelEdit.value?.show(m)
+    })
+    testActionSet('modelSetting.modelEdit.fill', (params: any) => modelEdit.value?.fill(params || {}))
+    testActionSet('modelSetting.modelEdit.submit', () => modelEdit.value?.doSubmit())
+    testActionSet('modelSetting.modelDelete', async (params: any) => {
+        await modelStore.modelDelete(currentProviderId.value, params?.modelId || '')
+    })
 })
 
 onUnmounted(() => {
     testActionUnset([
+        'modelSetting.providers',
+        'modelSetting.selectProvider',
+        'modelSetting.models',
+        'modelSetting.enabledModels',
+        'modelSetting.chat',
         'modelSetting.providerAdd.show',
         'modelSetting.providerAdd.fill',
         'modelSetting.providerAdd.submit',
@@ -113,6 +155,10 @@ onUnmounted(() => {
         'modelSetting.modelAdd.show',
         'modelSetting.modelAdd.fill',
         'modelSetting.modelAdd.submit',
+        'modelSetting.modelEdit.show',
+        'modelSetting.modelEdit.fill',
+        'modelSetting.modelEdit.submit',
+        'modelSetting.modelDelete',
     ])
 })
 </script>

@@ -1,5 +1,5 @@
 import { ModelChatResult } from '../provider'
-import { ChatParam, ProviderType } from '../../types'
+import { ChatParam, LlmChatMessage, LlmTool, LlmToolChoice, ProviderType } from '../../types'
 import { AbstractModelProvider } from './base'
 
 export class OpenAiModelProvider extends AbstractModelProvider {
@@ -14,10 +14,7 @@ export class OpenAiModelProvider extends AbstractModelProvider {
         super(config)
     }
 
-    async chat(
-        prompt: string | Array<{ role: string; content: string }>,
-        chatParam: ChatParam,
-    ): Promise<ModelChatResult> {
+    async chat(prompt: string | LlmChatMessage[], chatParam: ChatParam): Promise<ModelChatResult> {
         // this.config.url =  'http://localhost:3000/v1/chat/completions';
         // this.config.apiKey = '';
         chatParam = Object.assign(
@@ -29,7 +26,12 @@ export class OpenAiModelProvider extends AbstractModelProvider {
         // prompt 为字符串 → 构造 [system?, user]；为数组 → 直接使用（上层已含 system）
         let messages: any[]
         if (Array.isArray(prompt)) {
-            messages = prompt.map((m) => ({ role: m.role, content: m.content }))
+            // content 为数组（含 image_url 图片）时原样透传，为字符串时直接使用
+            messages = prompt.map((m) => {
+                const content =
+                    typeof m.content === 'string' ? m.content : (m.content as any[]).map((part) => ({ ...part }))
+                return { role: m.role, content }
+            })
         } else {
             messages = []
             if (chatParam.systemPrompt) {
@@ -40,6 +42,13 @@ export class OpenAiModelProvider extends AbstractModelProvider {
         const body: Record<string, any> = {
             model: this.config.modelId,
             messages: messages,
+        }
+        // 工具调用（Function Calling）：透传 tools / tool_choice
+        if (Array.isArray(this.config.tools) && this.config.tools.length) {
+            body.tools = this.config.tools
+        }
+        if (this.config.toolChoice !== undefined) {
+            body.tool_choice = this.config.toolChoice
         }
         // reasoning 控制：通用布尔/对象 → 按模型格式自动适配
         //  - DeepSeek/通义等国产（含 focusany-default = deepseek-v4 格式）：thinking:{type:"disabled"} + enable_thinking:false
@@ -91,6 +100,15 @@ export class OpenAiModelProvider extends AbstractModelProvider {
         try {
             const message = data.choices[0].message
             const content = message.content
+            // 工具调用结果：content 可能为 null，tool_calls 携带函数调用参数
+            const toolCalls = Array.isArray(message.tool_calls)
+                ? message.tool_calls.map((tc: any) => ({
+                      id: tc.id,
+                      type: tc.type || 'function',
+                      name: tc.function?.name,
+                      arguments: tc.function?.arguments,
+                  }))
+                : undefined
             // 诊断：即便 reasoning=false，模型仍可能进入思考（网关/模型忽略参数）——
             // 此时 content 常为空、token 全耗在 reasoning_content，直接给调用方可读错误。
             if (
@@ -105,6 +123,7 @@ export class OpenAiModelProvider extends AbstractModelProvider {
                 msg: 'ok',
                 data: {
                     content,
+                    toolCalls,
                 },
             }
         } catch (e) {

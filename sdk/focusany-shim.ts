@@ -746,6 +746,10 @@ const FocusAnyShim = {
                 providerTitle: string;
                 modelId: string;
                 modelName: string;
+                modelCaps?: {
+                    vision?: boolean;
+                    tools?: boolean;
+                };
             }[]> {
                 return Promise.resolve([
                     {
@@ -753,19 +757,22 @@ const FocusAnyShim = {
                         providerLogo: "https://cdn.openai.com/chatgpt/images/chatgpt-logo.png",
                         providerTitle: "OpenAI",
                         modelId: "gpt-4",
-                        modelName: "GPT-4"
+                        modelName: "GPT-4",
+                        modelCaps: {vision: false, tools: true}
                     },
                     {
                         providerId: "anthropic",
                         providerLogo: "https://www.anthropic.com/images/anthropic-logo.png",
                         providerTitle: "Anthropic",
                         modelId: "claude-3-opus",
-                        modelName: "Claude 3 Opus"
+                        modelName: "Claude 3 Opus",
+                        modelCaps: {vision: true, tools: true}
                     },
                 ]);
             },
             llmChat(callInfo: LlmChatCallInfo): Promise<BaseResult<{
                 message: string;
+                toolCalls?: Array<{ id?: string; type?: string; name?: string; arguments?: string }>;
             }>> {
                 return Promise.resolve({
                     code: 200,

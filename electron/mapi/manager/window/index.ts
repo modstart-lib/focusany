@@ -1023,7 +1023,7 @@ export const ManagerWindow = {
      *   3. 等待渲染帧稳定后再截
      * @param name 插件 name（如 BentoSlides）
      */
-    async capture(name: string) {
+    async capture(name: string, mode: 'composite' | 'content' = 'composite') {
         if (!name) {
             throw new Error('PluginNameRequired')
         }
@@ -1063,6 +1063,12 @@ export const ManagerWindow = {
                 }
                 // 等一帧渲染稳定
                 await sleep(800)
+                try {
+                    wc.invalidate()
+                } catch {
+                    /* not supported — fine */
+                }
+                await sleep(150)
                 const image = await wc.capturePage()
                 if (image && !image.isEmpty()) {
                     return { base64: image.toPNG().toString('base64'), state: lastState }
@@ -1085,6 +1091,7 @@ export const ManagerWindow = {
             content: Electron.NativeImage,
             offsetX: number,
             offsetY: number,
+            opts?: { contentFirst?: boolean; titleBarHeight?: number },
         ): { base64: string; width: number; height: number } | null => {
             if (shell.isEmpty() || content.isEmpty()) {
                 return null
@@ -1093,43 +1100,87 @@ export const ManagerWindow = {
             const contentSize = content.getSize()
             const outW = shellSize.width
             const outH = shellSize.height
-            // 直接用 raw bitmap（BGRA）逐行拷贝，避免额外 PNG 编解码。
-            // toBitmap() 返回物理像素 buffer：宽高 = DIP 尺寸 × scaleFactor。
-            const scaleFactor = shell.getScaleFactors()[0] || 1
-            const shellRaw = shell.toBitmap()
-            const contentRaw = content.toBitmap()
-            const contentW = Math.round(contentSize.width * scaleFactor)
-            const contentH = Math.round(contentSize.height * scaleFactor)
-            const outRaw = Buffer.from(shellRaw)
-            const dstX = Math.round(offsetX * scaleFactor)
-            const dstY = Math.round(offsetY * scaleFactor)
-            const bytesPerRow = Math.round(outW * scaleFactor) * 4
-            // 内容图底部不越过圆角预留区：BrowserView 高度已减 cornerRadius，
-            // 但 capturePage 返回的 webContents 视口高度可能未随 bounds 裁剪，
-            // 这里显式限制覆盖高度，避免内容盖住底部圆角。
-            const maxRows = Math.round((outH - offsetY - DETACH_WINDOW_CORNER_RADIUS) * scaleFactor)
-            const copyRows = Math.min(contentH, maxRows)
-            for (let y = 0; y < copyRows; y++) {
-                const srcRow = y * contentW * 4
-                const dstRow = (dstY + y) * bytesPerRow + dstX * 4
-                if (dstRow < 0 || dstRow + contentW * 4 > outRaw.length) {
-                    continue
+            const shellScale = shell.getScaleFactors()[0] || 1
+            const contentScale = content.getScaleFactors()[0] || 1
+            // content（webContents）通常比 shell（desktopCapturer）有更高
+            // scaleFactor（Retina 2x vs 系统帧 1x）。统一缩放到 shell 分辨率。
+            let contentNative = content
+            const contentOrigSize = content.getSize()
+            const contentOrigScale = content.getScaleFactors()[0] || 1
+            // content（webContents capturePage）的尺寸可能与 shell 不一致：
+            // shell 是 1200x800（desktopCapturer），content 可能是 2400x1496
+            // （Retina 物理像素，getSize 返回物理尺寸且 scale=1）。
+            // 只要 content 的物理尺寸 != shell 的物理尺寸，就缩放到 shell 尺寸。
+            const shellPhysW = Math.round(outW * shellScale)
+            const shellPhysH = Math.round(outH * shellScale)
+            const contentPhysW = Math.round(contentOrigSize.width * contentOrigScale)
+            const contentPhysH = Math.round(contentOrigSize.height * contentOrigScale)
+            if (contentPhysW !== shellPhysW || contentPhysH !== shellPhysH) {
+                const resized = content.resize({ width: shellPhysW, height: shellPhysH })
+                if (!resized.isEmpty()) {
+                    contentNative = resized
                 }
-                contentRaw.copy(outRaw, dstRow, srcRow, srcRow + contentW * 4)
             }
-            const composed = nativeImage.createFromBitmap(outRaw, {
-                width: Math.round(outW * scaleFactor),
-                height: Math.round(outH * scaleFactor),
+            const contentAfterSize = contentNative.getSize()
+            const contentAfterScale = contentNative.getScaleFactors()[0] || 1
+            Log.info('capture.compose', {
+                contentOrig: { w: contentOrigSize.width, h: contentOrigSize.height, s: contentOrigScale },
+                contentAfter: { w: contentAfterSize.width, h: contentAfterSize.height, s: contentAfterScale },
+                shellSize: { w: outW, h: outH },
+                shellScale,
+                contentScale,
             })
+            // 逐行拷贝需要物理像素宽高：DIP × scaleFactor。
+            const contentW = Math.round(contentAfterSize.width * contentAfterScale)
+            const contentH = Math.round(contentAfterSize.height * contentAfterScale)
+            const bytesPerRow = Math.round(outW * shellScale) * 4
+            const bw = Math.round(outW * shellScale)
+            const bh = Math.round(outH * shellScale)
+
+            // 以 content 为基底（保留全部 webContents 渲染，含 AI 面板等 overlay），
+            // 再把 shell 的顶部标题栏（红绿灯）区域叠加覆盖上来。
+            const contentRaw = contentNative.toBitmap()
+            const outRaw = Buffer.alloc(bw * bh * 4)
+            outRaw.fill(255)
+            const copyW = Math.min(contentW, bw)
+            const copyH = Math.min(contentH, bh)
+            for (let y = 0; y < copyH; y++) {
+                const src = y * contentW * 4
+                const dst = y * bw * 4
+                contentRaw.copy(outRaw, dst, src, src + copyW * 4)
+            }
+
+            // 叠加 shell 的顶部标题栏（红绿灯区域）到 content 之上
+            if (opts?.contentFirst) {
+                const titleBarH = Math.round((opts.titleBarHeight ?? offsetY) * shellScale)
+                const shellRaw = shell.toBitmap()
+                for (let y = 0; y < Math.min(titleBarH, bh); y++) {
+                    const src = y * bw * 4
+                    const dst = y * bw * 4
+                    shellRaw.copy(outRaw, dst, src, src + bw * 4)
+                }
+            }
+
+            const composed = nativeImage.createFromBitmap(outRaw, { width: bw, height: bh })
             if (composed.isEmpty()) {
                 return null
+            }
+            ;(composed as any).__contentAfter = {
+                width: contentAfterSize.width,
+                height: contentAfterSize.height,
+                scale: contentAfterScale,
+            }
+            ;(composed as any).__contentOrig = {
+                width: contentOrigSize.width,
+                height: contentOrigSize.height,
+                scale: contentOrigScale,
             }
             // 修正透明窗口圆角：desktopCapturer 系统截图会把窗口透明角落
             // （圆角外区域）渲染成不透明的近黑像素，这里把四角近黑像素的
             // alpha 置 0（透明），还原 macOS 圆角窗口的透明角落。
             const fixCornerBlack = (raw: Buffer, cornerW: number, cornerH: number) => {
-                const bw = Math.round(outW * scaleFactor)
-                const bh = Math.round(outH * scaleFactor)
+                const bw = Math.round(outW * shellScale)
+                const bh = Math.round(outH * shellScale)
                 const rowBytes = bw * 4
                 const isNearBlack = (i: number) => {
                     const b = raw[i]
@@ -1153,11 +1204,11 @@ export const ManagerWindow = {
                 patch(0, bh - cornerH, cornerW, cornerH) // bottom-left
                 patch(bw - cornerW, bh - cornerH, cornerW, cornerH) // bottom-right
             }
-            const cornerPx = Math.round(DETACH_WINDOW_CORNER_RADIUS * scaleFactor) + 4
+            const cornerPx = Math.round(DETACH_WINDOW_CORNER_RADIUS * shellScale) + 4
             fixCornerBlack(outRaw, cornerPx, cornerPx)
             const fixed = nativeImage.createFromBitmap(outRaw, {
-                width: Math.round(outW * scaleFactor),
-                height: Math.round(outH * scaleFactor),
+                width: Math.round(outW * shellScale),
+                height: Math.round(outH * shellScale),
             })
             return { base64: fixed.toPNG().toString('base64'), width: outW, height: outH }
         }
@@ -1167,6 +1218,12 @@ export const ManagerWindow = {
         // 与 win.capturePage()（仅 webContents，不含系统 overlay）不同。
         // 需屏幕录制权限；失败时返回 null，由调用方回退。
         const captureWindowSource = async (win: BrowserWindow): Promise<Electron.NativeImage | null> => {
+            // DEBUG: FOCUSANY_CAPTURE_NO_DESKTOP=1 forces webContents capture
+            // (used to isolate whether desktopCapturer's stale frame hides
+            // preload-injected overlays like the bento AI panel).
+            if (process.env.FOCUSANY_CAPTURE_NO_DESKTOP === '1') {
+                return null
+            }
             try {
                 const [winW, winH] = win.getSize()
                 const sources = await desktopCapturer.getSources({
@@ -1235,8 +1292,17 @@ export const ManagerWindow = {
                     await sleep(500)
                 }
                 await sleep(800)
-                // 2) 内容：插件 BrowserView
+                // 2) 内容：插件 BrowserView。invalidate() 强制重新合成一帧，
+                //    确保 preload 动态注入的 overlay（如 bento 的 AI 面板）被
+                //    渲染进 capturePage 的结果（否则可能截到旧帧）。
+                try {
+                    wc.invalidate()
+                } catch {
+                    /* not supported — fine */
+                }
+                await sleep(500)
                 const content = await wc.capturePage()
+                const contentDbg = content.getSize()
                 // 1) 外壳：优先系统级窗口截图（含红绿灯），失败回退 webContents 截图
                 let shell = await captureWindowSource(win)
                 let shellType = 'desktop'
@@ -1244,11 +1310,28 @@ export const ManagerWindow = {
                     shell = await win.capturePage()
                     shellType = 'webContents'
                 }
-                // 3) 合成：view 在窗口内容区内的位置（y 从标题栏下方开始）
+                const shellDbg = shell.getSize()
+                // 3) 合成：以 content（webContents，含 preload overlay 如 AI 面板）
+                //    为主图，shell 仅提供顶部标题栏（红绿灯）区域。
+                //    这样 AI 面板等动态注入的 DOM 一定保留在结果里。
                 const bounds = view.getBounds()
-                const composed = composeImages(shell, content, bounds.x, bounds.y)
+                const composed = composeImages(shell, content, bounds.x, bounds.y, {
+                    contentFirst: true,
+                    titleBarHeight: bounds.y, // detach 窗口标题栏高度 = view 起点 y
+                })
                 if (composed) {
-                    return { ...composed, state: lastState, shellType }
+                    return {
+                        ...composed,
+                        state: lastState,
+                        shellType,
+                        debug: {
+                            contentSize: contentDbg,
+                            shellSize: shellDbg,
+                            shellType,
+                            contentAfterSize: (composed as any).__contentAfter,
+                            contentOrigSize: (composed as any).__contentOrig,
+                        },
+                    }
                 }
                 return null
             } finally {
@@ -1265,9 +1348,19 @@ export const ManagerWindow = {
                 const views = win.getBrowserViews()
                 const view = views.find((v) => isBrowserViewAlive(v)) || null
                 if (view) {
-                    const shot = await snapshotWindowWithView(win, view)
-                    if (shot) {
-                        return { type: 'detach', ...shot }
+                    if (mode === 'content') {
+                        // DEBUG: raw webContents capture (no shell merge) —
+                        // isolates whether the AI panel overlay renders in
+                        // capturePage at all.
+                        const shot = await snapshot(view.webContents, win, win.isVisible())
+                        if (shot) {
+                            return { type: 'detach', ...shot }
+                        }
+                    } else {
+                        const shot = await snapshotWindowWithView(win, view)
+                        if (shot) {
+                            return { type: 'detach', ...shot }
+                        }
                     }
                 }
             }

@@ -291,6 +291,11 @@ export const PluginSdkCreate = (plugin: PluginRecord) => {
                 providerTitle: string
                 modelId: string
                 modelName: string
+                /** 模型能力：vision 视觉识别 / tools 工具调用 */
+                modelCaps?: {
+                    vision?: boolean
+                    tools?: boolean
+                }
             }[]
         > {
             return ManagerPluginEvent.llmListModels(context, {})
@@ -301,7 +306,10 @@ export const PluginSdkCreate = (plugin: PluginRecord) => {
             modelId: string
             systemPrompt?: string
             prompt?: string
-            messages?: Array<{ role: string; content: string }>
+            messages?: Array<{
+                role: string
+                content: string | Array<{ type: string; text?: string; image_url?: { url: string; detail?: string } }>
+            }>
             reasoning?: boolean | { enabled?: boolean; effort?: 'low' | 'medium' | 'high' }
             maxTokens?: number
             temperature?: number
@@ -310,11 +318,17 @@ export const PluginSdkCreate = (plugin: PluginRecord) => {
             presencePenalty?: number
             frequencyPenalty?: number
             seed?: number
+            tools?: Array<{
+                type: 'function'
+                function: { name: string; description?: string; parameters?: Record<string, any> }
+            }>
+            toolChoice?: 'auto' | 'none' | 'required' | { type: 'function'; function: { name: string } }
         }): Promise<{
             code: number
             msg: string
             data?: {
                 message: string
+                toolCalls?: Array<{ id?: string; type?: string; name?: string; arguments?: string }>
             }
         }> {
             return ManagerPluginEvent.llmChat(context, { callInfo })
@@ -325,7 +339,10 @@ export const PluginSdkCreate = (plugin: PluginRecord) => {
             modelId: string
             systemPrompt?: string
             prompt?: string
-            messages?: Array<{ role: string; content: string }>
+            messages?: Array<{
+                role: string
+                content: string | Array<{ type: string; text?: string; image_url?: { url: string; detail?: string } }>
+            }>
             reasoning?: boolean | { enabled?: boolean; effort?: 'low' | 'medium' | 'high' }
             maxTokens?: number
             temperature?: number
@@ -334,6 +351,11 @@ export const PluginSdkCreate = (plugin: PluginRecord) => {
             presencePenalty?: number
             frequencyPenalty?: number
             seed?: number
+            tools?: Array<{
+                type: 'function'
+                function: { name: string; description?: string; parameters?: Record<string, any> }
+            }>
+            toolChoice?: 'auto' | 'none' | 'required' | { type: 'function'; function: { name: string } }
         }): Promise<{
             code: number
             msg: string

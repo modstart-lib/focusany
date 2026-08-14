@@ -25,6 +25,34 @@ declare type BaseResult<T = any> = {
     data?: T;
 };
 
+/** 多模态消息内容片段：纯文本或图片（OpenAI 兼容格式，需模型支持视觉） */
+declare type LlmMessageContentPart =
+    | { type: "text"; text: string }
+    | { type: "image_url"; image_url: { url: string; detail?: "auto" | "low" | "high" } };
+
+/** 聊天消息：content 支持纯文本或含图片的多模态片段数组 */
+declare type LlmChatMessage = {
+    role: string;
+    content: string | LlmMessageContentPart[];
+};
+
+/** 工具定义（Function Calling，OpenAI 兼容格式，需模型支持工具调用） */
+declare type LlmTool = {
+    type: "function";
+    function: {
+        name: string;
+        description?: string;
+        parameters?: Record<string, any>;
+    };
+};
+
+/** 工具选择策略：auto/none/required 或指定具体函数 */
+declare type LlmToolChoice =
+    | "auto"
+    | "none"
+    | "required"
+    | { type: "function"; function: { name: string } };
+
 /** llmChat / llmChatJson 的入参 */
 declare type LlmChatCallInfo = {
     providerId: string;
@@ -33,8 +61,8 @@ declare type LlmChatCallInfo = {
     systemPrompt?: string;
     /** 用户消息。与 messages 至少提供其一 */
     prompt?: string;
-    /** 完整消息列表（多轮/自定义 role）。与 prompt 至少提供其一；同时提供 systemPrompt 时会插到最前 */
-    messages?: Array<{ role: string; content: string }>;
+    /** 完整消息列表（多轮/自定义 role）。与 prompt 至少提供其一；同时提供 systemPrompt 时会插到最前。content 支持含图片（image_url）的多模态数组 */
+    messages?: LlmChatMessage[];
     /**
      * 推理（思考链）控制，通用布尔或对象（底层按模型自动适配格式）：
      *  - false：关闭（DeepSeek 系 thinking.disabled；OpenAI o 系 reasoning_effort=low）
@@ -56,6 +84,10 @@ declare type LlmChatCallInfo = {
     frequencyPenalty?: number;
     /** 随机种子（请求体 seed） */
     seed?: number;
+    /** 工具定义列表（Function Calling，仅支持工具调用的模型可用，请求体 tools） */
+    tools?: LlmTool[];
+    /** 工具选择策略（请求体 tool_choice）：auto/none/required 或指定具体函数 */
+    toolChoice?: LlmToolChoice;
 };
 
 declare type PlatformType = "win" | "osx" | "linux";
@@ -863,6 +895,7 @@ interface FocusAnyApi {
 
     /**
      * list large language model
+     * 返回的模型带 modelCaps（vision 视觉识别 / tools 工具调用）能力标识
      */
     llmListModels(): Promise<
         {
@@ -871,14 +904,24 @@ interface FocusAnyApi {
             providerTitle: string;
             modelId: string;
             modelName: string;
+            modelCaps?: {
+                vision?: boolean;
+                tools?: boolean;
+            };
         }[]
     >;
 
     /**
      * call large language model chat
+     * 支持视觉（messages content 带 image_url）与工具调用（tools / toolChoice）
      * @param callInfo
      */
-    llmChat(callInfo: LlmChatCallInfo): Promise<BaseResult<{ message: string }>>;
+    llmChat(callInfo: LlmChatCallInfo): Promise<
+        BaseResult<{
+            message: string;
+            toolCalls?: Array<{ id?: string; type?: string; name?: string; arguments?: string }>;
+        }>
+    >;
 
     /**
      * call large language model chat and parse the reply as JSON.

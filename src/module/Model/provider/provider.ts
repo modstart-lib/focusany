@@ -1,4 +1,4 @@
-import { ChatParam, ProviderType } from '../types'
+import { ChatParam, LlmChatMessage, LlmTool, LlmToolChoice, ProviderType } from '../types'
 import { OpenAiModelProvider } from './driver/openai'
 import { mapError } from '../../../lib/error'
 
@@ -40,7 +40,7 @@ export const ModelProvider = {
         throw new Error(`Unsupported provider type: ${type}`)
     },
     async chat(
-        prompt: string | Array<{ role: string; content: string }>,
+        prompt: string | LlmChatMessage[],
         chatParam: ChatParam,
         config: {
             type: ProviderType
@@ -64,6 +64,10 @@ export const ModelProvider = {
             frequencyPenalty?: number
             /** 随机种子（seed） */
             seed?: number
+            /** 工具定义列表（Function Calling，请求体 tools） */
+            tools?: LlmTool[]
+            /** 工具选择策略（请求体 tool_choice） */
+            toolChoice?: LlmToolChoice
         },
     ): Promise<ModelChatResult> {
         let url = this.apiUrl(config.type, config.apiUrl, config.apiHost)
