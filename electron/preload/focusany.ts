@@ -746,6 +746,21 @@ export const FocusAny = {
         },
     },
 
+    asset: {
+        download(url: string, pluginFilePath: string, options?: { timeout?: number }): Promise<void> {
+            return ipcSendAsync('assetDownload', { url, pluginFilePath, options })
+        },
+        exists(pluginFilePath: string): Promise<boolean> {
+            return ipcSendAsync('assetExists', { pluginFilePath })
+        },
+        delete(pluginFilePath: string): Promise<void> {
+            return ipcSendAsync('assetDelete', { pluginFilePath })
+        },
+        progress(pluginFilePath: string): Promise<AssetProgressResult | null> {
+            return ipcSendAsync('assetProgress', { pluginFilePath })
+        },
+    },
+
     db: {
         put(doc: DbDoc) {
             return ipcSendSync('dbPut', { doc })

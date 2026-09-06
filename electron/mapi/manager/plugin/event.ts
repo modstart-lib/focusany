@@ -31,6 +31,7 @@ import { listModels, modelChat, modelChatJson } from './llm'
 import { PluginLog } from './log'
 import { ManagerPluginPermission } from './permission'
 import { screenCapture } from './screenCapture'
+import { assetDownload, assetExists, assetDelete, assetProgress } from './asset'
 
 const getHeadHeight = (win: BrowserWindow) => {
     if (win === AppRuntime.mainWindow) {
@@ -914,6 +915,32 @@ export const ManagerPluginEvent = {
         }
         fs.writeFileSync(tempPath, data as Uint8Array)
         return tempPath
+    },
+
+    // asset
+    assetDownload: async (context: PluginContext, data: any): Promise<void> => {
+        if (!ManagerPluginPermission.check(context._plugin, 'basic', 'File')) {
+            return
+        }
+        return await assetDownload(context, data)
+    },
+    assetExists: async (context: PluginContext, data: any): Promise<boolean> => {
+        if (!ManagerPluginPermission.check(context._plugin, 'basic', 'File')) {
+            return false
+        }
+        return await assetExists(context, data)
+    },
+    assetDelete: async (context: PluginContext, data: any): Promise<void> => {
+        if (!ManagerPluginPermission.check(context._plugin, 'basic', 'File')) {
+            return
+        }
+        return await assetDelete(context, data)
+    },
+    assetProgress: async (context: PluginContext, data: any) => {
+        if (!ManagerPluginPermission.check(context._plugin, 'basic', 'File')) {
+            return null
+        }
+        return await assetProgress(context, data)
     },
 
     // db

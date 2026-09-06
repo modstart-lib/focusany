@@ -92,6 +92,28 @@ declare type LlmChatCallInfo = {
 
 declare type PlatformType = "win" | "osx" | "linux";
 
+/** 插件文件资源下载进度 */
+declare type AssetProgressResult = {
+    /** 下载总字节数 */
+    total: number;
+    /** 已下载字节数 */
+    completed: number;
+    /** 下载进度 0~100 */
+    percent: number;
+    /** 下载速度 bytes/s */
+    speed: number;
+    /** 下载状态：downloading / completed / failed */
+    status: "downloading" | "completed" | "failed";
+    /** 错误信息（status=failed 时存在） */
+    error?: string;
+};
+
+/** 插件文件资源下载选项 */
+declare type AssetDownloadOptions = {
+    /** 下载超时时间（秒），默认 3600 */
+    timeout?: number;
+};
+
 declare type EditionType = "open" | "pro";
 
 declare type PluginEvent = "ClipboardChange" | "UserChange";
@@ -1029,6 +1051,43 @@ interface FocusAnyApi {
                 isBase64?: boolean;
             }
         ): Promise<string>;
+    };
+
+    /**
+     * Plugin asset resource management
+     *
+     * Download, check, delete and track progress of large asset files
+     * that are downloaded on-demand rather than bundled with the plugin.
+     */
+    asset: {
+        /**
+         * Download a remote asset file to the plugin directory.
+         * Downloads to a temp directory first, then moves to the final location
+         * to avoid incomplete files on interruption.
+         * @param url Remote asset URL
+         * @param pluginFilePath Relative path within the plugin directory
+         * @param options Download options
+         */
+        download(
+            url: string,
+            pluginFilePath: string,
+            options?: AssetDownloadOptions
+        ): Promise<void>;
+        /**
+         * Check if an asset file exists in the plugin directory
+         * @param pluginFilePath Relative path within the plugin directory
+         */
+        exists(pluginFilePath: string): Promise<boolean>;
+        /**
+         * Delete an asset file from the plugin directory
+         * @param pluginFilePath Relative path within the plugin directory
+         */
+        delete(pluginFilePath: string): Promise<void>;
+        /**
+         * Get download progress of an asset file
+         * @param pluginFilePath Relative path within the plugin directory
+         */
+        progress(pluginFilePath: string): Promise<AssetProgressResult | null>;
     };
 
     /**
