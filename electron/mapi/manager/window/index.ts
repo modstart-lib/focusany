@@ -19,6 +19,7 @@ import { PluginLog } from '../plugin/log'
 import { ManagerSystem } from '../system'
 import { PluginContext } from '../type'
 import { RemoteWebManager } from './remoteWeb'
+import { ManagerDebug } from '../debug'
 
 const browserViews = new Map<WebContents, BrowserView>()
 const detachWindows = new Map<WebContents, BrowserWindow>()
@@ -224,6 +225,13 @@ export const ManagerWindow = {
             PluginLog.error(plugin.name, 'Load.Error-render-process-gone', {
                 error: 'render-process-gone',
             })
+        })
+        // 监听 console-message（捕获 console.error / console.warn）
+        view.webContents.on('console-message', (_event, level, message) => {
+            // level: 0=verbose, 1=info, 2=warn, 3=error
+            if (level >= 2) {
+                ManagerDebug.pushViewError(plugin.name, `[level=${level}] ${message}`)
+            }
         })
     },
     async _pluginViewLoad(view: BrowserView, main: string) {
@@ -1095,6 +1103,40 @@ export const ManagerWindow = {
         ): { base64: string; width: number; height: number } | null => {
             if (shell.isEmpty() || content.isEmpty()) {
                 return null
+            }
+            // A BrowserView's capturePage() contains only the view content, not
+            // the BrowserWindow title bar. Composite it at the view bounds rather
+            // than stretching it over the full window; otherwise the first rows
+            // of page content are hidden behind the macOS traffic-light bar.
+            const shellNativeSize = shell.getSize()
+            const shellNativeScale = shell.getScaleFactors()[0] || 1
+            const outputWidth = Math.round(shellNativeSize.width * shellNativeScale)
+            const outputHeight = Math.round(shellNativeSize.height * shellNativeScale)
+            const viewLeft = Math.round(offsetX * shellNativeScale)
+            const viewTop = Math.round(offsetY * shellNativeScale)
+            const viewWidth = Math.max(1, outputWidth - viewLeft)
+            const viewHeight = Math.max(1, outputHeight - viewTop)
+            const viewNative = content.resize({ width: viewWidth, height: viewHeight })
+            if (!viewNative.isEmpty()) {
+                const output = Buffer.from(shell.toBitmap())
+                const viewBitmap = viewNative.toBitmap()
+                const sourceWidth = viewNative.getSize().width
+                const sourceHeight = viewNative.getSize().height
+                const copyWidth = Math.min(sourceWidth, outputWidth - viewLeft)
+                const copyHeight = Math.min(sourceHeight, outputHeight - viewTop)
+                for (let y = 0; y < copyHeight; y++) {
+                    const sourceStart = y * sourceWidth * 4
+                    const targetStart = ((viewTop + y) * outputWidth + viewLeft) * 4
+                    viewBitmap.copy(output, targetStart, sourceStart, sourceStart + copyWidth * 4)
+                }
+                const composed = nativeImage.createFromBitmap(output, { width: outputWidth, height: outputHeight })
+                if (!composed.isEmpty()) {
+                    return {
+                        base64: composed.toPNG().toString('base64'),
+                        width: shellNativeSize.width,
+                        height: shellNativeSize.height,
+                    }
+                }
             }
             const shellSize = shell.getSize()
             const contentSize = content.getSize()

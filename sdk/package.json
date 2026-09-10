@@ -1,6 +1,6 @@
 {
     "name": "focusany-sdk",
-    "version": "2.1.0",
+    "version": "2.2.0",
     "description": "TypeScript definitions for FocusAny",
     "main": "./index.js",
     "types": "./index.d.ts",
@@ -32,6 +32,9 @@
         "./shim": {
             "types": "./focusany-shim.d.ts",
             "default": "./focusany-shim.js"
+        },
+        "./test": {
+            "default": "./test.cjs"
         }
     },
     "devDependencies": {

@@ -14,6 +14,7 @@ import { PluginType } from '../../../src/types/Manager'
 import { listModels } from '../manager/plugin/llm'
 import { ImportUtil } from '../../lib/util'
 import { PluginSdkCreate } from '../manager/plugin/sdk'
+import { ManagerDebug } from '../manager/debug'
 
 let server: http.Server | null = null
 let isRunning = false
@@ -383,6 +384,44 @@ const createApp = (port: number, token: string) => {
                 await Manager.openAction(target)
             }
             sendJson(res, 200, { code: 0, data: { name, action: target.name, files } })
+        } catch (e) {
+            sendJson(res, 500, { code: -1, msg: String(e) })
+        }
+    })
+
+    // ── /api/debug — 调试数据获取接口 ──────────────────────────
+    //
+    // POST /api/debug  body: { type: 'viewError', plugin: 'RemoveBg', param?: {} }
+    //
+    // ManagerDebug[fnName] 签名统一为 (plugin, param) => string[]
+    // 返回增量数据，消费后自动清空。
+    const debugFnMap: Record<string, string> = {
+        viewError: 'getViewErrors',
+        mainError: 'getMainErrors',
+        externalRequest: 'getExternalRequests',
+    }
+    app.post('/api/debug', async (req: Request, res: Response) => {
+        try {
+            const body = req.body || {}
+            const rawType = String(body.type || '')
+            const plugin = String(body.plugin || body.name || '')
+            const param = body.param || {}
+            if (!rawType || !plugin) {
+                sendJson(res, 400, { code: -1, msg: 'missing type or plugin' })
+                return
+            }
+            const fnName = debugFnMap[rawType]
+            if (!fnName) {
+                sendJson(res, 400, { code: -1, msg: 'unknown type: ' + rawType })
+                return
+            }
+            const fn = (ManagerDebug as any)[fnName]
+            if (typeof fn !== 'function') {
+                sendJson(res, 500, { code: -1, msg: `debug handler not found: ${fnName}` })
+                return
+            }
+            const data = await fn(plugin, param)
+            sendJson(res, 200, { code: 0, data: { type: rawType, plugin, list: data } })
         } catch (e) {
             sendJson(res, 500, { code: -1, msg: String(e) })
         }

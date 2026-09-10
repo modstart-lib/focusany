@@ -10,6 +10,7 @@
 - 新增：SDK CLI（`npx focusany`）新增 `cli` 命令，可真实查找本机 FocusAny CLI 二进制（优先级：`--cli` 参数 → `FOCUSANY_CLI` 环境变量 → PATH → `~/.focusany/bin` / `~/.local/bin` / `/usr/local/bin` / `/opt/homebrew/bin` / 项目 `dist-cli/`）并透传参数调用（如 `npx focusany cli plugin list` / `npx focusany cli doctor`），便于开发插件时直接调用本机 FocusAny 工具
 - 新增：SDK CLI 新增 `status` 命令，诊断本机 FocusAny 环境（桌面应用是否安装、CLI 二进制位置、数据目录、服务是否运行），任一检查失败时退出码非 0
 - 新增：SDK 新增 `sdk/bin/find-focusany.ts` 查找模块及对应测试 `sdk/tests/test-find-focusany.js`（`npm test` 运行）
+- 新增：SDK 测试框架 `focusany-sdk/test` 新增插件调试断言函数 —— `assertNoViewErrors`（断言视图无 console.error）、`assertNoMainErrors`（断言主进程无插件错误）、`assertNoExternalRequests`（断言无意外外网请求）、`checkNoErrors`（延迟后综合断言无错误），配套 Electron 主进程 `console-message` 采集与 `/api/debug` 调试接口
 
 ## v2.1.0 CLI 全面升级，支持插件管理与 MCP 调用
 
