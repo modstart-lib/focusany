@@ -1,6 +1,6 @@
 # FocusAny 更新日志
 
-## vNext
+## v2.2.0 大模型多模态上线，SDK CLI 能力全面升级
 
 - 新增：插件资源文件（asset）按需下载功能 —— `focusany.asset.download`（先下载到临时目录再移动到插件目录，避免中断导致文件不完整）、`asset.exists`、`asset.delete`、`asset.progress`（支持下载进度追踪），类型声明与后端实现（主进程 IPC、事件分发、进度管理）同步完成
 - 新增：大模型设置支持模型「能力」配置与展示——预置模型补充能力标注（视觉识别 / 工具调用，覆盖 OpenAI o 系、GPT-4o、Claude、Gemini、DeepSeek、智谱 GLM-4/4V、通义千问、Yi 等 117 个模型），模型列表与下拉选择均显示能力图标
