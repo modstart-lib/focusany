@@ -177,8 +177,19 @@ ipcMain.handle('test:captureWindow', async (event, name?: string) => {
     if (!win) {
         throw new Error('WindowNotFound')
     }
-    const image = await win.capturePage()
-    return flattenNativeImage(image)
+    // 隐藏窗口默认启用 backgroundThrottling，渲染会暂停，capturePage 可能返回挂载前的旧帧
+    // （例如主窗口 #app-loading 占位）。截图前关闭节流并主动 invalidate 触发重绘。
+    const wc = win.webContents
+    const wasThrottled = wc.getBackgroundThrottling()
+    wc.setBackgroundThrottling(false)
+    try {
+        wc.invalidate()
+        await new Promise((resolve) => setTimeout(resolve, 250))
+        const image = await win.capturePage()
+        return flattenNativeImage(image)
+    } finally {
+        wc.setBackgroundThrottling(wasThrottled)
+    }
 })
 
 ipcMain.handle('window:hide', (event, name: string) => {

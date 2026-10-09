@@ -1017,8 +1017,20 @@ export const ManagerWindow = {
         if (!mainWindowView) {
             throw new Error('MainPluginViewNotFound')
         }
-        const image = await mainWindowView.webContents.capturePage()
-        return image.toPNG().toString('base64')
+        const wc = mainWindowView.webContents
+        // prepare 阶段刚修改 DOM（例如工作流从列表切到编辑态）时，渲染进程可能尚未提交新帧，
+        // 直接 capturePage 会拿到上一帧（表现为 workflow_edit 与 workflow 完全相同）。
+        // 先关闭 backgroundThrottling 并主动 invalidate 触发重绘，等新帧提交后再截。
+        const wasThrottled = wc.getBackgroundThrottling()
+        wc.setBackgroundThrottling(false)
+        try {
+            wc.invalidate()
+            await new Promise((resolve) => setTimeout(resolve, 350))
+            const image = await wc.capturePage()
+            return image.toPNG().toString('base64')
+        } finally {
+            wc.setBackgroundThrottling(wasThrottled)
+        }
     },
     /**
      * 截取指定插件当前打开的窗口画面，返回 base64 PNG。

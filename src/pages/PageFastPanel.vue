@@ -8,7 +8,7 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useLocale } from '../app/locale'
 import FastPanelSearch from './FastPanel/FastPanelSearch.vue'
 import FastPanelResult from './FastPanel/FastPanelResult.vue'
@@ -48,11 +48,23 @@ window.__page.onShow(() => {
 onMounted(() => {
     testActionSet('pageFastPanel.loaded', () => true)
     testActionSet('fastPanel.prepare', async () => {
-        await window.$mapi.app.setClipboardText(SCREENSHOT_DEMO_TEXT)
+        // 截图期间关闭自动隐藏，避免面板因失焦被隐藏导致截到空内容
+        await window.$mapi.config.setEnv('fastPanelAutoHide', false)
+        manager.showFirstRun = true
         window.focusany.showFastPanelWindow()
+        await window.$mapi.app.setClipboardText(SCREENSHOT_DEMO_TEXT)
+        // 等待 show 触发的 prepareSearch 完成，再确定性地写入面板状态。
+        // 直接写状态可避免依赖剪贴板「变化检测」与窗口 show 事件（截图环境下均不可靠）。
+        await new Promise((resolve) => setTimeout(resolve, 1500))
+        manager.setCurrentFiles([])
+        manager.setCurrentImage('')
+        manager.setCurrentText(SCREENSHOT_DEMO_TEXT)
+        await manager.searchFastPanel('')
+        await nextTick()
         await waitScreenshotDemo()
     })
     testActionSet('fastPanel.cleanup', async () => {
+        await window.$mapi.config.setEnv('fastPanelAutoHide', true)
         await window.$mapi.app.setClipboardText('')
     })
 })
