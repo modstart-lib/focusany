@@ -589,6 +589,7 @@
     "setting.cudaAcceleration": "CUDA加速",
     "setting.darkTheme": "暗黑",
     "setting.dataConfig": "数据配置",
+    "setting.dataRootCustom": "数据存储路径已自定义",
     "setting.detachWindowHotkey": "分离窗口快捷键",
     "setting.env": "环境设置",
     "setting.exitDirectly": "直接退出",

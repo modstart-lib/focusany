@@ -8,8 +8,10 @@ export type ClientConfig = {
 
 const focusanyRoot = () => path.join(os.homedir(), '.focusany')
 
+export const defaultDataRoot = () => path.join(focusanyRoot(), 'data')
+
 const defaultClientConfig = (): ClientConfig => ({
-    dataRoot: path.join(focusanyRoot(), 'data'),
+    dataRoot: defaultDataRoot(),
 })
 
 const expandHome = (value: string): string => {

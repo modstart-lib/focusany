@@ -58,7 +58,7 @@ const doRestore = () => {
     </a-button>
     <a-modal
         v-model:visible="visible"
-        width="800px"
+        width="min(800px, 95vw)"
         title-align="start"
         :closable="false"
         modal-class="pb-modal-header-compact"
@@ -74,7 +74,7 @@ const doRestore = () => {
                 {{ $t('common.save') }}
             </a-button>
         </template>
-        <div class="-mx- -my-3" style="height: 60vh">
+        <div class="-my-3">
             <slot></slot>
             <div v-if="help">
                 <a-alert type="info" show-icon class="mb-2">
@@ -114,7 +114,7 @@ const doRestore = () => {
                         <div class="font-mono mr-1 cursor-pointer" @click="doCopy(`{${item.name}}`)">
                             {{ '{' + item.name + '}' }}
                         </div>
-                        <div class="text-gray-400">
+                        <div class="text-gray-500 dark:text-gray-400">
                             {{ item.label }}
                         </div>
                     </div>
@@ -124,7 +124,7 @@ const doRestore = () => {
                         <div class="font-mono mr-1 cursor-pointer" @click="doCopy(`{${key}}`)">
                             {{ '{' + key + '}' }}
                         </div>
-                        <div class="text-gray-400">
+                        <div class="text-gray-500 dark:text-gray-400">
                             {{ value }}
                         </div>
                     </div>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useManagerStore } from '../../store/modules/manager'
 import { useSettingStore } from '../../store/modules/setting'
 import { changeLocale, i18n, listLocales } from '../../lang'
@@ -14,14 +14,35 @@ const isWindows = focusany.isWindows()
 const isLinux = focusany.isLinux()
 const fastPanelTriggerType = ref('Ctrl')
 const autoLaunchEnable = ref(false)
+const dataRoot = ref('')
+const dataRootDefault = ref('')
 
-onMounted(() => {
+// 实际生效的数据根目录与默认目录不一致时，提示用户自定义存储位置
+const dataRootCustom = computed(() => {
+    return !!dataRoot.value && !!dataRootDefault.value && dataRoot.value !== dataRootDefault.value
+})
+
+const doOpenDataRoot = () => {
+    if (dataRoot.value) {
+        window.$mapi.app.openPath(dataRoot.value)
+    }
+}
+
+onMounted(async () => {
     fastPanelTriggerType.value = manager.configGet('fastPanelTrigger', null).value?.type || 'Ctrl'
     autoLaunchEnable.value = setting.configGet('autoLaunchEnable', false).value
+    const appEnv = await window.$mapi.app.appEnv()
+    dataRoot.value = appEnv.dataRoot || ''
+    dataRootDefault.value = appEnv.dataRootDefault || ''
     testActionSet('systemSetting.loaded', () => true)
+    testActionSet('systemSetting.dataRoot', () => ({
+        dataRoot: dataRoot.value,
+        dataRootDefault: dataRootDefault.value,
+        custom: dataRootCustom.value,
+    }))
 })
 onUnmounted(() => {
-    testActionUnset('systemSetting.loaded')
+    testActionUnset(['systemSetting.loaded', 'systemSetting.dataRoot'])
 })
 
 const onManagerConfigChange = async (key: string, value: any) => {
@@ -51,6 +72,13 @@ const onManagerConfigChange = async (key: string, value: any) => {
         <div class="mb-8">
             <div class="text-base font-bold mb-4">{{ $t('setting.functionSettings') }}</div>
             <div class="pl-4">
+                <a-alert v-if="dataRootCustom" type="warning" class="mb-6">
+                    <template #title>{{ $t('setting.dataRootCustom') }}</template>
+                    <div class="flex items-center mt-1">
+                        <div class="flex-grow break-all font-mono text-xs">{{ dataRoot }}</div>
+                        <a-button type="text" @click="doOpenDataRoot">{{ $t('common.openPath') }}</a-button>
+                    </div>
+                </a-alert>
                 <div class="flex items-center mb-6">
                     <div class="flex-grow">{{ $t('setting.language') }}</div>
                     <div>

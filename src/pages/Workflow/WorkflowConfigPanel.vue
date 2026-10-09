@@ -58,7 +58,7 @@ watch(
                     {{ iconText(selectedNode.type) }}
                 </div>
                 <div class="min-w-0 flex-grow">
-                    <div class="text-xs text-gray-400">{{ subTitle(selectedNode.type, t) }}</div>
+                    <div class="text-xs text-gray-500 dark:text-gray-400">{{ subTitle(selectedNode.type, t) }}</div>
                     <div class="truncate font-bold text-gray-950">{{ selectedNode.title }}</div>
                 </div>
                 <a-button :aria-label="$t('workflow.editNodeTitle')" @click="showTitleModal">

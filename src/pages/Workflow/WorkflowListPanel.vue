@@ -25,18 +25,18 @@ const emit = defineEmits<{
             >
                 <div
                     v-if="runningWorkflowIds.includes(workflow.id)"
-                    class="absolute right-4 top-4 rounded-full bg-blue-50 px-3 py-1 text-sm font-bold text-blue-600"
+                    class="absolute right-4 top-4 rounded-full bg-primary-soft px-3 py-1 text-sm font-bold text-primary"
                     data-testid="workflow-running-badge"
                 >
                     {{ $t('workflow.running') }}
                 </div>
                 <div class="mb-6 flex items-start gap-4">
-                    <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
+                    <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-primary-soft text-primary">
                         <icon-share-alt />
                     </div>
                     <div class="min-w-0 flex-grow pr-20">
                         <div class="truncate text-lg font-bold text-gray-950">{{ workflow.name }}</div>
-                        <div class="mt-2 text-sm text-gray-400">
+                        <div class="mt-2 text-sm text-gray-500 dark:text-gray-400">
                             {{ $t('workflow.nodeCount', { count: workflow.data?.nodes?.length || 0 }) }} ·
                             {{ $t('workflow.edgeCount', { count: workflow.data?.edges?.length || 0 }) }}
                         </div>

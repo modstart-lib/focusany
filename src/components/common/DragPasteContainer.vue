@@ -164,9 +164,9 @@ const onDragLeave = (e: DragEvent) => {
             v-if="dragIsOver"
             :style="dragMaskStyle"
         >
-            <div class="m-auto text-center text-gray-400">
+            <div class="m-auto text-center text-gray-500 dark:text-gray-400">
                 <div>
-                    <icon-file class="text-5xl" />
+                    <icon-file class="text-4xl" />
                 </div>
                 <div>
                     <icon-drag-arrow />

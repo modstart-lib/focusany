@@ -180,7 +180,7 @@ onUnmounted(() => {
                 <div v-for="p in providersFilter">
                     <div
                         class="flex hover:bg-gray-100 cursor-pointer border border-transparent rounded-full mb-3 px-3 py-1 items-center"
-                        :class="currentProviderId === p.id ? 'bg-gray-100 border-gray-300' : ''"
+                        :class="currentProviderId === p.id ? 'bg-gray-100 border-gray-300 text-primary' : ''"
                         @click="doSelectProvider(p.id)"
                     >
                         <div class="mr-2">
@@ -190,7 +190,12 @@ onUnmounted(() => {
                                 style="background: #eee; border: 1px solid #eee"
                                 :src="p.logo"
                             />
-                            <a-avatar v-else :size="20" shape="square" :style="{ backgroundColor: '#3370ff' }">
+                            <a-avatar
+                                v-else
+                                :size="20"
+                                shape="square"
+                                :style="{ backgroundColor: 'var(--color-primary)' }"
+                            >
                                 {{ p.title }}
                             </a-avatar>
                         </div>
@@ -273,7 +278,7 @@ onUnmounted(() => {
                         </a-input>
                     </div>
                     <div class="flex">
-                        <div class="text-gray-400">
+                        <div class="text-gray-500 dark:text-gray-400">
                             {{ providerUrl }}
                         </div>
                     </div>
@@ -286,12 +291,12 @@ onUnmounted(() => {
                         {{ $t('user.energy') }}
                         <span class="font-bold">{{ ((userStore.data.llmpx?.quota || 0) / 1000).toFixed(2) }}K</span>
                         <icon-refresh
-                            class="ml-1 cursor-pointer text-gray-400 hover:text-gray-600"
+                            class="ml-1 cursor-pointer text-gray-500 dark:text-gray-400 hover:text-gray-600"
                             :class="quotaRefreshing ? 'animate-spin' : ''"
                             @click="doRefreshQuota"
                         />
                     </div>
-                    <div class="text-gray-400">
+                    <div class="text-gray-500 dark:text-gray-400">
                         <icon-check class="text-green-600" />
                         {{ $t('model.builtinDesc') }}
                     </div>
@@ -323,14 +328,14 @@ onUnmounted(() => {
                 </div>
                 <div class="mb-3">
                     <div class="mb-2 font-bold">{{ $t('model.model') }}</div>
-                    <div class="mb-2 text-sm text-gray-400" v-if="provider.id !== 'buildIn'">
+                    <div class="mb-2 text-sm text-gray-500 dark:text-gray-400" v-if="provider.id !== 'buildIn'">
                         {{ $t('common.view') }}
-                        <a :href="provider?.websites.docs" target="_blank" class="text-blue-600">
+                        <a :href="provider?.websites.docs" target="_blank" class="text-primary">
                             {{ provider.title }}
                             {{ $t('common.docs') }}
                         </a>
                         {{ $t('common.and') }}
-                        <a :href="provider?.websites.models" target="_blank" class="text-blue-600">
+                        <a :href="provider?.websites.models" target="_blank" class="text-primary">
                             {{ provider.title }}
                             {{ $t('model.list') }}
                         </a>
@@ -358,17 +363,17 @@ onUnmounted(() => {
                                         <div class="flex items-center gap-0.5 mr-3">
                                             <IconImage
                                                 v-if="m.caps?.vision"
-                                                class="text-gray-400 w-3 h-3"
+                                                class="text-gray-500 dark:text-gray-400 w-3 h-3"
                                                 :title="$t('model.capVision')"
                                             />
                                             <IconWrench
                                                 v-if="m.caps?.tools"
-                                                class="text-gray-400 w-3 h-3"
+                                                class="text-gray-500 dark:text-gray-400 w-3 h-3"
                                                 :title="$t('model.capTools')"
                                             />
                                             <span
                                                 v-if="provider.id === 'buildIn' && m.rate != null"
-                                                class="text-xs text-gray-400 ml-0.5"
+                                                class="text-xs text-gray-500 dark:text-gray-400 ml-0.5"
                                             >
                                                 ×{{ m.rate }}
                                             </span>

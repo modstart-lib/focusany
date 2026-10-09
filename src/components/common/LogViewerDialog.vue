@@ -34,7 +34,7 @@ defineExpose({
         v-model:visible="visible"
         title-align="start"
         :footer="false"
-        width="80vw"
+        width="min(1000px, 95vw)"
         :closable="false"
         modal-class="pb-modal-header-compact"
     >

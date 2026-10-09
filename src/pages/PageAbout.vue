@@ -102,7 +102,9 @@ const doDevSettingTriggerClick = () => {
                     </a-button>
                 </div>
             </div>
-            <div class="text-gray-400 text-center select-none">&copy; {{ licenseYear }} {{ AppConfig.name }}</div>
+            <div class="text-gray-500 dark:text-gray-400 text-center select-none">
+                &copy; {{ licenseYear }} {{ AppConfig.name }}
+            </div>
         </div>
     </div>
 </template>

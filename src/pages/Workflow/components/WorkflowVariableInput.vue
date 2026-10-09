@@ -54,7 +54,7 @@ const insertVariable = (token: string) => {
                         @click="insertVariable(item.token)"
                     >
                         <div class="font-bold">{{ item.token }}</div>
-                        <div class="text-gray-400">{{ item.fieldTitle }}</div>
+                        <div class="text-gray-500 dark:text-gray-400">{{ item.fieldTitle }}</div>
                     </div>
                 </div>
             </template>

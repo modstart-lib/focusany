@@ -14,7 +14,7 @@ defineExpose({
 
 <template>
     <div v-if="'loading' === status" class="absolute inset-0 flex bg-default text-default">
-        <div class="m-auto text-center text-gray-400">
+        <div class="m-auto text-center text-gray-500 dark:text-gray-400">
             <div>
                 <icon-loading class="text-3xl" />
             </div>

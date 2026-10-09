@@ -57,7 +57,7 @@ defineExpose({
             </a-button>
             <a-button size="small" @click="visible = false"> {{ $t('common.close') }} </a-button>
         </template>
-        <div class="h-64">
+        <div>
             <div v-if="match?.type === ActionMatchTypeEnum.TEXT">
                 <div class="mb-3">
                     <icon-info-circle />

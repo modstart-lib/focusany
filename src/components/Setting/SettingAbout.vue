@@ -68,5 +68,5 @@ const doOpenLog = async () => {
             <div class="flex-grow">Gitee</div>
         </a>
     </div>
-    <div class="text-gray-400">&copy; {{ licenseYear }} {{ AppConfig.title }}</div>
+    <div class="text-gray-500 dark:text-gray-400">&copy; {{ licenseYear }} {{ AppConfig.title }}</div>
 </template>

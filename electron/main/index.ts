@@ -17,8 +17,9 @@ import { ConfigLang } from '../config/lang'
 import { ConfigMenu } from '../config/menu'
 import { ConfigTray } from '../config/tray'
 import { WindowConfig } from '../config/window'
-import { loadClientConfig } from '../lib/clientConfig'
+import { defaultDataRoot, loadClientConfig } from '../lib/clientConfig'
 import { DevToolsManager } from '../lib/devtools'
+import { Diagnostics } from '../lib/diagnostics'
 import { isMac, isWin, isPackaged } from '../lib/env'
 import { preloadDefault, rendererLoadPath } from '../lib/env-main'
 import { AppPosition } from '../mapi/app/lib/position'
@@ -94,6 +95,7 @@ AppEnv.appRoot = process.env.APP_ROOT
 AppEnv.appData = app.getPath('appData')
 AppEnv.userData = app.getPath('userData')
 AppEnv.dataRoot = focusanyDataRoot
+AppEnv.dataRootDefault = defaultDataRoot()
 
 if (!fs.existsSync(AppEnv.dataRoot)) {
     fs.mkdirSync(AppEnv.dataRoot, { recursive: true })
@@ -117,6 +119,12 @@ Log.info('LaunchInfo', {
     userData: AppEnv.userData,
     dataRoot: AppEnv.dataRoot,
 })
+
+// Runtime diagnostics: renderer crashes, unresponsive windows, load failures,
+// child (GPU/utility) process crashes and periodic memory snapshots, all
+// written to the standard log file for post-mortem analysis. Must be
+// registered before any window is created.
+Diagnostics.register()
 
 async function createWindow() {
     let icon = logoPath

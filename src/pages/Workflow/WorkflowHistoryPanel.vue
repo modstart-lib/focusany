@@ -112,7 +112,7 @@ onUnmounted(() => {
                         class="shrink-0 rounded-full px-3 py-1 text-sm font-bold"
                         :class="[
                             log.status === 'success' ? 'bg-emerald-50 text-emerald-600' : '',
-                            log.status === 'running' ? 'bg-blue-50 text-blue-600' : '',
+                            log.status === 'running' ? 'bg-primary-soft text-primary' : '',
                             log.status !== 'success' && log.status !== 'running' ? 'bg-red-50 text-red-600' : '',
                         ]"
                     >
@@ -121,15 +121,15 @@ onUnmounted(() => {
                 </div>
                 <div class="mt-5 grid grid-cols-3 gap-3 text-sm">
                     <div>
-                        <div class="text-gray-400">{{ $t('workflow.triggerLabel2') }}</div>
+                        <div class="text-gray-500 dark:text-gray-400">{{ $t('workflow.triggerLabel2') }}</div>
                         <div class="mt-1 font-bold text-gray-800">{{ triggerText(log.triggerType) }}</div>
                     </div>
                     <div>
-                        <div class="text-gray-400">{{ $t('workflow.nodeLabel') }}</div>
+                        <div class="text-gray-500 dark:text-gray-400">{{ $t('workflow.nodeLabel') }}</div>
                         <div class="mt-1 font-bold text-gray-800">{{ log.nodes?.length || 0 }}</div>
                     </div>
                     <div>
-                        <div class="text-gray-400">{{ $t('workflow.durationLabel') }}</div>
+                        <div class="text-gray-500 dark:text-gray-400">{{ $t('workflow.durationLabel') }}</div>
                         <div class="mt-1 font-bold text-gray-800">{{ durationText(log) }}</div>
                     </div>
                 </div>
@@ -151,10 +151,7 @@ onUnmounted(() => {
             <template #title>
                 <div class="font-bold">{{ $t('workflow.textLog') }}</div>
             </template>
-            <div
-                class="max-h-[70vh] overflow-y-auto rounded-lg bg-gray-950 p-4 text-sm text-gray-100"
-                data-testid="workflow-log-modal"
-            >
+            <div class="rounded-lg bg-gray-950 p-4 text-sm text-gray-100" data-testid="workflow-log-modal">
                 <div v-for="line in textLogLines" :key="line" class="whitespace-pre-wrap leading-7">{{ line }}</div>
             </div>
         </a-modal>
@@ -186,7 +183,7 @@ onUnmounted(() => {
                     </div>
                     <div class="mt-2 text-sm text-gray-500">{{ activeGraphNode?.id }}</div>
                     <div class="mt-5 rounded-lg bg-gray-50 p-4">
-                        <div class="text-sm text-gray-400">{{ $t('workflow.execState') }}</div>
+                        <div class="text-sm text-gray-500 dark:text-gray-400">{{ $t('workflow.execState') }}</div>
                         <div
                             class="mt-1 font-bold"
                             :class="[

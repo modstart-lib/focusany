@@ -67,7 +67,7 @@ onBeforeUnmount(() => {
                     </div>
                     <div class="flex-grow">
                         <div class="font-bold">{{ r.plugin.title }}</div>
-                        <div class="text-gray-400">{{ r.count }} {{ $t('data.docCount') }}</div>
+                        <div class="text-gray-500 dark:text-gray-400">{{ r.count }} {{ $t('data.docCount') }}</div>
                     </div>
                     <div>
                         <div

@@ -58,7 +58,7 @@ defineExpose({
 
 <template>
     <a-drawer
-        :width="340"
+        width="min(340px, 95vw)"
         class="pb-system-data-view-dialog"
         :visible="visible"
         @close="onClose"
@@ -73,7 +73,9 @@ defineExpose({
                 </div>
                 <div class="flex-grow">
                     <div class="font-bold text-sm">{{ record?.plugin.title }}</div>
-                    <div class="text-gray-400 text-sm">{{ record?.count }} {{ $t('data.docCount') }}</div>
+                    <div class="text-gray-500 dark:text-gray-400 text-sm">
+                        {{ record?.count }} {{ $t('data.docCount') }}
+                    </div>
                 </div>
             </div>
         </template>

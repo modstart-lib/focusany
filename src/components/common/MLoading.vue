@@ -13,7 +13,7 @@ const props = defineProps({
 })
 </script>
 <template>
-    <div class="py-10 text-center text-gray-400">
+    <div class="py-10 text-center text-gray-500 dark:text-gray-400">
         <div v-if="props.page">
             <div v-for="i in props.blocks" class="bg-gray-100 h-10 rounded-lg mb-5"></div>
         </div>

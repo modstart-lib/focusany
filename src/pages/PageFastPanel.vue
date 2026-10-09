@@ -29,6 +29,17 @@ const main = ref<HTMLElement | null>(null)
 const mainSearch = ref<InstanceType<typeof MainSearch> | null>(null)
 const mainResult = ref<InstanceType<typeof MainResult> | null>(null)
 
+// 快捷面板截图演示文本，prepare 时写入剪贴板供面板读取
+const SCREENSHOT_DEMO_TEXT = 'FocusAny 快捷面板截图演示'
+
+const waitScreenshotDemo = async () => {
+    const deadline = Date.now() + 20_000
+    while (Date.now() < deadline) {
+        if ((document.body.innerText || '').includes(SCREENSHOT_DEMO_TEXT)) return
+        await new Promise((resolve) => setTimeout(resolve, 300))
+    }
+}
+
 window.__page.onShow(() => {
     manager.showFirstRun = true
     mainSearch.value?.onShow()
@@ -36,10 +47,18 @@ window.__page.onShow(() => {
 
 onMounted(() => {
     testActionSet('pageFastPanel.loaded', () => true)
+    testActionSet('fastPanel.prepare', async () => {
+        await window.$mapi.app.setClipboardText(SCREENSHOT_DEMO_TEXT)
+        window.focusany.showFastPanelWindow()
+        await waitScreenshotDemo()
+    })
+    testActionSet('fastPanel.cleanup', async () => {
+        await window.$mapi.app.setClipboardText('')
+    })
 })
 
 onBeforeUnmount(() => {
-    testActionUnset('pageFastPanel.loaded')
+    testActionUnset(['pageFastPanel.loaded', 'fastPanel.prepare', 'fastPanel.cleanup'])
 })
 </script>
 

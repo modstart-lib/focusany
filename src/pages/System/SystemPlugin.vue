@@ -263,7 +263,7 @@ const doInstallStore = async () => {
                     v-for="(r, rIndex) in recordsFilter"
                     class="flex items-center rounded-lg cursor-pointer select-none p-2 hover:bg-gray-100 dark:hover:bg-gray-600 relative"
                     @click="doActivePlugin(rIndex)"
-                    :class="recordCurrent?.name === r.name ? 'bg-gray-200 dark:bg-gray-700' : ''"
+                    :class="recordCurrent?.name === r.name ? 'bg-gray-200 dark:bg-gray-700 text-primary' : ''"
                 >
                     <div class="w-7 rounded-lg mr-2">
                         <img
@@ -303,10 +303,16 @@ const doInstallStore = async () => {
                         <div class="flex-grow"></div>
                     </div>
                     <div class="flex items-center mb-1">
-                        <div class="text-gray-400 text-xs mr-2" v-if="recordCurrent.type !== PluginType.SYSTEM">
+                        <div
+                            class="text-gray-500 dark:text-gray-400 text-xs mr-2"
+                            v-if="recordCurrent.type !== PluginType.SYSTEM"
+                        >
                             {{ recordCurrent.name }}
                         </div>
-                        <div class="text-gray-400 text-xs mr-2" v-if="recordCurrent.type !== PluginType.SYSTEM">
+                        <div
+                            class="text-gray-500 dark:text-gray-400 text-xs mr-2"
+                            v-if="recordCurrent.type !== PluginType.SYSTEM"
+                        >
                             v{{ recordCurrent.version }}
                         </div>
                         <a-tooltip :content="$t('plugin.localPlugin', { path: recordCurrent.runtime?.root })">
@@ -319,7 +325,7 @@ const doInstallStore = async () => {
                         </a-tooltip>
                         <div class="flex-grow"></div>
                     </div>
-                    <div class="text-gray-400 text-sm w-full truncate">
+                    <div class="text-gray-500 dark:text-gray-400 text-sm w-full truncate">
                         {{ recordCurrent.description }}
                     </div>
                 </div>

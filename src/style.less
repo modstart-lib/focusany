@@ -149,8 +149,12 @@ body[data-theme="dark"] {
 /////////// global start ///////////
 
 .text-link {
-    color: #007bff;
+    color: var(--color-primary);
     cursor: pointer;
+
+    &:hover {
+        text-decoration: underline;
+    }
 }
 
 .hover\:text-primary {
@@ -165,6 +169,14 @@ body[data-theme="dark"] {
 
 .bg-primary {
     background-color: var(--color-primary);
+}
+
+.bg-primary-soft {
+    background-color: rgba(38, 91, 215, 0.08);
+}
+
+.hover\:bg-primary-soft:hover {
+    background-color: rgba(38, 91, 215, 0.08);
 }
 
 .text-default {
@@ -191,8 +203,37 @@ body[data-theme="dark"] {
 
 
 /////////// arco start ///////////
+.arco-modal-wrapper {
+    box-sizing: border-box;
+    padding: 48px 0;
+}
+
+.arco-modal-wrapper .arco-modal {
+    top: 0;
+}
+
+.arco-modal-wrapper.arco-modal-wrapper-align-center::after {
+    height: 0;
+}
+
+.arco-modal-wrapper.arco-modal-wrapper-align-center .arco-modal {
+    vertical-align: top;
+}
+
+.arco-modal-body {
+    overflow: visible;
+}
+
 .arco-btn, .arco-input-wrapper, .arco-textarea-wrapper, .arco-input-tag, .arco-radio-group-button, .arco-alert {
     border-radius: 0.5rem;
+}
+
+.arco-btn-primary.arco-btn-disabled,
+.arco-btn-primary[type='button'].arco-btn-disabled,
+.arco-btn-primary[type='submit'].arco-btn-disabled {
+    color: var(--color-text-3);
+    background-color: var(--color-fill-3);
+    border: 1px solid transparent;
 }
 
 .arco-tabs-tab-title {
@@ -243,4 +284,3 @@ body[data-theme="dark"] {
     }
 }
 /////////// arco end ///////////
-

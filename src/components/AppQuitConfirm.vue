@@ -50,7 +50,7 @@ defineExpose({
 <template>
     <a-modal
         v-model:visible="visible"
-        width="22rem"
+        width="min(400px, 95vw)"
         :modal-class="['pb-app-quit-confirm', 'pb-modal-header-compact']"
         :closable="false"
         title-align="start"

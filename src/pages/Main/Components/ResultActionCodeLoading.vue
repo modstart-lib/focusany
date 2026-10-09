@@ -7,7 +7,7 @@
                 ></div>
                 <img class="w-10 h-10 opacity-50 mx-auto" src="./../../../assets/image/search-icon.svg" />
             </div>
-            <div class="text-gray-400">{{ $t('main.loading') }}</div>
+            <div class="text-gray-500 dark:text-gray-400">{{ $t('main.loading') }}</div>
         </div>
     </div>
 </template>

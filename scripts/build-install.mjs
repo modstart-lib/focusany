@@ -1,7 +1,7 @@
 /**
- * build-and-install.mjs — Build and install FocusAny on the current system.
+ * build-install.mjs — Build and install FocusAny on the current system.
  *
- * Usage: node scripts/build-and-install.mjs
+ * Usage: node scripts/build-install.mjs
  *
  * Flow:
  *   1. Kill running FocusAny processes

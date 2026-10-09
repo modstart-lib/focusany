@@ -7,6 +7,7 @@ export const AppEnv = {
     appData: null as string,
     userData: null as string,
     dataRoot: null as string,
+    dataRootDefault: null as string,
 }
 
 export const AppRuntime = {

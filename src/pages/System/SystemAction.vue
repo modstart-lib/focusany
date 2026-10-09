@@ -124,12 +124,12 @@ const doPin = async (action: ActionRecord) => {
 <template>
     <div class="flex h-full">
         <div class="w-64 flex-shrink-0 border-r border-default p-1 h-full overflow-y-auto">
-            <div class="p-2 text-gray-400 font-bold">{{ $t('action.builtin') }}</div>
+            <div class="p-2 text-gray-500 dark:text-gray-400 font-bold">{{ $t('action.builtin') }}</div>
             <template v-for="(p, pIndex) in records">
                 <div
                     v-if="['system', 'store', 'workflow', 'app'].includes(p.name)"
                     class="flex items-center rounded-lg cursor-pointer select-none p-2 hover:bg-gray-100 dark:hover:bg-gray-600"
-                    :class="pIndex === recordCurrentIndex ? 'bg-gray-200 dark:bg-gray-700' : ''"
+                    :class="pIndex === recordCurrentIndex ? 'bg-gray-200 dark:bg-gray-700 text-primary' : ''"
                     @click="doActivePlugin(pIndex)"
                 >
                     <div class="w-7 rounded-lg mr-2">
@@ -143,12 +143,12 @@ const doPin = async (action: ActionRecord) => {
                     </div>
                 </div>
             </template>
-            <div class="p-2 text-gray-400 font-bold">{{ $t('action.plugin') }}</div>
+            <div class="p-2 text-gray-500 dark:text-gray-400 font-bold">{{ $t('action.plugin') }}</div>
             <template v-for="(p, pIndex) in records">
                 <div
                     v-if="!['system', 'store', 'workflow', 'app', 'file'].includes(p.name)"
                     class="flex items-center rounded-lg cursor-pointer select-none p-2 hover:bg-gray-100 dark:hover:bg-gray-600"
-                    :class="pIndex === recordCurrentIndex ? 'bg-gray-200 dark:bg-gray-700' : ''"
+                    :class="pIndex === recordCurrentIndex ? 'bg-gray-200 dark:bg-gray-700 text-primary' : ''"
                     @click="doActivePlugin(pIndex)"
                 >
                     <div class="w-8 rounded-lg mr-2">

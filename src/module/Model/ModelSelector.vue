@@ -104,15 +104,15 @@ defineExpose({
                 <div class="flex items-center gap-0.5 ml-2">
                     <IconImage
                         v-if="selectedModel.caps?.vision"
-                        class="text-gray-400 w-3 h-3"
+                        class="text-gray-500 dark:text-gray-400 w-3 h-3"
                         :title="$t('model.capVision')"
                     />
                     <IconWrench
                         v-if="selectedModel.caps?.tools"
-                        class="text-gray-400 w-3 h-3"
+                        class="text-gray-500 dark:text-gray-400 w-3 h-3"
                         :title="$t('model.capTools')"
                     />
-                    <span v-if="selectedModel.rate != null" class="text-xs text-gray-400 ml-0.5"
+                    <span v-if="selectedModel.rate != null" class="text-xs text-gray-500 dark:text-gray-400 ml-0.5"
                         >×{{ selectedModel.rate }}</span
                     >
                 </div>
@@ -137,9 +137,19 @@ defineExpose({
                     <div>{{ p.modelName }}</div>
                 </div>
                 <div class="flex items-center gap-0.5 ml-2">
-                    <IconImage v-if="p.caps?.vision" class="text-gray-400 w-3 h-3" :title="$t('model.capVision')" />
-                    <IconWrench v-if="p.caps?.tools" class="text-gray-400 w-3 h-3" :title="$t('model.capTools')" />
-                    <span v-if="p.rate != null" class="text-xs text-gray-400 ml-0.5">×{{ p.rate }}</span>
+                    <IconImage
+                        v-if="p.caps?.vision"
+                        class="text-gray-500 dark:text-gray-400 w-3 h-3"
+                        :title="$t('model.capVision')"
+                    />
+                    <IconWrench
+                        v-if="p.caps?.tools"
+                        class="text-gray-500 dark:text-gray-400 w-3 h-3"
+                        :title="$t('model.capTools')"
+                    />
+                    <span v-if="p.rate != null" class="text-xs text-gray-500 dark:text-gray-400 ml-0.5"
+                        >×{{ p.rate }}</span
+                    >
                 </div>
             </div>
         </a-option>

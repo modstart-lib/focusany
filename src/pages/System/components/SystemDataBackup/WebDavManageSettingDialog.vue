@@ -57,7 +57,7 @@ defineExpose({
             <a-button type="primary" size="small" @click="doSubmit"> {{ $t('common.save') }} </a-button>
             <a-button size="small" @click="visible = false"> {{ $t('common.close') }} </a-button>
         </template>
-        <div class="h-64">
+        <div>
             <a-form :model="{}">
                 <a-form-item label="URL">
                     <a-input v-model:model-value="formData.url" placeholder="https://" />
@@ -74,7 +74,7 @@ defineExpose({
                 <a-form-item :label="$t('backup.fileFormat')">
                     <a-input v-model:model-value="formData.filePattern" />
                     <template #help>
-                        <div class="text-gray-400">
+                        <div class="text-gray-500 dark:text-gray-400">
                             {{ $t('backup.placeholderSupport') }} {year} {month} {day} {hour} {minute} {second}
                         </div>
                     </template>

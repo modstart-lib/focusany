@@ -39,7 +39,7 @@ defineExpose({
 <template>
     <a-modal
         v-model:visible="visible"
-        width="30rem"
+        width="min(480px, 95vw)"
         :esc-to-close="false"
         :mask-closable="false"
         title-align="start"
@@ -53,7 +53,7 @@ defineExpose({
             <a-button @click="visible = false">{{ $t('common.cancel') }}</a-button>
             <a-button type="primary" @click="doSubmit">{{ $t('common.confirm') }}</a-button>
         </template>
-        <div style="max-height: 50vh" class="overflow-y-auto">
+        <div>
             <a-form :model="data" label-align="left" class="mt-4">
                 <a-form-item :label="$t('video.providerName')" name="title">
                     <a-input v-model:model-value="data.title" :placeholder="$t('video.providerName')" />

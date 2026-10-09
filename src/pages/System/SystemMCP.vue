@@ -44,7 +44,7 @@ onUnmounted(() => {
             </div>
             <div class="font-bold mb-4">MCP Tools</div>
             <div class="mb-4">
-                <div v-if="tools.length === 0" class="text-center py-2 text-gray-400 mb-2">
+                <div v-if="tools.length === 0" class="text-center py-2 text-gray-500 dark:text-gray-400 mb-2">
                     <icon-empty />
                     {{ $t('mcp.noTools') }}
                 </div>

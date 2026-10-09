@@ -42,7 +42,7 @@ const typeTitle = (type: WorkflowNodeField['type']) => {
             <div v-for="field in fields" :key="field.name">
                 <div class="mb-2 flex items-center justify-between gap-2">
                     <div class="min-w-0 truncate text-sm text-gray-700">{{ field.title || field.name }}</div>
-                    <div class="shrink-0 text-xs text-gray-400">{{ field.name }}</div>
+                    <div class="shrink-0 text-xs text-gray-500 dark:text-gray-400">{{ field.name }}</div>
                 </div>
                 <a-switch v-if="field.type === 'boolean'" v-model="field.value" />
                 <a-input-number v-else-if="field.type === 'number'" v-model="field.value" class="w-full" />
@@ -59,12 +59,12 @@ const typeTitle = (type: WorkflowNodeField['type']) => {
             <div
                 v-for="field in fields"
                 :key="field.name"
-                class="flex cursor-pointer items-center justify-between gap-3 rounded bg-gray-50 px-3 py-2 hover:bg-blue-50"
+                class="flex cursor-pointer items-center justify-between gap-3 rounded bg-gray-50 px-3 py-2 hover:bg-primary-soft"
                 @click="doCopyOutputToken(field)"
             >
                 <div class="min-w-0">
                     <div class="truncate text-sm font-bold text-gray-700">{{ field.title || field.name }}</div>
-                    <div class="truncate text-xs text-gray-400">{{ outputToken(field) }}</div>
+                    <div class="truncate text-xs text-gray-500 dark:text-gray-400">{{ outputToken(field) }}</div>
                 </div>
                 <a-tag class="shrink-0">{{ typeTitle(field.type) }}</a-tag>
             </div>

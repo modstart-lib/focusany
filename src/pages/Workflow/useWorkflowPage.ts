@@ -600,6 +600,25 @@ export const useWorkflowPage = () => {
             return { before, after: edges.value.length }
         })
         testActionSet('pageWorkflow.getState', toState)
+        // 截图 prepare/cleanup：workflow 对应列表视图，workflow_edit 对应编辑视图
+        const waitWorkflowReady = async () => {
+            const deadline = Date.now() + 20_000
+            while (Date.now() < deadline) {
+                if ((document.body.innerText || '').length > 20) return
+                await new Promise((resolve) => setTimeout(resolve, 300))
+            }
+        }
+        testActionSet('workflow.prepare', async () => {
+            viewMode.value = 'list'
+            await waitWorkflowReady()
+        })
+        testActionSet('workflow.cleanup', () => {
+            viewMode.value = 'list'
+        })
+        testActionSet('workflow_edit.prepare', async () => {
+            viewMode.value = 'edit'
+            await waitWorkflowReady()
+        })
     })
 
     onUnmounted(() => {
@@ -629,6 +648,9 @@ export const useWorkflowPage = () => {
             'pageWorkflow.connectFirstToLast',
             'pageWorkflow.connectCommandToTrigger',
             'pageWorkflow.getState',
+            'workflow.prepare',
+            'workflow.cleanup',
+            'workflow_edit.prepare',
         ])
     })
 

@@ -91,7 +91,7 @@ const onDragDropInput = async (files: any[]) => {
                         </div>
                         <div class="flex-grow w-0 pr-10">
                             <div class="font-bold">{{ r.title }}</div>
-                            <div class="text-gray-400 truncate">{{ r.path }}</div>
+                            <div class="text-gray-500 dark:text-gray-400 truncate">{{ r.path }}</div>
                         </div>
                         <div>
                             <a-button type="primary" status="danger" @click="doDelete(rIndex)">

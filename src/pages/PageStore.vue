@@ -47,11 +47,20 @@ document.addEventListener('click', (event) => {
     webUrl.value = await window.$mapi.user.getWebEnterUrl(`/store`)
     window.__page.onBroadcast('PluginInstallProgress', installProgressCallback)
     testActionSet('pageStore.loaded', () => true)
+    // 截图 prepare：等待商店 webview 加载完成
+    testActionSet('store.prepare', async () => {
+        const deadline = Date.now() + 30_000
+        while (Date.now() < deadline) {
+            const url = web.value?.getURL?.() || ''
+            if (url.includes('/store')) return
+            await new Promise((resolve) => setTimeout(resolve, 300))
+        }
+    })
 })
 
 onBeforeUnmount(() => {
     window.__page.offBroadcast('PluginInstallProgress', installProgressCallback)
-    testActionUnset('pageStore.loaded')
+    testActionUnset(['pageStore.loaded', 'store.prepare'])
 })
 
 focusany.setSubInput(

@@ -589,6 +589,7 @@
     "setting.cudaAcceleration": "CUDA Acceleration",
     "setting.darkTheme": "Dark",
     "setting.dataConfig": "Data Config",
+    "setting.dataRootCustom": "Data Storage Path Is Customized",
     "setting.detachWindowHotkey": "Detach Window Hotkey",
     "setting.env": "Environment Settings",
     "setting.exitDirectly": "Exit Directly",

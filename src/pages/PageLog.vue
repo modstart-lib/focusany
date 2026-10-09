@@ -37,7 +37,7 @@ onUnmounted(() => {
                     {{ $t('log.openFile') }}
                 </a-button>
             </div>
-            <div class="text-gray-400 text-xs">
+            <div class="text-gray-500 dark:text-gray-400 text-xs">
                 {{ file }}
             </div>
         </div>
@@ -46,7 +46,7 @@ onUnmounted(() => {
             <div v-else>
                 <div class="text-center py-20 text-gray-300">
                     <div>
-                        <icon-info-circle class="text-5xl" />
+                        <icon-info-circle class="text-4xl" />
                     </div>
                     <div>
                         {{ $t('log.noLogs') }}

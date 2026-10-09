@@ -4,6 +4,7 @@
  *
  * 用法：node scripts/update-version.mjs 2.1.0
  *       或 make update-version VERSION=2.1.0 / make update-version 2.1.0
+ *       支持预发布版本：2.3.0-beta / 2.3.0-beta.1
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -14,8 +15,9 @@ const ROOT = path.resolve(__dirname, "..");
 
 const arg = process.argv[2] || "";
 const version = arg.replace(/^v/, "");
-if (!/^\d+\.\d+\.\d+$/.test(version)) {
-  console.error(`❌ 无效版本号 "${arg}"，需为 x.y.z 格式（如 2.1.0，可带 v 前缀）`);
+// semver: x.y.z with optional -prerelease and +build metadata
+if (!/^\d+\.\d+\.\d+(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/.test(version)) {
+  console.error(`❌ 无效版本号 "${arg}"，需为 x.y.z 格式（如 2.1.0、2.3.0-beta，可带 v 前缀）`);
   process.exit(1);
 }
 

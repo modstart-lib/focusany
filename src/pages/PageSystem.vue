@@ -15,6 +15,37 @@ const tab = ref('setting')
 const doOpenWorkflow = async () => {
     await window.$mapi.manager.openPlugin('workflow')
 }
+
+// 截图 prepare：每个 system_* 截图对应一个 tab，注册 `${name}.prepare` 供截图脚本调用
+const SYSTEM_SCREENSHOT_TABS: Record<string, { tab: string; readyText?: string[]; settleMs?: number }> = {
+    system_data: { tab: 'data' },
+    system_setting: { tab: 'setting' },
+    system_plugin: { tab: 'plugin' },
+    system_action: { tab: 'action' },
+    system_file: { tab: 'file' },
+    system_launch: { tab: 'launch' },
+    system_model: { tab: 'model', readyText: ['模型'], settleMs: 3000 },
+    system_mcp: { tab: 'mcp', readyText: ['MCP Server', 'MCP Tools'], settleMs: 4000 },
+    system_user: { tab: 'user', settleMs: 7000 },
+}
+const SYSTEM_TAB_SETTLE_MS = 4000
+
+const waitSystemTabReady = async (readyText?: string[], settleMs?: number) => {
+    const deadline = Date.now() + 20_000
+    const textReady = () => {
+        if (!readyText?.length) return true
+        const text = document.body.innerText || ''
+        return readyText.every((keyword) => text.includes(keyword))
+    }
+    while (Date.now() < deadline) {
+        if (textReady()) break
+        await new Promise((resolve) => setTimeout(resolve, 300))
+    }
+    await new Promise((resolve) => setTimeout(resolve, settleMs ?? SYSTEM_TAB_SETTLE_MS))
+}
+
+const systemScreenshotActions = Object.keys(SYSTEM_SCREENSHOT_TABS).map((name) => `${name}.prepare`)
+
 window.focusany.onPluginReady((data) => {
     const actionNameMap = {
         'page-data': 'data',
@@ -38,9 +69,16 @@ onMounted(() => {
         await new Promise((resolve) => setTimeout(resolve, 100))
     })
     testActionSet('pageSystem.openWorkflow', doOpenWorkflow)
+    for (const [name, config] of Object.entries(SYSTEM_SCREENSHOT_TABS)) {
+        testActionSet(`${name}.prepare`, async () => {
+            tab.value = config.tab
+            await nextTick()
+            await waitSystemTabReady(config.readyText, config.settleMs)
+        })
+    }
 })
 onUnmounted(() => {
-    testActionUnset(['pageSystem.switchTab', 'pageSystem.openWorkflow'])
+    testActionUnset(['pageSystem.switchTab', 'pageSystem.openWorkflow', ...systemScreenshotActions])
 })
 </script>
 
@@ -53,7 +91,9 @@ onUnmounted(() => {
                     class="flex items-center leading-10 py-1 px-1 rounded-lg cursor-pointer"
                     @click="tab = 'setting'"
                     :class="
-                        tab === 'setting' ? 'bg-gray-200 dark:bg-gray-500' : 'hover:bg-gray-100 dark:hover:bg-gray-600'
+                        tab === 'setting'
+                            ? 'bg-gray-200 dark:bg-gray-700 text-primary'
+                            : 'hover:bg-gray-100 dark:hover:bg-gray-600'
                     "
                 >
                     <img class="w-6 h-6 object-contain mr-2 ml-2 dark:invert" :src="SystemIcons.pluginSystem" />
@@ -63,7 +103,9 @@ onUnmounted(() => {
                     class="flex items-center leading-10 py-1 px-1 rounded-lg cursor-pointer"
                     @click="tab = 'plugin'"
                     :class="
-                        tab === 'plugin' ? 'bg-gray-200 dark:bg-gray-500' : 'hover:bg-gray-100 dark:hover:bg-gray-600'
+                        tab === 'plugin'
+                            ? 'bg-gray-200 dark:bg-gray-700 text-primary'
+                            : 'hover:bg-gray-100 dark:hover:bg-gray-600'
                     "
                 >
                     <img class="w-6 h-6 object-contain mr-2 ml-2 dark:invert" :src="SystemIcons.plugin" />
@@ -73,7 +115,9 @@ onUnmounted(() => {
                     class="flex items-center leading-10 py-1 px-1 rounded-lg cursor-pointer"
                     @click="tab = 'action'"
                     :class="
-                        tab === 'action' ? 'bg-gray-200 dark:bg-gray-500' : 'hover:bg-gray-100 dark:hover:bg-gray-600'
+                        tab === 'action'
+                            ? 'bg-gray-200 dark:bg-gray-700 text-primary'
+                            : 'hover:bg-gray-100 dark:hover:bg-gray-600'
                     "
                 >
                     <img class="w-6 h-6 object-contain mr-2 ml-2 dark:invert" :src="SystemIcons.command" />
@@ -83,7 +127,9 @@ onUnmounted(() => {
                     class="flex items-center leading-10 py-1 px-1 rounded-lg cursor-pointer"
                     @click="tab = 'file'"
                     :class="
-                        tab === 'file' ? 'bg-gray-200 dark:bg-gray-500' : 'hover:bg-gray-100 dark:hover:bg-gray-600'
+                        tab === 'file'
+                            ? 'bg-gray-200 dark:bg-gray-700 text-primary'
+                            : 'hover:bg-gray-100 dark:hover:bg-gray-600'
                     "
                 >
                     <img class="w-6 h-6 object-contain mr-2 ml-2 dark:invert" :src="SystemIcons.folder" />
@@ -93,7 +139,9 @@ onUnmounted(() => {
                     class="flex items-center leading-10 py-1 px-1 rounded-lg cursor-pointer"
                     @click="tab = 'launch'"
                     :class="
-                        tab === 'launch' ? 'bg-gray-200 dark:bg-gray-500' : 'hover:bg-gray-100 dark:hover:bg-gray-600'
+                        tab === 'launch'
+                            ? 'bg-gray-200 dark:bg-gray-700 text-primary'
+                            : 'hover:bg-gray-100 dark:hover:bg-gray-600'
                     "
                 >
                     <img class="w-6 h-6 object-contain mr-2 ml-2 dark:invert" :src="SystemIcons.thunder" />
@@ -103,7 +151,9 @@ onUnmounted(() => {
                     class="flex items-center leading-10 py-1 px-1 rounded-lg cursor-pointer"
                     @click="tab = 'model'"
                     :class="
-                        tab === 'model' ? 'bg-gray-200 dark:bg-gray-500' : 'hover:bg-gray-100 dark:hover:bg-gray-600'
+                        tab === 'model'
+                            ? 'bg-gray-200 dark:bg-gray-700 text-primary'
+                            : 'hover:bg-gray-100 dark:hover:bg-gray-600'
                     "
                 >
                     <img class="w-6 h-6 object-contain mr-2 ml-2 dark:invert" :src="SystemIcons.model" />
@@ -119,7 +169,11 @@ onUnmounted(() => {
                 <div
                     class="flex items-center leading-10 py-1 px-1 rounded-lg cursor-pointer"
                     @click="tab = 'mcp'"
-                    :class="tab === 'mcp' ? 'bg-gray-200 dark:bg-gray-500' : 'hover:bg-gray-100 dark:hover:bg-gray-600'"
+                    :class="
+                        tab === 'mcp'
+                            ? 'bg-gray-200 dark:bg-gray-700 text-primary'
+                            : 'hover:bg-gray-100 dark:hover:bg-gray-600'
+                    "
                 >
                     <img class="w-6 h-6 object-contain mr-2 ml-2 dark:invert" :src="SystemIcons.mcp" />
                     MCP
@@ -130,7 +184,9 @@ onUnmounted(() => {
                         class="flex items-center leading-10 py-1 px-1 rounded-lg cursor-pointer"
                         @click="tab = 'user'"
                         :class="
-                            tab === 'user' ? 'bg-gray-200 dark:bg-gray-500' : 'hover:bg-gray-100 dark:hover:bg-gray-600'
+                            tab === 'user'
+                                ? 'bg-gray-200 dark:bg-gray-700 text-primary'
+                                : 'hover:bg-gray-100 dark:hover:bg-gray-600'
                         "
                     >
                         <img class="w-6 h-6 object-contain mr-2 ml-2 dark:invert" :src="SystemIcons.user" />
@@ -140,7 +196,9 @@ onUnmounted(() => {
                         class="flex items-center leading-10 py-1 px-1 rounded-lg cursor-pointer"
                         @click="tab = 'data'"
                         :class="
-                            tab === 'data' ? 'bg-gray-200 dark:bg-gray-500' : 'hover:bg-gray-100 dark:hover:bg-gray-600'
+                            tab === 'data'
+                                ? 'bg-gray-200 dark:bg-gray-700 text-primary'
+                                : 'hover:bg-gray-100 dark:hover:bg-gray-600'
                         "
                     >
                         <img class="w-6 h-6 object-contain mr-2 ml-2 dark:invert" :src="SystemIcons.database" />
