@@ -24,6 +24,7 @@
         "dev": "vite",
         "dev:seed": "node scripts/fix-quarantine.mjs && tsx test/dev-seed.ts",
         "screenshot": "tsx test/screenshot.ts",
+    "auto-serve": "tsx test/auto-serve/index.ts",
         "dev:mac": "node scripts/kill-dev-electron.mjs; vite",
         "dev:mac:pre": "export ELECTRON_ENV_PROD=1 && node scripts/kill-dev-electron.mjs; vite",
         "dev:win": "chcp 65001 && vite",
