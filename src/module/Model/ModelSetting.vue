@@ -272,6 +272,7 @@ onUnmounted(() => {
                     <div>
                         <a-input
                             :model-value="provider.data.apiHost"
+                            :placeholder="provider.apiUrl"
                             @input="modelStore.change(provider.id, 'data.apiHost', $event)"
                             class="w-full"
                         >

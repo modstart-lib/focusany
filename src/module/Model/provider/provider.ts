@@ -15,27 +15,47 @@ export type ModelChatResult = {
     }
 }
 
+/**
+ * Normalize a base url so that it can be safely joined with an api path.
+ * - trims spaces and trailing slashes
+ * - keeps a full `.../chat/completions` endpoint as is
+ */
+const normalizeBaseUrl = (url: string) => {
+    return url.trim().replace(/\/+$/, '')
+}
+
+/**
+ * Detect whether the url already contains an api version segment,
+ * e.g. `/v1`, `/v4`, `/v1beta/openai`, `/v3/openai`, `/api/paas/v4`.
+ */
+const hasVersionSegment = (url: string) => {
+    return /\/v\d+[a-z0-9]*(\/|$)/i.test(url)
+}
+
 export const ModelProvider = {
-    apiUrl(type: ProviderType, apiUrl: string, apiHost: string = '') {
-        let url = apiUrl
-        if (apiHost) {
-            url = apiHost
-        }
-        // console.log('ModelProvider.apiUrl', {type, apiUrl, apiHost, url});
+    /**
+     * Build the chat completions endpoint.
+     *
+     * - `apiHost` (user input) takes precedence over the provider default `apiUrl`
+     * - a pasted full endpoint (`.../chat/completions`) is used as is
+     * - `apiPath` is the version prefix of the provider, `/v1` by default.
+     *   It is skipped when the url already contains a version segment, so
+     *   `https://api.siliconflow.cn/v1` does not become `/v1/v1/...`.
+     */
+    apiUrl(type: ProviderType, apiUrl: string, apiHost: string = '', apiPath: string = '/v1') {
+        let url = normalizeBaseUrl(apiHost || '') || normalizeBaseUrl(apiUrl || '')
+        if (!url) return ''
+        const path = 'chat/completions'
         switch (type) {
             case 'openai':
-                /**
-                 * 根据传入的 url 判断是否需要在其末尾加 `/v[数字]/`。
-                 * - 如果 以 `/` 结尾，则不加
-                 * - 要加：其余情况。
-                 */
-                if (url.endsWith('/')) {
-                    return `${url}chat/completions`
-                }
-                if (url.endsWith('/chat/completions')) {
+                // A pasted full endpoint (possibly with a query string, e.g. Azure) is kept as is
+                if (new RegExp(`/${path}(\\?.*)?$`, 'i').test(url)) {
                     return url
                 }
-                return `${url}/v1/chat/completions`
+                if (!apiPath || hasVersionSegment(url)) {
+                    return `${url}/${path}`
+                }
+                return `${url}${apiPath}/${path}`
         }
         throw new Error(`Unsupported provider type: ${type}`)
     },
@@ -48,6 +68,8 @@ export const ModelProvider = {
             apiUrl: string
             apiHost: string
             apiKey: string
+            /** Api version prefix appended to `apiUrl`, `/v1` by default */
+            apiPath?: string
             /** 是否启用模型推理（思考链）；false 时驱动层会附加关闭思考的参数 */
             reasoning?: boolean
             /** 最大返回 token 数（max_tokens） */
@@ -70,7 +92,7 @@ export const ModelProvider = {
             toolChoice?: LlmToolChoice
         },
     ): Promise<ModelChatResult> {
-        let url = this.apiUrl(config.type, config.apiUrl, config.apiHost)
+        let url = this.apiUrl(config.type, config.apiUrl, config.apiHost, config.apiPath)
         if (!(config.type in ModelProviderMap)) {
             return {
                 code: -1,

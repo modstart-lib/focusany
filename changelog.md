@@ -9,7 +9,14 @@
 - 优化：统一界面配色规范——链接、导航/列表选中态、信息高亮统一使用强调蓝，与黑色主按钮职责分离，去除官网链接、模型供应商字母头像、工作流运行中标签等处的杂色
 - 优化：提升辅助说明文字对比度（浅色下由过淡的灰色提升一档），并保证暗色模式下仍可辨识；禁用状态的主按钮改为灰底中灰字，不再过淡
 - 优化：统一弹窗宽度为「像素上限 + 95vw 视口上限」，小窗口下不再溢出
+- 优化：大模型「API地址」输入框显示默认地址占位，留空即使用默认值
+- 优化：更新 OpenAI、Gemini、Anthropic、硅基流动、MiniMax 的默认模型列表为当前可用模型
+- 优化：移除已停止服务或无法使用普通 API Key 调用的模型供应商（GitHub Models、GitHub Copilot、零一万物、Hyperbolic、Jina、Voyage AI、Azure OpenAI），避免选中后调用必然失败
 - 修复：内置大模型额度不足时，部分错误码（insufficient_quota）未提示能量不足、未自动跳转充值页的问题
+- 修复：大模型供应商 API 地址拼接错误导致调用 404 的问题——填写带 `/v1` 的地址（如 `https://api.siliconflow.cn/v1`）会拼成 `/v1/v1/chat/completions`，带尾斜杠的地址会丢掉版本前缀；现在域名、带 `/v1`、带尾斜杠、以及完整 `.../chat/completions` 地址均可正确识别
+- 修复：Gemini、Anthropic、Perplexity、MiniMax 等供应商默认接口地址错误（Gemini 缺少 `/v1beta/openai` 兼容前缀、Anthropic 缺少 `/v1`、Perplexity 被错误追加 `/v1`、MiniMax 使用了旧域名）导致即使 Key 正确也无法调用的问题
+- 修复：阿里云百炼供应商模型列表为空的问题（模型配置 key 与供应商 id 不一致）
+- 修复：大模型列表中混入 embedding / rerank 模型、选中后对话必然失败的问题
 
 ## v2.2.0 大模型多模态上线，SDK CLI 能力全面升级
 
