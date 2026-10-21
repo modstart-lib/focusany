@@ -295,6 +295,11 @@ app.on('second-instance', (event, argv) => {
 })
 
 app.on('activate', () => {
+    // macOS may promote a running instance back to a foreground app when it is
+    // launched again (Finder/Spotlight/open -a), which brings the Dock icon back.
+    if (isMac) {
+        app.dock.hide()
+    }
     const allWindows = BrowserWindow.getAllWindows()
     if (allWindows.length) {
         if (!AppRuntime.mainWindow.isVisible()) {

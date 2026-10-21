@@ -109,6 +109,9 @@
         "entitlementsInherit": "./entitlements.mac.plist",
         "entitlements": "./entitlements.mac.plist",
         "extendInfo": {
+            // Menu bar (tray) app: never show a Dock icon, even when LaunchServices
+            // re-activates a running instance (e.g. opening the app again from Finder).
+            "LSUIElement": true,
             "LSApplicationCategoryType": "public.app-category.utilities",
             "NSDocumentsFolderUsageDescription": "Application requests access to the user's Documents folder.",
             "NSDownloadsFolderUsageDescription": "Application requests access to the user's Downloads folder.",
