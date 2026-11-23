@@ -71,7 +71,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
             sudo apt-get update
-            sudo apt-get install -y build-essential pkg-config
+            sudo apt-get install -y build-essential pkg-config libx11-dev libxrandr-dev libxtst-dev libxt-dev
 
       - name: Build Prepare (macOS)
         if: runner.os == 'macOS'
@@ -139,7 +139,8 @@ jobs:
         working-directory: code
         shell: pwsh
         run: |
-          npm install
+          npm install --ignore-scripts
+          npx electron-builder install-app-deps
 
       - name: init ( Linux/macOS )
         if: runner.os == 'Linux' || runner.os == 'macOS'
