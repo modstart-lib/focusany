@@ -603,7 +603,14 @@ ipcMain.on(
     ) => {
         const view = getViewByEvent(event)
         const { type, data } = payload
-        ManagerPluginEvent[type](view, data)
+        const result = ManagerPluginEvent[type](view, data)
+        // Clipboard getters answer from the main-process snapshot and must reply
+        // synchronously, otherwise ipcRenderer.sendSync receives undefined.
+        if (!result || typeof result.then !== 'function') {
+            event.returnValue = result
+            return
+        }
+        result
             .then((result) => {
                 event.returnValue = result
             })

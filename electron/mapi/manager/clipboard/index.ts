@@ -4,7 +4,7 @@ import { Files } from '../../file/main'
 import { EncodeUtil, FileUtil, sleep, StrUtil, TimeUtil } from '../../../lib/util'
 import StorageMain from '../../storage/main'
 import { getClipboardFiles, setClipboardFiles } from './clipboardFiles'
-import { clipboard } from 'electron'
+import { app, clipboard } from 'electron'
 import { isMac } from '../../../lib/env'
 import { KeyboardKey, ManagerHotkeySimulate } from '../hotkey/simulate'
 import { ManagerPluginEvent } from '../plugin/event'
@@ -21,12 +21,18 @@ export const ManagerClipboard = {
     encryptKey: null,
     clipboardBusy: false,
     clipboardBackupData: null as ClipboardDataType | null,
+    // Mirror of the last known clipboard content, kept by the 1s poller so the
+    // plugin sync API (ipcRenderer.sendSync) can answer without awaiting.
+    snapshot: null as ClipboardDataType | null,
     async init() {
         this.encryptKey = await StorageMain.get('clipboard', 'encryptKey', null)
         if (!this.encryptKey) {
             this.encryptKey = StrUtil.randomString(16)
             await StorageMain.set('clipboard', 'encryptKey', this.encryptKey)
         }
+        // The Electron 44+ async clipboard API must not be touched before the app
+        // is ready, otherwise the main process crashes.
+        await app.whenReady()
         this.monitorStart()
         // console.log('all', await this.list())
     },
@@ -72,21 +78,21 @@ export const ManagerClipboard = {
         }
     },
     async _getClipboardContent(): Promise<ClipboardDataType | null> {
-        const files = getClipboardFiles()
+        const files = await getClipboardFiles()
         if (files.length) {
             return {
                 type: 'file',
                 files: files,
             } as ClipboardDataType
         }
-        const image = AppsMain.getClipboardImage()
+        const image = await AppsMain.getClipboardImage()
         if (image) {
             return {
                 type: 'image',
                 image: image,
             } as ClipboardDataType
         }
-        const text = AppsMain.getClipboardText()
+        const text = await AppsMain.getClipboardText()
         if (text) {
             return {
                 type: 'text',
@@ -108,6 +114,7 @@ export const ManagerClipboard = {
     async getClipboardContent(): Promise<ClipboardDataType | null> {
         await this.waitClipboardFree()
         const content = await this._getClipboardContent()
+        this.snapshot = content
         this.watchNextTime = Date.now() + this.interval
         const contentJson = JSON.stringify(content)
         if (null == this.lastContentJson || contentJson !== this.lastContentJson) {
@@ -118,6 +125,15 @@ export const ManagerClipboard = {
             this.onChange(content).then()
         }
         return content
+    },
+    snapshotText(): string {
+        return this.snapshot && 'text' === this.snapshot.type ? this.snapshot.text : ''
+    },
+    snapshotImage(): string {
+        return this.snapshot && 'image' === this.snapshot.type ? this.snapshot.image : ''
+    },
+    snapshotFiles(): FileItem[] {
+        return this.snapshot && 'file' === this.snapshot.type ? this.snapshot.files : []
     },
     _watch() {
         if (this.watchNextTime > Date.now()) {

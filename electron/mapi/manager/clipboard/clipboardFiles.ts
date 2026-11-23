@@ -1,61 +1,44 @@
-import { clipboard } from 'electron'
-import plist from 'plist'
+import { clipboard, ClipboardItem } from 'electron'
 import fs from 'fs'
 import path from 'path'
-import ofs from 'original-fs'
-import { isLinux, isMac, isWin } from '../../../lib/env'
+import { fileURLToPath, pathToFileURL } from 'url'
 
-let electronClipboardEx = null
-if (isMac || isWin) {
-    ;(async () => {
-        try {
-            electronClipboardEx = await import('electron-clipboard-ex')
-            electronClipboardEx = electronClipboardEx.default
-        } catch (e) {}
-    })()
-}
-
-export const getClipboardFiles = (): FileItem[] => {
-    let fileInfo: any
-    if (isMac) {
-        if (!clipboard.has('NSFilenamesPboardType')) {
-            return []
-        }
-        const result = clipboard.read('NSFilenamesPboardType')
-        if (!result) {
-            return []
-        }
-        try {
-            fileInfo = plist.parse(result)
-        } catch (e) {
-            return []
-        }
-    } else if (isWin) {
-        try {
-            /* eslint-disable */
-            fileInfo = electronClipboardEx.readFilePaths()
-        } catch (e) {
-            // todo
-        }
-    } else if (isLinux) {
-        if (!clipboard.has('text/uri-list')) {
-            return []
-        }
-        const result = clipboard.read('text/uri-list').match(/^file:\/\/\/.*/gm)
-        if (!result || !result.length) {
-            return []
-        }
-        fileInfo = result.map((e) => decodeURIComponent(e).replace(/^file:\/\//, ''))
-    }
-    if (!Array.isArray(fileInfo)) {
+// Electron 44+ maps the `text/uri-list` MIME type to the native file-reference
+// format of every platform (NSFilenamesPboardType / CF_HDROP / text/uri-list),
+// so file clipboard read and write no longer need per-platform implementations.
+export const getClipboardFiles = async (): Promise<FileItem[]> => {
+    if (!(await clipboard.has('text/uri-list'))) {
         return []
     }
-    const target: any = fileInfo
-        .map((p) => {
+    let content = ''
+    try {
+        const items = await clipboard.read()
+        for (const item of items) {
+            if (!item.types.includes('text/uri-list')) {
+                continue
+            }
+            content = await (await item.getType('text/uri-list')).text()
+            break
+        }
+    } catch (e) {
+        return []
+    }
+    const uris = content
+        .split(/\r?\n/)
+        .map((line) => line.trim())
+        .filter((line) => line && !line.startsWith('#'))
+    const target: any = uris
+        .map((uri) => {
+            let p: string
+            try {
+                p = fileURLToPath(uri)
+            } catch (e) {
+                return false
+            }
             if (!fs.existsSync(p)) return false
             let info
             try {
-                info = ofs.lstatSync(p)
+                info = fs.lstatSync(p)
             } catch (e) {
                 return false
             }
@@ -75,16 +58,10 @@ export const getClipboardFiles = (): FileItem[] => {
     return target.length ? target : []
 }
 
-export const setClipboardFiles = (files: string[]) => {
+export const setClipboardFiles = async (files: string[]): Promise<void> => {
     if (!files || !files.length) {
         return
     }
-    if (isMac) {
-        clipboard.writeBuffer('NSFilenamesPboardType', Buffer.from(plist.build(files)))
-    } else if (isWin) {
-        electronClipboardEx.writeFilePaths(files)
-    } else if (isLinux) {
-        // @ts-ignore
-        clipboard.write('text/uri-list', files.map((e) => `file://${e}`).join('\n'))
-    }
+    const uris = files.map((file) => pathToFileURL(file).toString())
+    await clipboard.write([new ClipboardItem({ 'text/uri-list': uris.join('\r\n') })])
 }

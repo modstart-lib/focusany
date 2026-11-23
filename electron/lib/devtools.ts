@@ -27,7 +27,7 @@ export const DevToolsManager = {
             height,
             title: name,
         })
-        devtools.on('closed', (e) => {
+        devtools.on('closed', () => {
             // console.log('DevToolsManager', 'close', name)
             this.windows.delete(win)
         })

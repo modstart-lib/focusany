@@ -234,6 +234,7 @@ type DefsMapi = {
         ) => Promise<any[]>
     }
     file: {
+        getPathForFile: (file: File) => string
         fullPath: (path: string) => Promise<string>
         exists: (path: string, option?: { isDataPath?: boolean }) => Promise<boolean>
         isDirectory: (path: string, option?: { isDataPath?: boolean }) => Promise<boolean>

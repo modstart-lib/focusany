@@ -39,7 +39,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
 
       - name: Setup Go
         uses: actions/setup-go@v5
@@ -56,20 +56,6 @@ jobs:
         if: runner.os == 'macOS'
         run: |
             brew install python-setuptools
-
-      - name: Install fpm (Linux arm64)
-        if: runner.os == 'Linux' && runner.arch == 'ARM64'
-        run: |
-          sudo apt-get install -y ruby ruby-dev rubygems
-          sudo gem install fpm
-          # Replace cached x86 fpm with symlink to native arm64 system fpm
-          # (electron-builder always uses cached fpm, so we override it)
-          FPM_PATH=$(which fpm)
-          echo "System fpm: $FPM_PATH"
-          CACHE_DIR="$HOME/.cache/electron-builder/fpm/fpm-1.9.3-2.3.1-linux-x86"
-          rm -rf "$CACHE_DIR"
-          mkdir -p "$CACHE_DIR"
-          ln -sf "$FPM_PATH" "$CACHE_DIR/fpm"
 
       - name: Cert Prepare (macOS)
         if: runner.os == 'macOS'
@@ -102,9 +88,7 @@ jobs:
       - name: Install Dependencies (Linux/macOS)
         if: runner.os == 'Linux' || runner.os == 'macOS'
         run: |
-            npm install --ignore-scripts
-            rm -rf node_modules/canvas
-            npx electron-builder install-app-deps
+            npm install
 
       - name: Configure Windows build environment
         if: runner.os == 'Windows'
@@ -133,9 +117,7 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-            npm install --ignore-scripts
-            if (Test-Path node_modules\canvas) { Remove-Item -Recurse -Force node_modules\canvas }
-            npx electron-builder install-app-deps
+            npm install
 
       - name: Build Release Files
         run: npm run build

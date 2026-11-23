@@ -1,4 +1,4 @@
-import { app, BrowserView, BrowserWindow, clipboard, dialog, nativeImage, Notification, screen, shell } from 'electron'
+import { app, BrowserView, BrowserWindow, dialog, nativeImage, Notification, screen, shell } from 'electron'
 import fs from 'fs'
 import { AppConfig } from '../../../../src/config'
 import { CommonConfig } from '../../../config/common'
@@ -19,7 +19,7 @@ import { Log } from '../../log/main'
 import User, { UserApi } from '../../user/main'
 import { ManagerAutomation } from '../automation'
 import { ManagerClipboard } from '../clipboard'
-import { getClipboardFiles, setClipboardFiles } from '../clipboard/clipboardFiles'
+import { setClipboardFiles } from '../clipboard/clipboardFiles'
 import { ManagerConfig } from '../config/config'
 import { ManagerHotkeySimulate } from '../hotkey/simulate'
 import { executeHooks, executePluginHooks } from '../lib/hooks'
@@ -299,7 +299,7 @@ export const ManagerPluginEvent = {
         }
         return false
     },
-    copyImage: async (context: PluginContext, data: any) => {
+    copyImage: (context: PluginContext, data: any) => {
         const { image } = data
         let imageData
         if (image.startsWith('data:image/')) {
@@ -307,30 +307,32 @@ export const ManagerPluginEvent = {
         } else {
             imageData = nativeImage.createFromPath(image)
         }
-        clipboard.writeImage(imageData)
+        AppsMain.setClipboardNativeImage(imageData).then()
+        return true
     },
-    copyText: async (context: PluginContext, data: any) => {
-        clipboard.writeText(String(data.text))
+    copyText: (context: PluginContext, data: any) => {
+        AppsMain.setClipboardText(String(data.text)).then()
+        return true
     },
-    copyFile: async (context: PluginContext, data: any) => {
+    copyFile: (context: PluginContext, data: any) => {
         let { file } = data
         if (file) {
             if (!Array.isArray(file)) {
                 file = [file]
             }
-            setClipboardFiles(file)
+            setClipboardFiles(file).then()
             return true
         }
         return false
     },
-    getClipboardText: async (context: PluginContext, data: any) => {
-        return AppsMain.getClipboardText()
+    getClipboardText: (context: PluginContext, data: any) => {
+        return ManagerClipboard.snapshotText()
     },
-    getClipboardImage: async (context: PluginContext, data: any) => {
-        return AppsMain.getClipboardImage()
+    getClipboardImage: (context: PluginContext, data: any) => {
+        return ManagerClipboard.snapshotImage()
     },
-    getClipboardFiles: async (context: PluginContext, data: any) => {
-        return getClipboardFiles()
+    getClipboardFiles: (context: PluginContext, data: any) => {
+        return ManagerClipboard.snapshotFiles()
     },
     listClipboardItems: async (context: PluginContext, data: any) => {
         if (!ManagerPluginPermission.checkPermit(context._plugin, 'ClipboardManage')) {

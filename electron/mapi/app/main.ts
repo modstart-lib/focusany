@@ -1,4 +1,14 @@
-import { app, BrowserWindow, clipboard, ipcMain, nativeImage, nativeTheme, screen, shell } from 'electron'
+import {
+    app,
+    BrowserWindow,
+    clipboard,
+    ClipboardItem,
+    ipcMain,
+    nativeImage,
+    nativeTheme,
+    screen,
+    shell,
+} from 'electron'
 import { AppConfig } from '../../../src/config'
 import { CommonConfig } from '../../config/common'
 import { WindowConfig } from '../../config/window'
@@ -219,38 +229,60 @@ ipcMain.handle(
     },
 )
 
-const getClipboardText = () => {
-    return clipboard.readText('clipboard')
+// Electron 44+ clipboard API is async and W3C aligned: text via readText/writeText,
+// images via ClipboardItem with an `image/png` Blob.
+const getClipboardText = async (): Promise<string> => {
+    return await clipboard.readText()
 }
 
-ipcMain.handle('app:getClipboardText', (event) => {
-    return getClipboardText()
+ipcMain.handle('app:getClipboardText', async (event) => {
+    return await getClipboardText()
 })
 
-const setClipboardText = (text: string) => {
-    clipboard.writeText(text, 'clipboard')
+const setClipboardText = async (text: string): Promise<void> => {
+    await clipboard.writeText(text)
 }
 
-ipcMain.handle('app:setClipboardText', (event, text: string) => {
-    setClipboardText(text)
+ipcMain.handle('app:setClipboardText', async (event, text: string) => {
+    await setClipboardText(text)
 })
 
-const getClipboardImage = () => {
-    const image = clipboard.readImage('clipboard')
-    return image.isEmpty() ? '' : image.toDataURL()
+const getClipboardImage = async (): Promise<string> => {
+    const items = await clipboard.read()
+    for (const item of items) {
+        const type = item.types.find((t) => t.startsWith('image/'))
+        if (!type) {
+            continue
+        }
+        const blob = (await item.getType(type)) as Blob
+        const buffer = Buffer.from(await blob.arrayBuffer())
+        if ('image/png' === type) {
+            return `data:image/png;base64,${buffer.toString('base64')}`
+        }
+        const image = nativeImage.createFromBuffer(buffer)
+        return image.isEmpty() ? '' : image.toDataURL()
+    }
+    return ''
 }
 
-ipcMain.handle('app:getClipboardImage', (event) => {
-    return getClipboardImage()
+ipcMain.handle('app:getClipboardImage', async (event) => {
+    return await getClipboardImage()
 })
 
-const setClipboardImage = (image: string) => {
-    const img = nativeImage.createFromDataURL(image)
-    clipboard.writeImage(img, 'clipboard')
+const setClipboardNativeImage = async (image: Electron.NativeImage): Promise<void> => {
+    if (!image || image.isEmpty()) {
+        return
+    }
+    const png = image.toPNG()
+    await clipboard.write([new ClipboardItem({ 'image/png': new Blob([png], { type: 'image/png' }) })])
 }
 
-ipcMain.handle('app:setClipboardImage', (event, image: string) => {
-    setClipboardImage(image)
+const setClipboardImage = async (image: string): Promise<void> => {
+    await setClipboardNativeImage(nativeImage.createFromDataURL(image))
+}
+
+ipcMain.handle('app:setClipboardImage', async (event, image: string) => {
+    await setClipboardImage(image)
 })
 
 const isDarkMode = () => {
@@ -448,6 +480,7 @@ export const AppsMain = {
     setClipboardText,
     getClipboardImage,
     setClipboardImage,
+    setClipboardNativeImage,
     getCurrentScreenDisplay,
     calcPositionInCurrentDisplay,
     toast,

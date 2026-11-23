@@ -2,6 +2,11 @@
 
 ## unreleased
 
+- 优化：升级应用运行内核到当前最新版本，提升新系统兼容性并包含最新安全修复，界面与功能保持不变
+- 优化：系统兼容下限调整为 macOS 13+、Windows 10+ 与 64 位系统（不再支持 32 位 Windows 与 macOS 12 及更早系统）
+- 优化：初始化脚本 `scripts/init.sh` 默认只下载当前平台/架构所需的二进制文件——改用 partial clone（`--filter=blob:none`）配合 sparse-checkout 按需拉取，不再克隆整仓约 1.2 GB；支持 `--arch`（指定平台目录）、`--all`（发布取全部平台）、`--fresh`（重建克隆）、`--offline`（只用本地文件），并把 `share-binary/` 加入忽略列表
+- 修复：Windows（Git Bash / MSYS）下初始化脚本取不到二进制、报「缺少 share-binary/…」的问题——sparse-checkout 规则改为经 stdin 传入，不再让以 `/` 开头的参数被改写成 Windows 路径；失败时日志会打印当前生效的规则
+- 修复：日志查看器打开时从顶部滚动到底部的问题——首次加载直接定位到末尾，后续新增日志才使用平滑滚动
 - 修复：macOS 下 Dock 图标未隐藏的问题——应用声明为菜单栏（tray）程序（`LSUIElement`），重新打开已在运行的实例时也不会再把 Dock 图标显示出来
 
 ## v2.3.0 运行诊断日志上线，配色与弹窗体验统一

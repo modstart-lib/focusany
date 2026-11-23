@@ -43,5 +43,9 @@ _temp/
 /storage/screenshot/image
 /storage/screenshot-last/image
 /storage/test-project/
+/share-binary/
 /DEV_*.md
 /.env
+
+# mk evidence
+/.mk-evidence/
