@@ -436,34 +436,40 @@ var pluginEvalFile string
 // --- eval (execute JS in the plugin's window) ------------------------------
 
 var pluginEvalCmd = &cobra.Command{
-	Use:   "eval <name> <script>",
+	Use:   "eval <name> [script]",
 	Short: "Execute JS in a running plugin's window and print the result",
 	Long: "Execute a JavaScript expression inside the plugin's currently open " +
 		"window (detach → main view) and print the JSON-safe result. The script " +
 		"runs inside an async wrapper, so `await` is allowed and thrown errors " +
 		"are reported as PluginEvalScriptError.\n\n" +
-		"Script can be given inline or via --file. Results that are strings are " +
-		"printed raw; other values are printed as JSON.\n\n" +
+		"Script can be given inline or via --file (with --file the inline argument " +
+		"may be omitted). Results that are strings are printed raw; other values " +
+		"are printed as JSON.\n\n" +
 		"Examples:\n" +
 		"  focusany plugin eval Nat \"document.querySelectorAll('.card').length\"\n" +
 		"  focusany plugin eval Nat --file tests/ui-state.js",
-	Args: cobra.ExactArgs(2),
+	Args: cobra.RangeArgs(1, 2),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		cfg, err := internal.LoadAuthConfig()
-		if err != nil {
-			return err
-		}
 		name := args[0]
-		script := args[1]
+		script := ""
+		if len(args) == 2 {
+			script = args[1]
+		}
 		if pluginEvalFile != "" {
 			raw, err := os.ReadFile(pluginEvalFile)
 			if err != nil {
 				return err
 			}
 			script = string(raw)
+		} else if len(args) < 2 {
+			return fmt.Errorf("missing script: pass it inline or with --file")
 		}
 		if strings.TrimSpace(script) == "" {
 			return fmt.Errorf("empty script")
+		}
+		cfg, err := internal.LoadAuthConfig()
+		if err != nil {
+			return err
 		}
 		result, err := internal.DoRequest(cfg, "POST", "/api/plugin/eval", map[string]any{"name": name, "script": script})
 		if err != nil {

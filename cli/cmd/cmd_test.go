@@ -10,7 +10,7 @@ import (
 )
 
 // captureStdout runs f and returns captured stdout content.
-func captureStdout(f func()) string {
+func captureStdout(f func()) (out string) {
 	r, w, err := os.Pipe()
 	if err != nil {
 		panic(err)
@@ -18,15 +18,19 @@ func captureStdout(f func()) string {
 	stdout := os.Stdout
 	os.Stdout = w
 
+	// Restore stdout and collect the output even when f calls t.Fatalf
+	// (runtime.Goexit) or panics.
+	defer func() {
+		os.Stdout = stdout
+		w.Close()
+		var buf bytes.Buffer
+		_, _ = io.Copy(&buf, r)
+		r.Close()
+		out = buf.String()
+	}()
+
 	f()
-
-	w.Close()
-	os.Stdout = stdout
-
-	var buf bytes.Buffer
-	io.Copy(&buf, r)
-	r.Close()
-	return buf.String()
+	return
 }
 
 func TestVersionCommand(t *testing.T) {
@@ -183,6 +187,33 @@ func TestPluginRunAcceptsOneOrTwoArgs(t *testing.T) {
 	}
 }
 
+func TestPluginEvalArgs(t *testing.T) {
+	if err := pluginEvalCmd.Args(pluginEvalCmd, []string{}); err == nil {
+		t.Fatal("eval with no args should error")
+	}
+	// A name alone is valid: the script may come from --file.
+	if err := pluginEvalCmd.Args(pluginEvalCmd, []string{"Nat"}); err != nil {
+		t.Fatalf("eval with only a name should be accepted: %v", err)
+	}
+	if err := pluginEvalCmd.Args(pluginEvalCmd, []string{"Nat", "1+1"}); err != nil {
+		t.Fatalf("eval with name+script should be accepted: %v", err)
+	}
+	if err := pluginEvalCmd.Args(pluginEvalCmd, []string{"a", "b", "c"}); err == nil {
+		t.Fatal("eval with three args should error")
+	}
+}
+
+func TestPluginEvalRequiresScript(t *testing.T) {
+	old := pluginEvalFile
+	defer func() { pluginEvalFile = old }()
+	pluginEvalFile = ""
+
+	err := pluginEvalCmd.RunE(pluginEvalCmd, []string{"Nat"})
+	if err == nil || !strings.Contains(err.Error(), "missing script") {
+		t.Fatalf("expected a missing script error, got %v", err)
+	}
+}
+
 func TestMcpSubCommands(t *testing.T) {
 	want := map[string]bool{"tools": true, "call": true}
 	for _, c := range mcpCmd.Commands() {
@@ -265,5 +296,72 @@ func TestPluginDevSubCommands(t *testing.T) {
 			names = append(names, n)
 		}
 		t.Fatalf("plugin command is missing dev subcommands: %v", names)
+	}
+}
+
+func TestSkillCommandRegistered(t *testing.T) {
+	found := false
+	for _, c := range rootCmd.Commands() {
+		if c.Name() == "skill" {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Fatal("expected 'skill' subcommand to be registered")
+	}
+	if skillCmd.Short == "" {
+		t.Fatal("skill command should have a Short description")
+	}
+	aliasNames := strings.Join(skillCmd.Aliases, ",")
+	if aliasNames != "usage,guide" {
+		t.Fatalf("skill command aliases should be usage,guide, got %q", aliasNames)
+	}
+}
+
+func TestSkillOutputCoversUsage(t *testing.T) {
+	output := captureStdout(func() {
+		if err := skillCmd.RunE(skillCmd, []string{}); err != nil {
+			t.Fatalf("skill command failed: %v", err)
+		}
+	})
+
+	for _, want := range []string{
+		"# FocusAny 使用方式",
+		"Alt + Space",
+		"focusany doctor",
+		"FOCUSANY_DATA_ROOT",
+		"https://focusany.com",
+	} {
+		if !strings.Contains(output, want) {
+			t.Fatalf("skill output should contain %q", want)
+		}
+	}
+	if !strings.HasSuffix(output, "\n") {
+		t.Fatal("skill output should end with a newline")
+	}
+
+	// Every command line in the guide must start with a real subcommand.
+	known := map[string]bool{}
+	for _, c := range rootCmd.Commands() {
+		known[c.Name()] = true
+	}
+	for _, line := range strings.Split(output, "\n") {
+		if !strings.HasPrefix(line, "focusany ") {
+			continue
+		}
+		name := strings.Fields(line)[1]
+		if !known[name] {
+			t.Fatalf("guide mentions unknown command %q", name)
+		}
+	}
+}
+
+func TestSkillRejectsArgs(t *testing.T) {
+	if err := skillCmd.Args(skillCmd, []string{"extra"}); err == nil {
+		t.Fatal("skill with unexpected args should error")
+	}
+	if err := skillCmd.Args(skillCmd, []string{}); err != nil {
+		t.Fatalf("skill with no args should be accepted: %v", err)
 	}
 }
